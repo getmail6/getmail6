@@ -20,7 +20,7 @@
 # getmail returns the number of messages retrieved, or -1 on error.
 #
 
-VERSION = '0.52'
+VERSION = '0.60'
 
 #
 # Imports
@@ -367,6 +367,17 @@ def parse_options (argv):
 			else:
 				opt_maildir.append (value)
 
+	for arg in args:
+		opt_account.append (arg [ : string.rfind (arg, '@')])
+		try:
+			opt_host.append (arg [string.rfind (arg, '@') + 1 : string.rindex (arg, ':')])
+		except:
+			opt_host.append (arg [string.rfind (arg, '@') + 1 : ])
+		try:
+			opt_port.append (int (arg [string.rindex (arg, ':') : ]))
+		except ValueError:
+			opt_port.append (DEF_PORT)
+	
 	# Check mandatory options
 	if not opt_host:
 		stderr ('Error:  no host(s) supplied\n')
