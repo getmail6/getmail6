@@ -225,7 +225,7 @@ def go(configs):
 
     if sum([i for (unused, i, unused) in summary]) and oplevel > 1:
         log.info('Summary:\n')
-        for (retriever, retrieved) in summary:
+        for (retriever, retrieved, unused) in summary:
             log.info('Retrieved %d messages from %s\n'
                 % (retrieved, retriever))
 

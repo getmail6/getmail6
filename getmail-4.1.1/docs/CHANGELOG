@@ -1,3 +1,9 @@
+Version 4.1.1
+27 August 2004
+
+  -getmail raised an exception after processing all accounts, while printing
+  a summary, if verbose was set to 2.  Fixed.  Thanks:  Matthias Andree.
+
 Version 4.1.0
 24 August 2004
 
