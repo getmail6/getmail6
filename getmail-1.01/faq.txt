@@ -1,0 +1,170 @@
+
+                                    getmail
+                                       
+Frequently Asked Questions about getmail
+
+27 January 2000
+
+   
+    Charles Cazabon <getmail @ discworld.dyndns.org>
+     _________________________________________________________________
+   
+                               Table of Contents
+                                       
+     * 1 Questions about getmail
+          + 1.1 What is getmail?
+          + 1.2 What are getmail's features?
+          + 1.3 Where can I get getmail?
+          + 1.4 How do I install and use getmail?
+          + 1.5 How can I specify default options?
+          + 1.6 Is it safe to run more than one getmail at once?
+          + 1.7 Does getmail need special (root) privileges to run?
+          + 1.8 Can getmail retrieve mail from an IMAP server?
+          + 1.9 Can getmail deliver by re-injecting messages via SMTP
+            like fetchmail?
+          + 1.10 How do I make getmail be less verbose?
+          + 1.11 How do I report a bug, or request a feature?
+          + 1.12 I have a question about getmail that isn't answered
+            here...
+     * 2 Other Questions
+          + 2.1 Do you have any other software available?
+     _________________________________________________________________
+   
+   @paragraphindent 5
+   
+   @ifinfo Copyright © 2000 Charles Cazabon
+   
+   These are a few of the questions I get asked about installing,
+   configuring, and using getmail.
+   
+                           1 Questions about getmail
+                                       
+1.1 What is getmail?
+
+   getmail is a POP3 mail retriever program, intended as a simple
+   replacement for fetchmail. It is Copyright (C) 2000 by its author,
+   Charles Cazabon, and licensed under the GNU General Public License
+   version 2.
+   
+1.2 What are getmail's features?
+
+     * getmail is free software, licensed under the GNU General Public
+       License version 2.
+     * getmail is written in Python, and is easy to modify or customize.
+     * Retrieves mail from POP3 servers.
+     * Features reliable `Maildir' delivery and `mbox' delivery.
+     * Does not do delivery by re-injecting through SMTP, and therefore
+       does not require an SMTP server.
+     * Has support for domain (multidrop) mailboxes, where delivery
+       destinations is controlled by the contents of the headers of
+       retrieved messages.
+     * Is easy to configure for repeated retrieval from the same mail
+       accounts.
+     * Can also be used in a one-off manner to retrieve from accounts
+       specified on the commandline.
+     * Can retrieve from an unlimited number of accounts and POP3
+       servers, with delivery destinations specified on a per-account
+       basis for normal mail accounts, or finer control for domain
+       (multidrop) mail accounts.
+       
+1.3 Where can I get getmail?
+
+   The getmail homepage is at
+   http://www.qcc.sk.ca/~charlesc/software/getmail/
+   
+1.4 How do I install and use getmail?
+
+   It's easy:
+    1. Make sure that the Python interpreter is installed. See
+       www.python.org for details.
+    2. Download getmail from its homepage.
+    3. Extract the contents of the tar file (e.g. tar xzf
+       getmail-version.tar.gz).
+    4. Copy `getmail.py' to somewhere in your path and make it executable
+       (e.g. chmod 755 getmail.py).
+    5. Copy the startup helper script `getmail' to the same directory,
+       making it executable as well.
+    6. Create a `.getmail' directory in your home directory.
+    7. Create a `.getmailrc' file in that directory. See the included
+       files `example.getmailrc' and `USAGE' for its syntax.
+    8. Run getmail.
+       
+1.5 How can I specify default options?
+
+   Use the `GETMAILOPTS' environment variable. Specify the options you
+   want to be defaults just like you would on the commandline (i.e.
+   separated by whitespace).
+   
+   For example, if you use the bash shell, you can put the following in
+   your `.bashrc' to make getmail default to verbose operation and
+   deleting retrieved mail from the POP3 server:
+export GETMAILOPTS="--verbose --delete"
+
+1.6 Is it safe to run more than one getmail at once?
+
+   Short answer: yes, mostly.
+   
+   Long answer: there is one case where multiple getmail instances can
+   collide and cause problems. If two or more instances are both
+   retrieving mail from the same POP3 account on the same server, they
+   can collide when writing to the `oldmail' file. However, as long as
+   each instance of getmail has a different set of accounts to retrieve
+   from, all is fine.
+   
+1.7 Does getmail need special (root) privileges to run?
+
+   No. getmail only has to have write access to the destinations
+   (`Maildir's or `mbox' files) that it tries to deliver to. This can be
+   done with group-writable permissions rather than running getmail as
+   root.
+   
+1.8 Can getmail retrieve mail from an IMAP server?
+
+   No. Maybe in the future.
+   
+1.9 Can getmail deliver by re-injecting messages via SMTP like fetchmail?
+
+   No. Maybe in the future.
+   
+   But why do you want getmail to do this? If it's to take advantage of
+   qmail-style extension addresses for delivery into different
+   `Maildir's, just use a domain-mailbox setup, with multiple
+   destinations:
+[My mailbox]
+type=domainbox
+account = popusername
+host = mailhost.isp.net
+password = poppass
+destination = /home/username/Maildir # default Maildir
+popusername-extension1@isp.net = /home/username/Mail/list1
+popusername-extension2@isp.net = /home/username/Mail/list2
+
+1.10 How do I make getmail be less verbose?
+
+   Well, you could avoid supplying the `--verbose' or `-v' options. If
+   you've specified one of these in the environment variable
+   `GETMAILOPTS' and want to override it on the commandline, use the
+   `--quiet' or `-q' option.
+   
+1.11 How do I report a bug, or request a feature?
+
+   To report a bug, make a feature request, or get support with getmail,
+   please send email to me at <getmail @ discworld.dyndns.org>.
+   
+1.12 I have a question about getmail that isn't answered here...
+
+   Have you read the documentation? Have you looked at the
+   `example.getmailrc' file? Then write to me, so you can get help, and
+   so I can include your question in this FAQ. Additional questions about
+   getmail should be sent to me at <getmail @ discworld.dyndns.org>.
+   
+                               2 Other Questions
+                                       
+2.1 Do you have any other software available?
+
+   My other software (all GPL-licensed) is available at
+   http://www.qcc.sk.ca/~charlesc/software/.
+     _________________________________________________________________
+   
+   This document was generated on 27 January 2000 using the texi2html
+   translator version 1.51a.

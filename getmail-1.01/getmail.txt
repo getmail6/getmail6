@@ -3,7 +3,7 @@
                                        
 POP3 mail retriever with reliable Maildir delivery
 
-22 January 2000
+27 January 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -18,6 +18,7 @@ POP3 mail retriever with reliable Maildir delivery
           + 3.2 Running getmail
                o 3.2.1 Retrieving mail on a one-time basis
                o 3.2.2 Retrieving mail on a regular basis
+               o 3.2.3 Commandline Options for getmail
      * 4 Support for Domain Mailboxes
      * 5 Current Version
      * 6 Reporting bugs, feature requests, and support requests
@@ -144,6 +145,10 @@ readall=value
        login in your `.bash_profile' or `.bashrc' file if you use the
        bash shell.
        
+  3.2.3 Commandline Options for getmail
+  
+   To be added at a later date.
+   
                         4 Support for Domain Mailboxes
                                        
    I have added experimental support for domain (multidrop) mailboxes. A
@@ -213,5 +218,5 @@ info@smallcompany.com=/home/paula/inbox
    please send email to me at <getmail @ discworld.dyndns.org>.
      _________________________________________________________________
    
-   This document was generated on 22 January 2000 using the texi2html
+   This document was generated on 27 January 2000 using the texi2html
    translator version 1.51a.

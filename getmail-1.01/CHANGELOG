@@ -1,12 +1,16 @@
 Changes for getmail:
 ====================
 
+v.1.01 27 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+    -Added the --quiet/-q option to override the --verbose/-v option when
+    supplied GETMAILOPTS.
+
 v.1.00 22 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
     -Wrote some texinfo documentation to replace the mishmash that existed
     previously.
     -Took out the last of the (commented-out) debugging output.  I figure
     getmail is now production quality code.
-	-Included the getmail startup accelerator script.
+    -Included the getmail startup accelerator script.
     -Whee, hit verison 1.00.  Let me know if it needs work.
 
 v.0.99 10 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>

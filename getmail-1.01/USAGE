@@ -117,6 +117,9 @@ Options that getmail currently recognizes are:
   -v or --verbose            output more information.
     Without this, getmail will be fairly quiet.
 
+  -q or --quiet              output less information.
+    To override the --verbose/-v options.
+    
   -h or --help               basic usage information.
 
   -i or --ignoreconfig       Don't read the default .getmailrc file.
