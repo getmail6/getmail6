@@ -1,6 +1,29 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.0
+15 March 2002
+
+  -remove obsolete stuff from the getmail wrapper script.  Thanks to
+  Edmund Evans for noticing this.
+  -change to retrieve all UIDs in one command, instead of individually.
+  getmail should run significantly faster if you tend to have a POP3 mailbox
+  with lots (dozens or hundreds) of messages in it.  Thanks to Edmund Evans for 
+  the feature request and testing.
+  -change oldmail file naming convention to account for slashes in the
+  POP3 username.  Thanks to marct for the bug report.
+  -significant rewrite and code cleanup as detailed below.  getmail.py is
+  now about 8KB (12%) smaller, and is about 150 lines (8%) shorter, but
+  still does everything it did before.
+  -rewrite the logging functionality.  If you get "weird" output, please
+  send a copy & paste of the output to the getmail mailing list so I can
+  correct this.
+  -rewrite the message_log functionality.  For those few people using the
+  message_log feature, the resulting log is completely different, but much
+  more succinct.
+  -rewrite the internal configuration parsing and handling.
+  -rewrite internal exception handling.
+
 Version 2.2.4
 6 March 2002
 

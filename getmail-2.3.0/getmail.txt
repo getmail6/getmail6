@@ -80,7 +80,9 @@ Changes From Version 1.x to Version 2
      * getmailrc file format is simpler and yet more flexible.
    back to top
 
-getmail Mailing List
+getmail Mailing Lists
+
+  Discussion / Support List
 
    A mailing list has been set up to discuss getmail. Send a blank email to
    <getmail-subscribe @ discworld.dnsalias.org> to subscribe to the list.
@@ -92,3 +94,14 @@ getmail Mailing List
    Note: you are expected to have read the documentation and Frequently Asked
    Questions, and browsed/searched the mailing list archives, before posting
    a question to the mailing list.
+
+  Announcements List
+
+   If you only want to be notified of new releases of getmail, an
+   announce-only list has been set up. Send a blank email to
+   <getmail-announce-subscribe @ discworld.dnsalias.org> to subscribe to the
+   list.
+   Similarly, to unsubscribe, send mail from the same address you subscribed
+   with to <getmail-announce-unsubscribe @ discworld.dnsalias.org>.
+   All announcements will be sent to both lists, so there is no need to
+   subscribe to the announcements list if you are on the discussion list.
