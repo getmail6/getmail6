@@ -68,6 +68,8 @@ class POP3SSLinitMixIn(object):
     '''
     def _connect(self):
         self.log.trace()
+        if not hasattr(socket, 'ssl'):
+            raise getmailConfigurationError('SSL not supported by this installation of Python')
         if self.conf['keyfile'] is not None and not os.path.isfile(self.conf['keyfile']):
             raise getmailConfigurationError('optional keyfile must be path to a valid file')
         if self.conf['certfile'] is not None and not os.path.isfile(self.conf['certfile']):
@@ -114,6 +116,8 @@ class IMAPSSLinitMixIn(object):
     '''
     def _connect(self):
         self.log.trace()
+        if not hasattr(socket, 'ssl'):
+            raise getmailConfigurationError('SSL not supported by this installation of Python')
         if self.conf['keyfile'] is not None and not os.path.isfile(self.conf['keyfile']):
             raise getmailConfigurationError('optional keyfile must be path to a valid file')
         if self.conf['certfile'] is not None and not os.path.isfile(self.conf['certfile']):

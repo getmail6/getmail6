@@ -81,6 +81,11 @@ class FilterSkeleton(ConfigurableBase):
         if hasattr(msg, 'recipient'):
             newmsg.recipient = msg.recipient
 
+        # Copy other information from original message
+        newmsg.received_from = msg.received_from
+        newmsg.received_with = msg.received_with
+        newmsg.received_by = msg.received_by
+
         return newmsg
 
 #######################################

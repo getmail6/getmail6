@@ -1,3 +1,16 @@
+Version 4.0.0a23
+1 July 2004
+
+  -changes to MDA_qmaillocal:  add "group" parameter, and make "user"
+  parameter also have getmail change UID before invoking qmail-local.
+  -change two instances of socket.gethostname() to socket.getfqdn()
+  -change localparttranslate to localpart_translate
+  -add explicit checks for socket.ssl(), which is optional.  Raise
+  getmailConfigurationError if they're not present and the user tries
+  to use it.  Thanks: Thomas Schwinge.
+  -fix missing received_by in destinations.  Thanks: Frankye and Andrew
+  Raines.
+
 Version 4.0.0a22
 30 June 2004
 

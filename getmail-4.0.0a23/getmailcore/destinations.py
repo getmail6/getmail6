@@ -77,6 +77,7 @@ class DeliverySkeleton(ConfigurableBase):
         self.log.trace()
         msg.received_from = self.received_from
         msg.received_with = self.received_with
+        msg.received_by = self.received_by
         return self._deliver_message(msg, delivered_to, received)
 
 #######################################
@@ -97,7 +98,7 @@ class Maildir(DeliverySkeleton):
 
     def initialize(self):
         self.log.trace()
-        self.hostname = socket.gethostname()
+        self.hostname = socket.getfqdn()
         self.dcount = 0
         self.conf['path'] = os.path.expanduser(self.conf['path'])
         if not self.conf['path'].endswith('/'):
@@ -231,19 +232,23 @@ class MDA_qmaillocal(DeliverySkeleton):
       qmaillocal - complete path to the qmail-local binary.  Defaults to "/var/qmail/bin/qmail-local".
 
       user - username supplied to qmail-local as the "user" argument.  Defaults to the login name of
-             the current effective user ID.
+             the current effective user ID.  If supplied, getmail will also change the effective
+             UID to that of the user before running qmail-local.
 
+      group - If supplied, getmail will change the effective GID to that of the named
+             group before running qmail-local.
+      
       homedir - complete path to the directory supplied to qmail-local as the "homedir" argument.
                 Defaults to the home directory of the current effective user ID.
 
-      localdomain - supplied to qmail-local as the "domain" argument.  Defaults to socket.gethostname().
+      localdomain - supplied to qmail-local as the "domain" argument.  Defaults to socket.getfqdn().
 
       defaultdelivery - supplied to qmail-local as the "defaultdelivery" argument.  Defaults to "./Maildir/".
 
       conf-break - supplied to qmail-local as the "dash" argument and used to calculate ext
                    from local.  Defaults to "-".
 
-      localparttranslate - a string representing a Python 2-tuple of strings (i.e. "('foo', 'bar')").
+      localpart_translate - a string representing a Python 2-tuple of strings (i.e. "('foo', 'bar')").
                            If supplied, the retrieved message recipient address will have any leading instance of
                            "foo" replaced with "bar" before being broken into "local" and "ext" for qmail-local
                            (according to the values of "conf-break" and "user").  This can be used to add or remove a prefix of
@@ -262,7 +267,7 @@ class MDA_qmaillocal(DeliverySkeleton):
     For example, if getmail is run as user "exampledotorg", which has virtual domain
     "example.org" delegated to it with a virtualdomains entry of "example.org:exampledotorg",
     and messages are retrieved with envelope recipients like "trimtext-localpart@example.org",
-    the messages could be properly passed to qmail-local with a localparttranslate value of
+    the messages could be properly passed to qmail-local with a localpart_translate value of
     "('trimtext-', '')" (and perhaps a defaultdelivery value of "./Maildirs/postmaster/" or
     similar).
     '''
@@ -270,11 +275,12 @@ class MDA_qmaillocal(DeliverySkeleton):
     _confitems = (
         {'name' : 'qmaillocal', 'type' : str, 'default' : '/var/qmail/bin/qmail-local'},
         {'name' : 'user', 'type' : str, 'default' : pwd.getpwuid(os.geteuid()).pw_name},
+        {'name' : 'group', 'type' : str, 'default' : None},
         {'name' : 'homedir', 'type' : str, 'default' : pwd.getpwuid(os.geteuid()).pw_dir},
-        {'name' : 'localdomain', 'type' : str, 'default' : socket.gethostname()},
+        {'name' : 'localdomain', 'type' : str, 'default' : socket.getfqdn()},
         {'name' : 'defaultdelivery', 'type' : str, 'default' : './Maildir/'},
         {'name' : 'conf-break', 'type' : str, 'default' : '-'},
-        {'name' : 'localparttranslate', 'type' : tuple, 'default' : ('', '')},
+        {'name' : 'localpart_translate', 'type' : tuple, 'default' : ('', '')},
         {'name' : 'strip_delivered_to', 'type' : bool, 'default' : False},
         {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
     )
@@ -312,6 +318,7 @@ class MDA_qmaillocal(DeliverySkeleton):
             # Set stdout and stderr to write to files
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
+            change_uidgid(self.log, self.conf['user'], self.conf['group'])
             try:
                 os.execl(*args)
             except OSError, o:
@@ -332,7 +339,7 @@ class MDA_qmaillocal(DeliverySkeleton):
             raise getmailConfigurationError('MDA_qmaillocal destination requires a message source that preserves the message envelope (%s)' % o)
 
         self.log.debug('recipient: extracted local-part "%s"\n' % msginfo['local'])
-        xlate_from, xlate_to = self.conf['localparttranslate']
+        xlate_from, xlate_to = self.conf['localpart_translate']
         if xlate_from or xlate_to:
             if msginfo['local'].startswith(xlate_from):
                 self.log.debug('recipient: translating "%s" to "%s"\n' % (xlate_from, xlate_to))
@@ -621,7 +628,7 @@ class MultiSorter(DeliverySkeleton):
 
     def initialize(self):
         self.log.trace()
-        self.hostname = socket.gethostname()
+        self.hostname = socket.getfqdn()
         self.default = self._get_destination(self.conf['default'])
         self.targets = []
         try:
