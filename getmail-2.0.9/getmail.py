@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.8'
+__version__ = '2.0.9'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -44,8 +44,20 @@ except ImportError:
 import ConfParser
 
 # Main Python library
-import sys, os, string, re, time, socket, poplib, fcntl, rfc822, cStringIO, \
-	stat, traceback, getopt, getpass
+import sys
+import os
+import string
+import re
+import time
+import socket
+import poplib
+import fcntl
+import rfc822
+import cStringIO
+import stat
+import traceback
+import getopt
+import getpass
 from types import *
 
 
@@ -169,14 +181,13 @@ options = defs.copy ()						# Start as a copy of defaults
 
 #######################################
 def log (level=INFO, msg='', opts={'verbose' : 1}):
-	if not msg or level < INFO:  return
-	if opts['verbose'] == 0 and level < ERROR:  return
-	if level >= ERROR:
-		file = sys.stderr
-	else:
-		file = sys.stdout
-	file.write (msg)
-	file.flush ()
+	if msg and ((level >= INFO and opts['verbose'] > 0) or (opts['verbose'] > 1)):
+		if level >= ERROR:
+			file = sys.stderr
+		else:
+			file = sys.stdout
+		file.write (msg)
+		file.flush ()
 
 #######################################
 def msglog (msg='', opts=None, close=0):
@@ -273,25 +284,22 @@ class getmail:
 
 		timeoutsocket.setDefaultSocketTimeout (self.opts['timeout'])
 
-		if not users.has_key (None):
+		try:
+			# Get default delivery target (postmaster) -- first in list
+			self.default_delivery = os.path.expanduser (users[0][1])
+			del users[0]
+		except Exception, txt:
 			raise getmailConfigException, \
 				'no default delivery for %(username)s@%(server)s:%(port)i' \
 				% self.account
 
-		# Get default delivery target
-		self.default_delivery = os.path.expanduser (users[None])
-		# Get delivery targets
-		user_keys = users.keys ()
-		# Remove default delivery from list
-		del user_keys[user_keys.index (None)]
-
 		# Construct list of (re_obj, delivery_target) pairs
 		self.users = []
-		for key in user_keys:
-			self.users.append ( {'re' : re.compile (key),
-				'target' : os.path.expanduser (users[key])} )
+		for (re_s, target) in users:
+			self.users.append ( {'re' : re.compile (re_s),
+				'target' : os.path.expanduser (target)} )
 			self.logfunc (TRACE, '__init__():  User #%i:  re="%s", target="%s"\n'
-				% (len (self.users), key, self.users[-1]['target']), self.opts)
+				% (len (self.users), re_s, self.users[-1]['target']), self.opts)
 
 		self.oldmail_filename = os.path.join (
 			os.path.expanduser (self.opts['getmaildir']),
@@ -559,8 +567,8 @@ class getmail:
 								self.opts)
 						else:
 							self.logfunc (TRACE, 'process_msg():  getaddrlist()'
-								+ ' returned None as address, skipping...',
-								self.opts)
+								+ ' for header "%s" returned None' % header
+								+ ' as address, skipping...', self.opts)
 
 		# Force lowercase
 		recipients = map (string.lower, recipients)
@@ -590,6 +598,9 @@ class getmail:
 		# recipient address matches a given user's re, deliver at most one copy 
 		# to the target associated with that re.
 		for user in self.users:
+			self.logfunc (TRACE, 'do_deliveries():  checking user re "%s"'
+				% user['re'].pattern + ', target "%s"\n' % user['target'],
+				self.opts)
 			for recipient in recipients:
 				if user['re'].match (recipient):
 					self.logfunc (TRACE,
@@ -601,18 +612,22 @@ class getmail:
 						self.logfunc (TRACE,
 							'do_deliveries():  already delivered to target "%(target)s", skipping...\n'
 							% user, self.opts)
-						continue
-					# Remember that we've delivered this message to this target
-					delivered[user['target']] = 1
-					
-					dt = self.deliver_msg (user['target'],
-						self.message_add_info (msg, recipient), env_sender)
-					msglog ('delivered to %s for <%s>' % (dt, recipient),
-						self.opts)
+					else:
+						# Remember that we've delivered this message to this target
+						delivered[user['target']] = 1
+						
+						dt = self.deliver_msg (user['target'],
+							self.message_add_info (msg, recipient), env_sender)
+						msglog ('delivered to %s for <%s>' % (dt, recipient),
+							self.opts)
+						self.logfunc (TRACE,
+							'do_deliveries():  delivered to "%(target)s"\n'
+							% user, self.opts)
+				else:
 					self.logfunc (TRACE,
-						'do_deliveries():  delivered to "%(target)s"\n'
-						% user, self.opts)
-		
+						'do_deliveries():  user re did not match recipient "%s"\n'
+						% recipient, self.opts)
+							
 		if not len (delivered):
 			# Made no deliveries of this message; send it to the default delivery
 			# target.
@@ -1034,7 +1049,7 @@ def read_configfile (filename, overrides):
 
 		# Remainder of sections are accounts to retrieve mail from.					
 		for section in sections:
-			account, loptions, locals = {}, {}, {}
+			account, loptions, locals = {}, {}, []
 
 			# Read required parameters
 			for item in ('server', 'port', 'username'):
@@ -1076,7 +1091,7 @@ def read_configfile (filename, overrides):
 
 			# Read local user regex strings and delivery targets
 			try:
-				locals[None] = conf.get (section, 'postmaster')
+				locals.append ( (None, conf.get (section, 'postmaster')) )
 			except ConfParser.NoOptionError, txt:
 				raise getmailConfigException, \
 					'section [%s] missing required option (postmaster)' \
@@ -1095,9 +1110,9 @@ def read_configfile (filename, overrides):
 					raise getmailConfigException, \
 						'section [%s] syntax error in local (%s)' \
 						% (section, _local)
-				locals[recip_re] = target
+				locals.append ( (recip_re, target) )
 				
-			configs.append ( (account.copy(), loptions.copy(), locals.copy()) )
+			configs.append ( (account.copy(), loptions.copy(), locals) )
 
 	except ConfParser.ConfParserException, txt:
 		log (FATAL, '\nError:  error in getmailrc file (%s)\n' % txt)
@@ -1110,7 +1125,8 @@ def parse_options (args):
 	o = {}
 	shortopts = 'adg:hlm:nqr:t:v'
 	longopts = ['all', 'delete', 'dont-delete', 'dump', 'getmaildir=', 'help',
-				'message-log=', 'new', 'quiet', 'rcfile=', 'timeout=', 'verbose']
+				'message-log=', 'new', 'quiet', 'rcfile=', 'timeout=',
+				'trace', 'verbose']
 	try:
 		opts, args = getopt.getopt (args, shortopts, longopts)
 
@@ -1137,6 +1153,8 @@ def parse_options (args):
 			o['readall'] = 0
 		elif option == '--verbose' or option == '-v':
 			o['verbose'] = 1
+		elif option == '--trace':
+			o['verbose'] = 2
 		elif option == '--quiet' or option == '-q':
 			o['verbose'] = 0
 		elif option == '--message-log' or option == '-m':
@@ -1192,10 +1210,9 @@ def dump_config (cmdopts, mail_configs):
 			if key not in intoptions + stringoptions:  continue
 			print '        %s:  %s' % (key, loptions[key])
 		print '      Local Users/Deliveries:'
-		keys = locals.keys ()
-		keys.sort ()
-		for key in keys:
-			print '        %s:  %s' % (key, locals[key])
+		locals.sort ()
+		for (re_s, target) in locals:
+			print '        %s:  %s' % (re_s or 'postmaster', target)
 		print
 
 #######################################
@@ -1255,11 +1272,17 @@ def main ():
 			mail = getmail (account, loptions, locals)
 			mail.go ()
 			log (INFO, '\n')
-			del mail
+			try:
+				del mail
+			except:
+				pass
 		except getmailNetworkError, txt:
 			# Network not up (PPP, etc)
 			log (INFO, 'Network error, skipping...\n')
-			del mail
+			try:
+				del mail
+			except:
+				pass
 		except:
 			log (FATAL,
 				'\ngetmail bug:  please include the following information in any bug report:\n')

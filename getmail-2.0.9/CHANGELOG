@@ -1,5 +1,18 @@
 getmail changes since version 1.11:
 
+Version 2.0.9
+23 January 2001
+
+  -added a '--trace' option.  This will spit out copious debugging information,
+  very handy for diagnosing problems via email.  Getting this output before
+  involved commenting out one line in the source.
+  -changes to the way the getmail class takes local user directives as
+  arguments.  The previous method prevented you specifying the same re pattern
+  more than once.  Thanks to Phil Smith for the initial question/bug report
+  and his patience while I tracked this one down.
+  -two small changes to handle timeouts and other exceptions.  Thanks to
+  Stephen Morrison and Dave Seidel for bug reports on this.
+  
 Version 2.0.8
 14 January 2001
 

@@ -76,8 +76,8 @@ getmail FAQ
      * The path you specified doesn't exist. getmail won't create an mbox
        file. `touch` the file first, to create a 0-byte file.
      * The file does not appear to be an mbox file. It has to either
-       start with the five character "From " or be a zero-length file.
-       The mbox specification demands this.
+       start with the five character string "From " or be a zero-length
+       file. The mboxrd specification demands this.
        
   How do I make getmail deliver messages by re-injecting with SMTP?
   
