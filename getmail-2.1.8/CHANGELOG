@@ -1,6 +1,12 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.1.8
+21 November 2001
+
+  -Fix dumb error with an out-of-place debugging message.  It caused
+  Python exceptions when no matching recipient was found.
+
 Version 2.1.7
 20 November 2001
 
@@ -19,7 +25,7 @@ Version 2.1.6
   there is new mail in the mbox.  Thanks to Roman Neuhauser for the report.
   -new token-based version 3.0 of ConfParser replaces the previous regex-based
   version.  Most users will see no difference, but users with large
-  getmailrc file (hundreds or thousands of lines) will see a significant
+  getmailrc files (hundreds or thousands of lines) will see a significant
   speed improvement.  Thanks to Clemens Hermann for the initial report of
   slow processing with large getmailrc files.
 

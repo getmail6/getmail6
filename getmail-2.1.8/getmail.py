@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.1.7'
+__version__ = '2.1.8'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -762,10 +762,10 @@ class getmail:
                     % user, self.opts)
                 delivered = delivered + 1
                         
-            else:
-                self.logfunc (TRACE,
-                    'do_deliveries():  user re did not match recipient "%s"\n'
-                    % recipient, self.opts)
+            #else:
+            #    self.logfunc (TRACE,
+            #        'do_deliveries():  user re did not match recipient "%s"\n'
+            #        % recipient, self.opts)
                             
         return delivered
 
