@@ -65,10 +65,8 @@ def unlock_file (file):
     fcntl.flock (file.fileno (), fcntl.LOCK_UN)
 
 #######################################
-def deliver_mbox (mbox, msg, env_sender):
+def deliver_mbox (mbox, msg, env_sender, quiet=0):
     'Deliver a mail message into an mbox file.'
-    # Construct mboxrd-style 'From_' line
-    fromline = 'From %s %s\n' % (env_sender, mbox_timestamp ())
     try:
         # When orig_length is None, we haven't opened the file yet
         orig_length = None
@@ -87,7 +85,9 @@ def deliver_mbox (mbox, msg, env_sender):
             unlock_file (f)
             f.close ()
             raise DeliveryException, 'destination "%s" is not an mbox file' % mbox
-        f.write (fromline)
+        # Add mboxrd-style 'From_' line if not already present
+        if msg[:5] != 'From ':
+            f.write ('From %s %s\n' % (env_sender, mbox_timestamp ()))
         # Replace lines beginning with "From ", ">From ", ">>From ", ...
         # with ">From ", ">>From ", ">>>From ", ...
         msg = res['escapefrom'].sub ('>\g<gts>From ', msg)
@@ -110,7 +110,8 @@ def deliver_mbox (mbox, msg, env_sender):
             # Not root or owner; readers will not be able to reliably
             # detect new mail.  But you shouldn't be delivering to
             # other peoples' mboxes unless you're root, anyways.
-            sys.stderr.write ('Warning:  failed to update atime/mtime of mbox file (%s)...\n' % txt)
+            if not quiet:
+                sys.stderr.write ('Warning:  failed to update atime/mtime of mbox file (%s)...\n' % txt)
 
     except IOError, txt:
         try:

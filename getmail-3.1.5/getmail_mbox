@@ -27,13 +27,20 @@ sys.path.insert (1, '/usr/lib/getmail')
 import getmail_mbox
 
 sender = os.environ.get ('SENDER', 'unknown')
-try:
-    mbox = sys.argv[1]
-except IndexError:
+mbox = None
+quiet = 0
+for arg in sys.argv[1:]:
+	if arg in ('-q', '--quiet'):
+		quiet = 1
+	elif not mbox:
+		mbox = arg
+	else:
+	    sys.stderr.write ('Error: mbox specified twice (was %s, now %s)\n' % (mbox, arg))
+	    raise SystemExit, 1
+if not mbox:		
     sys.stderr.write ('Error: no mbox specified\n')
-    raise SystemExit, 1
 try:
-    getmail_mbox.deliver_mbox (mbox, sys.stdin.read (), sender)
+    getmail_mbox.deliver_mbox (mbox, sys.stdin.read (), sender, quiet)
 except getmail_mbox.DeliveryException, error:
     sys.stderr.write ('Error delivering to mbox "%s" (%s)\n' % (mbox, error))
     raise SystemExit, 1

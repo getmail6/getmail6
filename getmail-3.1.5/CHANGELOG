@@ -1,6 +1,13 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.1.5
+28 May 2003
+
+  -Fredrik Steen reported that getmail was adding a duplicate From_ line
+  when using getmail_mbox to deliver to mbox files.  Fixed.
+  -Added -q and --quiet flags to getmail_mbox to suppress warning message.
+
 Version 3.1.4
 27 May 2003
 
