@@ -20,7 +20,7 @@
 # getmail returns the number of messages retrieved, or -1 on error.
 #
 
-VERSION = '0.60'
+VERSION = '0.61'
 
 #
 # Imports
@@ -264,12 +264,11 @@ def usage ():
 	if DEF_PASSWORD_STDIN:	def_stdin =		'(default)'
 	
 	stderr ('\n'
-	'Usage:  %s <--host value> <--name value> <--pass value | --stdin> \\\n'
-	'           <--maildir value> [...] [options]\n\n'
+	'Usage:  %s [options] [user@mailhost[:port],maildir[,password]] [...]\n'
 	'Options:\n'
-	'  -h or --host <hostname>    POP3 hostname                 (required)\n'
-	'  -n or --name <account>     POP3 account name             (required)\n'
-	'  -m or --maildir <maildir>  maildir to deliver to         (required)\n'
+	'  -h or --host <hostname>    POP3 hostname                 \n'
+	'  -n or --name <account>     POP3 account name             \n'
+	'  -m or --maildir <maildir>  maildir to deliver to         \n'
 	'  -P or --port <portnum>     POP3 port                     (default: %i)\n'
 	'  -p or --pass <password>    POP3 password\n'
 	'  -s or --stdin              read POP3 password from stdin %s\n'
@@ -368,13 +367,21 @@ def parse_options (argv):
 				opt_maildir.append (value)
 
 	for arg in args:
-		opt_account.append (arg [ : string.rfind (arg, '@')])
 		try:
-			opt_host.append (arg [string.rfind (arg, '@') + 1 : string.rindex (arg, ':')])
-		except:
-			opt_host.append (arg [string.rfind (arg, '@') + 1 : ])
+			userhost, mdir, pw = string.split (arg, ',')
+			opt_password.append (pw)
+		except ValueError:
+			userhost, mdir = string.split (arg, ',')
+
+		opt_maildir.append (mdir)
+		opt_account.append (userhost [ : string.rfind (userhost, '@')])
+
 		try:
-			opt_port.append (int (arg [string.rindex (arg, ':') : ]))
+			opt_host.append (userhost [string.rfind (userhost, '@') + 1 : string.rindex (userhost, ':')])
+		except ValueError:
+			opt_host.append (userhost [string.rfind (userhost, '@') + 1 : ])
+		try:
+			opt_port.append (int (userhost [string.rindex (userhost, ':') : ]))
 		except ValueError:
 			opt_port.append (DEF_PORT)
 	
