@@ -3,7 +3,7 @@
                                        
 POP3 mail retriever with reliable Maildir delivery
 
-21 March 2000
+30 March 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -118,7 +118,7 @@ account=username
 host=popmailhost
 port=port
 password=password
-destination=destinationpath
+destination=destinationpath[:username]
 delete=value
 readall=value
        The options can be specified in any order. Blank lines are
@@ -135,8 +135,14 @@ readall=value
           + `port' is optional and defaults to the standard POP3 port
             (110). @item{password} is optional. If not supplied, getmail
             will prompt for passwords.
-          + `destination' is the path to the destination `Maildir' or
-            `mbox' file.
+          + `destinationpath[:username]' is the path to the destination
+            `Maildir' or `mbox' file, optionally followed by a colon and
+            a system username (from `/etc/passwd' on the system you are
+            running getmail on). If `:username' is present, files created
+            in `Maildir's will have their ownership changed to the UID
+            and default GID of that system user. This is useful, for
+            example, if you are running getmail as `root' but delivering
+            to another user's `Maildir'.
           + `delete' is optional, and controls whether getmail deletes
             the mail from the POP3 server after retrieving it. Valid
             values include `yes' and `no'. `delete' defaults to `no'.
@@ -227,12 +233,18 @@ port=8110
      * Destination Maildir or mbox
        The identifier `destination', followed by `=' and a complete path
        to a `Maildir' or `mbox' file to which messages will be delivered
-       for the associated account.
+       for the associated account, optionally followed by `:' and a
+       system username from `/etc/passwd'. If `:username' is present,
+       files created in `Maildir's will have their ownership changed to
+       the UID and default GID of that system user. This is useful, for
+       example, if you are running getmail as `root' but delivering to
+       another user's `Maildir'.
        If the POP3 mailbox is a domain mailbox, this specifies the
        default delivery destination which will be used when none of the
        supplied user addresses are found in a retrieved email.
        e.g.
 destination=/home/username/Maildir/
+destination=/home/username/Maildir/:username
 destination=/users/a-f/username/mboxfile
      * POP3 Account Password
        The identifier `password', followed by `=' and the actual account
@@ -266,7 +278,7 @@ readall=yes
        username. If the username is provided, message files created in a
        Maildir for this recipient will have their ownership (UID and GID)
        changed to match the UID and GID associated with that system
-       account. Note that this only works if getmail runs with root
+       account. Note that this only works if getmail runs with `root'
        privileges. Typically you would set the username to be the same as
        the owner of the Maildir getmail is delivering to.
        e.g.
@@ -320,7 +332,7 @@ type = domainbox               # whitespace is OK around the `='
   account=pop3username         # so is leading and trailing whitespace
 host=pophost.domain
 password = "  pop_password with leading whitespace"
-destination=/path/to/default_delivery_destination
+destination=/path/to/default_delivery_destination[:username]
 delete=(yes|no)
 readall=(yes|no)
 email@address=/path/to/destination[:username]
@@ -347,5 +359,5 @@ info@smallcompany.com=/home/paula/inbox[:paula]
    please send email to me at <getmail @ discworld.dyndns.org>.
      _________________________________________________________________
    
-   This document was generated on 21 March 2000 using the texi2html
+   This document was generated on 30 March 2000 using the texi2html
    translator version 1.51a.

@@ -3,7 +3,7 @@
                                        
 Frequently Asked Questions about getmail
 
-21 March 2000
+30 March 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -19,7 +19,7 @@ Frequently Asked Questions about getmail
           + 1.5 How can I specify default options?
           + 1.6 What does this error message mean?
           + 1.7 Is it safe to run more than one getmail at once?
-          + 1.8 Does getmail need special (root) privileges to run?
+          + 1.8 Does getmail need special (`root') privileges to run?
           + 1.9 Can getmail retrieve mail from an IMAP server?
           + 1.10 Can getmail deliver by re-injecting messages via SMTP
             like fetchmail?
@@ -119,6 +119,35 @@ export GETMAILOPTS="--verbose --delete"
        puts in the standard `mbox' delimiter line. This is not a fatal
        error; it just means the system you are retrieving mail from is
        old or not standards-compliant.
+     * `Error: "[path]" does not exist'
+       A non-existent `Maildir' or {mbox} file was specified for a
+       destination.
+     * `Error: "[path]" is not a Maildir or mbox'
+       A specified destination existed, but was not a valid `Maildir' or
+       `mbox' file.
+     * `Error: failure writing file "[path]"'
+       An I/O error occurred, because of a full disc, permissions issues,
+       or other reason. This message should be followed by additional
+       details to help you figure out what went wrong.
+     * `Failed changing owner of message to [number]:[number] (user
+       "[username]")'
+       An ownership change was specified in a `Maildir' destination, but
+       getmail failed while trying to change the ownership of the file
+       created in the Maildir. Most likely you are not running getmail as
+       `root', and therefore getmail doesn't have permission to do this.
+     * `Error encountered during delivery Message saved to temporary file
+       "[path]"'
+       getmail failed to deliver to the specified `Maildir' or `mbox'
+       file destination, and saved the message in a temporary file so
+       that it wouldn't be lost. This is almost certainly a configuration
+       problem, with an invalid destination specified, or a
+       system-dependent issue such as disc full.
+     * `Error: failure parsing Delivered-To: header'
+       This shouldn't happen. Email me if you see this message.
+     * `Error: file "[path]" exists'
+       This shouldn't happen. Email me if you see this message.
+     * `Error: failure moving file "[path]" to "[path]"'
+       This shouldn't happen. Email me if you see this message.
        
 1.7 Is it safe to run more than one getmail at once?
 
@@ -131,12 +160,12 @@ export GETMAILOPTS="--verbose --delete"
    each instance of getmail has a different set of accounts to retrieve
    from, all is fine.
    
-1.8 Does getmail need special (root) privileges to run?
+1.8 Does getmail need special (`root') privileges to run?
 
    No. getmail only has to have write access to the destinations
    (`Maildir's or `mbox' files) that it tries to deliver to. This can be
    done with group-writable permissions rather than running getmail as
-   root.
+   `root'.
    
 1.9 Can getmail retrieve mail from an IMAP server?
 
@@ -161,10 +190,10 @@ popusername-extension2@isp.net = /home/username/Mail/list2
 
 1.11 Why can't I read messages delivered to a Maildir from a domain mailbox?
 
-   If you're running getmail as root to deliver to a Maildir you wouldn't
-   normally have write access to, then getmail is creating the message
-   files in the Maildir with ownership `root:root'. The user who owns
-   that Maildir will probably not be able to read those files.
+   If you're running getmail as `root' to deliver to a Maildir you
+   wouldn't normally have write access to, then getmail is creating the
+   message files in the Maildir with ownership `root:root'. The user who
+   owns that Maildir will probably not be able to read those files.
    
    To fix this, add `:username' to the end of the destination line in
    your `.getmailrc' file, and getmail will change the ownership of the
@@ -230,5 +259,5 @@ password = ' a password with leading whitespace'
    http://www.qcc.sk.ca/~charlesc/software/.
      _________________________________________________________________
    
-   This document was generated on 21 March 2000 using the texi2html
+   This document was generated on 30 March 2000 using the texi2html
    translator version 1.51a.

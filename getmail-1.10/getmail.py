@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.08.01'
+VERSION = '1.10'
 
 #
 # Imports
@@ -101,23 +101,34 @@ opt_showhelp =          0
 # Data
 #
 
-true, false = ['true', 'yes', '1', 't', 'y'], ['false', 'no', '0', 'f', 'n']
-mailbox, domainbox = 0, 1
-ADDR, DEST, UID, GID = 0, 1, 2, 3
+# Constants
+true, false             = (('true', 'yes', '1', 't', 'y'),
+                            ('false', 'no', '0', 'f', 'n'))
+mailbox, domainbox      = 0, 1
+DEST, UID, GID, ADDR    = 0, 1, 2, 3
 
-CR =            '\r'
-LF =            '\n'
-deliverycount = 0
-argv =          sys.argv
-stderr =        sys.stderr.write
+CR              = '\r'
+LF              = '\n'
+deliverycount   = 0
+argv            = sys.argv
+stderr          = sys.stderr.write
 
 # Exit codes
-OK, ERROR = (0, -1)
-RC_NEWMAIL  = 0
-RC_NOMAIL   = 1
-RC_DEBUG    = 100
-RC_HELP     = 101
+OK, ERROR       = (0, -1)
+RC_NEWMAIL      = 0
+RC_NOMAIL       = 1
+RC_DEBUG        = 100
+RC_HELP         = 101
 
+
+# Headers to parse for recipient addresses
+RECIPIENT_HEADERS = (
+    ('envelope-to', ),
+    ('x-envelope-to', ),
+    ('resent-to', 'resent-cc', 'resent-bcc'),
+    ('to', 'cc', 'bcc'),
+    ('received', )
+    )
 
 # Parser exceptions
 
@@ -161,11 +172,12 @@ def main ():
                     for j in range (len (opt_reciplist[i])):
                         if recip == opt_reciplist[i][j][ADDR]:
                             try:
-                                rc = deliver_msg (opt_reciplist[i][j][DEST], msg, uid=opt_reciplist[i][j][UID] , gid=opt_reciplist[i][j][GID])
-                                if opt_verbose:
-                                    print 'Delivered message for %s to %s' \
-                                        % (opt_reciplist[i][j][ADDR], rc)
-                                    sys.stdout.flush ()
+                                rc = deliver_msg (opt_reciplist[i][j][DEST],
+                                                  msg,
+                                                  uid=opt_reciplist[i][j][UID],
+                                                  gid=opt_reciplist[i][j][GID])
+                                output ('Delivered message for %s to %s'
+                                        % (opt_reciplist[i][j][ADDR], rc))
                                 delivered = 1
 
                             except:
@@ -175,10 +187,10 @@ def main ():
                 # No match in domain mailbox, or this is a regular mailbox
                 # Do default delivery.
                 try:
-                    rc = deliver_msg (opt_dest[i], msg)
-                    if opt_verbose:
-                        print 'Delivered message to default %s' % rc
-                        sys.stdout.flush ()
+                    rc = deliver_msg (opt_dest[i][DEST], msg,
+                                      uid=opt_dest[i][UID],
+                                      gid=opt_dest[i][GID])
+                    output ('Delivered message to default %s' % rc)
 
                 except:
                     tmpmail_save (msg)
@@ -206,11 +218,10 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
 
     try:
         session = poplib.POP3 (host, port)
-        if opt_verbose:
-            print '%s:  POP3 session initiated on port %s for "%s"' \
-                % (shorthost, port, account)
+        output ('%s:  POP3 session initiated on port %s for "%s"'
+                % (shorthost, port, account))
         rc = session.getwelcome ()
-        if verbose:  print '%s:  POP3 greeting:  %s' % (shorthost, rc)
+        output ('%s:  POP3 greeting:  %s' % (shorthost, rc))
     except poplib.error_proto, response:
         stderr ('%s:  returned greeting "%s"\n' % (shorthost, response))
         return []
@@ -220,9 +231,9 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
 
     try:
         rc = session.user (account)
-        if verbose:  print '%s:  POP3 user reponse:  %s' % (shorthost, rc)
+        output ('%s:  POP3 user reponse:  %s' % (shorthost, rc))
         rc = session.pass_ (password)
-        if verbose:  print '%s:  POP3 password response:  %s' % (shorthost, rc)
+        output ('%s:  POP3 password response:  %s' % (shorthost, rc))
     except poplib.error_proto, response:
         stderr ('%s:  returned "%s" during login\n' % (shorthost, response))
         return []
@@ -232,7 +243,7 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
         list = session.list ()
         rc = list[0]
         msglist = list[1]
-        if verbose:  print '%s:  POP3 list response:  %s' % (shorthost, rc)
+        output ('%s:  POP3 list response:  %s' % (shorthost, rc))
 
     except poplib.error_proto, response:
         stderr ('Error retrieving message list, skipping ...\n')
@@ -241,13 +252,11 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
         for item in msglist:
             if type (item) == IntType:
                 # No more messages; POP3.list() returns a final int
-                if verbose:
-                    print '%s:  finished retrieving messages' % shorthost
+                output ('%s:  finished retrieving messages' % shorthost)
                 break
             msgnum, msglen = string.split (item)
-            if verbose:
-                print '  msg %i : len %i ...' % (int (msgnum), int (msglen)),
-                sys.stdout.flush ()
+            output ('  msg %i : len %i ...' % (int (msgnum), int (msglen)),
+                    nl=0)
 
             rc = session.uidl (msgnum)
             uidl = string.strip (string.split (rc, ' ', 2)[2])
@@ -260,10 +269,10 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
                 messages.append (msg)
                 retrieved = retrieved + 1
 
-                if verbose:  print 'retrieved',; sys.stdout.flush ()
+                output ('retrieved', nl=0)
                 if delete:
                     rc = session.dele (int (msgnum))
-                    if verbose:  print '... deleted',; sys.stdout.flush ()
+                    output ('... deleted', nl=0)
                     try:
                         # Deleting mail, no need to remember uidl's now
                         os.remove (oldmailfile)
@@ -275,30 +284,26 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
                         f.seek (0, 2) # Append to end.
                         f.write ('%s\n' % uidl)
                         f.close ()
-                        if verbose:
-                            print '... wrote to oldmail file',
-                            sys.stdout.flush ()
+                        output ('... wrote to oldmail file', nl=0)
                     except IOError:
                         stderr ('\nError:  failed writing oldmail file\n')
 
-            elif verbose:
-                print 'previously retrieved, skipping ...',; sys.stdout.flush ()
+            else:
+                output ('previously retrieved, skipping ...', nl=0)
 
-            if verbose:  print ''; sys.stdout.flush ()
+            output ('')
 
     except poplib.error_proto, response:
         stderr ('%s:  exception "%s" during retrieval, resetting...\n'
                 % (shorthost, response))
         session.rset ()
 
-    if verbose:
-        print '%s:  POP3 session completed for "%s"' % (shorthost, account)
+    output ('%s:  POP3 session completed for "%s"' % (shorthost, account))
 
     session.quit ()
 
-    if verbose:
-        print '%s:  POP3 connection closed' % shorthost
-        print '%i messages retrieved\n' % retrieved
+    output ('%s:  POP3 connection closed\n%i messages retrieved\n'
+         % (shorthost, retrieved))
 
     return messages
 
@@ -339,37 +344,15 @@ def domainbox_find_recipients (message):
     f.seek (0)
     m = rfc822.Message (f)
 
-    if not recipients:
-        # Try Envelope-To: next
-        addrlist = m.getaddrlist ('envelope-to')
-        for item in addrlist:
-            recipients.append (item [1])    # Get email address
-
-    if not recipients:
-        # Try X-Envelope-To: next
-        addrlist = m.getaddrlist ('x-envelope-to')
-        for item in addrlist:
-            recipients.append (item [1])    # Get email address
-
-    if not recipients:
-        # Try Resent-To:, Resent-cc:, and Resent-bcc: next
-        for header in ('resent-to', 'resent-cc', 'resent-bcc'):
-            addrlist = m.getaddrlist (header)
-            for item in addrlist:
-                recipients.append (item [1])    # Get email address
-
-    if not recipients:
-        # Try To:, cc:, and bcc: next
-        for header in ('to', 'cc', 'bcc'):
-            addrlist = m.getaddrlist (header)
-            for item in addrlist:
-                recipients.append (item [1])    # Get email address
-
-    if not recipients:
-        # try Received: last
-        addrlist = m.getaddrlist('received')
-        for item in addrlist:
-            recipients.append(item[1])      # get email address
+    # Look for recipients in particular headers, one group at a time.  Quit
+    # after first group which returns a match.  Note all headers in a given
+    # group will be searched or not; it does not quit partway through a group.
+    for group in RECIPIENT_HEADERS:
+        if not recipients:
+            for header in group:
+                addrlist = m.getaddrlist (header)
+                for item in addrlist:
+                    recipients.append (item [1])    # Get email address
 
     f.close ()
 
@@ -449,8 +432,8 @@ def maildirdeliver (maildir, message, uid=None, gid=None):
         try:
             os.chown (fname_tmp, uid, gid)
         except:
-            stderr ('Failure changing ownership of message to %d:%d\n'
-                % (uid, gid))
+            stderr ('Failed changing owner of message to %d:%d (user "%s")\n'
+                % (uid, gid, pwd.getpwuid (uid)[0]))
 
     # Move from tmp to new
     try:
@@ -636,24 +619,36 @@ def read_configfile (file):
             mtype = string.lower (conf.get (section, 'type'))
 
             # Strip 'poison NUL' bytes just in case
-            account = string.replace (account, '\0', '')
-            host = string.replace (host, '\0', '')
-            pw = string.replace (pw, '\0', '')
-            dest = string.replace (dest, '\0', '')
-
+            account, host, pw, dest = map (lambda x:
+                                           string.replace (x, '\0', ''),
+                                           (account, host, pw, dest))
             opt_account.append (account)
             opt_host.append (host)
             opt_port.append (port)
             opt_password.append (pw)
-            opt_dest.append (dest)
-            if dele in true:
-                opt_delete_retrieved.append (1)
-            else:
-                opt_delete_retrieved.append (0)
-            if rall in true:
-                opt_retrieve_read.append (1)
-            else:
-                opt_retrieve_read.append (0)
+
+            if dele in true:  opt_delete_retrieved.append (1)
+            else:             opt_delete_retrieved.append (0)
+            if rall in true:  opt_retrieve_read.append (1)
+            else:             opt_retrieve_read.append (0)
+
+            # Destination
+            try:
+                dest, user = string.split (dest, ':')
+                pwd_item = pwd.getpwnam (user)
+                uid, gid = pwd_item[2], pwd_item[3]
+                opt_dest.append (dest, uid, gid)
+
+            except ValueError:
+                # Wrong number of items in option value
+                opt_dest.append (dest, None, None)
+
+            except KeyError:
+                stderr ('Error:  no such user in /etc/passwd ("%s")\n'
+                        '  for destination "%s"\n'
+                        '  POP3 account "%s@%s:%d"\n'
+                    % (user, dest, opt_account[-1], opt_host[-1], opt_port[-1]))
+                opt_dest.append (dest, None, None)
 
             if mtype == 'domainbox':
                 opt_accounttype.append (domainbox)
@@ -661,22 +656,26 @@ def read_configfile (file):
                 for option in conf.options (section):
                     if option in ignore:
                         continue
-                    # Not a recognized option, must be 'email=destination[:uid:gid]'
+                    # Not a recognized option, must be
+                    # 'email=destination[:uid:gid]'
                     val = conf.get (section, option)
                     try:
                         dest, user = string.split (val, ':')
                         pwd_item = pwd.getpwnam (user)
                         uid, gid = pwd_item[2], pwd_item[3]
-                        recips.append (string.lower (option), dest, uid, gid)
+                        recips.append (dest, uid, gid, string.lower (option))
 
                     except ValueError:
                         # Wrong number of items in option value
-                        recips.append (string.lower (option), val, None, None)
+                        recips.append (val, None, None, string.lower (option))
 
                     except KeyError:
                         stderr ('Error:  no such user in /etc/passwd ("%s")\n'
-                            % user)
-                        recips.append (string.lower (option), dest, None, None)
+                                '  for destination "%s"\n'
+                                '  POP3 account "%s@%s:%d"\n'
+                            % (user, dest, opt_account[-1], opt_host[-1],
+                               opt_port[-1]))
+                        recips.append (dest, None, None, string.lower (option))
 
                 opt_reciplist.append (recips)
             else:
@@ -706,7 +705,8 @@ def read_configfile (file):
 
     # Bugs in getmail
     #except getmailparser.ParsingError, cause:
-    #   stderr ('Error:  internal error parsing configuration file\n  (%s)\n' % cause)
+    #   stderr ('Error:  internal error parsing configuration file\n  (%s)\n'
+    #           % cause)
     #   sys.exit (ERROR)
 
     except DefaultsError, cause:
@@ -719,6 +719,14 @@ def read_configfile (file):
         sys.exit (ERROR)
 
     return
+
+
+#######################################
+def output (msg, nl=1, force=0):
+    if not (opt_verbose or force):  return
+    sys.stdout.write (msg)
+    if nl:  sys.stdout.write ('\n')
+    sys.stdout.flush ()
 
 
 #######################################
@@ -839,16 +847,14 @@ def parse_options (argv):
     if not opt_ignoreconfig:
         if not opt_rcfile:
             opt_rcfile = os.path.join (opt_configdir, DEF_RCFILE)
-            if opt_verbose:
-                print 'Using default .getmailrc file "%s"' % opt_rcfile
-        elif opt_verbose:
-            print 'Using .getmailrc file "%s"' % opt_rcfile
+            output ('Using default .getmailrc file "%s"' % opt_rcfile)
+        else:
+            output ('Using .getmailrc file "%s"' % opt_rcfile)
 
         read_configfile (opt_rcfile)
 
     else:
-        if opt_verbose:
-            print 'Skipping configuration file...'
+        output ('Skipping configuration file...')
 
     # Parse arguments given in user@mailhost[:port],dest[,password] format
     for arg in args:
@@ -864,7 +870,7 @@ def parse_options (argv):
                 stderr ('Error:  argument "%s" not in format \''
                         'user@mailhost[:port],dest[,password]\'\n' % arg)
 
-        opt_dest.append (dest)
+        opt_dest.append (dest, None, None)
         opt_account.append (userhost [ : string.rfind (userhost, '@')])
 
         try:
@@ -991,7 +997,7 @@ class ConfParser:
                 pass
             line = string.strip (line)
             if line:
-                self.__data.append ((n, line))
+                self.__data.append (n, line)
             n = n + 1
 
         self.__parse ()
@@ -1032,7 +1038,8 @@ class ConfParser:
                 optname = string.strip (line [ : string.find (line, '=') ])
                 try:
                     optval = string.strip (line [string.index (line, '=') + 1:])
-                    if optval[0] == optval[-1] == "'" or optval[0] == optval[-1] == '"':
+                    if (optval[0] == optval[-1] == "'"
+                        or optval[0] == optval[-1] == '"'):
                         optval = optval[1:-1]
                 except ValueError:
                     optval = ''
