@@ -20,7 +20,7 @@
 # getmail returns the number of messages retrieved, or -1 on error.
 #
 
-VERSION = '0.61'
+VERSION = '0.62'
 
 #
 # Imports
@@ -55,7 +55,7 @@ opt_delete_retrieved =	DEF_DELETE
 opt_retrieve_read =		DEF_READ_ALL
 opt_maildir =			[]
 opt_verbose =			0
-
+opt_configfile =		None
 
 #
 # Data
@@ -277,6 +277,7 @@ def usage ():
 	'  -d or --delete             delete mail after retrieving  %s\n'
 	'  -l or --dont-delete        leave mail on server          %s\n'
 	'  -v or --verbose            output more information\n'
+	'  -c or --config <file>      get accounts from <file>\n'
 	'\n  NI : option not yet implemented\n\n'
 	'For multiple account retrieval, specify multiple --host, --name, --maildir,\n'
 	'(and optionally --port) options.  Passwords must either all be supplied on\n'
@@ -291,16 +292,17 @@ def parse_options (argv):
 	--delete -d, --dont-delete -l, --all -a, --new -u, --stdin -s,
 	--port -P <portnum>,--host -h <hostname>, --name -n <account>,
 	--pass -p <password>, --maildir -m <maildir>, --verbose -v
+	--config -c <configfile>
 	'''
 	#
 	global opt_delete_retrieved, opt_retrieve_read, opt_password_stdin, opt_port, \
-		opt_host, opt_account, opt_password, opt_maildir, opt_verbose
+		opt_host, opt_account, opt_password, opt_maildir, opt_verbose, opt_configfile
 	error = 0
 	optslist, args = [], []
 
-	opts = 'dlausvP:h:n:p:m:'
+	opts = 'c:dlausvP:h:n:p:m:'
 	longopts = ['delete', 'dont-delete', 'all', 'new', 'stdin', 'port=',
-				'host=', 'name=', 'pass=', 'maildir=', 'verbose']
+				'host=', 'name=', 'pass=', 'maildir=', 'verbose', 'config=']
 	
 	try:
 		global optslist, args
@@ -366,6 +368,24 @@ def parse_options (argv):
 			else:
 				opt_maildir.append (value)
 
+		elif option == '--config' or option == '-c':
+			if not value:
+				stderr ('Error:  option --config supplied without value\n')
+				error = 1
+			else:
+				opt_configfile = value
+
+	# Read in configfile, if any
+	if opt_configfile:
+		try:
+			f = open (opt_configfile)
+			for line in f.readlines ():
+				if line [0] != '#':
+					args.append (line)
+		except IOError:
+			stderr ('Error:  exception reading file "%s"\n' % opt_configfile)
+	
+	# Parse arguments given in user@mailhost[:port],maildir[,password] format
 	for arg in args:
 		try:
 			userhost, mdir, pw = string.split (arg, ',')
