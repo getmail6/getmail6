@@ -1,3 +1,14 @@
+Version 4.0.0a20
+25 June 2004
+
+  -fix typo in Filter_classifier
+  -wrap additional exception check around executing subprocesses to ensure
+  nonzero exit on error
+  -finish MDA_qmaillocal address handling and add strip_delivered_to
+  parameter.  Document MDA_qmaillocal.
+  -change email module import in utilities.py.  Submit bug report to
+  Python bug tracker.  Thanks: Frankye.
+
 Version 4.0.0a19
 24 June 2004
 

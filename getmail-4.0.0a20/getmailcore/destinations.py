@@ -228,7 +228,8 @@ class MDA_qmaillocal(DeliverySkeleton):
 
       defaultdelivery - supplied to qmail-local as the "defaultdelivery" argument.  Defaults to "./Maildir/".
 
-      conf-break - supplied to qmail-local as the "dash" argument.  Defaults to "-".
+      conf-break - supplied to qmail-local as the "dash" argument and used to calculate ext
+                   from local.  Defaults to "-".
 
       localparttranslate - a string representing a Python 2-tuple of strings (i.e. "('foo', 'bar')").
                            If supplied, the retrieved message recipient address will have any leading instance of
@@ -236,6 +237,12 @@ class MDA_qmaillocal(DeliverySkeleton):
                            (according to the values of "conf-break" and "user").  This can be used to add or remove a prefix of
                            the address.
 
+      strip_delivered_to - if set, existing Delivered-To: header fields will be removed from the message before
+                           processing by qmail-local.  This may be necessary to prevent qmail-local falsely 
+                           detecting a looping message if (for instance) the system
+                           retrieving messages otherwise believes it has the same domain name as the POP
+                           server.  Inappropriate use, however, may cause message loops.
+                           
       allow_root_commands (boolean, optional) - if set, external commands are allowed when
                                                 running as root.  The default is not to allow
                                                 such behaviour.
@@ -246,8 +253,6 @@ class MDA_qmaillocal(DeliverySkeleton):
     the messages could be properly passed to qmail-local with a localparttranslate value of
     "('trimtext-', '')" (and perhaps a defaultdelivery value of "./Maildirs/postmaster/" or
     similar).
-
-    FIXME:  Processing of retrieved addresses should be cleaned up.
     '''
 
     _confitems = (
@@ -258,6 +263,7 @@ class MDA_qmaillocal(DeliverySkeleton):
         {'name' : 'defaultdelivery', 'type' : str, 'default' : './Maildir/'},
         {'name' : 'conf-break', 'type' : str, 'default' : '-'},
         {'name' : 'localparttranslate', 'type' : tuple, 'default' : ('', '')},
+        {'name' : 'strip_delivered_to', 'type' : bool, 'default' : False},
         {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
     )
 
@@ -276,26 +282,33 @@ class MDA_qmaillocal(DeliverySkeleton):
         self.log.info('MDA_qmaillocal(%s)\n' % self._confstring())
 
     def _deliver_qmaillocal(self, msg, msginfo, stdout, stderr):
-        args = (self.conf['qmaillocal'], self.conf['qmaillocal'], '--', self.conf['user'], self.conf['homedir'], msginfo['local'], msginfo['dash'], msginfo['ext'], self.conf['localdomain'], msginfo['sender'], self.conf['defaultdelivery'])
-        self.log.debug('about to execl() with args %s\n' % str(args))
-        # Modify message
-        del msg['return-path']
-        # Write out message
-        msgfile = os.tmpfile()
-        msgfile.write(msg_flatten(msg))
-        msgfile.flush()
-        os.fsync(msgfile.fileno())
-        # Rewind
-        msgfile.seek(0)
-        # Set stdin to read from this file
-        os.dup2(msgfile.fileno(), 0)
-        # Set stdout and stderr to write to files
-        os.dup2(stdout.fileno(), 1)
-        os.dup2(stderr.fileno(), 2)
         try:
-            os.execl(*args)
-        except OSError, o:
-            raise getmailDeliveryError('exec of qmail-local failed (%s)' % o)
+            args = (self.conf['qmaillocal'], self.conf['qmaillocal'], '--', self.conf['user'], self.conf['homedir'], msginfo['local'], msginfo['dash'], msginfo['ext'], self.conf['localdomain'], msginfo['sender'], self.conf['defaultdelivery'])
+            self.log.debug('about to execl() with args %s\n' % str(args))
+            # Modify message
+            del msg['return-path']
+            if self.conf['strip_delivered_to']:
+                del msg['delivered-to']
+            # Write out message
+            msgfile = os.tmpfile()
+            msgfile.write(msg_flatten(msg))
+            msgfile.flush()
+            os.fsync(msgfile.fileno())
+            # Rewind
+            msgfile.seek(0)
+            # Set stdin to read from this file
+            os.dup2(msgfile.fileno(), 0)
+            # Set stdout and stderr to write to files
+            os.dup2(stdout.fileno(), 1)
+            os.dup2(stderr.fileno(), 2)
+            try:
+                os.execl(*args)
+            except OSError, o:
+                raise getmailDeliveryError('exec of qmail-local failed (%s)' % o)
+        except StandardError, o:
+            # Child process; any error must cause us to exit nonzero for parent to detect it
+            self.log.critical('exec of qmail-local failed (%s)' % o)
+            os._exit(127)
 
     def _deliver_message(self, msg):
         self.log.trace()
@@ -317,8 +330,8 @@ class MDA_qmaillocal(DeliverySkeleton):
                 self.log.debug('recipient: does not start with xlate_from "%s"\n' % xlate_from)
         self.log.debug('recipient: translated local-part "%s"\n' % msginfo['local'])
         if self.conf['conf-break'] in msginfo['local']:
-            msginfo['dash'] = '-'
-            msginfo['ext'] = '-'.join(msginfo['local'].split('-')[1:])
+            msginfo['dash'] = self.conf['conf-break']
+            msginfo['ext'] = self.conf['conf-break'].join(msginfo['local'].split(self.conf['conf-break'])[1:])
         else:
             msginfo['dash'] = ''
             msginfo['ext'] = ''
@@ -441,31 +454,36 @@ class MDA_external(DeliverySkeleton):
         self.log.info('MDA_external(%s)\n' % self._confstring())
 
     def _deliver_command(self, msg, msginfo, stdout, stderr):
-        args = [self.conf['path'], self.conf['path']]
-        for arg in self.conf['arguments']:
-            for (key, value) in msginfo.items():
-                arg = arg.replace('%%(%s)' % key, value)
-            args.append(arg)
-        self.log.debug('about to execl() with args %s\n' % str(args))
-        # Modify message
-        del msg['return-path']
-        # Write out message with native EOL convention
-        msgfile = os.tmpfile()
-        msgfile.write(msg_flatten(msg, include_from=self.conf['unixfrom']))
-        msgfile.flush()
-        os.fsync(msgfile.fileno())
-        # Rewind
-        msgfile.seek(0)
-        # Set stdin to read from this file
-        os.dup2(msgfile.fileno(), 0)
-        # Set stdout and stderr to write to files
-        os.dup2(stdout.fileno(), 1)
-        os.dup2(stderr.fileno(), 2)
-        change_uidgid(self.log, self.conf['user'], self.conf['group'])
         try:
-            os.execl(*args)
-        except OSError, o:
-            raise getmailDeliveryError('exec of command %s failed (%s)' % (self.conf['command'], o))
+            args = [self.conf['path'], self.conf['path']]
+            for arg in self.conf['arguments']:
+                for (key, value) in msginfo.items():
+                    arg = arg.replace('%%(%s)' % key, value)
+                args.append(arg)
+            self.log.debug('about to execl() with args %s\n' % str(args))
+            # Modify message
+            del msg['return-path']
+            # Write out message with native EOL convention
+            msgfile = os.tmpfile()
+            msgfile.write(msg_flatten(msg, include_from=self.conf['unixfrom']))
+            msgfile.flush()
+            os.fsync(msgfile.fileno())
+            # Rewind
+            msgfile.seek(0)
+            # Set stdin to read from this file
+            os.dup2(msgfile.fileno(), 0)
+            # Set stdout and stderr to write to files
+            os.dup2(stdout.fileno(), 1)
+            os.dup2(stderr.fileno(), 2)
+            change_uidgid(self.log, self.conf['user'], self.conf['group'])
+            try:
+                os.execl(*args)
+            except OSError, o:
+                raise getmailDeliveryError('exec of command %s failed (%s)' % (self.conf['command'], o))
+        except StandardError, o:
+            # Child process; any error must cause us to exit nonzero for parent to detect it
+            self.log.critical('exec of command %s failed (%s)' % (self.conf['command'], o))
+            os._exit(127)
 
     def _deliver_message(self, msg):
         self.log.trace()

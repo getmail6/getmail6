@@ -175,29 +175,34 @@ class Filter_external(FilterSkeleton):
         self.log.info('Filter_external(%s)\n' % self._confstring())
 
     def _filter_command(self, msg, msginfo, stdout, stderr):
-        args = [self.conf['path'], self.conf['path']]
-        for arg in self.conf['arguments']:
-            for (key, value) in msginfo.items():
-                arg = arg.replace('%%(%s)' % key, value)
-            args.append(arg)
-        self.log.debug('about to execl() with args %s\n' % str(args))
-        # Write out message with native EOL convention
-        msgfile = os.tmpfile()
-        msgfile.write(msg_flatten(msg, include_from=self.conf['unixfrom']))
-        msgfile.flush()
-        os.fsync(msgfile.fileno())
-        # Rewind
-        msgfile.seek(0)
-        # Set stdin to read from this file
-        os.dup2(msgfile.fileno(), 0)
-        # Set stdout and stderr to write to files
-        os.dup2(stdout.fileno(), 1)
-        os.dup2(stderr.fileno(), 2)
-        change_uidgid(self.log, self.conf['user'], self.conf['group'])
         try:
-            os.execl(*args)
-        except OSError, o:
-            raise getmailOperationError('exec of filter %s failed (%s)' % (self.conf['command'], o))
+            args = [self.conf['path'], self.conf['path']]
+            for arg in self.conf['arguments']:
+                for (key, value) in msginfo.items():
+                    arg = arg.replace('%%(%s)' % key, value)
+                args.append(arg)
+            self.log.debug('about to execl() with args %s\n' % str(args))
+            # Write out message with native EOL convention
+            msgfile = os.tmpfile()
+            msgfile.write(msg_flatten(msg, include_from=self.conf['unixfrom']))
+            msgfile.flush()
+            os.fsync(msgfile.fileno())
+            # Rewind
+            msgfile.seek(0)
+            # Set stdin to read from this file
+            os.dup2(msgfile.fileno(), 0)
+            # Set stdout and stderr to write to files
+            os.dup2(stdout.fileno(), 1)
+            os.dup2(stderr.fileno(), 2)
+            change_uidgid(self.log, self.conf['user'], self.conf['group'])
+            try:
+                os.execl(*args)
+            except OSError, o:
+                raise getmailOperationError('exec of filter %s failed (%s)' % (self.conf['command'], o))
+        except StandardError, o:
+            # Child process; any error must cause us to exit nonzero for parent to detect it
+            self.log.critical('exec of filter %s failed (%s)' % (self.conf['command'], o))
+            os._exit(127)
 
     def _filter_message(self, msg):
         self.log.trace()
@@ -313,7 +318,7 @@ class Filter_classifier(Filter_external):
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'], pid, exitcode))
 
-        for line in [line.strip() in stdout.readlines() if line.strip()]:
+        for line in [line.strip() for line in stdout.readlines() if line.strip()]:
             msg['X-getmail-filter-classifier'] = line
 
         return exitcode, msg, err

@@ -379,10 +379,10 @@ The current destinations are:
   MDA_external - deliver messages by invoking an arbitrary command.  Use this
                  for delivering through procmail, maildrop, etc.
   MultiSorter - deliver messages to an assortment of Maildirs, Mboxrd files,
-  				or other destination types by matching the recipient address 
-  				against regular expressions.  Requires recipient information.  
-  				This is similar to getmail v.3's "postmaster" and "local" 
-  				directives.
+                or other destination types by matching the recipient address
+                against regular expressions.  Requires recipient information.
+                This is similar to getmail v.3's "postmaster" and "local"
+                directives.
 
 Maildir takes the following configuration parameters:
 
@@ -411,9 +411,6 @@ Mboxrd takes the following configuration parameters:
         [destination]
         type = Mboxrd
         path = /var/spool/mail/georgel
-
-MDA_qmaillocal is complicated and currently in flux.  If you want to try
-delivering mail using qmail-local as an MDA, please ask on the list first.
 
 MDA_external takes the following configuration parameters:
 
@@ -465,9 +462,9 @@ MultiSorter takes the following configuration parameters:
              it will be delivered to the corresponding destination.
              The destination can be any type specified with another section in
              the rc file by specifying the name of the section
-             (i.e. [sectionname]).  Otherwise, it is assumed to be a maildir if 
-             it starts with a dot or slash and ends with a slash "/", or an 
-             mboxrd if it starts with a dot or a slash and does not end with a 
+             (i.e. [sectionname]).  Otherwise, it is assumed to be a maildir if
+             it starts with a dot or slash and ends with a slash "/", or an
+             mboxrd if it starts with a dot or a slash and does not end with a
              slash.
              A given message may match multiple regular expressions
              and be delivered to multiple destinations.
@@ -488,26 +485,71 @@ MultiSorter takes the following configuration parameters:
         path = /usr/local/bin/mymda
         arguments = ("--strip-attachments", "-f%(sender)", "--fast")
 
+MDA_qmaillocal hands messages off to qmail-local for delivery.  qmail-local will
+read the appropriate .qmail file for specific delivery instructions, or use a
+provided value (default: "./Maildir/") if no appropriate .qmail file exists.
+It takes the following parameters, all optional:
+
+    qmaillocal - complete path to the qmail-local binary.  Defaults to
+                 "/var/qmail/bin/qmail-local".
+
+    user - username supplied to qmail-local as the "user" argument.  Defaults
+           to the login name of the current effective user ID.
+
+    homedir - complete path to the directory supplied to qmail-local as the
+              "homedir" argument.  Defaults to the home directory of the
+              current effective user ID.
+
+    localdomain - supplied to qmail-local as the "domain" argument.  Defaults
+                  to socket.gethostname().
+
+    defaultdelivery - supplied to qmail-local as the "defaultdelivery"
+                      argument.  Defaults to "./Maildir/".
+
+    conf-break - supplied to qmail-local as the "dash" argument and used to
+                 calculate ext from local.  Defaults to "-".
+
+    localparttranslate - a string representing a Python 2-tuple of strings
+                       (i.e. "('foo', 'bar')").  If supplied, the retrieved
+                       message recipient address will have any leading instance
+                       of "foo" replaced with "bar" before being broken into
+                       "local" and "ext" for qmail-local (according to the
+                       values of "conf-break" and "user").  This can be used
+                       to add or remove a prefix of the address.
+
+    strip_delivered_to - if set, existing Delivered-To: header fields will be
+                       removed from the message before processing by
+                       qmail-local.  This may be necessary to prevent
+                       qmail-local falsely detecting a looping message if (for
+                       instance) the system retrieving messages otherwise
+                       believes it has the same domain name as the POP
+                       server.  Inappropriate use, however, may cause message
+                       loops.
+
+    allow_root_commands (boolean) - if set, external commands are allowed when
+                                  running as root.  The default is not to allow
+                                  such behaviour.
+
 Filters
 -------
 
-Filters are optional programs which can cause getmail to drop (ignore) certain 
-messages.  Some filter types can also change the content of messages or add 
-extra information to the message header before delivering them to a destination.  
-Each filter is specified in its own section in the getmail rc file (i.e. 
-[filter1], [filter2], etc) and is applied in collating order.  A filter can 
+Filters are optional programs which can cause getmail to drop (ignore) certain
+messages.  Some filter types can also change the content of messages or add
+extra information to the message header before delivering them to a destination.
+Each filter is specified in its own section in the getmail rc file (i.e.
+[filter1], [filter2], etc) and is applied in collating order.  A filter can
 return None instead of the message to cause getmail to drop the message.
 
 Filter_external
 
-The first filter type is Filter_external, which passes the message through an 
-arbitrary external command.  This command /must/ read the message from stdin and 
-write the (possibly modified) message to stdout.  If the command exits with one 
-of a specified list of values (default 99 or 100), the message will be dropped 
-(i.e. not delivered to any destination).  If the command exits with one of 
-another specified list of values (default 0), the (possibly modified) message is 
-passed to the next filter or destination.  Otherwise, if the command exits with 
-a value other than the two specified lists, or writes to stderr, it is 
+The first filter type is Filter_external, which passes the message through an
+arbitrary external command.  This command /must/ read the message from stdin and
+write the (possibly modified) message to stdout.  If the command exits with one
+of a specified list of values (default 99 or 100), the message will be dropped
+(i.e. not delivered to any destination).  If the command exits with one of
+another specified list of values (default 0), the (possibly modified) message is
+passed to the next filter or destination.  Otherwise, if the command exits with
+a value other than the two specified lists, or writes to stderr, it is
 considered an error.
 
 Filter_external takes the following configuration parameters:

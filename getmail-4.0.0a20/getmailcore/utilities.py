@@ -14,8 +14,9 @@ import signal
 import time
 import glob
 import fcntl
-import email
 import cStringIO
+# Python's email module breaks if you try to access email.Generator directly, so ...
+from email.Generator import Generator
 
 # Only on Unix
 try:
@@ -284,7 +285,7 @@ def msg_lines(msg, mangle_from=False, include_from=False, max_linelen=998):
     '''Take a message object and return a list of text lines.
     '''
     f = cStringIO.StringIO()
-    gen = email.Generator.Generator(f, mangle_from, max_linelen)
+    gen = Generator(f, mangle_from, max_linelen)
     gen.flatten(msg, include_from)
     # email module apparently doesn't always use native EOL, so force it
     f.seek(0)
