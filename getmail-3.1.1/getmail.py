@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.1.0'
+__version__ = '3.1.1'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -256,7 +256,7 @@ class getmail:
         self.msglog ('STAT: %i messages %i octets' % (msgs, octets))
 
     ###################################
-    def process_msg (self, msg, msgnum):
+    def process_msg (self, msg, msgnum, msgcount, msgsize):
         '''Process retrieved message and deliver to appropriate recipients.'''
         mess = getmailMessage (msg)
         if self.conf['use_*env']:
@@ -292,7 +292,7 @@ class getmail:
             pass
 
         msgid = mess.get ('message-id', 'None')
-        self.msglog ('New msg "%s" from "%s"' % (msgid, env_sender))
+        self.msglog ('New msg %i/%i len %s id "%s" from "%s"' % (msgnum, msgcount, msgsize, msgid, env_sender))
 
         # Filter message if user wants to
         filters = self.conf['message_filter']
@@ -593,7 +593,7 @@ class getmail:
 
                     try:
                         # Find recipients for this message and deliver to them.
-                        count = self.process_msg (msg, msgnum)
+                        count = self.process_msg (msg, msgnum, len (self.msglist) - 1, msglen)
                         if count == -1:
                             pass
                         elif count == 0:

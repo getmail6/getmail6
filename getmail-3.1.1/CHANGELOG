@@ -1,6 +1,12 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.1.1
+14 March 2003
+
+  -Add additional info to message log (msg #, msg count, size) "new msg"
+  status line.  Thanks to Payal Rathod for the feature request.
+
 Version 3.1.0
 21 February 2003
 
