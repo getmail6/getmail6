@@ -11,6 +11,12 @@ About this document
    navigation, all headings in the HTML version of this document are links to
    their parent heading.
 
+User-contributed documentation
+
+   Fredrik Steen, maintainer of the Debian package for getmail, has written a
+   man page for getmail. It is available at
+   http://people.debian.org/~stone/getmail/manpage/getmail.1.
+
                                Table of Contents
 
    1. Installing getmail
@@ -353,6 +359,9 @@ getmailrc Directives
                                       Resent-cc,        
                                       Resent-bcc, To,   
                                       cc, bcc, Received 
+                                                        Allow looser or more  
+   relaxed_address_match    Yes       0                 relaxed matching of   
+                                                        email addresses.      
                                                         User extension        
    extension_sep            Yes       -                 address separator     
                                                         character             
@@ -578,6 +587,21 @@ Note        copies and that both that copyright notice and this permission
    Commandline equivalent None                                                
    Examples               recipient_header = Delivered-To                     
                           recipient_header = X-Envelope-To                    
+
+  Relaxed email address detection
+
+                          Allow looser or more relaxed matching of email      
+                          addresses. Set this to 1 to enable. When enabled,   
+   Function               any string will be considered a valid email         
+                          address; otherwise, it must contain an at-sign (@), 
+                          and the domain must contain a dot (.) followed by   
+                          arbitrary text.                                     
+   Syntax                 relaxed_address_match = value                       
+   Optional               Yes                                                 
+   Default                0 (Stricter matching)                               
+   Commandline equivalent None                                                
+   Examples               relaxed_address_match = 1                           
+                          relaxed_address_match = 0                           
 
   User address extension separator character
 

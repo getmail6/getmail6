@@ -1,6 +1,17 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.6
+8 April 2002
+
+  -add 'relaxed_address_match' configuration directive.  Set to '1' if you
+  want any string to be considered as an email address when doing domain
+  mailbox or filtering matches against addresses in header fields.  The default
+  is 0, which leaves the present behaviour unchanged (a string is only
+  considered an address if it matches the regex '.+?@.+?\..+').
+  Requested by Vineet Kumar and forwarded to me by Fredrik Steen, maintainer
+  of the Debian package of getmail.
+
 Version 2.3.5
 28 March 2002
 

@@ -22,9 +22,9 @@
     For easy navigation, all headings in the HTML version of this document are 
     links to their parent heading.
 
-    <!--
-    	<H2><A NAME="contrib-docs" HREF="#docs">User-contributed documentation</A></H2>
-    -->
+    <H2><A NAME="contrib-docs" HREF="#docs">User-contributed documentation</A></H2>
+    Fredrik Steen, maintainer of the Debian package for getmail, has written a
+    man page for getmail.  It is available at <A HREF="http://people.debian.org/~stone/getmail/manpage/getmail.1">http://people.debian.org/~stone/getmail/manpage/getmail.1</A>.
 
     <H1><A NAME="toc" HREF="#docs">Table of Contents</A></H1>
     <OL>
@@ -437,6 +437,9 @@ postmaster = "|/path/to/mda [options] 2>&1"
         </TR>
         <TR>
             <TD CLASS="listitem"><A HREF="#directive-recipient-header">recipient_header</A></TD><TD>Yes</TD><TD>Delivered-To, Envelope-To, Apparently-To, X-Envelope-To,<BR>Resent-To, Resent-cc, Resent-bcc, To, cc, bcc, Received</TD><TD>Extract recipient names from listed mail header fields</TD>
+        </TR>
+        <TR>
+            <TD CLASS="listitem"><A HREF="#directive-relaxed-address-match">relaxed_address_match</A></TD><TD>Yes</TD><TD>0</TD><TD>Allow looser or more relaxed matching of email addresses.</TD>
         </TR>
         <TR>
             <TD CLASS="listitem"><A HREF="#directive-extension-sep">extension_sep</A></TD><TD>Yes</TD><TD>-</TD><TD>User extension address separator character</TD>
@@ -1152,6 +1155,63 @@ PERFORMANCE OF THIS SOFTWARE.</PRE>
             <TD CLASS="sample">
                 recipient_header = Delivered-To<BR>
                 recipient_header = X-Envelope-To
+            </TD>
+        </TR>
+    </TABLE>
+
+    <H3><A NAME="directive-relaxed-address-match" HREF="#directive-delivery-targets">Relaxed email address detection</A></H3>
+    <TABLE>
+        <TR>
+            <TD CLASS="rowlabel">
+                Function
+            </TD>
+            <TD CLASS="rowdata">
+                Allow looser or more relaxed matching of email addresses.
+                Set this to 1 to enable.  When enabled, any string will
+                be considered a valid email address; otherwise, it must contain
+                an at-sign (@), and the domain must contain a dot (.) followed
+                by arbitrary text.
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Syntax
+            </TD>
+            <TD CLASS="rowdata">
+                relaxed_address_match = <EM CLASS="example">value</EM>
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Optional
+            </TD>
+            <TD CLASS="rowdata">
+                Yes
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Default
+            </TD>
+            <TD CLASS="rowdata">
+                0 (Stricter matching)
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Commandline equivalent
+            </TD>
+            <TD CLASS="rowdata">
+                None
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Examples
+            </TD>
+            <TD CLASS="sample">
+                relaxed_address_match = 1<BR>
+                relaxed_address_match = 0
             </TD>
         </TR>
     </TABLE>

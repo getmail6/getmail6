@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.5'
+__version__ = '2.3.6'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -141,6 +141,8 @@ defs = {
                             'bcc',
                             'Received'
                             ],
+    'relaxed_address_match' :   0,          # How strictly to check whether a
+                                            #   string is an email address
     'extension_sep' :   '-',                # Extension address separator
     'extension_depth' : 1,                  # Number of local-part pieces to
                                             #   consider part of the base
@@ -167,6 +169,7 @@ intoptions = (
     'no_received',
     'port',
     'readall',
+    'relaxed_address_match',
     'timeout',
     'use_apop',
     'verbose'
@@ -620,7 +623,7 @@ class getmail:
                 # Handle all other header fields
                 recips = mess822.getaddrlist (header_type)
             for (name, address) in recips:
-                if address and res['mailaddr'].search (address):
+                if address and (res['mailaddr'].search (address) or self.conf['relaxed_address_match']):
                     # Looks like an email address, keep it
                     recipients[string.lower (address)] = None
                     self.logfunc (TRACE, 'found address "%s"\n' % address)
