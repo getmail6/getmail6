@@ -603,7 +603,8 @@ Filter_classifier
 Filter_classifier works differently; it runs an external program which does
 not modify the message and does not print the original message.  Anything the
 external program prints to stdout is put into a new X-getmail-filter-classifier:
-field in the message header.
+field in the message header.  If the program doesn't print anything, no header
+field is added.
 
 Filter_classifier takes exactly the same parameters as Filter_external.
 

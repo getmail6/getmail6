@@ -260,7 +260,8 @@ class Filter_external(FilterSkeleton):
 class Filter_classifier(Filter_external):
     '''Filter which runs the message through an external command, adding the
     command's output to the message header.  Takes the same parameters as
-    Filter_external.
+    Filter_external.  If the command prints nothing, no header fields are
+    added.
     '''
     def __str__(self):
         self.log.trace()

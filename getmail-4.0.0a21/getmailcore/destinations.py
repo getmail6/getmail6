@@ -286,7 +286,6 @@ class MDA_qmaillocal(DeliverySkeleton):
             args = (self.conf['qmaillocal'], self.conf['qmaillocal'], '--', self.conf['user'], self.conf['homedir'], msginfo['local'], msginfo['dash'], msginfo['ext'], self.conf['localdomain'], msginfo['sender'], self.conf['defaultdelivery'])
             self.log.debug('about to execl() with args %s\n' % str(args))
             # Modify message
-            del msg['return-path']
             if self.conf['strip_delivered_to']:
                 del msg['delivered-to']
             # Write out message
@@ -461,8 +460,6 @@ class MDA_external(DeliverySkeleton):
                     arg = arg.replace('%%(%s)' % key, value)
                 args.append(arg)
             self.log.debug('about to execl() with args %s\n' % str(args))
-            # Modify message
-            del msg['return-path']
             # Write out message with native EOL convention
             msgfile = os.tmpfile()
             msgfile.write(msg_flatten(msg, include_from=self.conf['unixfrom']))
