@@ -62,12 +62,17 @@ Error messages
    Check to ensure that it is a valid maildir, and that getmail has
    permission to write to it.
    
-    Configuration error: not a mboxrd file (path)
+    Configuration error: not an mboxrd file (path)
     
    The specified mboxrd path path does not appear to be a valid mboxrd
    file. To avoid corrupting files in the event of a user typo, getmail
    will not deliver messages to files that do not appear to be valid
    mboxrd files.
+   
+    Configuration error: mboxrd does not exist
+    
+   The specified mboxrd does not exist. getmail will not create mbox
+   files; ensure they exist before trying to deliver to them.
    
     Configuration error: the fieldname header field does not record the
     envelope recipient address
@@ -101,7 +106,28 @@ Error messages
   Delivery error ...
   
    getmail detected an error after retrieving a message but before
-   delivery was successfully completed.
+   delivery was successfully completed. Some of the specific errors it
+   may find include the following.
+   
+    Delivery error: maildir delivery process failed (refuse to deliver mail as
+    root)
+    
+   getmail will not deliver to a maildir as the root user. You may
+   specify an alternate user to deliver as with the user directive in the
+   destination section of your getmailrc file, or let getmail default to
+   the user who is the owner of the maildir.
+   
+    Delivery error: mbox delivery process failed (refuse to deliver mail as
+    root)
+    
+   getmail will not deliver to an mbox file as the root user. You may
+   specify an alternate user to deliver as with the user directive in the
+   destination section of your getmailrc file, or let getmail default to
+   the user who is the owner of the mbox file.
+   
+    Delivery error: mbox delivery process failed (not an mboxrd file)
+    
+   The specified mbox file does not appear to be a valid mbox file.
    
   Error: ...
   

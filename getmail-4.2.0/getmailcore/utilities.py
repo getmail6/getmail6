@@ -4,6 +4,7 @@
 
 __all__ = [
     'address_no_brackets',
+    'change_usergroup',
     'change_uidgid',
     'deliver_maildir',
     'eval_bool',
@@ -13,14 +14,19 @@ __all__ = [
     'lock_file',
     'logfile',
     'mbox_from_escape',
+    'safe_open',
     'unlock_file',
+    'gid_of_uid',
+    'uid_of_user',
     'updatefile',
 ]
 
 
 import os
+import os.path
 import socket
 import signal
+import stat
 import time
 import glob
 import fcntl
@@ -47,6 +53,19 @@ _bool_values = {
 }
 
 #######################################
+def safe_open(path, mode):
+    '''Open a file path safely.
+    '''
+    if os.name != 'posix':
+        return open(path, mode)
+    try:
+        fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0600)
+        file = os.fdopen(fd, mode)
+    except OSError, o:
+        raise getmailDeliveryError('failure opening %s (%s)' % (path, o))
+    return file
+
+#######################################
 class updatefile(object):
     '''A class for atomically updating files.
 
@@ -60,7 +79,7 @@ class updatefile(object):
         self.filename = filename
         self.tmpname = filename + '.tmp.%d' % os.getpid()
         try:
-            f = open(self.tmpname, 'wb')
+            f = safe_open(self.tmpname, 'wb')
         except IOError, (code, msg):
             raise IOError('%s, opening output file "%s"' % (msg, self.tmpname))
         self.file = f
@@ -71,7 +90,7 @@ class updatefile(object):
         self.close()
 
     def close(self):
-        if self.closed:
+        if self.closed or not hasattr(self, 'file'):
             return
         self.file.flush()
         self.file.close()
@@ -230,23 +249,16 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
 
     # Open file to write
     try:
-        f = open(fname_tmp, 'wb')
-        os.chmod(fname_tmp, 0600)
-        try:
-            # If root, change the message to be owned by the Maildir
-            # owner
-            os.chown(fname_tmp, s_maildir.st_uid, s_maildir.st_gid)
-        except OSError:
-            # Not running as root, can't chown file
-            pass
+        f = safe_open(fname_tmp, 'wb')
         f.write(data)
         f.flush()
         os.fsync(f.fileno())
         f.close()
 
-    except IOError:
+    except IOError, o:
         signal.alarm(0)
-        raise getmailDeliveryError('failure writing file ' + fname_tmp)
+        raise getmailDeliveryError('failure writing file %s (%s)' 
+            % (fname_tmp, o))
 
     # Move message file from Maildir/tmp to Maildir/new
     try:
@@ -303,35 +315,61 @@ def eval_bool(s):
             ' to be one of true or false, not "%s"' % s)
 
 #######################################
-def change_uidgid(logger, user=None, _group=None):
+def gid_of_uid(uid):
+    try:
+        return pwd.getpwuid(uid).pw_gid
+    except KeyError, o:
+        raise getmailConfigurationError('no such specified uid (%s)' % o)
+
+#######################################
+def uid_of_user(user):
+    try:
+        return pwd.getpwnam(user).pw_uid
+    except KeyError, o:
+        raise getmailConfigurationError('no such specified user (%s)' % o)
+
+#######################################
+def change_usergroup(logger=None, user=None, _group=None):
     '''
     Change the current effective GID and UID to those specified by user and
     _group.
     '''
-    try:
-        if _group:
+    uid = None
+    gid = None
+    if _group:
+        if logger:
             logger.debug('Getting GID for specified group %s\n' % _group)
-            try:
-                run_gid = grp.getgrnam(_group).gr_gid
-            except KeyError, o:
-                raise getmailConfigurationError('no such specified group (%s)'
-                    % o)
-            if os.getegid() != run_gid:
-                logger.debug('Setting egid to %d\n' % run_gid)
-                os.setegid(run_gid)
-        if user:
+        try:
+            gid = grp.getgrnam(_group).gr_gid
+        except KeyError, o:
+            raise getmailConfigurationError('no such specified group (%s)' % o)
+    if user:
+        if logger:
             logger.debug('Getting UID for specified user %s\n' % user)
-            try:
-                run_uid = pwd.getpwnam(user).pw_uid
-            except KeyError, o:
-                raise getmailConfigurationError('no such specified user (%s)'
-                    % o)
-            if os.geteuid() != run_uid:
-                logger.debug('Setting euid to %d\n' % run_uid)
-                os.seteuid(run_uid)
+        uid = uid_of_user(user)
+
+    change_uidgid(logger, uid, gid)
+
+#######################################
+def change_uidgid(logger=None, uid=None, gid=None):
+    '''
+    Change the current effective GID and UID to those specified by uid
+    and gid.
+    '''
+    try:
+        if gid:
+            if os.getegid() != gid:
+                if logger:
+                    logger.debug('Setting egid to %d\n' % gid)
+                os.setegid(gid)
+        if uid:
+            if os.geteuid() != uid:
+                if logger:
+                    logger.debug('Setting euid to %d\n' % uid)
+                os.seteuid(uid)
     except OSError, o:
         raise getmailDeliveryError('change UID/GID to %s/%s failed (%s)'
-            % (user, _group, o))
+            % (uid, gid, o))
 
 #######################################
 def format_header(name, line):
@@ -372,6 +410,6 @@ def localhostname():
     '''Return a name for localhost which is (hopefully) the "correct" FQDN.
     '''
     n = socket.gethostname()
-    if '.' in n:  
+    if '.' in n:
         return n
     return socket.getfqdn()

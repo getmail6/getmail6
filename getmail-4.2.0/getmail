@@ -326,10 +326,9 @@ def main():
                 if type(value) == bool:
                     parserdefaults[key] = str(value)
 
-            configparser = ConfigParser.RawConfigParser(parserdefaults)
-            configparser.readfp(f, path)
-
             try:
+                configparser = ConfigParser.RawConfigParser(parserdefaults)
+                configparser.readfp(f, path)
                 for option in options_bool:
                     log.debug('  looking for option %s ... ' % option)
                     if configparser.has_option('options', option):
@@ -478,6 +477,9 @@ def main():
                     ConfigParser.InterpolationError,
                     ConfigParser.MissingSectionHeaderError,
                     ConfigParser.ParsingError), o:
+                raise getmailConfigurationError('configuration file %s'
+                    ' incorrect (%s)' % (path, o))
+            except getmailConfigurationError, o:
                 raise getmailConfigurationError('configuration file %s'
                     ' incorrect (%s)' % (path, o))
 

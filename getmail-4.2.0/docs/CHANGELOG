@@ -1,9 +1,34 @@
+Version 4.2.0
+18 September 2004
+
+  -SECURITY: previous versions of getmail contain a security vulnerability.
+  A local attacker with a shell account could exploit a race condition (or a 
+  similar symlink attack) to cause getmail to create or overwrite files in a 
+  directory of the local user's choosing if the system administrator ran getmail 
+  as root and delivered messages to a maildir or mbox file under the control of 
+  the attacker, resulting in a local root exploit.  Fixed in versions 4.2.0
+  and 3.2.5.
+  This vulnerability is not exploitable if the administrator does not deliver
+  mail to the maildirs/mbox files of untrusted local users, or if getmail is
+  configured to use an external unprivileged MDA.  This vulnerability is
+  not remotely exploitable.
+  Thanks: David Watson.  My gratitude to David for his work on finding and
+  analyzing this problem.
+  -Now, on Unix-like systems when run as root, getmail forks a child
+  process and drops privileges before delivering to maildirs or mbox files.
+  getmail will absolutely refuse to deliver to such destinations as root;
+  the uid to switch to must be configured in the getmailrc file.
+  -revert behaviour regarding delivery to non-existent mbox files.  Versions
+  4.0.0 through 4.1.5 would create the mbox file if it did not exist; in
+  versions 4.2.0 and up, getmail reverts to the v.3 behaviour of refusing
+  to do so.
+
 Version 4.1.5
 13 September 2004
 
   -getmail would not delete messages from the server if it was configured not
   to retrieve them and the delete_after directive was not in use (i.e. user
-  normally left messages on server but occasionally wanted to force-delete 
+  normally left messages on server but occasionally wanted to force-delete
   them).  Fixed.  Thanks:  Frankye Fattarelli.
 
 Version 4.1.4
@@ -11,7 +36,7 @@ Version 4.1.4
 
   -change failure of a message filter to produce at least as many mail headers
   as it was provided from a non-fatal error to warning.  If your filter strips
-  headers, getmail will now warn you about it, but will not consider it an 
+  headers, getmail will now warn you about it, but will not consider it an
   error.
   -documentation additions.
 
@@ -57,7 +82,7 @@ Version 4.0.13
 Version 4.0.12
 19 August 2004
 
-  -forgot to add the new Message attribute (from 4.0.11) to its slots 
+  -forgot to add the new Message attribute (from 4.0.11) to its slots
   declaration.  Fixed.
 
 Version 4.0.11
@@ -74,9 +99,9 @@ Version 4.0.11
 Version 4.0.10
 12 August 2004
 
-  -cosmetic fix to output:  add whitespace after timestamp when not retrieving 
+  -cosmetic fix to output:  add whitespace after timestamp when not retrieving
   message.  Thanks: Matthias Andree.
-  -include MANIFEST.in in source distribution, to assist users in building 
+  -include MANIFEST.in in source distribution, to assist users in building
   "built distributions" from it.
   -change a few output messages' level to make verbose mode slightly less
   verbose, and add --debug switch to get "more verbose" behaviour.
@@ -88,7 +113,7 @@ Version 4.0.9
   -change method of obtaining uidvalidity from IMAP server and remove wrapper.
   -previously, connecting to an IMAP-SSL server could fail if a non-SSL
   IMAP connection were attempted immediately before.  This was due to
-  the Python bug discussed here:  
+  the Python bug discussed here:
   http://sourceforge.net/tracker/index.php?func=detail&aid=945642&group_id=5470&atid=305470
   Implemented a workaround for getmail.  Thanks: Payal Rathod.
 

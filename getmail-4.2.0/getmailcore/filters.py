@@ -211,7 +211,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
             # Set stdout and stderr to write to files
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
-            change_uidgid(self.log, self.conf['user'], self.conf['group'])
+            change_usergroup(self.log, self.conf['user'], self.conf['group'])
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)
@@ -396,7 +396,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
             # Set stdout and stderr to write to files
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
-            change_uidgid(self.log, self.conf['user'], self.conf['group'])
+            change_usergroup(self.log, self.conf['user'], self.conf['group'])
             args = [self.conf['path'], self.conf['path']]
             # Set environment for TMDA
             os.environ['SENDER'] = msg.sender

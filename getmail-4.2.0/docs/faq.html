@@ -111,6 +111,7 @@
                 <ul>
                 <li><a href="faq.html#faq-configuring-domain-mailbox">What is a &quot;domain mailbox&quot;?</a></li>
                 <li><a href="faq.html#faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</a></li>
+                <li><a href="faq.html#faq-configuring-root">Will getmail deliver mail as root?</a></li>
                 <li><a href="faq.html#faq-configuring-maildir">What's a maildir?</a></li>
                 <li><a href="faq.html#faq-configuring-mboxrd">What's &quot;mboxrd&quot; format?</a></li>
                 <li><a href="faq.html#faq-configuring-envelope">What's this &quot;envelope sender&quot; and &quot;envelope recipient&quot; stuff?</a></li>
@@ -578,6 +579,14 @@
 <p>
     No.  getmail delivers directly to maildirs, mboxrd files, or via arbitrary
     MDAs, and never injects mail via SMTP, so no MTA is necessary.
+</p>
+
+<h3 id="faq-configuring-root">Will getmail deliver mail as root?</h3>
+<p>
+    No.  When run as the root user on a Unix-like system, getmail drops
+    privileges (switches to an unprivileged group and user id) before delivering
+    to maildirs or mboxrd files.  You can specify the user explicitly, or
+    let getmail use the owner of the maildir or mboxrd file.
 </p>
 
 <h3 id="faq-configuring-maildir">What's a maildir?</h3>

@@ -82,7 +82,8 @@
                     <li><a href="troubleshooting.html#errmsg-config-parameter-wrong-type">Configuration error: configuration value <span class="meta">name</span> (<span class="meta">value</span>) not of required type <span class="meta">type</span> (<span class="meta">why</span>)</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-maildir-slash">Configuration error: maildir path missing trailing /</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-maildir-not">Configuration error: not a maildir (<span class="meta">path</span>)</a></li>
-                    <li><a href="troubleshooting.html#errmsg-config-mboxrd-not">Configuration error: not a mboxrd file (<span class="meta">path</span>)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-mboxrd-not">Configuration error: not an mboxrd file (<span class="meta">path</span>)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-mboxrd-missing">Configuration error: mboxrd does not exist</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-envelope-recipient">Configuration error: the <span class="meta">fieldname</span> header field does not record the envelope recipient address</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-root-commands">Configuration error: refuse to invoke external commands as root by default</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-no-command">Configuration error: no such command <span class="meta">path</span></a></li>
@@ -91,6 +92,13 @@
                     </ul>
                 </li>
                 <li><a href="troubleshooting.html#errmsg-delivery">Delivery error &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="troubleshooting.html#errmsg-delivery-root-maildir">Delivery error: maildir delivery process failed (refuse to deliver mail as root)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-delivery-root-mbox">Delivery error: mbox delivery process failed (refuse to deliver mail as root)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-delivery-not-mbox">Delivery error: mbox delivery process failed (not an mboxrd file)</a></li>
+                    </ul>
+                </li>
                 <li><a href="troubleshooting.html#errmsg-operation-">Error: &hellip;</a></li>
                 </ul>
             </li>
@@ -203,13 +211,19 @@
     maildir, and that getmail has permission to write to it.
 </p>
 
-<h4 id="errmsg-config-mboxrd-not" class="errmsg">Configuration error: not a mboxrd file (<span class="meta">path</span>)</h4>
+<h4 id="errmsg-config-mboxrd-not" class="errmsg">Configuration error: not an mboxrd file (<span class="meta">path</span>)</h4>
 <p>
     The specified mboxrd path
     <span class="meta">path</span>
     does not appear to be a valid mboxrd file.  To avoid corrupting files in
     the event of a user typo, getmail will not deliver messages to files that
     do not appear to be valid mboxrd files.
+</p>
+
+<h4 id="errmsg-config-mboxrd-missing" class="errmsg">Configuration error: mboxrd does not exist</h4>
+<p>
+    The specified mboxrd does not exist.  getmail will not create mbox files;
+    ensure they exist before trying to deliver to them.
 </p>
 
 <h4 id="errmsg-config-envelope-recipient" class="errmsg">Configuration error: the <span class="meta">fieldname</span> header field does not record the envelope recipient address</h4>
@@ -252,8 +266,31 @@
 <p>
     getmail detected an error after retrieving a message but before delivery was 
     successfully completed.  
-    <!--Some of the specific errors it may find include the following.-->
+    Some of the specific errors it may find include the following.
 </p>
+<h4 id="errmsg-delivery-root-maildir" class="errmsg">Delivery error: maildir delivery process failed (refuse to deliver mail as root)</h4>
+<p>
+    getmail will not deliver to a maildir as the root user.  You may specify an 
+    alternate user to deliver as with the 
+    <span class="file">user</span>
+    directive in the destination section of your
+    <span class="file">getmailrc</span>
+    file, or let getmail default to the user who is the owner of the maildir.
+</p>
+<h4 id="errmsg-delivery-root-mbox" class="errmsg">Delivery error: mbox delivery process failed (refuse to deliver mail as root)</h4>
+<p>
+    getmail will not deliver to an mbox file as the root user.  You may specify 
+    an alternate user to deliver as with the 
+    <span class="file">user</span>
+    directive in the destination section of your
+    <span class="file">getmailrc</span>
+    file, or let getmail default to the user who is the owner of the mbox file.
+</p>
+<h4 id="errmsg-delivery-not-mbox" class="errmsg">Delivery error: mbox delivery process failed (not an mboxrd file)</h4>
+<p>
+    The specified mbox file does not appear to be a valid mbox file.
+</p>
+
 
 <!-- ********************************************************************** -->
 <h3 id="errmsg-operation-" class="errmsg">Error: &hellip;</h3>

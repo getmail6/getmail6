@@ -941,11 +941,9 @@ envelope_recipient = delivered-to:1
 <p>
     The Maildir destination delivers to a qmail-style
     <a href="http://cr.yp.to/proto/maildir.html">maildir</a>.
-    If getmail has sufficient permission, it will ensure that the files it
-    creates in the maildir are owned by the owner of the maildir.
 </p>
 <p>
-    The Maildir destination takes one parameter:
+    The Maildir destination takes one required parameter:
 </p>
 <ul>
     <li>
@@ -972,16 +970,30 @@ path = ~/Maildir/
         </pre>
     </li>
 </ul>
+<p>
+    The Maildir destination also takes one optional parameters:
+</p>
+<ul>
+    <li>
+        user
+        (<a href="#parameter-string">string</a>)
+        &mdash; on Unix-like systems, if supplied, getmail will change the
+        effective UID to that of the named user before delivering messages to
+        the maildir.  Note that this typically requires root privileges.
+        getmail will not deliver to maildirs as root, so this 
+        &quot;optional&quot; parameter is required in that situation.
+    </li>
+</ul>
 
 <h4 id="destination-mboxrd">Mboxrd</h4>
 <p>
     The Mboxrd destination delivers to an
     <a href="http://qmail.org/man/man5/mbox.html">mboxrd-format mbox file</a>
-    with fcntl-type file locking.  If the file already exists, getmail will
-    ensure that it appears to be a valid mboxrd file before trying to deliver to
-    it.  Otherwise, the file will be created.  If getmail has sufficient
-    permission, it will ensure that the file is owned by the owner of the
-    directory containing the file.
+    with fcntl-type file locking.  The file must already exist and appear to be
+    a valid mboxrd file before getmail will try to deliver to it &mdash; getmail
+    will
+    <strong>not</strong>
+    create the file if it does not exist.
 </p>
 <p class="warning">
     You should ensure that all other programs accessing any the mbox file expect
@@ -990,7 +1002,7 @@ path = ~/Maildir/
     unreliable and should be avoided; this is the case with any MDA.
 </p>
 <p>
-    The Mboxrd destination takes one parameter:
+    The Mboxrd destination takes one required parameter:
 </p>
 <ul>
     <li>
@@ -1014,6 +1026,20 @@ path = ~/Maildir/
 type = Mboxrd
 path = ~/inbox
         </pre>
+    </li>
+</ul>
+<p>
+    The Mboxrd destination also takes one optional parameters:
+</p>
+<ul>
+    <li>
+        user
+        (<a href="#parameter-string">string</a>)
+        &mdash; on Unix-like systems, if supplied, getmail will change the
+        effective UID to that of the named user before delivering messages to
+        the mboxrd file.  Note that this typically requires root privileges.
+        getmail will not deliver to mbox files as root, so this 
+        &quot;optional&quot; parameter is required in that situation.
     </li>
 </ul>
 
@@ -1113,6 +1139,7 @@ path = ~/inbox
         <span class="warning">
             Note that setting this option has serious security implications.
             Don't use it if you don't know what you're doing.
+            I strongly recommend against running external processes as root.
         </span>
     </li>
 </ul>
@@ -1667,6 +1694,7 @@ locals = (
         <span class="warning">
             Note that setting this option has serious security implications.
             Don't use it if you don't know what you're doing.
+            I strongly recommend against running external processes as root.
         </span>
     </li>
 </ul>
@@ -1980,6 +2008,7 @@ message_log = ~/.getmail/log
         <span class="warning">
             Note that setting this option has serious security implications.
             Don't use it if you don't know what you're doing.
+            I strongly recommend against running external processes as root.
         </span>
     </li>
     <li>

@@ -285,6 +285,14 @@ Configuring getmail
    arbitrary MDAs, and never injects mail via SMTP, so no MTA is
    necessary.
    
+  Will getmail deliver mail as root?
+  
+   No. When run as the root user on a Unix-like system, getmail drops
+   privileges (switches to an unprivileged group and user id) before
+   delivering to maildirs or mboxrd files. You can specify the user
+   explicitly, or let getmail use the owner of the maildir or mboxrd
+   file.
+   
   What's a maildir?
   
    A maildir is a mail storage format invented by D. J. Bernstein (author

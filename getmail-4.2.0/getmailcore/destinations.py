@@ -99,7 +99,7 @@ class DeliverySkeleton(ConfigurableBase):
         return self._deliver_message(msg, delivered_to, received)
 
 #######################################
-class Maildir(DeliverySkeleton):
+class Maildir(DeliverySkeleton, ForkingBase):
     '''Maildir destination.
 
     Parameters:
@@ -114,6 +114,7 @@ class Maildir(DeliverySkeleton):
     _confitems = (
         {'name' : 'path', 'type' : str},
         {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        {'name' : 'user', 'type' : str, 'default' : None},
     )
 
     def initialize(self):
@@ -135,16 +136,77 @@ class Maildir(DeliverySkeleton):
     def showconf(self):
         self.log.info('Maildir(%s)\n' % self._confstring())
 
+    def __deliver_message_maildir(self, uid, gid, msg, delivered_to, received,
+        stdout, stderr):
+        '''Delivery method run in separate child process.
+        '''
+        try:
+            if os.name == 'posix':
+                if uid:
+                    change_uidgid(None, uid, gid)
+                if os.geteuid() == 0 or os.getegid() == 0:
+                    raise getmailConfigurationError(
+                        'refuse to deliver mail as root'
+                    )
+            f = deliver_maildir(self.conf['path'], msg.flatten(delivered_to,
+                received), self.hostname, self.dcount)
+            stdout.write(f)
+            stdout.flush()
+            os.fsync(stdout.fileno())
+            os._exit(0)
+        except StandardError, o:
+            # Child process; any error must cause us to exit nonzero for parent
+            # to detect it
+            stderr.write('maildir delivery process failed (%s)' % o)
+            stderr.flush()
+            os.fsync(stderr.fileno())
+            os._exit(127)
+
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        f = deliver_maildir(self.conf['path'], msg.flatten(delivered_to,
-            received), self.hostname, self.dcount)
-        self.log.debug('maildir file %s' % f)
+        uid = None
+        gid = None
+        user = self.conf['user']
+        if os.name == 'posix':
+            if user and uid_of_user(user) != os.geteuid():
+                # Config specifies delivery as user other than current UID
+                uid = uid_of_user(user)
+                gid = gid_of_uid(uid)
+            if uid == 0 or gid == 0:
+                raise getmailConfigurationError(
+                    'refuse to deliver mail as root')
+        self._prepare_child()
+        stdout = os.tmpfile()
+        stderr = os.tmpfile()
+        childpid = os.fork()
+
+        if not childpid:
+            # Child
+            self.__deliver_message_maildir(uid, gid, msg, delivered_to,
+                received, stdout, stderr)
+        self.log.debug('spawned child %d\n' % childpid)
+
+        # Parent
+        exitcode = self._wait_for_child(childpid)
+
+        stdout.seek(0)
+        stderr.seek(0)
+        out = stdout.read().strip()
+        err = stderr.read().strip()
+
+        self.log.debug('maildir delivery process %d exited %d\n'
+            % (childpid, exitcode))
+
+        if exitcode or err:
+            raise getmailDeliveryError('maildir delivery %d error (%d, %s)'
+                % (childpid, exitcode, err))
+
         self.dcount += 1
+        self.log.debug('maildir file %s' % out)
         return self
 
 #######################################
-class Mboxrd(DeliverySkeleton):
+class Mboxrd(DeliverySkeleton, ForkingBase):
     '''mboxrd destination with fcntl-style locking.
 
     Parameters:
@@ -160,47 +222,28 @@ class Mboxrd(DeliverySkeleton):
     _confitems = (
         {'name' : 'path', 'type' : str},
         {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        {'name' : 'user', 'type' : str, 'default' : None},
     )
 
     def initialize(self):
         self.log.trace()
         self.conf['path'] = expand_user_vars(self.conf['path'])
-        if (os.path.exists(self.conf['path'])
-                and not os.path.isfile(self.conf['path'])):
+        if not os.path.exists(self.conf['path']):
+            raise getmailConfigurationError('mboxrd does not exist (%s)'
+                % self.conf['path'])
+        if not os.path.isfile(self.conf['path']):
             raise getmailConfigurationError('not an mboxrd file (%s)'
                 % self.conf['path'])
-        elif not os.path.exists(self.conf['path']):
-            self.f = open(self.conf['path'], 'w+b')
-            # Get user & group of containing directory
-            s_dir = os.stat(os.path.dirname(self.conf['path']))
-            try:
-                # If root, change the new mbox file to be owned by the directory
-                # owner and make it mode 0600
-                os.chmod(self.conf['path'], 0600)
-                os.chown(self.conf['path'], s_dir.st_uid, s_dir.st_gid)
-            except OSError:
-                # Not running as root, can't chown file
-                pass
-            self.log.debug('created mbox file %s' % self.conf['path'])
-        else:
-            # Check if it _is_ an mbox file.  mbox files must start with "From "
-            # in their first line, or are 0-length files.
-            self.f = open(self.conf['path'], 'r+b')
-            lock_file(self.f)
-            self.f.seek(0, 0)
-            first_line = self.f.readline()
-            unlock_file(self.f)
-            if first_line and first_line[:5] != 'From ':
-                # Not an mbox file; abort here
-                raise getmailConfigurationError('destination "%s" is not'
-                    ' an mbox file' % self.conf['path'])
-
-    def __del__(self):
-        # Unlock and close file
-        self.log.trace()
-        if hasattr(self, 'f'):
-            unlock_file(self.f)
-            self.f.close()
+        # Check if it _is_ an mbox file.  mbox files must start with "From "
+        # in their first line, or are 0-length files.
+        f = open(self.conf['path'], 'r+b')
+        lock_file(f)
+        first_line = f.readline()
+        unlock_file(f)
+        if first_line and first_line[:5] != 'From ':
+            # Not an mbox file; abort here
+            raise getmailConfigurationError('not an mboxrd file (%s)'
+                % self.conf['path'])
 
     def __str__(self):
         self.log.trace()
@@ -209,47 +252,129 @@ class Mboxrd(DeliverySkeleton):
     def showconf(self):
         self.log.info('Mboxrd(%s)\n' % self._confstring())
 
+    def __deliver_message_mbox(self, uid, gid, msg, delivered_to, received,
+        stdout, stderr):
+        '''Delivery method run in separate child process.
+        '''
+        try:
+            if os.name == 'posix':
+                if uid:
+                    change_uidgid(None, uid, gid)
+                if os.geteuid() == 0 or os.getegid() == 0:
+                    raise getmailConfigurationError(
+                        'refuse to deliver mail as root'
+                    )
+            # Open mbox file, refusing to create it if it doesn't exist
+            fd = os.open(self.conf['path'], os.O_RDWR)
+            status_old = os.fstat(fd)
+            f = os.fdopen(fd, 'r+b')
+            lock_file(f)
+            # Check if it _is_ an mbox file.  mbox files must start with "From "
+            # in their first line, or are 0-length files.
+            f.seek(0, 0)
+            first_line = f.readline()
+            if first_line and first_line[:5] != 'From ':
+                # Not an mbox file; abort here
+                unlock_file(f)
+                raise getmailConfigurationError('not an mboxrd file (%s)'
+                    % self.conf['path'])
+            # Seek to end
+            f.seek(0, 2)
+            try:
+                # Write out message plus blank line with native EOL
+                f.write(
+                    msg.flatten(
+                        delivered_to,
+                        received,
+                        include_from=True,
+                        mangle_from=True
+                    ) + os.linesep)
+                f.flush()
+                os.fsync(fd)
+                status_new = os.fstat(fd)
+                # Reset atime
+                try:
+                    os.utime(self.conf['path'], (status_old.st_atime,
+                        status_new.st_mtime))
+                except OSError, o:
+                    # Not root or owner; readers will not be able to reliably
+                    # detect new mail.  But you shouldn't be delivering to
+                    # other peoples' mboxes unless you're root, anyways.
+                    stdout.write('failed to updated mtime/atime of mbox')
+                    stdout.flush()
+                    os.fsync(stdout.fileno())
+
+                unlock_file(f)
+
+            except IOError, o:
+                try:
+                    if not f.closed:
+                        # If the file was opened and we know how long it was,
+                        # try to truncate it back to that length
+                        # If it's already closed, or the error occurred at
+                        # close(), then there's not much we can do.
+                        f.truncate(status_old.st_size)
+                except KeyboardInterrupt:
+                    raise
+                except StandardError:
+                    pass
+                raise getmailDeliveryError(
+                    'failure writing message to mbox file "%s" (%s)'
+                    % (self.conf['path'], o))
+
+            os._exit(0)
+
+        except StandardError, o:
+            # Child process; any error must cause us to exit nonzero for parent
+            # to detect it
+            stderr.write('mbox delivery process failed (%s)' % o)
+            stderr.flush()
+            os.fsync(stderr.fileno())
+            os._exit(127)
+
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        status_old = os.fstat(self.f.fileno())
-        lock_file(self.f)
-        # Seek to end
-        self.f.seek(0, 2)
-        try:
-            # Write out message plus blank line with native EOL
-            self.f.write(msg.flatten(delivered_to, received, include_from=True,
-                mangle_from=True) + os.linesep)
-            self.f.flush()
-            os.fsync(self.f.fileno())
-            status_new = os.fstat(self.f.fileno())
+        uid = None
+        gid = None
+        # Get user & group of mbox file
+        st_mbox = os.stat(self.conf['path'])
+        user = self.conf['user']
+        if os.name == 'posix':
+            if user and uid_of_user(user) != os.geteuid():
+                # Config specifies delivery as user other than current UID
+                uid = uid_of_user(user)
+                gid = gid_of_uid(uid)
+            if uid == 0 or gid == 0:
+                raise getmailConfigurationError(
+                    'refuse to deliver mail as root')
+        self._prepare_child()
+        stdout = os.tmpfile()
+        stderr = os.tmpfile()
+        childpid = os.fork()
 
-            # Reset atime
-            try:
-                os.utime(self.conf['path'], (status_old.st_atime,
-                    status_new.st_mtime))
-            except OSError, o:
-                # Not root or owner; readers will not be able to reliably
-                # detect new mail.  But you shouldn't be delivering to
-                # other peoples' mboxes unless you're root, anyways.
-                self.log.warn('failed to update atime/mtime of mbox file %s'
-                    ' (%s)' % (self.conf['path'], o))
+        if not childpid:
+            # Child
+            self.__deliver_message_mbox(uid, gid, msg, delivered_to, received,
+                stdout, stderr)
+        self.log.debug('spawned child %d\n' % childpid)
 
-            unlock_file(self.f)
+        # Parent
+        exitcode = self._wait_for_child(childpid)
 
-        except IOError, o:
-            try:
-                if not self.f.closed:
-                    # If the file was opened and we know how long it was,
-                    # try to truncate it back to that length
-                    # If it's already closed, or the error occurred at close(),
-                    # then there's not much we can do.
-                    self.f.truncate(status_old.st_size)
-            except KeyboardInterrupt:
-                raise
-            except StandardError:
-                pass
-            raise getmailDeliveryError('failure writing message to mbox file'
-                ' "%s" (%s)' % (self.conf['path'], o))
+        stdout.seek(0)
+        stderr.seek(0)
+        out = stdout.read().strip()
+        err = stderr.read().strip()
+
+        self.log.debug('mboxrd delivery process %d exited %d\n'
+            % (childpid, exitcode))
+
+        if exitcode or err:
+            raise getmailDeliveryError('mboxrd delivery %d error (%d, %s)'
+                % (childpid, exitcode, err))
+
+        if out:
+            self.log.debug('mbox delivery: %s' % out)
 
         return self
 
@@ -367,12 +492,20 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
             # Set stdout and stderr to write to files
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
-            change_uidgid(self.log, self.conf['user'], self.conf['group'])
+            change_usergroup(self.log, self.conf['user'], self.conf['group'])
+            # At least some security...
+            if ((os.geteuid() == 0 or os.getegid() == 0)
+                    and not self.conf['allow_root_commands']):
+                raise getmailConfigurationError(
+                    'refuse to invoke external commands as root by default')
+
             os.execl(*args)
         except StandardError, o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
-            self.log.critical('exec of qmail-local failed (%s)' % o)
+            stderr.write('exec of qmail-local failed (%s)' % o)
+            stderr.flush()
+            os.fsync(stderr.fileno())
             os._exit(127)
 
     def _deliver_message(self, msg, delivered_to, received):
@@ -409,11 +542,6 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
             msginfo['ext'] = ''
         self.log.debug('recipient: set dash to "%s", ext to "%s"\n'
             % (msginfo['dash'], msginfo['ext']))
-
-        # At least some security...
-        if os.geteuid() == 0 and not self.conf['allow_root_commands']:
-            raise getmailConfigurationError('refuse to invoke external commands'
-                ' as root by default')
 
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -535,7 +663,12 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             # Set stdout and stderr to write to files
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
-            change_uidgid(self.log, self.conf['user'], self.conf['group'])
+            change_usergroup(self.log, self.conf['user'], self.conf['group'])
+            # At least some security...
+            if ((os.geteuid() == 0 or os.getegid() == 0)
+                    and not self.conf['allow_root_commands']):
+                raise getmailConfigurationError(
+                    'refuse to invoke external commands as root by default')
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)
@@ -547,8 +680,10 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         except StandardError, o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
-            self.log.critical('exec of command %s failed (%s)'
+            stderr.write('exec of command %s failed (%s)'
                 % (self.conf['command'], o))
+            stderr.flush()
+            os.fsync(stderr.fileno())
             os._exit(127)
 
     def _deliver_message(self, msg, delivered_to, received):
@@ -561,12 +696,6 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             msginfo['domain'] = msg.recipient.lower().split('@')[-1]
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
         self.log.debug('msginfo "%s"\n' % msginfo)
-
-        # At least some security...
-        if (os.geteuid() == 0 and not self.conf['allow_root_commands']
-                and self.conf['user'] == None):
-            raise getmailConfigurationError('refuse to invoke external commands'
-                ' as root by default')
 
         stdout = os.tmpfile()
         stderr = os.tmpfile()
