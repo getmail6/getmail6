@@ -1,6 +1,12 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.1.3
+3 August 2001
+
+  -change handling of command delivery.  Verification of existent command
+  is smarter; arguments won't cause problems now.  Remove duplicate code.
+
 Version 2.1.2
 1 August 2001
 

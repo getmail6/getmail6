@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.1.2'
+__version__ = '2.1.3'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -742,10 +742,11 @@ class getmail:
 		# Handle command delivery first
 		if dest[0] == '|':
 			dest = dest[1:]
-			# Ensure destination path exists	
-			if not os.path.exists (dest):
+			# Ensure command exists	
+			cmd = string.split (dest)[0]
+			if not os.path.exists (cmd):
 				raise getmailDeliveryException, \
-					'destination command "%s" does not exist' % dest
+					'destination command "%s" does not exist' % cmd
 			return self.deliver_command (dest, msg, env_sender)
 				
 		# Ensure destination path exists	
@@ -941,9 +942,6 @@ class getmail:
 			popen2._cleanup()
 			cmd = popen2.Popen3 (command, 1, bufsize=-1)
 			cmdout, cmdin, cmderr = cmd.fromchild, cmd.tochild, cmd.childerr
-
-			delivery_date = mbox_timestamp ()
-			fromline = 'From %s %s\n' % (env_sender, delivery_date)
 			cmdin.write (fromline)
 			cmdin.write (string.replace (msg, line_end['pop3'], line_end['mbox']))
 			# Add trailing blank line
