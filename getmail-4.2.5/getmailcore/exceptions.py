@@ -5,6 +5,7 @@
 __all__ = [
     'getmailError',
     'getmailConfigurationError',
+    'getmailFilterError',
     'getmailOperationError',
     'getmailDeliveryError',
 ]
