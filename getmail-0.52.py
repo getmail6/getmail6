@@ -7,7 +7,9 @@
 # getmail is a simple POP3 mail retriever with robust Maildir delivery.
 # It is intended as a simple replacement for 'fetchmail' for those people
 # who don't need its various and sundry options, bugs, and configuration
-# difficulties.
+# difficulties.  It currently supports retrieving mail for multiple accounts
+# from multiple POP3 hosts, with delivery to Maildirs specified on a
+# per-account basis.
 #
 # Maildir is the mail storage format designed by Dan Bernstein, author of
 # qmail (among other things).  It is supported by many Unix MUAs, including
@@ -18,7 +20,7 @@
 # getmail returns the number of messages retrieved, or -1 on error.
 #
 
-VERSION = '0.4'
+VERSION = '0.52'
 
 #
 # Imports
@@ -36,7 +38,7 @@ from types import *
 
 DEF_PORT =				110				# Normal POP3 port
 DEF_DELETE =			0				# Delete mail after retrieving (0, 1)
-DEF_READ_ALL =			0				# Retrieve all mail (1) or just new (0)
+DEF_READ_ALL =			1				# Retrieve all mail (1) or just new (0)
 DEF_PASSWORD_STDIN =	1				# Read POP3 password from stdin (0, 1)
 
 
@@ -45,7 +47,7 @@ DEF_PASSWORD_STDIN =	1				# Read POP3 password from stdin (0, 1)
 #
 
 opt_host =				[]
-opt_port =				DEF_PORT
+opt_port =				[]
 opt_account =			[]
 opt_password =			[]
 opt_password_stdin =	DEF_PASSWORD_STDIN
@@ -82,17 +84,18 @@ def main ():
 	about ()
 	parse_options (sys.argv)
 
-	for i in range (len (opt_account)):
-		mail = get_mail (opt_host[i], opt_port[i], opt_account[i], opt_password[i])
+	for i in range (len (opt_account)):	
+		mail = get_mail (opt_host[i], opt_port[i], opt_account[i],
+						 opt_password[i], opt_delete_retrieved)
 		
 		for msg in mail:
-			maildirdeliver (opt_maildir, unescape_lines (msg))
+			maildirdeliver (opt_maildir[i], pop3_unescape (msg))
 		
 	sys.exit (deliverycount)
 
 
 #######################################
-def get_mail (host, port, account, password):
+def get_mail (host, port, account, password, delete = 0):
 	'Retrieve messages from a POP3 server for one account.'
 
 	messages, retrieved = [], 0
@@ -101,7 +104,8 @@ def get_mail (host, port, account, password):
 	try:
 		session = poplib.POP3 (host, port)
 		if opt_verbose:
-			print '%s:  POP3 session initiated for "%s"' % (shorthost, account)
+			print '%s:  POP3 session initiated on port %s for "%s"' \
+				% (shorthost, port, account)
 		rc = session.getwelcome ()
 		if opt_verbose:
 			print '%s:  POP3 greeting:  %s' % (shorthost, rc)
@@ -129,7 +133,7 @@ def get_mail (host, port, account, password):
 		rc = list[0]
 		msglist = list[1]
 		if opt_verbose:
-			print '%s:  POP3 list response:  %s\n' % (shorthost, rc)
+			print '%s:  POP3 list response:  %s' % (shorthost, rc)
 
 		for item in msglist:
 			if type (item) == IntType:
@@ -139,7 +143,7 @@ def get_mail (host, port, account, password):
 				break
 			msgnum, msglen = string.split (item)
 			if opt_verbose:
-				print '  msg %i : len %i' % (int (msgnum), int (msglen))
+				print '  msg %i : len %i ...' % (int (msgnum), int (msglen)),
 			result = session.retr (int (msgnum))
 			rc = result[0]
 			msg = result[1]
@@ -147,8 +151,16 @@ def get_mail (host, port, account, password):
 			messages.append (msg)
 			retrieved = retrieved + 1
 
-			if opt_delete_retrieved:
+			if opt_verbose:
+				print 'retrieved',
+
+			if delete:
 				rc = session.dele (int (msgnum))
+				if opt_verbose:
+					print '... deleted',
+
+			if opt_verbose:
+				print ''
 
 	except poplib.error_proto, response:
 		stderr ('%s:  exception "%s" during retrieval, resetting...\n'
@@ -215,13 +227,11 @@ def maildirdeliver (maildir, message):
 
 
 #######################################
-def unescape_lines (raw_lines):
-	'''Receive a message in raw POP3 format and convert to internal
-	Python format (e.g. EOL convention).  Also strip leading doubled periods,
-	and anything trailing the POP3 termination octect (which is '.' surrounded
-	by CR+LF pairs).
+def pop3_unescape (raw_lines):
+	'''Receive message(s) in raw format as returned by POP3 server, and
+	convert to internal format (e.g. Unix EOL convention).  Also strips
+	leading doubled periods as required by the POP3 standard.
 	'''
-	#
 	lines = []
 	for raw_line in raw_lines:
 		line = string.replace (string.replace (raw_line, CR, ''), LF, '')
@@ -255,7 +265,7 @@ def usage ():
 	
 	stderr ('\n'
 	'Usage:  %s <--host value> <--name value> <--pass value | --stdin> \\\n'
-	'           <--maildir value> [options]\n\n'
+	'           <--maildir value> [...] [options]\n\n'
 	'Options:\n'
 	'  -h or --host <hostname>    POP3 hostname                 (required)\n'
 	'  -n or --name <account>     POP3 account name             (required)\n'
@@ -269,6 +279,9 @@ def usage ():
 	'  -l or --dont-delete        leave mail on server          %s\n'
 	'  -v or --verbose            output more information\n'
 	'\n  NI : option not yet implemented\n\n'
+	'For multiple account retrieval, specify multiple --host, --name, --maildir,\n'
+	'(and optionally --port) options.  Passwords must either all be supplied on\n'
+	'the commandline, or all read from stdin.\n\n'
 		% (me, DEF_PORT, def_stdin, def_readall, def_readnew, def_del,
 		   def_dontdel))
 	return
@@ -324,7 +337,7 @@ def parse_options (argv):
 				stderr ('Error:  option --port supplied without value\n')
 				error = 1
 			else:
-				opt_port = int (value)
+				opt_port.append (int (value))
 
 		elif option == '--host' or option == '-h':
 			if not value:
@@ -366,9 +379,14 @@ def parse_options (argv):
 		error = 1
 
 	if not (len (opt_host) == len (opt_account) == len (opt_maildir)) \
-		and (len (opt_password) != 0) and (len (opt_password) != len (opt_account)):
-		stderr ('Error:  different number of hosts/names/maildirs supplied\n')
+		and (len (opt_password) != 0) \
+		and (len (opt_password) != len (opt_account)):
+		stderr ('Error:  different numbers of hosts/names/maildirs/passwords supplied\n')
 		error = 1
+
+	# Put in default port if not specified
+	for i in range (len (opt_account) - len (opt_port)):
+		opt_port.append (int (DEF_PORT))
 	
 	# Read password from stdin if requested and no --pass option
 	if not error and not opt_password and opt_password_stdin:
@@ -387,7 +405,7 @@ def parse_options (argv):
 				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, oldattr)
 			print
 
-	if not opt_password or (len (opt_password) != len (opt_account)):
+	if not error and not opt_password or (len (opt_password) != len (opt_account)):
 		stderr ('Error:  not enough passwords supplied\n')
 		error = 1
 
