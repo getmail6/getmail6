@@ -22,4 +22,9 @@ To install:  getmail v.4 uses the standard Python distutils.  Do the following
   /usr/lib/pythonXXX), and the documentation under 
   /usr/local/share/doc/getmail-4/ .
 
+  You can specify an alternate directory to install under with
+  --prefix=<path>, like:
+
+    python setup.py install --prefix=/package/misc/spf/
+  
 getmail version 4 requires Python version 2.3.3 or later.

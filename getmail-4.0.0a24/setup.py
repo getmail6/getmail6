@@ -2,11 +2,40 @@
 
 import sys
 if sys.hexversion < 0x2030300:
-    raise ImportError('getmail requires Python version 2.3.3 or later')
+    raise ImportError('getmail version 4 requires Python version 2.3.3 or later')
+
+import os.path
+from distutils.core import setup
+import distutils.sysconfig
 
 from getmailcore import __version__
 
-from distutils.core import setup
+#
+# distutils doesn't seem to handle documentation files specially; they're
+# just "data" files.  The problem is, there's no easy way to say "install
+# the doc files under <prefix>/doc/<package>-<version>/ (obeying any
+# --home=<althome> or --prefix=<altprefix>, which would be "normal".
+# This hacks around this limitation.
+#
+prefix = distutils.sysconfig.get_config_var('prefix')
+args = sys.argv[1:]
+for (pos, arg) in enumerate(args):
+    # hack hack hack
+    if arg.startswith('--home=') or arg.startswith('--prefix='):
+        # hack hack hack hack hack
+        prefix = arg.split('=', 1)[1]
+    elif arg in ('--home', '--prefix'):
+        # hack hack hack hack hack hack hack
+        prefix = args[pos + 1]
+    
+if not os.path.isdir(prefix):
+    raise SystemExit('Error: specified home or prefix directory %s does not exist' % prefix)
+
+GETMAILDOCDIR = os.path.join(
+    prefix,
+    'doc',
+    'getmail-%s' % __version__
+)
 
 setup(
     name='getmail',
@@ -46,7 +75,7 @@ setup(
 	'getmail_mbox'
     ],
     data_files=[
-        ('/usr/local/share/doc/getmail-4/', ['docs/README', 'docs/BUGS', 'docs/COPYING', 'docs/CHANGELOG', 'docs/documentation.txt', 'docs/getmailrc-example', 'docs/TODO']),
+        (GETMAILDOCDIR, ['./README', 'docs/BUGS', 'docs/COPYING', 'docs/CHANGELOG', 'docs/documentation.txt', 'docs/getmailrc-example', 'docs/TODO']),
         #('/etc/', [])
     ],
 )

@@ -1,3 +1,11 @@
+Version 4.0.0a24
+1 July 2004
+
+  -setup script/distutils changes.  The setup.py script now looks for
+  --prefix or --home specifying an alternate installation directory, and
+  otherwise defaults to the hierarchy that Python was installed to.
+  /usr/share/doc/ or similar is no longer hardcoded anywhere.
+
 Version 4.0.0a23
 1 July 2004
 
