@@ -1,6 +1,13 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.0.2
+14 February 2003
+
+  -My editor let CR LF line endings into getmail_utilities.py ; this caused
+  problems for at least one person.  Thanks to Francisco Stefano Wechsler
+  for the report.  Now fixed.
+
 Version 3.0.1
 13 February 2003
 
