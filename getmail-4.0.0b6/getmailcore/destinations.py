@@ -12,6 +12,15 @@ Currently implemented:
     recipient address patterns)
 '''
 
+__all__ = [
+    'DeliverySkeleton',
+    'Maildir',
+    'Mboxrd',
+    'MDA_qmaillocal',
+    'MDA_external',
+    'MultiSorter',
+]
+
 import os
 import socket
 import re
@@ -27,7 +36,7 @@ except ImportError:
 
 from exceptions import *
 from utilities import *
-from baseclasses import ConfigurableBase
+from baseclasses import ConfigurableBase, ForkingBase
 
 #######################################
 class DeliverySkeleton(ConfigurableBase):
@@ -226,7 +235,7 @@ class Mboxrd(DeliverySkeleton):
         return self
 
 #######################################
-class MDA_qmaillocal(DeliverySkeleton):
+class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
     '''qmail-local MDA destination.
 
     Passes the message to qmail-local for delivery.  qmail-local is invoked as:
@@ -331,23 +340,9 @@ class MDA_qmaillocal(DeliverySkeleton):
             self.log.critical('exec of qmail-local failed (%s)' % o)
             os._exit(127)
 
-    def _child_handler(self, sig, stackframe):
-        self.log.trace('handler called for signal %s' % sig)
-        try:
-            pid, r = os.wait()
-        except OSError, o:
-            # No children on SIGCHLD.  Can't happen?
-            self.log.warning('handler called, but no children (%s)' % o)
-        self._child_pid = pid
-        self._child_status = r
-        self.log.trace('handler reaped child %s with status %s' % (pid, r))
-        self._child_exited = True
-
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        self._child_exited = False
-        self._child_pid = None
-        self._child_status = None
+        self._prepare_child()
         if msg.recipient == None:
             raise getmailConfigurationError('MDA_qmaillocal destination requires a message source that preserves the message envelope (%s)' % o)
         msginfo = {
@@ -376,8 +371,6 @@ class MDA_qmaillocal(DeliverySkeleton):
         if os.geteuid() == 0 and not self.conf['allow_root_commands']:
             raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
-        signal.signal(signal.SIGCHLD, self._child_handler)
-
         stdout = os.tmpfile()
         stderr = os.tmpfile()
         childpid = os.fork()
@@ -388,39 +381,24 @@ class MDA_qmaillocal(DeliverySkeleton):
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
-        while not self._child_exited:
-            self.log.trace('waiting for child %d' % childpid)
-            time.sleep(1.0)
-            #raise getmailDeliveryError('failed waiting for qmail-local %d (%s)' % (childpid, o))
-
-        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
-        pid = self._child_pid
-        r = self._child_status
+        exitcode = self._wait_for_child(childpid)
 
         stdout.seek(0)
         stderr.seek(0)
         out = stdout.read().strip()
         err = stderr.read().strip()
 
-        if os.WIFSTOPPED(r):
-            raise getmailDeliveryError('qmail-local %d stopped by signal %d' % (pid, os.WSTOPSIG(r)))
-        if os.WIFSIGNALED(r):
-            raise getmailDeliveryError('qmail-local %d killed by signal %d' % (pid, os.WTERMSIG(r)))
-        if not os.WIFEXITED(r):
-            raise getmailDeliveryError('qmail-local %d failed to exit' % pid)
-        exitcode = os.WEXITSTATUS(r)
-
-        self.log.debug('qmail-local %d exited %d\n' % (pid, exitcode))
+        self.log.debug('qmail-local %d exited %d\n' % (childpid, exitcode))
 
         if exitcode == 111:
-            raise getmailDeliveryError('qmail-local %d temporary error (%s)' % (pid, err))
+            raise getmailDeliveryError('qmail-local %d temporary error (%s)' % (childpid, err))
         elif exitcode or err:
-            raise getmailDeliveryError('qmail-local %d error (%d, %s)' % (pid, exitcode, err))
+            raise getmailDeliveryError('qmail-local %d error (%d, %s)' % (childpid, exitcode, err))
 
         return 'MDA_qmaillocal (%s)' % out
 
 #######################################
-class MDA_external(DeliverySkeleton):
+class MDA_external(DeliverySkeleton, ForkingBase):
     '''Arbitrary external MDA destination.
 
     Parameters:
@@ -518,23 +496,9 @@ class MDA_external(DeliverySkeleton):
             self.log.critical('exec of command %s failed (%s)' % (self.conf['command'], o))
             os._exit(127)
 
-    def _child_handler(self, sig, stackframe):
-        self.log.trace('handler called for signal %s' % sig)
-        try:
-            pid, r = os.wait()
-        except OSError, o:
-            # No children on SIGCHLD.  Can't happen?
-            self.log.warning('handler called, but no children (%s)' % o)
-        self._child_pid = pid
-        self._child_status = r
-        self.log.trace('handler reaped child %s with status %s' % (pid, r))
-        self._child_exited = True
-
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        self._child_exited = False
-        self._child_pid = None
-        self._child_status = None
+        self._prepare_child()
         msginfo = {}
         msginfo['sender'] = msg.sender
         if msg.recipient != None:
@@ -547,8 +511,6 @@ class MDA_external(DeliverySkeleton):
         if os.geteuid() == 0 and not self.conf['allow_root_commands'] and self.conf['user'] == None:
             raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
-        signal.signal(signal.SIGCHLD, self._child_handler)
-
         stdout = os.tmpfile()
         stderr = os.tmpfile()
         childpid = os.fork()
@@ -559,32 +521,17 @@ class MDA_external(DeliverySkeleton):
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
-        while not self._child_exited:
-            self.log.trace('waiting for child %d' % childpid)
-            time.sleep(1.0)
-            #raise getmailDeliveryError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
-
-        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
-        pid = self._child_pid
-        r = self._child_status
+        exitcode = self._wait_for_child(childpid)
 
         stdout.seek(0)
         stderr.seek(0)
         out = stdout.read().strip()
         err = stderr.read().strip()
 
-        if os.WIFSTOPPED(r):
-            raise getmailDeliveryError('command %s %d stopped by signal %d' % (self.conf['command'], pid, os.WSTOPSIG(r)))
-        if os.WIFSIGNALED(r):
-            raise getmailDeliveryError('command %s %d killed by signal %d' % (self.conf['command'], pid, os.WTERMSIG(r)))
-        if not os.WIFEXITED(r):
-            raise getmailDeliveryError('command %s %d failed to exit' % (self.conf['command'], pid))
-        exitcode = os.WEXITSTATUS(r)
-
-        self.log.debug('command %s %d exited %d\n' % (self.conf['command'], pid, exitcode))
+        self.log.debug('command %s %d exited %d\n' % (self.conf['command'], childpid, exitcode))
 
         if exitcode or err:
-            raise getmailDeliveryError('command %s %d error (%d, %s)' % (self.conf['command'], pid, exitcode, err))
+            raise getmailDeliveryError('command %s %d error (%d, %s)' % (self.conf['command'], childpid, exitcode, err))
 
         return 'MDA_external command %s (%s)' % (self.conf['command'], out)
 

@@ -5,16 +5,21 @@ Currently implemented:
 
 '''
 
+__all__ = [
+    'FilterSkeleton',
+    'Filter_external',
+    'Filter_classifier',
+    'Filter_TMDA',
+]
+
 import os
-import signal
 import email
 import sets
-import errno
 
 from exceptions import *
 from message import *
 from utilities import *
-from baseclasses import ConfigurableBase
+from baseclasses import ConfigurableBase, ForkingBase
 
 #######################################
 class FilterSkeleton(ConfigurableBase):
@@ -86,7 +91,7 @@ class FilterSkeleton(ConfigurableBase):
         return newmsg
 
 #######################################
-class Filter_external(FilterSkeleton):
+class Filter_external(FilterSkeleton, ForkingBase):
     '''Arbitrary external filter destination.
 
     Parameters:
@@ -204,23 +209,9 @@ class Filter_external(FilterSkeleton):
             self.log.critical('exec of filter %s failed (%s)' % (self.conf['command'], o))
             os._exit(127)
 
-    def _child_handler(self, sig, stackframe):
-        self.log.trace('handler called for signal %s' % sig)
-        try:
-            pid, r = os.wait()
-        except OSError, o:
-            # No children on SIGCHLD.  Can't happen?
-            self.log.warning('handler called, but no children (%s)' % o)
-        self._child_pid = pid
-        self._child_status = r
-        self.log.trace('handler reaped child %s with status %s' % (pid, r))
-        self._child_exited = True
-
     def _filter_message(self, msg):
         self.log.trace()
-        self._child_exited = False
-        self._child_pid = None
-        self._child_status = None
+        self._prepare_child()
         msginfo = {}
         msginfo['sender'] = msg.sender
         if msg.recipient != None:
@@ -233,8 +224,6 @@ class Filter_external(FilterSkeleton):
         if os.geteuid() == 0 and not self.conf['allow_root_commands'] and self.conf['user'] == None:
             raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
-        signal.signal(signal.SIGCHLD, self._child_handler)
-
         stdout = os.tmpfile()
         stderr = os.tmpfile()
         childpid = os.fork()
@@ -245,28 +234,13 @@ class Filter_external(FilterSkeleton):
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
-        while not self._child_exited:
-            self.log.trace('waiting for child %d' % childpid)
-            time.sleep(1.0)
-            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)' % (self.conf['command'], childpid, o))
-
-        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
-        pid = self._child_pid
-        r = self._child_status
+        exitcode = self._wait_for_child(childpid)
 
         stdout.seek(0)
         stderr.seek(0)
         err = stderr.read().strip()
 
-        if os.WIFSTOPPED(r):
-            raise getmailOperationError('command %s %d stopped by signal %d' % (self.conf['command'], pid, os.WSTOPSIG(r)))
-        if os.WIFSIGNALED(r):
-            raise getmailOperationError('command %s %d killed by signal %d' % (self.conf['command'], pid, os.WTERMSIG(r)))
-        if not os.WIFEXITED(r):
-            raise getmailOperationError('command %s %d failed to exit' % (self.conf['command'], pid))
-        exitcode = os.WEXITSTATUS(r)
-
-        self.log.debug('command %s %d exited %d\n' % (self.conf['command'], pid, exitcode))
+        self.log.debug('command %s %d exited %d\n' % (self.conf['command'], childpid, exitcode))
 
         newmsg = Message(fromfile=stdout)
 
@@ -289,9 +263,7 @@ class Filter_classifier(Filter_external):
 
     def _filter_message(self, msg):
         self.log.trace()
-        self._child_exited = False
-        self._child_pid = None
-        self._child_status = None
+        self._prepare_child()
         msginfo = {}
         msginfo['sender'] = msg.sender
         if msg.recipient != None:
@@ -304,8 +276,6 @@ class Filter_classifier(Filter_external):
         if os.geteuid() == 0 and not self.conf['allow_root_commands'] and self.conf['user'] == None:
             raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
-        signal.signal(signal.SIGCHLD, self._child_handler)
-
         stdout = os.tmpfile()
         stderr = os.tmpfile()
         childpid = os.fork()
@@ -316,28 +286,13 @@ class Filter_classifier(Filter_external):
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
-        while not self._child_exited:
-            self.log.trace('waiting for child %d' % childpid)
-            time.sleep(1.0)
-            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)' % (self.conf['command'], childpid, o))
-
-        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
-        pid = self._child_pid
-        r = self._child_status
+        exitcode = self._wait_for_child(childpid)
 
         stdout.seek(0)
         stderr.seek(0)
         err = stderr.read().strip()
 
-        if os.WIFSTOPPED(r):
-            raise getmailOperationError('command %s %d stopped by signal %d' % (self.conf['command'], pid, os.WSTOPSIG(r)))
-        if os.WIFSIGNALED(r):
-            raise getmailOperationError('command %s %d killed by signal %d' % (self.conf['command'], pid, os.WTERMSIG(r)))
-        if not os.WIFEXITED(r):
-            raise getmailOperationError('command %s %d failed to exit' % (self.conf['command'], pid))
-        exitcode = os.WEXITSTATUS(r)
-
-        self.log.debug('command %s %d exited %d\n' % (self.conf['command'], pid, exitcode))
+        self.log.debug('command %s %d exited %d\n' % (self.conf['command'], childpid, exitcode))
 
         for line in [line.strip() for line in stdout.readlines() if line.strip()]:
             msg.add_header('X-getmail-filter-classifier', line)
@@ -345,7 +300,7 @@ class Filter_classifier(Filter_external):
         return exitcode, msg, err
 
 #######################################
-class Filter_TMDA(FilterSkeleton):
+class Filter_TMDA(FilterSkeleton, ForkingBase):
     '''Filter which runs the message through TMDA's tmda-filter program
     to handle confirmations, etc.
 
@@ -425,31 +380,15 @@ class Filter_TMDA(FilterSkeleton):
             self.log.critical('exec of filter %s failed (%s)' % (self.conf['command'], o))
             os._exit(127)
 
-    def _child_handler(self, sig, stackframe):
-        self.log.trace('handler called for signal %s' % sig)
-        try:
-            pid, r = os.wait()
-        except OSError, o:
-            # No children on SIGCHLD.  Can't happen?
-            self.log.warning('handler called, but no children (%s)' % o)
-        self._child_pid = pid
-        self._child_status = r
-        self.log.trace('handler reaped child %s with status %s' % (pid, r))
-        self._child_exited = True
-
     def _filter_message(self, msg):
         self.log.trace()
-        self._child_exited = False
-        self._child_pid = None
-        self._child_status = None
+        self._prepare_child()
         if msg.recipient == None or msg.sender == None:
             raise getmailConfigurationError('TMDA requires the message envelope and therefore a multidrop retriever')
 
         # At least some security...
         if os.geteuid() == 0 and not self.conf['allow_root_commands'] and self.conf['user'] == None:
             raise getmailConfigurationError('refuse to invoke external commands as root by default')
-
-        signal.signal(signal.SIGCHLD, self._child_handler)
 
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -461,26 +400,11 @@ class Filter_TMDA(FilterSkeleton):
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
-        while not self._child_exited:
-            self.log.trace('waiting for child %d' % childpid)
-            time.sleep(1.0)
-            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)' % (self.conf['command'], childpid, o))
-
-        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
-        pid = self._child_pid
-        r = self._child_status
+        exitcode = self._wait_for_child(childpid)
 
         stderr.seek(0)
         err = stderr.read().strip()
 
-        if os.WIFSTOPPED(r):
-            raise getmailOperationError('command %s %d stopped by signal %d' % (self.conf['command'], pid, os.WSTOPSIG(r)))
-        if os.WIFSIGNALED(r):
-            raise getmailOperationError('command %s %d killed by signal %d' % (self.conf['command'], pid, os.WTERMSIG(r)))
-        if not os.WIFEXITED(r):
-            raise getmailOperationError('command %s %d failed to exit' % (self.conf['command'], pid))
-        exitcode = os.WEXITSTATUS(r)
-
-        self.log.debug('command %s %d exited %d\n' % (self.conf['command'], pid, exitcode))
+        self.log.debug('command %s %d exited %d\n' % (self.conf['command'], childpid, exitcode))
 
         return exitcode, msg, err

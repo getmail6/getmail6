@@ -3,6 +3,10 @@
 
 '''
 
+__all__ = [
+    'Message',
+]
+
 import os
 import time
 import cStringIO

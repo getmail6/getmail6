@@ -3,6 +3,12 @@
 
 '''
 
+__all__ = [
+    'POP3_ssl_port',
+    'sslsocket',
+    'POP3SSL',
+]
+
 import socket
 from poplib import POP3, CR, LF, CRLF
 

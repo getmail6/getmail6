@@ -7,6 +7,10 @@ of a certain level to one fd, and other messages of higher levels to a different
 fd (i.e. info to stdout, warnings to stderr).
 '''
 
+__all__ = [
+    'logger',
+]
+
 import sys
 import os.path
 import traceback

@@ -1,10 +1,18 @@
+Version 4.0.0b6
+15 July 2004
+
+  -move common child-handling code out of filters and destinations into new
+  baseclasses.ForkingBase() class.
+  -add __all__ declarations to modules that were missing them, to help prevent
+  namespace clutter for others
+
 Version 4.0.0b5
 15 July 2004
 
   -apply the child fix from b3 to Filter_classifier; I missed this in the
-  update.  Thanks: Dave.
+  update.  Thanks: Dave Osbourn.
   -cosmetic fix for output describing filters and destination objects.  
-  Thanks: Dave.
+  Thanks: Dave Osbourn.
   -catch configuration error of non-multidrop retriever with multidrop-only
   destination.  This broke when I cleaned up the message attribute interface
   in alpha 29.  Thanks: Dominik Kacprzak.

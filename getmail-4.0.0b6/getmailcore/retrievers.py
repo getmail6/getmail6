@@ -16,6 +16,18 @@ Currently implemented:
   MultidropIMAPSSLRetriever
 '''
 
+__all__ = [
+    'SimplePOP3Retriever',
+    'SimplePOP3SSLRetriever',
+    'MultidropPOP3Retriever',
+    'MultidropPOP3SSLRetriever',
+    'MultidropSPDSRetriever',
+    'SimpleIMAPRetriever',
+    'SimpleIMAPSSLRetriever',
+    'MultidropIMAPRetriever',
+    'MultidropIMAPSSLRetriever',
+]
+
 import socket
 import poplib
 import imaplib

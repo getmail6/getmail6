@@ -3,6 +3,15 @@
 
 '''
 
+__all__ = [
+    'ConfigurableBase',
+    'ForkingBase',
+]
+
+import os
+import time
+import signal
+
 from exceptions import *
 from logging import logger
 from utilities import eval_bool
@@ -85,3 +94,52 @@ class ConfigurableBase(object):
             else:
                 confstring += '%s="%s"' % (name, self.conf[name])
         return confstring
+
+#######################################
+class ForkingBase(object):
+    '''Base class for classes which fork children and wait for them to exit.
+
+    Sub-classes must provide the following data attributes and methods:
+
+        log - an object of type getmailcore.logger()
+
+    '''
+    def _child_handler(self, sig, stackframe):
+        self.log.trace('handler called for signal %s' % sig)
+        try:
+            pid, r = os.wait()
+        except OSError, o:
+            # No children on SIGCHLD.  Can't happen?
+            self.log.warning('handler called, but no children (%s)' % o)
+        self.__child_pid = pid
+        self.__child_status = r
+        self.log.trace('handler reaped child %s with status %s' % (pid, r))
+        self.__child_exited = True
+
+    def _prepare_child(self):
+        self.log.trace('')
+        self.__child_exited = False
+        self.__child_pid = None
+        self.__child_status = None
+        self.__orig_handler = signal.signal(signal.SIGCHLD, self._child_handler)
+
+    def _wait_for_child(self, childpid):
+        while not self.__child_exited:
+            # Could implement a maximum wait time here
+            self.log.trace('waiting for child %d' % childpid)
+            time.sleep(1.0)
+            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)' % (self.conf['command'], childpid, o))
+        if self.__child_pid != childpid:
+            #self.log.error('got child pid %d, not %d' % (pid, childpid))
+            raise getmailOperationError('got child pid %d, not %d' % (self.__child_pid, childpid))
+        signal.signal(signal.SIGCHLD, self.__orig_handler)
+
+        if os.WIFSTOPPED(self.__child_status):
+            raise getmailOperationError('child pid %d stopped by signal %d' % (self.__child_pid, os.WSTOPSIG(self.__child_status)))
+        if os.WIFSIGNALED(self.__child_status):
+            raise getmailOperationError('child pid %d killed by signal %d' % (self.__child_pid, os.WTERMSIG(self.__child_status)))
+        if not os.WIFEXITED(self.__child_status):
+            raise getmailOperationError('child pid %d failed to exit' % self.__child_pid)
+        exitcode = os.WEXITSTATUS(self.__child_status)
+
+        return exitcode

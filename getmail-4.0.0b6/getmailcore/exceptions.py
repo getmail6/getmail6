@@ -2,6 +2,13 @@
 '''Exceptions raised by getmail.
 '''
 
+__all__ = [
+    'getmailError',
+    'getmailConfigurationError',
+    'getmailOperationError',
+    'getmailDeliveryError',
+]
+
 # Base class for all getmail exceptions
 class getmailError(StandardError):
     '''Base class for all getmail exceptions.'''
