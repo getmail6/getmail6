@@ -578,6 +578,13 @@ path = ~/inbox
        don't know what you're doing. I strongly recommend against running
        external processes as root.
        
+   If an external MDA writes anything to stderr, getmail will consider
+   the delivery to have encountered an error. getmail will leave the
+   message on the server and proceed to the next message. You must
+   configure any MDA you use not to emit messages to stderr except on
+   errors -- please see the documentation for your MDA for details; this
+   should be the default mode of operation for any sane MDA.
+   
    A basic invocation of an external MDA might look like this:
 [destination]
 type = MDA_external
@@ -1027,6 +1034,13 @@ message_log = ~/.getmail/log
        queuing the original, etc., as with normal TMDA operation in a
        .qmail, .courier, or .forward file.
        
+   If a filter writes anything to stderr, getmail will consider the
+   delivery to have encountered an error. getmail will leave the message
+   on the server and proceed to the next message. You must configure any
+   filter you use not to emit messages to stderr except on errors --
+   please see the documentation for your filter program for details; this
+   should be the default mode of operation for any sane filter.
+   
     Filter_classifier
     
    Filter_classifier runs the message through an external program,

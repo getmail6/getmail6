@@ -79,7 +79,7 @@ class FilterSkeleton(ConfigurableBase):
                 % (self, exitcode))
             return None
         elif (exitcode not in self.exitcodes_keep) or err:
-            raise getmailOperationError('filter %s returned %d (%s)\n'
+            raise getmailFilterError('filter %s returned %d (%s)\n'
                 % (self, exitcode, err))
 
         # Check the filter was sane

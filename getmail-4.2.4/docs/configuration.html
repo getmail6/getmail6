@@ -1144,6 +1144,15 @@ path = ~/inbox
     </li>
 </ul>
 <p>
+    If an external MDA writes anything to
+    <span class="file">stderr</span>,
+    getmail will consider the delivery to have encountered an error.  getmail
+    will leave the message on the server and proceed to the next message.
+    You must configure any MDA you use not to emit messages to stderr except
+    on errors &mdash; please see the documentation for your MDA for details;
+    this should be the default mode of operation for any sane MDA.
+</p>
+<p>
     A basic invocation of an external MDA might look like this:
 </p>
 <pre class="example">
@@ -1177,14 +1186,14 @@ arguments = (&quot;--strip-forbidden-attachments&quot;, &quot;--recipient=%(reci
 </p>
 <ul>
     <li>
-    	<p>
-	        destinations
-	        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
-	        &mdash; the destinations which the messages will be passed to.
-	        A destination is a string that refers to another configuration
-	        file section by name (shortcuts for maildirs and mboxrd files are
-	        also provided; see below), like this:
-	    </p>
+        <p>
+            destinations
+            (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
+            &mdash; the destinations which the messages will be passed to.
+            A destination is a string that refers to another configuration
+            file section by name (shortcuts for maildirs and mboxrd files are
+            also provided; see below), like this:
+        </p>
 <pre class="example">
 destinations = ('[other-destination-1]', '[other-destination-2]')
 
@@ -1198,34 +1207,34 @@ type = Maildir
 path = /home/joe/Maildir/
 user = joe
 </pre>
-		<p>
-	        Because Maildir and Mboxrd destinations are common, you can specify
-	        them directly as a shortcut
-	        <strong>
-	        	if they do not require a
-	        	<span class="file">user</span>
-	        	parameter.
-	        </strong>
-	        If the string (after expansion; see below) starts with a dot or
-	        slash and ends with a slash, it specifies the path of a Maildir
-	        destination, while if it starts with a dot or a slash and does not
-	        end with a slash, it specifies the path of a Mboxrd destination.
+        <p>
+            Because Maildir and Mboxrd destinations are common, you can specify
+            them directly as a shortcut
+            <strong>
+                if they do not require a
+                <span class="file">user</span>
+                parameter.
+            </strong>
+            If the string (after expansion; see below) starts with a dot or
+            slash and ends with a slash, it specifies the path of a Maildir
+            destination, while if it starts with a dot or a slash and does not
+            end with a slash, it specifies the path of a Mboxrd destination.
         </p>
-		<p>
-	        For instance, you can deliver mail to two maildirs with the following:
+        <p>
+            For instance, you can deliver mail to two maildirs with the following:
         </p>
 <pre class="example">
 destinations = ('~/Mail/inbox/', '~/Mail/archive/current/')
 </pre>
-		<p>
-	        Each destination string is first expanded for leading
-	        <span class="file">~</span>
-	        or
-	        <span class="file">~<span class="meta">USER</span></span>
-	        and environment variables in the form
-	        <span class="file">$<span class="meta">VARNAME</span></span>
-	        or
-	        <span class="file">${<span class="meta">VARNAME</span>}</span>.
+        <p>
+            Each destination string is first expanded for leading
+            <span class="file">~</span>
+            or
+            <span class="file">~<span class="meta">USER</span></span>
+            and environment variables in the form
+            <span class="file">$<span class="meta">VARNAME</span></span>
+            or
+            <span class="file">${<span class="meta">VARNAME</span>}</span>.
         </p>
     </li>
 </ul>
@@ -1959,6 +1968,16 @@ message_log = ~/.getmail/log
         file.
     </li>
 </ul>
+<p>
+    If a filter writes anything to
+    <span class="file">stderr</span>,
+    getmail will consider the delivery to have encountered an error.  getmail
+    will leave the message on the server and proceed to the next message.
+    You must configure any filter you use not to emit messages to stderr except
+    on errors &mdash; please see the documentation for your filter program
+    for details; this should be the default mode of operation for any sane
+    filter.
+</p>
 
 <h4 id="conf-filters-classifier">Filter_classifier</h4>
 <p>

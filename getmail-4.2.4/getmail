@@ -180,6 +180,10 @@ def go(configs):
                     log.error('Delivery error (%s)\n' % o)
                     info += ', delivery error (%s)' % o
 
+                except getmailFilterError, o:
+                    log.error('Filter error (%s)\n' % o)
+                    info += ', filter error (%s)' % o
+
                 if (retrieve or delete or oplevel > 1):
                     log.info('  %s\n' % info)
                 if retrieve or delete:

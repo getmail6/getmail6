@@ -23,6 +23,12 @@ class getmailOperationError(getmailError):
     '''Exception raised when a runtime error is detected.'''
     pass
 
+class getmailFilterError(getmailOperationError):
+    '''Exception raised when problems occur during message filtering.
+    Subclass of getmailOperationError.
+    '''
+    pass
+
 class getmailDeliveryError(getmailOperationError):
     '''Exception raised when problems occur during message delivery.
     Subclass of getmailOperationError.

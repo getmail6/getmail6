@@ -1,3 +1,11 @@
+Version 4.2.4
+22 November 2004
+
+  -one type of filter error would cause getmail to skip to the next configured
+  mail account, rather than simply proceeding to the next message from the
+  same account.  Fixed.  Thanks: Adrien Beau.
+  -documentation updates.
+
 Version 4.2.3
 18 November 2004
 
