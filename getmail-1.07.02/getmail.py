@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.07.01'
+VERSION = '1.07.02'
 
 #
 # Imports
@@ -824,7 +824,7 @@ def parse_options (argv):
                 stderr ('Warning:  configuration/data directory not supplied, '
                         'and "%s" environment\n  variable not set.  Cannot '
                         'retrieve only new mail.\n' % ENV_GETMAIL)
-                opt_retrieve_read = 1
+                retrieve_read = 1
 
     # Read config file, setting default if necessary
     if not opt_ignoreconfig:
