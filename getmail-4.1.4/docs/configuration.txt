@@ -86,6 +86,7 @@
           + Troubleshooting problems
           +
                o Error messages
+               o Warning messages
                o Unexpected Behaviour
      * getmail frequently-asked questions (FAQs)
      *

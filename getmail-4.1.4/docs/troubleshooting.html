@@ -91,19 +91,26 @@
                     </ul>
                 </li>
                 <li><a href="troubleshooting.html#errmsg-delivery">Delivery error &hellip;</a></li>
+                <li><a href="troubleshooting.html#errmsg-operation-">Error: &hellip;</a></li>
+                </ul>
+            </li>
+            <li><a href="troubleshooting.html#warning-messages">Warning messages</a></li>
+            <li>
+                <ul>
+                <li><a href="troubleshooting.html#warnmsg">Warning: &hellip;</a></li>
                 <li>
                     <ul>
-                    <li><a href="troubleshooting.html#errmsg-delivery-filterheaders">Delivery error (filter <span class="meta">filter</span> returned fewer headers (X) than supplied (Y))</a></li>
+                    <li><a href="troubleshooting.html#warnmsg-unknown-parameter">Warning: ignoring unknown parameter &quot;<span class="meta">parameter_name</span>&quot;</a></li>
+                    <li><a href="troubleshooting.html#warnmsg-filterheaders">Warning: filter <span class="meta">filter</span> returned fewer headers (X) than supplied (Y)</a></li>
                     </ul>
                 </li>
-                <li><a href="troubleshooting.html#errmsg-operation-">Error: &hellip;</a></li>
                 </ul>
             </li>
             <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
             <li>
                 <ul>
                 <li><a href="troubleshooting.html#unexpected-hostname">getmail uses the wrong hostname for my machine</a></li>
-                <li><a href="troubleshooting.html#unexpected-delivered-to">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> header field</a></li>
+                <li><a href="troubleshooting.html#unexpected-unknown">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> or <span class="file">Return-Path:</span>header field</a></li>
                 <li><a href="troubleshooting.html#unexpected-recipient">getmail isn't replacing my command argument &quot;%(recipient)&quot; with the message recipient address</a></li>
                 <li><a href="troubleshooting.html#unexpected-slow-startup">getmail seems to take longer than expected to initialize</a></li>
                 </ul>
@@ -139,7 +146,7 @@
 <!-- ********************************************************************** -->
 <h2 id="error-messages">Error messages</h2>
 <p>
-    getmail may output various diagnostic messages.  The common ones and
+    getmail may output various diagnostic error messages.  The common ones and
     their meanings are given below.
 </p>
 
@@ -244,19 +251,8 @@
 <h3 id="errmsg-delivery" class="errmsg">Delivery error &hellip;</h3>
 <p>
     getmail detected an error after retrieving a message but before delivery was 
-    successfully completed.  Some of the specific errors it may find include the 
-    following.
-</p>
-
-<h4 id="errmsg-delivery-filterheaders" class="errmsg">Delivery error (filter <span class="meta">filter</span> returned fewer headers (X) than supplied (Y))</h4>
-<p>
-    A 
-    <a href="configuration.html#conf-filters">message filter</a>
-    incorrectly removed header fields from the message header.  getmail 
-    considers this an error so that you do not lose critical information (or 
-    even the entire message).  Filters should add information to the message 
-    header or leave it alone; check the configuration for the filter program you 
-    are using.
+    successfully completed.  
+    <!--Some of the specific errors it may find include the following.-->
 </p>
 
 <!-- ********************************************************************** -->
@@ -267,6 +263,46 @@
     to a remote mail server, timeouts during network operations, and other
     transient failures.
 </p>
+
+<!-- ********************************************************************** -->
+<h2 id="warning-messages">Warning messages</h2>
+<p>
+    getmail may output various diagnostic warning messages.  The common ones and
+    their meanings are given below.
+</p>
+
+<!-- ********************************************************************** -->
+<h3 id="warnmsg" class="warnmsg">Warning: &hellip;</h3>
+<p>
+    getmail detected a condition which might be problematic.
+    Some of the specific warnings it may find include the following.
+</p>
+
+<h4 id="warnmsg-unknown-parameter" class="warnmsg">Warning: ignoring unknown parameter &quot;<span class="meta">parameter_name</span>&quot;</h4>
+<p>
+    A getmail rc file contained an unknown parameter.  This usually indicates
+    that you've put the parameter in the wrong section of the file (such as
+    putting the 
+    <span class="file">read_all</span>
+    parameter in the
+    <span class="file">[retriever]</span>
+    section instead of in the
+    <span class="file">[options]</span>
+    section).
+</p>
+
+<h4 id="warnmsg-filterheaders" class="warnmsg">Warning: filter <span class="meta">filter</span> returned fewer headers (X) than supplied (Y)</h4>
+<p>
+    A 
+    <a href="configuration.html#conf-filters">message filter</a>
+    appeared to incorrectly remove header fields from the header of a message 
+    which it handled.  getmail warns you about this so that you can check your 
+    filter for proper operation.  Filters should add information to the message 
+    header or leave it alone; check the configuration for the filter program you 
+    are using.
+</p>
+
+<!-- ********************************************************************** -->
 
 <h2 id="unexpected-behaviour">Unexpected Behaviour</h2>
 <p>
@@ -283,13 +319,18 @@
     listed for any of the addresses of the machine.
 </p>
 
-<h3 id="unexpected-delivered-to">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> header field</h3>
+<h3 id="unexpected-unknown">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> or <span class="file">Return-Path:</span>header field</h3>
 <p>
     getmail records the envelope recipient address in the 
     <span class="file">Delivered-To:</span>
-    header field.  If the envelope recipient is not available (because you're
-    not using a multidrop retriever class, for example), getmail uses the
-    string &quot;unknown&quot;.  You can disable this header if you wish.
+    header field, and the envelope sender in the
+    <span class="file">Return-Path:</span>
+    header field.  If this information is not available (because you're not 
+    using a multidrop retriever class, or the MTA on the POP/IMAP server is 
+    broken, for example), getmail uses the string &quot;unknown&quot;.  You can 
+    disable the creation of the
+    <span class="file">Delivered-To:</span>
+    header field if you wish.
 </p>
 
 <h3 id="unexpected-recipient">getmail isn't replacing my command argument &quot;%(recipient)&quot; with the message recipient address</h3>
@@ -314,13 +355,14 @@
 python -c &quot;import socket; print socket.getfqdn()&quot;
 </pre>
 <p>	
-	If this seems to take a similar amount of time to complete, the delay is in 
-	finding the fully-qualified hostname of your system.  The fix is to ensure 
-	you have a valid mapping of address-to-hostname for all the addresses in 
-	your system.  You can do this in your 
+	If this seems to take a similarly long period of time to complete, the delay 
+	is in finding the fully-qualified hostname of your system.  The fix is to 
+	ensure you have a valid mapping of address-to-hostname for all the addresses 
+	in your system.  You can do this in your 
 	<span class="file">/etc/hosts</span>
 	file, in your authoritative content DNS server, or in another
-	system-specific manner.
+	system-specific manner &mdash; please contact your OS vendor (or its
+	public support mailing list) for assistance.
 </p>
 
 <!--#include virtual="footer.html"-->

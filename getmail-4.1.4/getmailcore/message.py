@@ -30,7 +30,8 @@ message_attributes = (
 #######################################
 def corrupt_message(why, fromlines=None, fromstring=None):
     log = logging.logger()
-    log.error('failed to parse retrieved message; constructing container for contents\n')
+    log.error('failed to parse retrieved message; constructing container for '
+        'contents\n')
     if fromlines == fromstring == None:
         raise SystemExit('corrupt_message() called with wrong arguments')
     msg = email.message_from_string('')

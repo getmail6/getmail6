@@ -61,6 +61,7 @@
           + Troubleshooting problems
           +
                o Error messages
+               o Warning messages
                o Unexpected Behaviour
      * getmail frequently-asked questions (FAQs)
      *
@@ -364,6 +365,10 @@ getmail mailing lists
    The list is available for free getmail support from me and other
    users, for discussions of bugs, configuration issues, documentation,
    and other technical issues related to getmail.
+   
+   The list allows plaintext message bodies and plaintext attachments. Do
+   not attempt to send binary files (gzip, etc), HTML, or other types, as
+   they will be stripped from your message.
    
    Note: please ensure you have read the documentation and Frequently
    Asked Questions, and browsed/searched the mailing list archives before

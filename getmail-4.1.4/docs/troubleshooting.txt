@@ -21,8 +21,8 @@
    
 Error messages
 
-   getmail may output various diagnostic messages. The common ones and
-   their meanings are given below.
+   getmail may output various diagnostic error messages. The common ones
+   and their meanings are given below.
    
   ImportError: getmail version 4 requires Python version 2.3.3 or later
   
@@ -101,16 +101,7 @@ Error messages
   Delivery error ...
   
    getmail detected an error after retrieving a message but before
-   delivery was successfully completed. Some of the specific errors it
-   may find include the following.
-   
-    Delivery error (filter filter returned fewer headers (X) than supplied (Y))
-    
-   A message filter incorrectly removed header fields from the message
-   header. getmail considers this an error so that you do not lose
-   critical information (or even the entire message). Filters should add
-   information to the message header or leave it alone; check the
-   configuration for the filter program you are using.
+   delivery was successfully completed.
    
   Error: ...
   
@@ -118,6 +109,31 @@ Error messages
    point out the exact cause of the error. Common causes are failures to
    connect to a remote mail server, timeouts during network operations,
    and other transient failures.
+   
+Warning messages
+
+   getmail may output various diagnostic warning messages. The common
+   ones and their meanings are given below.
+   
+  Warning: ...
+  
+   getmail detected a condition which might be problematic. Some of the
+   specific warnings it may find include the following.
+   
+    Warning: ignoring unknown parameter "parameter_name"
+    
+   A getmail rc file contained an unknown parameter. This usually
+   indicates that you've put the parameter in the wrong section of the
+   file (such as putting the read_all parameter in the [retriever]
+   section instead of in the [options] section).
+   
+    Warning: filter filter returned fewer headers (X) than supplied (Y)
+    
+   A message filter appeared to incorrectly remove header fields from the
+   header of a message which it handled. getmail warns you about this so
+   that you can check your filter for proper operation. Filters should
+   add information to the message header or leave it alone; check the
+   configuration for the filter program you are using.
    
 Unexpected Behaviour
 
@@ -131,12 +147,14 @@ Unexpected Behaviour
    make sure the "right" name is the first hostname listed for any of the
    addresses of the machine.
    
-  getmail puts "unknown" in the Delivered-To: header field
+  getmail puts "unknown" in the Delivered-To: or Return-Path:header field
   
    getmail records the envelope recipient address in the Delivered-To:
-   header field. If the envelope recipient is not available (because
-   you're not using a multidrop retriever class, for example), getmail
-   uses the string "unknown". You can disable this header if you wish.
+   header field, and the envelope sender in the Return-Path: header
+   field. If this information is not available (because you're not using
+   a multidrop retriever class, or the MTA on the POP/IMAP server is
+   broken, for example), getmail uses the string "unknown". You can
+   disable the creation of the Delivered-To: header field if you wish.
    
   getmail isn't replacing my command argument "%(recipient)" with the message
   recipient address
@@ -152,9 +170,10 @@ Unexpected Behaviour
    following command to test:
 python -c "import socket; print socket.getfqdn()"
 
-   If this seems to take a similar amount of time to complete, the delay
-   is in finding the fully-qualified hostname of your system. The fix is
-   to ensure you have a valid mapping of address-to-hostname for all the
-   addresses in your system. You can do this in your /etc/hosts file, in
-   your authoritative content DNS server, or in another system-specific
-   manner.
+   If this seems to take a similarly long period of time to complete, the
+   delay is in finding the fully-qualified hostname of your system. The
+   fix is to ensure you have a valid mapping of address-to-hostname for
+   all the addresses in your system. You can do this in your /etc/hosts
+   file, in your authoritative content DNS server, or in another
+   system-specific manner -- please contact your OS vendor (or its public
+   support mailing list) for assistance.

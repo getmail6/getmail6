@@ -1,3 +1,12 @@
+Version 4.1.4
+1 September 2004
+
+  -change failure of a message filter to produce at least as many mail headers
+  as it was provided from a non-fatal error to warning.  If your filter strips
+  headers, getmail will now warn you about it, but will not consider it an 
+  error.
+  -documentation additions.
+
 Version 4.1.3
 31 August 2004
 

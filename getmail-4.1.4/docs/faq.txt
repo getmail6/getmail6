@@ -12,6 +12,101 @@
    (only). If you wish to obtain a license to distribute getmail under
    other terms, please contact me directly.
    
+                               Table of Contents
+                                       
+     * getmail documentation
+     *
+          + getmail documentation
+          +
+               o Features
+               o Differences from previous versions
+               o Requirements
+               o Obtaining getmail
+               o Installing getmail
+               o getmail mailing lists
+     * getmail configuration
+     *
+          + Configuring getmail
+          +
+               o Creating a getmail rc file
+          + Running getmail
+          +
+               o Commandline options
+               o Using getmail as an MDA
+     * getmail troubleshooting
+     *
+          + Troubleshooting problems
+          +
+               o Error messages
+               o Warning messages
+               o Unexpected Behaviour
+     * getmail frequently-asked questions (FAQs)
+     *
+          + Frequently-Asked Questions (FAQs)
+          +
+               o About getmail
+               o
+                    # What is getmail?
+                    # What platforms/machines does getmail run on?
+                    #
+                         @ Does getmail run on MS Windows?
+                         @ Does getmail run on Macintosh systems?
+                         @ Does getmail require Unix/Linux?
+                    # How can I get support for getmail?
+                    # I think I found a bug! How do I report it?
+                    # Does getmail support virus scanning of retrieved
+                      messages?
+                    # Does getmail support spam filtering of retrieved
+                      messages?
+                    # Does getmail support SSL?
+                    # Does getmail rewrite mail headers when it retrieves
+                      mail?
+                    # Can I upgrade from getmail 3 to getmail 4? What
+                      about my "oldmail" files?
+                    # Why did you write getmail? Why not just use
+                      fetchmail?
+               o Configuring getmail
+               o
+                    # What is a "domain mailbox"?
+                    # Do I have to run sendmail or another MTA to use
+                      getmail?
+                    # What's a maildir?
+                    # What's "mboxrd" format?
+                    # What's this "envelope sender" and "envelope
+                      recipient" stuff?
+                    #
+                         @ Message header vs. message envelope
+                         @ Receiving messages without your address in the
+                           message header
+                         @ Responsibility for recording the message
+                           envelope
+                         @ How this relates to domain or multidrop
+                           mailboxes
+                    # This rc stuff seems complicated. Does it have to
+                      be?
+               o How do I ...
+               o
+                    # How do I retrieve mail from multiple accounts?
+                    # How do I stop getmail adding a Delivered-To: header
+                      to messages?
+                    # How do I stop getmail adding a Received: header to
+                      messages?
+                    # How do I make getmail deliver messages by
+                      re-injecting with SMTP?
+                    # How do I make getmail deliver messages to an mh
+                      folder?
+                    # How do I run getmail in "daemon" mode?
+                    # How do I make getmail retrieve mail from Hotmail?
+               o Using getmail with other software
+               o
+                    # How do I use SpamAssassin with getmail?
+                    # How do I use ClamAV with getmail?
+                    #
+                         @ Getting prettier output from ClamAV
+                    # How do I use procmail with getmail?
+                    # How do I use maildrop with getmail?
+                    # How do I use TMDA with getmail?
+       
                        Frequently-Asked Questions (FAQs)
                                        
    The following questions about getmail are answered more-or-less
@@ -92,6 +187,13 @@ About getmail
    
   I think I found a bug! How do I report it?
   
+   First, make sure that you are running the latest version. You can
+   always find what is the latest version by checking this page at the
+   original web site:
+   http://www.qcc.ca/~charlesc/software/getmail-4/.
+   If you running an older version of the software, chances are whatever
+   bug you may have found has already been fixed.
+   
    Ideally, you should join the mailing list and send your bug report
    there. You should include the following information:
      * getmail version
@@ -299,6 +401,144 @@ Configuring getmail
    For details on the differences between the various mbox sub-types, see
    http://qmail.org/man/man5/mbox.html.
    
+  What's this "envelope sender" and "envelope recipient" stuff?
+  
+   The "envelope" of an email message is "message metadata"; that is, the
+   message is information, and the envelope is information about the
+   message (information about other information). Knowing this is
+   critical to understanding what a domain or multidrop mailbox is, how
+   it works, and what getmail can do for you.
+   
+   Others have tried to explain this with varying degrees of success.
+   I'll use the standard analogy of normal postal (i.e. non-electronic)
+   mail:
+   
+    Message header vs. message envelope
+    
+   When you receive a letter (a reply from the customer-disservice
+   department of your telephone company, say) it arrives in an envelope.
+   You tear it open, remove the letter, and read it. At the top of the
+   letter is the telephone company's return address, followed by the date
+   the letter was written. Your name and mailing address follow that, and
+   then the remainder of the letter.
+   
+   The important thing to keep in mind is that the contents of the letter
+   (including the addresses just discussed) are never looked at by the
+   post office. If they can't deliver the letter (your mailing address on
+   the envelope got smudged in the rain), they'll return it to the
+   address listed in the top-left corner of the envelope. They don't
+   check to make sure that the address listed there is the same as the
+   one listed at the top of the letter. Similarly, when they can
+   successfully deliver it, they don't check to make sure that the
+   recipient name and address on the envelope matches the one listed on
+   the letter between the date and the salutation.
+   
+   The message header fields From: and Resent-from: are equivalent to the
+   block of address information at the top of the letter; it usually
+   contains the name and address of the sender of the message, but it is
+   never actually used in the delivery of the message. Similarly, the
+   To:, cc:, Resent-to:, and Resent-cc: header fields are the equivalent
+   of the block of address information between the date and the
+   salutation on the letter; they usually contain the names and addresses
+   of the intended recipients of the message, but they too are not used
+   in the delivery of the message.
+   
+    Receiving messages without your address in the message header
+    
+   You might open an envelope addressed to you and find that the letter
+   inside makes no mention of your name. Your name and address don't
+   appear anywhere in the letter, but it was still successfully delivered
+   to you based on the envelope information. There's nothing strange
+   about this. If someone else opens your mail for you, discards the
+   envelopes, and places the contents in your in-basket, you might wonder
+   how some of it ended up there, because there's nothing to connect you
+   with the message contents.
+   
+   Email is exactly like this. Each message has two parts, the message
+   contents, and the message envelope. The message contents include the
+   message header, and the message body. The message envelope is made up
+   of exactly one envelope sender address (which can be empty) and one or
+   more envelope recipient addresses. If the message cannot be delivered
+   for any reason, and the envelope sender address is not empty, the
+   message must be returned to the envelope sender address by the mail
+   transfer agent (MTA) which last accepted responsibility for delivering
+   the message. These notifications are known as "bounce messages" or
+   sometimes as "non-delivery notifications". Bounce messages are sent
+   using the empty envelope return path, to prevent mail loops from
+   occurring when a bounce message itself cannot be delivered.
+   
+   Confusion often arises among novice users about the difference between
+   the message header and the message envelope; they seem to believe that
+   they are not independant. This appears to be an artifact of their use
+   of simple-minded GUI mail user agents (MUAs) that do not allow them to
+   set the envelopes of their messages explicitly, but instead simply use
+   the contents of the From: header field as the envelope sender address,
+   and any addresses found in To:, cc:, and bcc: header fields as the
+   envelope recipient addresses. While these are sensible as default
+   values, more powerful MUAs allow the user to override this choice.
+   
+    Responsibility for recording the message envelope
+    
+   The last MTA to receive a message (usually the one running on the POP
+   or IMAP server where you retrieve your mail from) essentially acts as
+   your correspondence secretary, accepting your mail from the postman,
+   opening it, and placing it into your in-basket. Note that this would
+   normally destroy the important information contained in the message
+   envelope. To prevent this loss of information, this MTA is supposed to
+   copy the information from the envelope into new fields in the header
+   of the message content, as if your secretrary copied the sender and
+   recipient addresses onto the back of your letters in felt pen.
+   Unfortunately, some MTAs do not always do this properly, and envelope
+   information can then be lost. When this happens, it makes dealing with
+   certain types of mail messages problematic:
+     * bcc'd messages (bcc stands for blind carbon copy), where you are
+       an envelope recipient, but your address does not appear in the
+       message content (i.e., your address does not appear in a To:, cc:,
+       or similar message header field). With bcc'd messages, the From:
+       header field contains the name and address of the author of the
+       message, and the To: and cc: header fields contain the names and
+       addresses of the other, non-blind recipients of the message.
+     * mailing list messages, where you are an envelope recipient, but
+       your address does not appear in the message content (i.e., your
+       address does not appear in a To:, cc:, or similar message header
+       field). Mailing list messages have the envelope sender address set
+       to the mailing list manager (so that it can monitor "bad" list
+       addresses for bounces), while the From: header field contains the
+       name and address of the author of the message. The envelope
+       recipient addresses of mailing list messages are the addresses of
+       the list subscribers, while the To: header field usually contains
+       the address of the mailing list.
+     * other, less common cases.
+       
+   MTAs are supposed to record the envelope sender address by placing it
+   into a new Return-Path: header field at the top of the message. They
+   should then record the envelope recipient address(es) in another new
+   header field; sometimes this header field is named Delivered-To:, but
+   it can also be Envelope-To: or one of a few other names.
+   
+    How this relates to domain or multidrop mailboxes
+    
+   A domain or multidrop mailbox is one which receives mail for multiple
+   email addresses (commonly all addresses in a given domain). If you do
+   not want all of this mail to go to one person, you need to know who
+   the messages were originally addressed to after retrieving them from
+   the POP/IMAP multidrop mailbox. You cannot do this by looking at the
+   To:, cc:, or other informational message header fields, because they
+   do not actually reflect the message envelope at the time of delivery.
+   Instead, you have to reconstruct the envelope information from the
+   message header fields which the MTA on the server used to record it at
+   the time of delivery.
+   
+   If the final MTA does not record the message envelope (the envelope
+   sender, and all envelope recipient addresses in the domain mailbox the
+   message was sent to), then mail will be lost or misdirected regardless
+   of which software you use to access the mailbox. The mailbox cannot
+   actually be said to be a domain mailbox in this case; the defining
+   characteristic of a domain mailbox is that it records the envelope
+   correctly. The configuration of the MTA running on the server needs to
+   be fixed so that the envelope is properly recorded for every message
+   it receives.
+   
   This rc stuff seems complicated. Does it have to be?
   
    The configuration file format is actually very simple; you don't need
@@ -408,10 +648,6 @@ Using getmail with other software
    variety of arguments; please refer to SpamAssassin's manual pages or
    online documentation for details.
    
-   First, ensure you have the following in your SpamAssassin
-   configuration file(s):
-report_safe 0
-
    To filter messages through SpamAssassin in a client/server
    configuration (i.e. with the spamd daemon), use a configuration like
    this:

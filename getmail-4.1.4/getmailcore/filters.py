@@ -84,11 +84,8 @@ class FilterSkeleton(ConfigurableBase):
 
         # Check the filter was sane
         if len(newmsg.headers()) < len(msg.headers()):
-            # Kind of a hack, but one user tried to use an MDA as a filter
-            # (instead of having getmail use it as an external MDA), and ended
-            # up having getmail deliver 0-byte messages after the MDA had
-            # already done it.
-            raise getmailDeliveryError('filter %s returned fewer headers'
+            # Warn user
+            self.log.warning('Warning: filter %s returned fewer headers'
                 ' (%d) than supplied (%d)\n'
                 % (self, len(newmsg.headers()), len(msg.headers())))
 

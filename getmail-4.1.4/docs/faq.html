@@ -72,6 +72,7 @@
         <li>
             <ul>
             <li><a href="troubleshooting.html#error-messages">Error messages</a></li>
+            <li><a href="troubleshooting.html#warning-messages">Warning messages</a></li>
             <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
             </ul>
         </li>
@@ -112,6 +113,15 @@
                 <li><a href="faq.html#faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</a></li>
                 <li><a href="faq.html#faq-configuring-maildir">What's a maildir?</a></li>
                 <li><a href="faq.html#faq-configuring-mboxrd">What's &quot;mboxrd&quot; format?</a></li>
+                <li><a href="faq.html#faq-configuring-envelope">What's this &quot;envelope sender&quot; and &quot;envelope recipient&quot; stuff?</a></li>
+                <li>
+                    <ul>
+                    <li><a href="faq.html#faq-configuring-envelope-header">Message header vs. message envelope</a></li>
+                    <li><a href="faq.html#faq-configuring-envelope-bcc">Receiving messages without your address in the message header</a></li>
+                    <li><a href="faq.html#faq-configuring-envelope-record">Responsibility for recording the message envelope</a></li>
+                    <li><a href="faq.html#faq-configuring-envelope-multidrop">How this relates to domain or multidrop mailboxes</a></li>
+                    </ul>
+                </li>
                 <li><a href="faq.html#faq-configuring-simple">This rc stuff seems complicated.  Does it have to be?</a></li>
                 </ul>
             </li>
@@ -250,6 +260,16 @@
 </p>
 
 <h3 id="faq-about-bug">I think I found a bug!  How do I report it?</h3>
+<p class="important">
+	First, make sure that you are running the latest version.  You can always
+	find what is the latest version by checking this page at the original
+	web site:
+	<br />
+	<a href="http://www.qcc.ca/~charlesc/software/getmail-4/">http://www.qcc.ca/~charlesc/software/getmail-4/</a>.
+	<br />
+	If you running an older version of the software, chances are whatever bug
+	you may have found has already been fixed.
+</p>
 <p>
     Ideally, you should join the
     <a href="documentation.html#mailing-list-users">mailing list</a>
@@ -587,6 +607,194 @@
     <a href="http://qmail.org/man/man5/mbox.html">http://qmail.org/man/man5/mbox.html</a>.
 </p>
 
+<h3 id="faq-configuring-envelope">What's this &quot;envelope sender&quot; and &quot;envelope recipient&quot; stuff?</h3>
+<p>
+    The &quot;envelope&quot; of an email message is &quot;message 
+    metadata&quot;; that is, the message is information, and the envelope is 
+    information about the message (information about other information).  
+    Knowing this is critical to understanding what a domain or multidrop mailbox 
+    is, how it works, and what getmail can do for you.
+</p>
+<p>
+	<a href="http://cr.yp.to/smtp/mail.html">Others have tried to explain this</a>
+	with varying degrees of success.  I'll use the standard analogy of normal
+	postal (i.e. non-electronic) mail:
+</p>
+<h4 id="faq-configuring-envelope-header">Message header vs. message envelope</h4>
+<p>
+	When you receive a letter (a reply from the customer-disservice department
+	of your telephone company, say) it arrives in an envelope.  You tear it
+	open, remove the letter, and read it.  At the top of the letter is the
+	telephone company's return address, followed by the date the letter was
+	written.  Your name and mailing address follow that, and then the remainder
+	of the letter.
+</p>
+<p>
+	The important thing to keep in mind is that the contents of the letter 
+	(including the addresses just discussed) are never looked at by the post 
+	office.  If they can't deliver the letter (your mailing address on the 
+	envelope got smudged in the rain), they'll return it to the address listed 
+	in the top-left corner of the envelope.  They don't check to make sure that 
+	the address listed there is the same as the one listed at the top of the 
+	letter. Similarly, when they can successfully deliver it, they don't check 
+	to make sure that the recipient name and address on the envelope matches the 
+	one listed on the letter between the date and the salutation.
+</p>
+<p>
+	The message header fields
+	<span class="file">From:</span>
+	and
+	<span class="file">Resent-from:</span>
+	are equivalent to the block of address information at the top of the letter;
+	it usually contains the name and address of the sender of the message,
+	but it is never actually used in the delivery of the message.
+	Similarly, the
+	<span class="file">To:</span>,
+	<span class="file">cc:</span>,
+	<span class="file">Resent-to:</span>,
+	<span class="file">and Resent-cc:</span>
+	header fields are the equivalent of the block of address information between 
+	the date and the salutation on the letter; they usually contain the names 
+	and addresses of the intended recipients of the message, but they too are 
+	not used in the delivery of the message.
+</p>
+<h4 id="faq-configuring-envelope-bcc">Receiving messages without your address in the message header</h4>
+<p>
+	You might open an envelope addressed to you and find that the letter inside
+	makes no mention of your name.  Your name and address don't appear anywhere
+	in the letter, but it was still successfully delivered to you based on the
+	envelope information.  There's nothing strange about this.  If someone else
+	opens your mail for you, discards the envelopes, and places the contents
+	in your in-basket, you might wonder how some of it ended up there, because
+	there's nothing to connect you with the message contents.
+</p>
+<p>
+	Email is exactly like this.  Each message has two parts, the message 
+	contents, and the message envelope.  The message contents include the 
+	message header, and the message body.  The message envelope is made up of 
+	exactly one envelope sender address (which can be empty) and one or more 
+	envelope recipient addresses.  If the message cannot be delivered for any 
+	reason, and the envelope sender address is
+	<strong>not</strong>
+	empty, the message 
+	<strong>must</strong>
+	be returned to the envelope sender address by the mail transfer agent (MTA)
+	which last accepted responsibility for delivering the message.
+	These notifications are known as &quot;bounce messages&quot; or
+	sometimes as &quot;non-delivery notifications&quot;.  Bounce messages are
+	sent using the empty envelope return path, to prevent mail loops from 
+	occurring when a bounce message itself cannot be delivered.
+</p>
+<p>
+	Confusion often arises among novice users about the difference between the
+	message header and the message envelope; they seem to believe that they
+	are not independant.  This appears to be an artifact of their use of
+	simple-minded GUI mail user agents (MUAs) that do not allow them to set
+	the envelopes of their messages explicitly, but instead simply use the
+	contents of the From: header field as the envelope sender address, and
+	any addresses found in 
+	<span class="file">To:</span>,
+	<span class="file">cc:</span>,
+	and
+	<span class="file">bcc:</span>
+	header fields as the envelope recipient addresses.  While these are
+	sensible 
+	<em>as default values</em>,
+	more powerful MUAs allow the user to override this choice.
+</p>
+<h4 id="faq-configuring-envelope-record">Responsibility for recording the message envelope</h4>
+<p>
+	The last MTA to receive a message (usually the one running on the POP or 
+	IMAP server where you retrieve your mail from) essentially acts as your 
+	correspondence secretary, accepting your mail from the postman, opening it, 
+	and placing it into your in-basket.  Note that this would normally destroy 
+	the important information contained in the message envelope.  To prevent 
+	this loss of information, this MTA is supposed to copy the information from 
+	the envelope into new fields in the header of the message content, as if 
+	your secretrary copied the sender and recipient addresses onto the back of 
+	your letters in felt pen.  Unfortunately, some MTAs do not always do this
+	properly, and envelope information can then be lost.  When this happens,
+	it makes dealing with certain types of mail messages problematic:
+</p>
+<ul>
+	<li>
+		bcc'd messages (bcc stands for blind carbon copy), where you are an 
+		envelope recipient, but your address does not appear in the message 
+		content (i.e., your address does not appear in a 
+		<span class="file">To:</span>, 
+		<span class="file">cc:</span>, 
+		or similar message header field).  With bcc'd messages, the 
+		<span class="file">From:</span>
+		header field contains the name and address of the author of the message,
+		and the 
+		<span class="file">To:</span>
+		and
+		<span class="file">cc:</span>
+		header fields contain the names and addresses of the other, non-blind
+		recipients of the message.
+	</li>
+	<li>
+		mailing list messages, where you are an envelope recipient, but your 
+		address does not appear in the message content (i.e., your address does 
+		not appear in a 
+		<span class="file">To:</span>, 
+		<span class="file">cc:</span>, 
+		or similar message header field).  Mailing list messages have the
+		envelope sender address set to the mailing list manager (so that it
+		can monitor &quot;bad&quot; list addresses for bounces), while the
+		<span class="file">From:</span>
+		header field contains the name and address of the author of the
+		message.  The envelope recipient addresses of mailing list messages
+		are the addresses of the list subscribers, while the 
+		<span class="file">To:</span>
+		header field usually contains the address of the mailing list.
+	</li>
+	<li>
+		other, less common cases.
+	</li>
+</ul>
+<p>
+	MTAs are supposed to record the envelope sender address by placing it into a 
+	new
+	<span class="file">Return-Path:</span>
+	header field at the top of the message.  They should then record the
+	envelope recipient address(es) in another new header field; sometimes this
+	header field is named
+	<span class="file">Delivered-To:</span>,
+	but it can also be 
+	<span class="file">Envelope-To:</span>
+	or one of a few other names.
+</p>
+<h4 id="faq-configuring-envelope-multidrop">How this relates to domain or multidrop mailboxes</h4>
+<p>
+	A domain or multidrop mailbox is one which receives mail for multiple email
+	addresses (commonly all addresses in a given domain).  If you do not want
+	all of this mail to go to one person, you need to know who the messages
+	were originally addressed to after retrieving them from the POP/IMAP
+	multidrop mailbox.  You
+	<strong>cannot</strong>
+	do this by looking at the
+	<span class="file">To:</span>, 
+	<span class="file">cc:</span>, 
+	or other informational message header fields, because they do not actually
+	reflect the message envelope at the time of delivery.  Instead, you have
+	to reconstruct the envelope information from the message header fields
+	which the MTA on the server used to record it at the time of delivery.
+</p>
+<p>
+	If the final MTA does not record the message envelope (the envelope sender,
+	and all envelope recipient addresses in the domain mailbox the message was
+	sent to), then 
+	<em>mail will be lost or misdirected 
+	<strong>regardless</strong>
+	of which software you use to access the mailbox</em>.
+	The mailbox cannot actually be said to be a domain mailbox in this case; the 
+	defining characteristic of a domain mailbox is that it records the envelope 
+	correctly. The configuration of the MTA running on the server needs to be 
+	fixed so that the envelope is properly recorded for every message it 
+	receives.
+</p>
+
 <h3 id="faq-configuring-simple">This rc stuff seems complicated.  Does it have to be?</h3>
 <p>
     The configuration file format is actually very simple; you don't need
@@ -744,13 +952,6 @@ arguments = (&quot;+inbox&quot;, )
     <a href="http://useast.spamassassin.org/doc.html">online documentation</a>
     for details.
 </p>
-<p>
-    First, ensure you have the following in your SpamAssassin configuration
-    file(s):
-</p>
-<pre class="example">
-report_safe 0	
-</pre>
 <p>
     To filter messages through SpamAssassin in a client/server configuration
     (i.e. with the

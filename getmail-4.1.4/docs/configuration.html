@@ -147,6 +147,7 @@
         <li>
             <ul>
             <li><a href="troubleshooting.html#error-messages">Error messages</a></li>
+            <li><a href="troubleshooting.html#warning-messages">Warning messages</a></li>
             <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
             </ul>
         </li>
@@ -1254,7 +1255,7 @@ user = jeff
     to multiple matching destinations.  Any message which matches none of the
     patterns is delivered to a default destination for the postmaster.
 </p>
-<p>
+<p class="important">
     Because MultiSorter requires the envelope recipient to operate, it must be
     used with a domain mailbox retriever.  If you instead want to do some basic
     message sorting based on addresses found in the message header (using
