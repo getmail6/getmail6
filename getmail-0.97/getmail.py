@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.96'
+VERSION = '0.97'
 
 #
 # Imports
@@ -86,8 +86,8 @@ opt_host =				[]
 opt_port =				[]
 opt_account =			[]
 opt_password =			[]
-opt_delete_retrieved =	DEF_DELETE
-opt_retrieve_read =		DEF_READ_ALL
+opt_delete_retrieved =	[]
+opt_retrieve_read =		[]
 opt_dest =				[]
 opt_verbose =			0
 opt_rcfile =			None
@@ -102,7 +102,6 @@ opt_showhelp =			0
 # Data
 #
 
-OK, ERROR = (0, -1)
 true, false = ['true', 'yes', '1'], ['false', 'no', '0']
 
 CR =			'\r'
@@ -112,6 +111,7 @@ argv = 			sys.argv
 stderr = 		sys.stderr.write
 
 # Exit codes
+OK, ERROR = (0, -1)
 RC_NEWMAIL	= 0
 RC_NOMAIL	= 1
 RC_DEBUG	= 100
@@ -136,7 +136,7 @@ def main ():
 		print
 		mail = get_mail (opt_host[i], opt_port[i], opt_account[i],
 						 opt_password[i], opt_configdir,
-						 opt_delete_retrieved, opt_retrieve_read,
+						 opt_delete_retrieved[i], opt_retrieve_read[i],
 						 opt_verbose)
 
 		for msg in mail:
@@ -147,7 +147,7 @@ def main ():
 					sys.stdout.flush ()
 
 			except:
-				stderr ('Error encountered during delivery\n')
+				stderr ('Error encountered during delivery\n  (%s)\n' % cause)
 
 				t = 'tmpmail.%s:%s:%s' % (time.time (), os.getpid (),
 										  len (msg))
@@ -215,7 +215,8 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
 		for item in msglist:
 			if type (item) == IntType:
 				# No more messages; POP3.list() returns a final int
-				if verbose:  print '%s:  finished retrieving messages' % shorthost
+				if verbose:
+					print '%s:  finished retrieving messages' % shorthost
 				break
 			msgnum, msglen = string.split (item)
 			if verbose:
@@ -380,7 +381,7 @@ def mboxdeliver (mbox, message):
 
 	env_sender = string.replace (string.replace (env_sender, '<', ''), '>', '')
 
-	fromline = '\nFrom %s %s\n' % (env_sender, dtime)
+	fromline = 'From %s %s\n' % (env_sender, dtime)
 
 	# Open mbox
 	try:
@@ -395,6 +396,7 @@ def mboxdeliver (mbox, message):
 			f.write (line)
 			if line == '\n':	esc_from = 1
 			else:				esc_from = 0
+		f.write ('\n')
 		f.flush ()
 		fcntl.flock (f.fileno (), fcntl.LOCK_UN)
 		f.close ()
@@ -495,8 +497,8 @@ def read_configfile (file):
 			port = int (conf.get (section, 'port'))
 			pw = conf.get (section, 'password')
 			dest = conf.get (section, 'destination')
-			# dele = conf.get (section, 'delete')
-			# rall = conf.get (section, 'readall')
+			dele = string.lower (conf.get (section, 'delete'))
+			rall = string.lower (conf.get (section, 'readall'))
 
 			# Strip 'poison NUL' bytes just in case
 			account = string.replace (account, '\0', '')
@@ -509,6 +511,14 @@ def read_configfile (file):
 			opt_port.append (port)
 			opt_password.append (string.strip (pw))
 			opt_dest.append (string.strip (dest))
+			if dele in true:
+				opt_delete_retrieved.append (1)
+			else:
+				opt_delete_retrieved.append (0)
+			if rall in true:
+				opt_retrieve_read.append (1)
+			else:
+				opt_retrieve_read.append (0)
 
 	# User configuration errors
 	except ConfigParser.NoOptionError, cause:
@@ -517,8 +527,8 @@ def read_configfile (file):
 		sys.exit (ERROR)
 
 	except ConfigParser.MissingSectionHeaderError, cause:
-		stderr ('Error:  file "%s" does not appear to be a getmail configuration'
-				' file\n  (%s)\n' % (file, cause))
+		stderr ('Error:  file "%s" does not appear to be a getmail '
+				'configuration file\n  (%s)\n' % (file, cause))
 		sys.exit (ERROR)
 
 	except ConfigParser.DuplicateSectionError, cause:
@@ -527,18 +537,14 @@ def read_configfile (file):
 		sys.exit (ERROR)
 
 	except ConfigParser.ParsingError, cause:
-		stderr ('Error:  failure reading configuration file "%s"\n'
+		stderr ('Warning:  failure reading configuration file "%s"\n'
 				'  (%s)\n' % (file, cause))
 		# Maybe no config file, just skip it.
 		return
 
 	# Bugs in getmail
-	except ConfigParser.NoSectionError, cause:
-		stderr ('Error:  internal error parsing file "%s"\n  (%s)\n'
-				% (file, cause))
-		sys.exit (ERROR)
-
-	except ConfigParser.InterpolationError, cause:
+	except (ConfigParser.NoSectionError,
+			ConfigParser.InterpolationError), cause:
 		stderr ('Error:  internal error parsing file "%s"\n  (%s)\n'
 				% (file, cause))
 		sys.exit (ERROR)
@@ -582,9 +588,9 @@ def parse_options (argv):
 
 	optslist, args = [], []
 
-	opts = 'c:dlanvhi'
-	longopts = ['delete', 'dont-delete', 'all', 'new', 'verbose', 'configdir=',
-		'help', 'dump', 'ignoreconfig']
+	opts = 'ac:dhilnv'
+	longopts = ['all', 'configdir=', 'delete', 'dont-delete', 'dump', 'help',
+				'ignoreconfig', 'new', 'verbose']
 
 	try:
 		global optslist, args
@@ -601,16 +607,16 @@ def parse_options (argv):
 			opt_showhelp = 1
 
 		elif option == '--delete' or option == '-d':
-			opt_delete_retrieved = 1
+			delete = 1
 
 		elif option == '--dont-delete' or option == '-l':
-			opt_delete_retrieved = 0
+			delete = 0
 
 		elif option == '--all' or option == '-a':
-			opt_retrieve_read = 1
+			retrieve_read = 1
 
 		elif option == '--new' or option == '-n':
-			opt_retrieve_read = 0
+			retrieve_read = 0
 
 		elif option == '--verbose' or option == '-v':
 			opt_verbose = 1
@@ -651,9 +657,9 @@ def parse_options (argv):
 			opt_configdir = os.path.join (os.environ['HOME'], '.getmail')
 			if not os.path.isdir (opt_configdir):
 				opt_configdir = ''
-				stderr ('Warning:  configuration/data directory not supplied, and "%s" environment\n'
-						'  variable not set.  Cannot retrieve only new mail.\n'
-						% ENV_GETMAIL)
+				stderr ('Warning:  configuration/data directory not supplied, '
+						'and "%s" environment\n  variable not set.  Cannot '
+						'retrieve only new mail.\n' % ENV_GETMAIL)
 				opt_retrieve_read = 1
 
 	# Read config file, setting default if necessary
@@ -698,6 +704,13 @@ def parse_options (argv):
 		except ValueError:
 			opt_port.append (DEF_PORT)
 
+	# Apply delete/don't-delete/retrieve all/retrieve new options to commandline
+	# arguments.
+	while len (opt_delete_retrieved) < len (opt_account):
+		opt_delete_retrieved.append (delete)
+	while len (opt_retrieve_read) < len (opt_account):
+		opt_retrieve_read.append (retrieve_read)
+
 	# Check mandatory options
 	if not opt_host:
 		stderr ('Error:  no host(s) supplied\n')
@@ -728,11 +741,14 @@ def parse_options (argv):
 
 	if opt_dump:
 		# Debugging aid, dumps current option config.
-		print '\ngetmail (%s) version %s debugging dump\n' % (oldargv[0], VERSION)
+		print '\ngetmail (%s) version %s debugging dump\n' \
+			% (oldargv[0], VERSION)
 		if os.environ.has_key (ENV_GETMAIL):
-			print 'ENV_GETMAIL = "%s", contains "%s"' % (ENV_GETMAIL, os.environ[ENV_GETMAIL])
+			print 'ENV_GETMAIL = "%s", contains "%s"' \
+				% (ENV_GETMAIL, os.environ[ENV_GETMAIL])
 		if os.environ.has_key (ENV_GETMAILOPTS):
-			print 'ENV_GETMAILOPTS = "%s", contains "%s"' % (ENV_GETMAILOPTS, os.environ[ENV_GETMAILOPTS])
+			print 'ENV_GETMAILOPTS = "%s", contains "%s"' \
+				% (ENV_GETMAILOPTS, os.environ[ENV_GETMAILOPTS])
 		print 'In-script defaults:\n' \
 			'  DEF_PORT     = "%s"\n' \
 			'  DEF_DELETE   = "%s"\n' \

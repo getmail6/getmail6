@@ -15,7 +15,7 @@ In a nutshell:
 --------------
 
 1.  Ensure Python v.1.5.2 is installed.  See http://www.python.org/ for details.
-	Note that RedHat GNU/Linux 6.0 ships with v.1.5.1, which will fail.
+    Note that RedHat GNU/Linux 6.0 ships with v.1.5.1, which will fail.
 
 2.  Install the script 'getmail.py' somewhere with executable permissions (0755).
 
@@ -28,15 +28,20 @@ syntax, similar to a standard MS-Windows .ini file.  In it, place one section
 for each mail account you wish to retrieve mail for.  The section is in this
 format:
 
-	[identifier]				# Whatever you like, just make them unique
-	account=username			# Required, your POP3 account name
-	host=popmailhost			# Required, the POP3 mailhost
-	port=portnum				# Optional, defaults to standard POP3 port (110)
-	password=poppass			# Optional, getmail will prompt for passwords
-	destination=path			# Required, path to destination Maildir or mbox
+    [identifier]                # Whatever you like, just make them unique
+    account=username            # Required, your POP3 account name
+    host=popmailhost            # Required, the POP3 mailhost
+    port=portnum                # Optional, defaults to standard POP3 port (110)
+    password=poppass            # Optional, getmail will prompt for passwords
+    destination=path            # Required, path to destination Maildir or mbox
+	delete=value				# Optional, delete mail after retrieving.
+	readall=value				# Optional, retrieve all mail, not just unread.
 
 'destination' can be either a Maildir or an mbox file.  getmail auto-detects
 Maildirs, and assumes regular files are mboxes.
+
+'delete' and 'readall' take values of 'yes', 'true', '1' for yes, or 'no',
+'false', '0' for no.  'delete' defaults to no, readall defaults to yes.
 
 See the example.getmailrc file for more details.
 

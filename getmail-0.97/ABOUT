@@ -77,6 +77,8 @@
        port=port
        password=password
        destination=destinationpath
+       delete=value
+       readall=value
        The options can be specified in any order. Blank lines are
        ignored, as is anything after a '#' symbol.
        identifier is not currently used by getmail. They must be unique,
@@ -88,6 +90,12 @@
        password is optional. If not supplied, getmail will prompt for
        passwords.
        destination is the path to the destination Maildir or mbox file.
+       delete is optional, and controls whether getmail deletes the mail
+       from the POP3 server after retrieving it. Valid values include
+       'yes' or 'no', and defaults to 'no'.
+       readall is optional, and controls whether getmail retrieves all
+       mail, or only unread mail for that account. Valid values include
+       'yes' or 'no', and defaults to 'yes'.
        See the included example.getmailrc file for more details.
     3. Run getmail with no options to retrieve all mail for accounts
        specified in the .getmailrc file.
@@ -107,17 +115,17 @@
    The current version of getmail should be available at
    http://www.qcc.sk.ca/~charlesc/software/getmail/ 
    
-   The current version is v.0.96, dated 08-Jan-2000.
+   The current version is v.0.97, dated 08-Jan-2000.
    Questions, comments, bug reports, and feature requests should be
    directed to me at <getmail@discworld.dyndns.org>.
    
   Download
   
                                Download now:
-                            getmail-0.96.tar.gz
-    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.96.tar.gz
-                            getmail-0.96.tar.bz2
-    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.96.tar.bz2
+                            getmail-0.97.tar.gz
+    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.97.tar.gz
+                            getmail-0.97.tar.bz2
+    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.97.tar.bz2
                                       
    Older versions may be found in
    http://www.qcc.sk.ca/~charlesc/software/getmail/old-versions/
