@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.6'
+__version__ = '2.3.7'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -1430,7 +1430,8 @@ def read_configfile (filename, default_config):
             configs.append ( (account.copy(), locals) )
 
     except ConfParser.ConfParserException, txt:
-        log (FATAL, '\nError:  error in getmailrc file (%s)\n' % txt, options)
+        log (FATAL, '\nError:  error in getmailrc file (%s)\n' % txt,
+            default_config)
         sys.exit (exitcodes['ERROR'])
 
     return options, configs

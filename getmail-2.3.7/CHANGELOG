@@ -1,6 +1,13 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.7
+16 April 2002
+
+  -change an error message in read_configfile().  The bug is triggered by a
+  serious syntax error in the getmailrc file.  Thanks to Fatemeh Taj for the
+  bug report.
+
 Version 2.3.6
 8 April 2002
 
