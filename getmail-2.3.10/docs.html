@@ -22,9 +22,11 @@
     For easy navigation, all headings in the HTML version of this document are 
     links to their parent heading.
 
-    <H2><A NAME="contrib-docs" HREF="#docs">User-contributed documentation</A></H2>
-    Fredrik Steen, maintainer of the Debian package for getmail, has written a
-    man page for getmail.  It is available at <A HREF="http://people.debian.org/~stone/getmail/manpage/getmail.1">http://people.debian.org/~stone/getmail/manpage/getmail.1</A>.
+    <!--
+	    <H2><A NAME="contrib-docs" HREF="#docs">User-contributed documentation</A></H2>
+	    Fredrik Steen, maintainer of the Debian package for getmail, has written a
+	    man page for getmail.  It is available at <A HREF="http://people.debian.org/~stone/getmail/manpage/getmail.1">http://people.debian.org/~stone/getmail/manpage/getmail.1</A>.
+	-->
 
     <H1><A NAME="toc" HREF="#docs">Table of Contents</A></H1>
     <OL>
@@ -436,10 +438,13 @@ postmaster = "|/path/to/mda [options] 2>&1"
             <TD CLASS="listitem"><A HREF="#directive-local">local</A></TD><TD>Yes</TD><TD>None</TD><TD>Header field pattern-matching delivery target</TD>
         </TR>
         <TR>
-            <TD CLASS="listitem"><A HREF="#directive-recipient-header">recipient_header</A></TD><TD>Yes</TD><TD>Delivered-To, Envelope-To, Apparently-To, X-Envelope-To,<BR>Resent-To, Resent-cc, Resent-bcc, To, cc, bcc, Received</TD><TD>Extract recipient names from listed mail header fields</TD>
+            <TD CLASS="listitem"><A HREF="#directive-recipient-header">recipient_header</A></TD><TD>Yes</TD><TD>Delivered-To, Envelope-To, Apparently-To, X-Envelope-To,<BR>Resent-To, Resent-cc, Resent-bcc, To, cc, bcc</TD><TD>Extract recipient names from listed mail header fields</TD>
         </TR>
         <TR>
             <TD CLASS="listitem"><A HREF="#directive-relaxed-address-match">relaxed_address_match</A></TD><TD>Yes</TD><TD>0</TD><TD>Allow looser or more relaxed matching of email addresses.</TD>
+        </TR>
+        <TR>
+            <TD CLASS="listitem"><A HREF="#directive-envelope-recipient-header">envelope_recipient_header</A></TD><TD>Yes</TD><TD>None</TD><TD>Specify a header field the POP3 server records the envelope recipient address in.  Overrides recipient_header above.</TD>
         </TR>
         <TR>
             <TD CLASS="listitem"><A HREF="#directive-extension-sep">extension_sep</A></TD><TD>Yes</TD><TD>-</TD><TD>User extension address separator character</TD>
@@ -1214,6 +1219,71 @@ PERFORMANCE OF THIS SOFTWARE.</PRE>
                 relaxed_address_match = 0
             </TD>
         </TR>
+    </TABLE>
+
+    <H3><A NAME="directive-envelope-recipient-header" HREF="#directive-delivery-targets">Envelope recipient header field</A></H3>
+    <TABLE>
+        <TR>
+            <TD CLASS="rowlabel">
+                Function
+            </TD>
+            <TD CLASS="rowdata">
+                Configure getmail to look only at a specific header field
+                where the POP3 server records the envelope recipient address.
+                This allows accurate redelivery from a domain mailbox, with
+                no duplicate messages due to bcc'd messages.<BR>
+                <BR>
+                Note that using this directive requires that every message
+                will contain the specified header field, and it will override
+                any use of other header fields (the defaults or specified with
+                recipient_header).
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Syntax
+            </TD>
+            <TD CLASS="rowdata">
+                envelope_recipient_address = <EM CLASS="example">header_name:position</EM>
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Optional
+            </TD>
+            <TD CLASS="rowdata">
+                Yes
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Default
+            </TD>
+            <TD CLASS="rowdata">
+                None
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Commandline equivalent
+            </TD>
+            <TD CLASS="rowdata">
+                None
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Examples
+            </TD>
+            <TD CLASS="sample">
+                envelope_recipient_header = delivered-to:2<BR>
+                envelope_recipient_header = envelope-to:1<BR>
+                <BR>
+                The first example instructs getmail to only look at the
+                second-from-the-top &quot;Delivered-To:&quot; header field.<BR>
+                The second example instructs getmail to only look at the
+                topmost &quot;Envelope-To:&quot; header field.
+            </TR>
     </TABLE>
 
     <H3><A NAME="directive-extension-sep" HREF="#directive-delivery-targets">User address extension separator character</A></H3>

@@ -11,12 +11,6 @@ About this document
    navigation, all headings in the HTML version of this document are links to
    their parent heading.
 
-User-contributed documentation
-
-   Fredrik Steen, maintainer of the Debian package for getmail, has written a
-   man page for getmail. It is available at
-   http://people.debian.org/~stone/getmail/manpage/getmail.1.
-
                                Table of Contents
 
    1. Installing getmail
@@ -324,71 +318,75 @@ getmailrc Directives
 
    getmail understands the following getmailrc directives:
 
-          Directive         Optional?      Default             Summary        
-   POP3 Server Configuration
-   server                   No        None              POP3 server hostname  
-   port                     Yes       110               POP3 server TCP port  
-                                                        number                
-   timeout                  Yes       180 seconds       POP3 server TCP       
-                                                        timeout               
-   Account Configuration    
-   username                 No        None              POP3 account username 
-   password                 Yes       Prompt for        POP3 account password 
-                                      password          
-                                                        Use POP3 APOP         
-   use_apop                 Yes       0 (No)            authentication if     
-                                                        available             
-   Message Formatting       
-                                                        Suppress addition of  
-   no_delivered_to          Yes       0 (No)            Delivered-To: header  
-                                                        field                 
-                                                        Suppress addition of  
-   no_received              Yes       0 (No)            Received: header      
-                                                        field                 
-   Message Delivery Targets 
-   postmaster               No        None              Default message       
-                                                        delivery target       
-                                                        Header field          
-   local                    Yes       None              pattern-matching      
-                                                        delivery target       
-                                      Delivered-To,                           
-                                      Envelope-To,                            
-                                      Apparently-To,    Extract recipient     
-   recipient_header         Yes       X-Envelope-To,    names from listed
-                                      Resent-To,        mail header fields
-                                      Resent-cc,        
-                                      Resent-bcc, To,   
-                                      cc, bcc, Received 
-                                                        Allow looser or more  
-   relaxed_address_match    Yes       0                 relaxed matching of   
-                                                        email addresses.      
-                                                        User extension        
-   extension_sep            Yes       -                 address separator     
-                                                        character             
-   extension_depth          Yes       1                 User extension        
-                                                        address base length   
-   Message Retrieval        
-                                                        Retrieve all          
-   readall                  Yes       1 (Yes)           messages, or only     
-                                                        previously unseen     
-                                                        messages              
-                                                        Do not retrieve       
-   max_message_size         Yes       0 (No limit)      messages larger than  
-                                                        this setting          
-   max_messages_per_session Yes       0 (No limit)      Do not retrieve more  
-                                                        than X messages       
-                                                        Eliminate duplicate   
-   eliminate_duplicates     Yes       0 (No)            messages from POP3    
-                                                        mailbox               
-   delete                   Yes       0 (No)            Delete messages after 
-                                                        retrieval             
-   delete_after             Yes       0 (No)            Delete messages X     
-                                                        days after retrieval  
-   getmail Behaviour        
-   verbose                  Yes       1 (Yes)           Show status messages  
-                                                        while running         
-   message_log              Yes       None              Log message retrieval 
-                                                        and delivery to file  
+           Directive         Optional?     Default            Summary         
+   POP3 Server Configuration 
+   server                    No        None            POP3 server hostname   
+   port                      Yes       110             POP3 server TCP port   
+                                                       number                 
+   timeout                   Yes       180 seconds     POP3 server TCP        
+                                                       timeout                
+   Account Configuration     
+   username                  No        None            POP3 account username  
+   password                  Yes       Prompt for      POP3 account password  
+                                       password        
+                                                       Use POP3 APOP          
+   use_apop                  Yes       0 (No)          authentication if      
+                                                       available              
+   Message Formatting        
+                                                       Suppress addition of   
+   no_delivered_to           Yes       0 (No)          Delivered-To: header   
+                                                       field                  
+   no_received               Yes       0 (No)          Suppress addition of   
+                                                       Received: header field 
+   Message Delivery Targets  
+   postmaster                No        None            Default message        
+                                                       delivery target        
+                                                       Header field           
+   local                     Yes       None            pattern-matching       
+                                                       delivery target        
+                                       Delivered-To,                          
+                                       Envelope-To,                           
+                                       Apparently-To,  Extract recipient      
+   recipient_header          Yes       X-Envelope-To,  names from listed mail
+                                       Resent-To,      header fields
+                                       Resent-cc,      
+                                       Resent-bcc, To, 
+                                       cc, bcc         
+                                                       Allow looser or more   
+   relaxed_address_match     Yes       0               relaxed matching of    
+                                                       email addresses.       
+                                                       Specify a header field 
+                                                       the POP3 server        
+                                                       records the envelope   
+   envelope_recipient_header Yes       None            recipient address in.  
+                                                       Overrides              
+                                                       recipient_header       
+                                                       above.                 
+   extension_sep             Yes       -               User extension address 
+                                                       separator character    
+   extension_depth           Yes       1               User extension address 
+                                                       base length            
+   Message Retrieval         
+                                                       Retrieve all messages, 
+   readall                   Yes       1 (Yes)         or only previously     
+                                                       unseen messages        
+                                                       Do not retrieve        
+   max_message_size          Yes       0 (No limit)    messages larger than   
+                                                       this setting           
+   max_messages_per_session  Yes       0 (No limit)    Do not retrieve more   
+                                                       than X messages        
+                                                       Eliminate duplicate    
+   eliminate_duplicates      Yes       0 (No)          messages from POP3     
+                                                       mailbox                
+   delete                    Yes       0 (No)          Delete messages after  
+                                                       retrieval              
+   delete_after              Yes       0 (No)          Delete messages X days 
+                                                       after retrieval        
+   getmail Behaviour         
+   verbose                   Yes       1 (Yes)         Show status messages   
+                                                       while running          
+   message_log               Yes       None            Log message retrieval  
+                                                       and delivery to file   
 
   POP3 Server Configuration
 
@@ -602,6 +600,30 @@ Note        copies and that both that copyright notice and this permission
    Commandline equivalent None                                                
    Examples               relaxed_address_match = 1                           
                           relaxed_address_match = 0                           
+
+  Envelope recipient header field
+
+               Configure getmail to look only at a specific header field      
+               where the POP3 server records the envelope recipient address.  
+               This allows accurate redelivery from a domain mailbox, with no 
+               duplicate messages due to bcc'd messages.                      
+   Function                                                                   
+               Note that using this directive requires that every message     
+               will contain the specified header field, and it will override  
+               any use of other header fields (the defaults or specified with 
+               recipient_header).                                             
+   Syntax      envelope_recipient_address = header_name:position              
+   Optional    Yes                                                            
+   Default     None                                                           
+   Commandline None                                                           
+   equivalent  
+               envelope_recipient_header = delivered-to:2                     
+               envelope_recipient_header = envelope-to:1                      
+                                                                              
+   Examples    The first example instructs getmail to only look at the        
+               second-from-the-top "Delivered-To:" header field.              
+               The second example instructs getmail to only look at the       
+               topmost "Envelope-To:" header field.                           
 
   User address extension separator character
 

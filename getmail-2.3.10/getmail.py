@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.9'
+__version__ = '2.3.10'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -234,7 +234,7 @@ def log (level, msg, opts):
         return
     if level == TRACE:
         if not newline:
-            log (level, '\n', opts)
+            msg = '\n' + msg
         if not msg:  msg = '\n'
         trace = traceback.extract_stack ()[-3]
         msg = '%s() [%s:%i] %s' % (trace[FUNCNAME],

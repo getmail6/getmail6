@@ -1,6 +1,13 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.10
+28 December 2002
+
+  -Change the log function to not use recursion to correct a problem in 
+  some circumstances.  Thanks to Frederic Vanneste for the report that got
+  me to look into this.
+  
 Version 2.3.9
 16 July 2002
 

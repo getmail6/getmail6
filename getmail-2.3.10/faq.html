@@ -67,9 +67,18 @@
     <BR>
     <STRONG>Another Update June 2002</STRONG>:  Reading fetchmail's UPDATES file, it appears that another
     security problem was fixed in 5.9.12, where a server could crash fetchmail on 64-bit
-    platforms.  Also worrying is a mention that it includes a fix for &quot;password shrouding&quot;.
-
-    <H4><A NAME="about-getmail-support" HREF="#about-getmail">How can I get support for getmail?</A></H4>
+    platforms.  Also worrying is a mention that it includes a fix for &quot;password shrouding&quot;.<BR>
+	<BR>
+	<STRONG>Update September 2002</STRONG>:  Yet another remotely-exploitable security
+	hole in fetchmail; <A HREF="http://security.e-matters.de/advisories/032002.html">this hole</A>
+	lets an attacker run arbitrary code on the victim's computer.<BR>
+	<BR>
+	<STRONG>Update December 2002</STRONG>:  Yet another remotely-exploitable security
+	hole in fetchmail; once again, a remote attacker can run arbitrary code on the machine
+	running fetchmail in its default configuration.  See <A HREF="http://security.e-matters.de/advisories/052002.html">this advisory</A>
+	for details.<BR>
+	
+	<H4><A NAME="about-getmail-support" HREF="#about-getmail">How can I get support for getmail?</A></H4>
     getmail is <A HREF="http://www.fsf.org/">Free Software</A>.  As such, it
     comes with no warranty.  However, I will do my best to support getmail on
     a voluntary basis through the <A HREF="getmail.html#maillist">getmail mailing list</A>.
@@ -113,28 +122,55 @@
     fields.
 
     <H4><A NAME="about-getmail-recipients" HREF="#about-getmail">How does getmail decide what local recipients to deliver a message to?</A></H4>
-    getmail first extracts everything it can find which looks like an email
-    address in certain headers in the message.  It then compares each address
-    in that list to any configured local recipient address patterns.  Any of
-    these that match get exactly one copy of the message, even if they match
-    multiple addresses.  If none match, it is delivered to the default delivery
-    instruction (postmaster directive).<BR><BR>
-    The default headers that getmail examines for addresses are:
-    <UL>
-        <LI>Delivered-To</LI>
-        <LI>Envelope-To</LI>
-        <LI>Apparently-To</LI>
-        <LI>X-Envelope-To</LI>
-        <LI>Resent-To</LI>
-        <LI>Resent-cc</LI>
-        <LI>Resent-bcc</LI>
-        <LI>To</LI>
-        <LI>cc</LI>
-        <LI>bcc</LI>
-        <LI>Received</LI>
-    </UL>
-    These can be changed with the <A HREF="docs.html#directive-recipient-header">recipient_header directive</A>.
-
+	This is a two-step process.
+	<OL>
+		<LI>
+			getmail first tries to find who the message was originally addressed 
+			to using one of two methods:
+			<UL>
+				<LI>
+					Envelope recipient address method.  If the MTA running on the
+					POP3 servers is sensible, it will record the envelope recipient
+					address in a new header field at the top of the message.  You
+					can then tell getmail to find it using the
+					<A HREF="docs.html#directive-envelope-recipient-header">envelope_recipient_header directive</A>.
+					getmail will look only at the specific header field you specify.
+					This is the most accurate method, but it is not the default,
+					as many MTAs (including default configurations of sendmail) are
+					too braindead to record the envelope recipient address.
+				</LI>
+				<LI>
+					Other header field examination method.  getmail will attempt to 
+					extract all valid email addresses from various message header fields 
+					which are commonly used for indicating recipients. The default 
+					headers that getmail examines for addresses when using this
+					method are:
+				    <UL>
+				        <LI>Delivered-To</LI>
+				        <LI>Envelope-To</LI>
+				        <LI>Apparently-To</LI>
+				        <LI>X-Envelope-To</LI>
+				        <LI>Resent-To</LI>
+				        <LI>Resent-cc</LI>
+				        <LI>Resent-bcc</LI>
+				        <LI>To</LI>
+				        <LI>cc</LI>
+				        <LI>bcc</LI>
+				    </UL>
+				    These can be changed with the
+				    <A HREF="docs.html#directive-recipient-header">recipient_header directive</A>.
+				</LI>
+			</UL>
+		</LI>
+		<LI>
+    		getmail will then compare each address found above to any configured 
+    		local recipient address patterns.  Any of these that match get 
+    		exactly one copy of the message, even if they match multiple 
+    		addresses.  If none match, it is delivered to the default delivery 
+    		instruction (postmaster directive).
+    	</LI>
+    </OL>
+    <BR><BR>
 
     <H2><A NAME="error-messages" HREF="#faq">Error Messages</A></H2>
 
