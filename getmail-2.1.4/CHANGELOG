@@ -1,32 +1,16 @@
 getmail changes since version 1.11:
 -----------------------------------
 
-Version 2.1.3
-3 August 2001
+Version 2.1.4
+3 September 2001
 
-  -change handling of command delivery.  Verification of existent command
-  is smarter; arguments won't cause problems now.  Remove duplicate code.
-
-Version 2.1.2
-1 August 2001
-
-  -getmail will now check the permissions on your getmailrc file, and refuse
-  to run if the file is group- or world-writable.  Thanks to Fredrik Steen for
-  the request.
-
-Version 2.1.1
-29 June 2001
-
-  -add "no_received" option, similar to no_delivered_to, at request of getmail
-  user Nigel Cunningham.
-  -got rid of some trailing tabs in ConfigParser.py after a report from
-  Fredrik Steen -- they're harmless, but unclean.  Fredrik is also in the
-  process of packaging getmail for use in Debian.  Thanks, Fredrik.
-  -changed the default path to the getmail library dir from /usr/local/lib/...
-  to /usr/lib/... .  This only affects the getmail wrapper script; if you're
-  using that, you may have to edit your copy, or change where you install the
-  files to.
-
+  -update the Maildir delivery method.  Peter van Dijk was auditing various
+  Maildir-aware programs and found a few areas where getmail was not
+  fully compliant with the documented standard.  With his help and some
+  discussion, this is now fixed.  Note that the previous behaviour would not
+  have resulted in the loss of mail in any case, but the new behaviour is
+  more predictable in some circumstances.
+  
 Version 2.1.0
 23 June 2001
 
