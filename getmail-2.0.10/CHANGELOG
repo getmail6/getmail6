@@ -1,5 +1,20 @@
 getmail changes since version 1.11:
 
+Version 2.0.10
+31 January 2001
+
+  -moved the session.quit() handling code around to handle timeouts while
+  exiting better.  Thanks to Stephen Morrison for the bug report.
+  -added the getmail version number and '--dump' output to its bug report code.
+  -moved parsing of Received: headers before To:, cc:, Resent-to:, and
+  Resent-cc:.  This should improve identification of the proper local recipient
+  if the final MTA is sendmail and the envelope recipient doesn't show up in
+  the other headers (mailing list mail, etc).  Also switched the order of
+  X-Envelope-To: and Apparently-To:.  I wish sendmail would just go away.
+  -includes newer version 1.12 of Timothy O'Malley's timeoutsocket.py.
+  Previously included 1.10, which could cause problems under Python 2.0 in
+  some circumstances, but did not apparently affect getmail.
+
 Version 2.0.9
 23 January 2001
 

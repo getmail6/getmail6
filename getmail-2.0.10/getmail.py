@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.9'
+__version__ = '2.0.10'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -138,17 +138,17 @@ exitcodes = {
 
 # First-try headers to parse for recipient addresses
 RECIPIENT_HEADERS = (
-	'delivered-to'
+	'delivered-to',
 	'envelope-to',
+	'apparently-to',
 	'x-envelope-to',
-	'apparently-to'
 	)
 
 # If the above fail, the first matching set of the following headers are used
 EXTRA_RECIPIENT_HEADERS = (
+	('received', ),
 	('resent-to', 'resent-cc', 'resent-bcc'),
 	('to', 'cc', 'bcc'),
-	('received', )
 	)
 
 # Count of deliveries for getmail; used in Maildir delivery
@@ -920,25 +920,22 @@ class getmail:
 					del self.oldmail[oldmsgid]
 			self.write_oldmailfile ()
 								
+			# Close session and display summary
+			self.session.quit ()
+			self.logfunc (INFO, 
+				'%(server)s:  POP3 session completed for "%(username)s"\n'
+				% self.account, self.opts)
+			self.logfunc (INFO, 
+				'%(server)s:' % self.account 
+				+ '  retrieved %(msgcount)i messages for %(localscount)i local recipients\n'
+				% self.info, self.opts)
+
 		except (getmailTimeoutException, getmailSocketException,
 			getmailProtoException, Timeout), txt:
 			# Failed to process a message; return to skip this user.
 			self.logfunc (WARN, 'failed to process message list for "%(username)s"'
 					% self.account + ' (%s)\n' % txt, self.opts)
 			self.abort (txt)
-			return
-
-		# Close session and display summary
-		self.session.quit ()
-		self.logfunc (INFO, 
-			'%(server)s:  POP3 session completed for "%(username)s"\n'
-			% self.account, self.opts)
-		self.logfunc (INFO, 
-			'%(server)s:' % self.account 
-			+ '  retrieved %(msgcount)i messages for %(localscount)i local recipients\n'
-			% self.info, self.opts)
-
-		return
 
 
 #
@@ -1286,6 +1283,7 @@ def main ():
 		except:
 			log (FATAL,
 				'\ngetmail bug:  please include the following information in any bug report:\n')
+			log (FATAL, 'getmail version %s\n\n' % __version__)
 			exc_type, value, tb = sys.exc_info()
 			tblist = traceback.format_tb (tb, None) + \
 				   traceback.format_exception_only (exc_type, value)
@@ -1294,6 +1292,10 @@ def main ():
 				tblist = [tblist]
 			for line in tblist:
 				log (FATAL, string.rstrip (line) + '\n')
+
+			log (FATAL, '\n\ngetmail configuration information:\n')
+			dump_config (overrides, mail_configs)
+
 			sys.exit (exitcodes['ERROR'])
 
 	sys.exit (exitcodes['OK'])

@@ -68,6 +68,8 @@ Good Luck!
 
 #
 # Revision history
+#    1.12 Better mimicry of makefile()'s ability to duplicate a
+#         file descriptor.  This fixes Python 2.0 woes.
 #    1.10 As Tim Lavoie pointed out, setblocking() still had a bug.
 #    1.9  Thanks to Doug Fort for pointing these out.
 #         BAD bug with accept() return value fixed.
@@ -83,7 +85,7 @@ Good Luck!
 #    1.1. First version of safesocket.py
 #
 
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "Timothy O'Malley <timo@alum.mit.edu>"
 
 #
@@ -139,10 +141,12 @@ class TimeoutSocket:
     set_timeout() method.
     """
 
+    _copies = 0
+    _blocking = 1
+    
     def __init__(self, sock, timeout):
         self._sock     = sock
         self._timeout  = timeout
-        self._blocking = 1
     # end __init__
 
     def __getattr__(self, key):
@@ -264,14 +268,21 @@ class TimeoutSocket:
         sock = self._sock
         r,w,e = select.select([sock], [], [], self._timeout)
         if r:
-            data = sock.recv(bufsize, flags)
-            return data
+            return sock.recv(bufsize, flags)
         raise Timeout("Recv timed out")
     # end recv
 
     def makefile(self, flags="r", bufsize=-1):
+        self._copies = self._copies +1
         return TimeoutFile(self, flags, bufsize)
     # end makefile
+
+    def close(self):
+        if self._copies <= 0:
+            self._sock.close()
+        else:
+            self._copies = self._copies -1
+    # end close
 
 # end TimeoutSocket
 
@@ -293,6 +304,11 @@ class TimeoutFile:
         return getattr(self._sock, key)
     # end __getattr__
 
+    def close(self):
+        self._sock.close()
+        self._sock = None
+    # end close
+    
     def write(self, data):
         self.send(data)
     # end write
