@@ -144,6 +144,7 @@ The current retrievers are:
     MultidropPOP3Retriever - multi-drop (domain mailbox) retriever with 
                            optional APOP support.  Provides recipient
                            information about retrieved messages.
+    MultidropPOP3SSLRetriever - same as above for POP3-over-SSL support.
     MultidropSPDSRetriever - multi-drop (domain mailbox) retriever for use with
                            demon.co.uk SPDS mailboxes.  Provides recipient
                            information about retrieved messages.
@@ -197,6 +198,15 @@ SimplePOP3Retriever, plus one additional parameter:
         password = mailpassword
         envelope_recipient = delivered-to:2
         
+MultidropPOP3SSLRetriever takes the same configuration parameters as
+MultidropPOP3Retriever, plus two optional additional parameters:
+
+    keyfile (optional) - path to an SSL PEM-formatted key file containing
+                         the private key to use.
+    certfile (optional) - path to a PEM-formatted certificate chain file.
+
+Note that Python's socket.ssl() function does not do any certificate
+verification!
                          
 MultidropSPDSRetriever takes the same configuration parameters as 
 SimplePOP3Retriever, except that it does not take the use_apop parameter.

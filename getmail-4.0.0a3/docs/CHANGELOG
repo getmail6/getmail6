@@ -1,5 +1,15 @@
+Version 4.0.0a3
+15 June 2004
+
+  -fix typo in processing filters.  Thanks: K. Shantanu.
+  -fix typo in processing non-default parameters.  Thanks: Andrew Raines. 
+  -document SSL retrievers
+  -move retrievers.py configuration functionality into ConfigurableBase class
+  -convert filters.py to use ConfigurableBase
+  -convert destinations.py to use ConfigurableBase
+
 Version 4.0.0a2
-??
+14 June 2004
 
   -fix default/'default' in filters module.  Thanks: Andrew Raines. 
   -add the mix-in classes for SSL support with POP3 classes.  Meant small

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.3
 '''Provide an SSL-capable POP3 class.
 
 '''

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.3
 '''Classes implementing retrievers (message sources getmail can retrieve mail from).
 
 Currently implemented:
@@ -33,13 +33,14 @@ from constants import *
 from utilities import updatefile, address_no_brackets
 from logging import logger
 from pop3ssl import POP3SSL, POP3_ssl_port
+from baseclasses import ConfigurableBase
 
 #
 # Functional classes
 #
 
 #######################################
-class RetrieverSkeleton(object):
+class RetrieverSkeleton(ConfigurableBase):
     '''Base class for implementing message-retrieval classes.
 
     Sub-classes should provide the following data attributes and methods:
@@ -88,18 +89,12 @@ class RetrieverSkeleton(object):
     '''
 
     def __init__(self, **args):
-        self.log = logger()
-        self.log.trace('args: %s\n' % args)
-        self.conf = {}
-        for (name, value) in args.items():
-            self.log.trace('setting %s to %s (%s)\n' % (name, value, type(value)))
-            self.conf[name] = value
+        ConfigurableBase.__init__(self, **args)
         self.msgids = []
         self.msgsizes = {}
         self.headercache = {}
         self.oldmail = {}
         self.timestamp = int(time.time())
-        self.__confchecked = False
         self.__initialized = False
 
     def __del__(self):
@@ -146,30 +141,7 @@ class RetrieverSkeleton(object):
             f.close()
             self.log.info('wrote %i uids for %s\n' % (len(self.oldmail), self))
         except IOError, o:
-            self.log.error('failed writing oldmail file for %s\n' % self)
-
-    def checkconf(self):
-        self.log.trace()
-        if self.__confchecked:
-            return
-        for item in self._confitems:
-            self.log.trace('checking %s\n' % item)
-            name = item['name']
-            dtype = item['type']
-            if not self.conf.has_key(name):
-                # Not provided
-                if item.has_key('default'):
-                    self.conf[name] = item['default']
-                else:
-                    raise getmailConfigurationError('missing required configuration directive %s' % name)
-            if type(self.conf[name]) is not dtype:
-                try:
-                    self.log.debug('converting %s (%s) to type %s\n' % (name, self.conf['name'], dtype))
-                    self.conf[name] = dtype(eval(self.conf[name]))
-                except StandardError, o:
-                    raise getmailConfigurationError('configuration value %s not of required type %s (%s)' % (name, dtype, o))
-        self.__confchecked = True
-        self.log.trace('done\n')
+            self.log.error('failed writing oldmail file for %s (%s)\n' % (self, o))
 
     def _confstring(self):
         self.log.trace()
@@ -457,7 +429,7 @@ class MultidropPOP3RetrieverBase(POP3RetrieverBase):
 
         try:
             line = data[self.envrecipname][self.envrecipnum]
-        except (KeyError, IndexError), o:
+        except (KeyError, IndexError), unused:
             raise getmailConfigurationError('envelope_recipient specified header missing (%s)' % self.conf['envelope_recipient'])
         msg.recipient = [address_no_brackets(address) for (name, address) in email.Utils.getaddresses([line])]
         if len(msg.recipient) != 1:

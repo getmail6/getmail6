@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.3
 '''Classes implementing message filters.
 
 Currently implemented:
@@ -12,26 +12,30 @@ import email
 from exceptions import *
 from utilities import is_maildir, deliver_maildir, mbox_from_escape, mbox_timestamp, lock_file, unlock_file
 from logging import logger
+from baseclasses import ConfigurableBase
 
 #######################################
-class FilterSkeleton(object):
+class FilterSkeleton(ConfigurableBase):
     '''Base class for implementing message-filtering classes.
 
     Sub-classes should provide the following data attributes and methods:
 
-      conf - a dictionary containing all configuration data for the instance.
+      _confitems - a tuple of dictionaries representing the parameters the class
+                   takes.  Each dictionary should contain the following key, value
+                   pairs:
+                     - name - parameter name
+                     - type - a type function to compare the parameter value against (i.e. str, int, bool)
+                     - default - optional default value.  If not preseent, the parameter is required.
 
       __str__(self) - return a simple string representing the class instance.
 
-      _process_args(self, **args) - process instantiation parameters **args and
-                                    store in self.conf.  Don't worry about missing
-                                    required values; KeyError will be converted
-                                    into getmailConfigurationError by the base class'
-                                    __init__().  Do any other validation necessary,
-                                    raising getmailConfigurationError on error.
-
       showconf(self) - log a message representing the instance and configuration
                        from self._confstring().
+
+      initialize(self) - process instantiation parameters from self.conf.
+                         Raise getmailConfigurationError on errors.  Do any
+                         other validation necessary, and set self.__initialized
+                         when done.
 
       _filter_message(self, msg) - accept the message and deliver it, returning
                                    a tuple (exitcode, newmsg, err).
@@ -47,39 +51,12 @@ class FilterSkeleton(object):
     See the Filter_external class for a good (though not simple) example.
     '''
     def __init__(self, **args):
-        self.log = logger()
-        self.log.trace()
-        for item in self._confitems:
-            self.log.trace('checking %s\n' % item)
-            name = item['name']
-            dtype = item['type']
-            if not self.conf.has_key(name):
-                # Not provided
-                if item.has_key('default'):
-                    self.conf[name] = item['default']
-                else:
-                    raise getmailConfigurationError('missing required configuration directive %s' % name)
-            if type(self.conf[name]) is not dtype:
-                try:
-                    self.log.debug('converting %s (%s) to type %s\n' % (name, self.conf['name'], dtype))
-                    self.conf[name] = dtype(eval(self.conf[name]))
-                except StandardError, o:
-                    raise getmailConfigurationError('configuration value %s not of required type %s (%s)' % (name, dtype, o))
+        ConfigurableBase.__init__(self, **args)
         try:
-            self._process_args(**args)
+            self.initialize()
         except KeyError, o:
-            raise getmailConfigurationError('missing argument %s' % o)
+            raise getmailConfigurationError('missing parameter %s' % o)
         self.log.trace('done\n')
-
-    def _confstring(self):
-        self.log.trace()
-        confstring = ''
-        names = self.conf.keys()
-        names.sort()
-        for name in names:
-            if confstring:  confstring += ', '
-            confstring += '%s="%s"' % (name, self.conf[name])
-        return confstring
 
     def filter_message(self, msg):
         self.log.trace()
@@ -135,17 +112,10 @@ class Filter_external(FilterSkeleton):
         {'name' : 'arguments', 'type' : tuple, 'default' : '()'},
     )
 
-    def _process_args(self, **args):
+    def initialize(self):
         self.log.trace()
-        try:
-            self.conf = {
-                'path' : os.path.expanduser(args['path']),
-                'command' : os.path.basename(args['path']),
-                'arguments' : eval(args.get('arguments', '()')),
-                'unixfrom' : bool(args.get('unixfrom', False)),
-            }
-        except SyntaxError, o:
-            raise getmailConfigurationError('invalid syntax for arguments ; see documentation (%s)' % o)
+        self.conf['path'] = os.path.expanduser(self.conf['path'])
+        self.conf['command'] = os.path.basename(self.conf['path'])
         if not os.path.isfile(self.conf['path']):
             raise getmailConfigurationError('no such command %s' % self.conf['path'])
         if not os.access(self.conf['path'], os.X_OK):
@@ -155,10 +125,10 @@ class Filter_external(FilterSkeleton):
 
     def __str__(self):
         self.log.trace()
-        return 'Filter_external %s' % str(self.conf)
-
+        return 'Filter_external %s' % self._confstring()
 
     def showconf(self):
+        self.log.trace()
         self.log.info('Filter_external(%s)\n' % self._confstring())
 
     def _filter_command(self, msg, msginfo, stdout, stderr):

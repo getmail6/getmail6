@@ -1,4 +1,4 @@
-#!/usr/bin/python2.3
+#!/usr/bin/env python2.3
 
 import sys
 import os.path
@@ -163,7 +163,7 @@ def main():
 
                 # Filters
                 filters = []
-                filtersections =  [section.lower() for section in configparser.sections() if section.lower.startswith('filter')]
+                filtersections =  [section.lower() for section in configparser.sections() if section.lower().startswith('filter')]
                 filtersections.sort()
                 for section in filtersections:
                     log.debug('processing filter section %s\n' % section)
