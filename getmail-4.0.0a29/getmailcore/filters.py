@@ -11,6 +11,7 @@ import email
 import sets
 
 from exceptions import *
+from message import *
 from utilities import *
 from baseclasses import ConfigurableBase
 
@@ -78,16 +79,8 @@ class FilterSkeleton(ConfigurableBase):
             # deliver 0-byte messages after the MDA had already done it.
             raise getmailOperationError('filter %s returned fewer headers (%d) than supplied (%d)\n' % (self, len(newmsg), len(msg)))
 
-        # Copy envelope info from original message
-        if hasattr(msg, 'sender'):
-            newmsg.sender = msg.sender
-        if hasattr(msg, 'recipient'):
-            newmsg.recipient = msg.recipient
-
-        # Copy other information from original message
-        newmsg.received_from = msg.received_from
-        newmsg.received_with = msg.received_with
-        newmsg.received_by = msg.received_by
+        # Copy attributes from original message
+        newmsg.copyattrs(msg)
 
         return newmsg
 
@@ -192,7 +185,7 @@ class Filter_external(FilterSkeleton):
             self.log.debug('about to execl() with args %s\n' % str(args))
             # Write out message with native EOL convention
             msgfile = os.tmpfile()
-            msgfile.write(msg_flatten(msg, False, False, include_from=self.conf['unixfrom']))
+            msgfile.write(msg.flatten(False, False, include_from=self.conf['unixfrom']))
             msgfile.flush()
             os.fsync(msgfile.fileno())
             # Rewind
@@ -215,9 +208,8 @@ class Filter_external(FilterSkeleton):
     def _filter_message(self, msg):
         self.log.trace()
         msginfo = {}
-        if hasattr(msg, 'sender'):
-            msginfo['sender'] = msg.sender
-        if hasattr(msg, 'recipient'):
+        msginfo['sender'] = msg.sender
+        if msg.recipient is not None:
             msginfo['recipient'] = msg.recipient
             msginfo['domain'] = msg.recipient.lower().split('@')[-1]
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
@@ -260,7 +252,7 @@ class Filter_external(FilterSkeleton):
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'], pid, exitcode))
 
-        newmsg = email.message_from_file(stdout, strict=False)
+        newmsg = Message(fromfile=stdout)
 
         return exitcode, newmsg, err
 
@@ -282,9 +274,8 @@ class Filter_classifier(Filter_external):
     def _filter_message(self, msg):
         self.log.trace()
         msginfo = {}
-        if hasattr(msg, 'sender'):
-            msginfo['sender'] = msg.sender
-        if hasattr(msg, 'recipient'):
+        msginfo['sender'] = msg.sender
+        if msg.recipient is not None:
             msginfo['recipient'] = msg.recipient
             msginfo['domain'] = msg.recipient.lower().split('@')[-1]
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])

@@ -17,7 +17,7 @@ except ImportError:
 try:
     from getmailcore import __version__, retrievers, destinations, filters, logging
     from getmailcore.exceptions import *
-    from getmailcore.utilities import eval_bool, logfile
+    from getmailcore.utilities import eval_bool, logfile, format_params, address_no_brackets
 except ImportError, o:
     sys.stderr.write('ImportError:  %s\n' % o)
     sys.exit(127)
@@ -86,8 +86,11 @@ def go(configs):
                     if retrieve:
                         msg = retriever.getmsg(msgid)
                         retrieved_messages += 1
-                        log.info('from <%s> ... ' % msg.sender)
-                        logline += ', sender <%s>' % msg.sender
+                        log.info('from <%s> ... ' % address_no_brackets(msg.sender))
+                        logline += ', sender <%s>' % address_no_brackets(msg.sender)
+                        if msg.recipient is not None:
+	                        log.info('to <%s> ... ' % address_no_brackets(msg.recipient))
+	                        logline += ', recipient <%s>' % address_no_brackets(msg.recipient)
 
                         for mail_filter in _filters:
                             log.debug('passing to filter %s ... ' % mail_filter)
@@ -309,9 +312,12 @@ def main():
                 }
                 for (name, value) in configparser.items('retriever'):
                     if name in ('type', 'configparser'): continue
-                    log.debug('    parameter %s="%s"\n' % (name, value))
+                    if name == 'password':
+                        log.debug('    parameter %s=*\n' % name)
+                    else:
+                        log.debug('    parameter %s="%s"\n' % (name, value))
                     retriever_args[name] = value
-                log.debug('    instantiating retriever %s with args %s\n' % (retriever_type, retriever_args))
+                log.debug('    instantiating retriever %s with args %s\n' % (retriever_type, format_params(retriever_args)))
                 retriever = retriever_func(**retriever_args)
                 log.debug('    checking retriever configuration for %s\n' % retriever)
                 retriever.checkconf()
@@ -326,9 +332,12 @@ def main():
                 destination_args = {'configparser' : configparser}
                 for (name, value) in configparser.items('destination'):
                     if name in ('type', 'configparser'): continue
-                    log.debug('    parameter %s="%s"\n' % (name, value))
+                    if name == 'password':
+                        log.debug('    parameter %s=*\n' % name)
+                    else:
+                        log.debug('    parameter %s="%s"\n' % (name, value))
                     destination_args[name] = value
-                log.debug('    instantiating destination %s with args %s\n' % (destination_type, destination_args))
+                log.debug('    instantiating destination %s with args %s\n' % (destination_type, format_params(destination_args)))
                 destination = destination_func(**destination_args)
 
                 # Filters
@@ -346,9 +355,12 @@ def main():
                     filter_args = {'configparser' : configparser}
                     for (name, value) in configparser.items(section):
                         if name in ('type', 'configparser'): continue
-                        log.debug('      parameter %s="%s"\n' % (name, value))
+                        if name == 'password':
+                            log.debug('    parameter %s=*\n' % name)
+                        else:
+                            log.debug('    parameter %s="%s"\n' % (name, value))
                         filter_args[name] = value
-                    log.debug('      instantiating filter %s with args %s\n' % (filter_type, filter_args))
+                    log.debug('      instantiating filter %s with args %s\n' % (filter_type, format_params(filter_args)))
                     mail_filter = filter_func(**filter_args)
                     _filters.append(mail_filter)
 
@@ -400,13 +412,9 @@ def main():
         sys.exit(0)
 
     except getmailConfigurationError, o:
-        # DEBUG
-        raise
         log.error('Configuration error: %s\n' % o)
         sys.exit(2)
     except getmailOperationError, o:
-        # DEBUG
-        raise
         log.error('Error: %s\n' % o)
         sys.exit(3)
     except StandardError, o:

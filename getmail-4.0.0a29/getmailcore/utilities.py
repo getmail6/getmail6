@@ -5,7 +5,7 @@
 __all__ = [
     'address_no_brackets', 'change_uidgid', 'deliver_maildir', 'eval_bool',
     'is_maildir', 'lock_file', 'logfile', 'mbox_from_escape',
-    'msg_flatten', 'unlock_file', 'updatefile'
+    'unlock_file', 'updatefile'
 ]
 
 
@@ -14,9 +14,6 @@ import signal
 import time
 import glob
 import fcntl
-import cStringIO
-# Python's email module breaks if you try to access email.Generator directly, so ...
-from email.Generator import Generator
 
 # Only on Unix
 try:
@@ -105,6 +102,24 @@ class logfile(object):
             self.file.flush()
         finally:
             unlock_file(self.file)
+
+#######################################
+def format_params(d, maskitems=('password', ), skipitems=()):
+    '''Take a dictionary of parameters and return a string summary.
+    '''
+    s = ''
+    keys = d.keys()
+    keys.sort()
+    for key in keys:
+        if key in skipitems:
+            continue
+        if s:
+            s += ','
+        if key in maskitems:
+            s += '%s=*' % key
+        else:
+            s += '%s="%s"' % (key, d[key])
+    return s
 
 ###################################
 def alarm_handler(*unused):
@@ -198,8 +213,6 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
         except OSError:
             # Not running as root, can't chown file
             pass
-        if os.environ.has_key('SENDER'):
-            f.write('Return-Path: %s%s' % (os.environ['SENDER'], os.linesep))
         f.write(data)
         f.flush()
         os.fsync(f.fileno())
@@ -310,29 +323,3 @@ def format_header(name, line):
     if line:
         header += line.strip() + os.linesep
     return header
-
-#######################################
-def msg_flatten(msg, delivered_to, received, mangle_from=False, include_from=False, max_linelen=998):
-    '''Take a message object and return a string with native EOL convention.
-    
-    The email module apparently doesn't always use native EOL, so we
-    force it by writing out what we need, letting the generator write out the
-    message, splitting it into lines, and joining them with the platform EOL.
-    '''
-    f = cStringIO.StringIO()
-    if include_from:
-        # This needs to be written out first, so we can't rely on the generator
-        f.write('From %s %s' % (mbox_from_escape(msg.sender), time.asctime()) + os.linesep)
-    if delivered_to:
-        f.write(format_header('Delivered-To', getattr(msg, 'recipient', 'unknown')))
-    if received:
-        content = 'from %s by %s with %s' % (msg.received_from, msg.received_by, msg.received_with)
-        if hasattr(msg, 'recipient'):
-            content += ' for <%s>' % msg.recipient
-        content += '; ' + time.strftime('%d %b %Y %H:%M:%S -0000', time.gmtime())
-        f.write(format_header('Received', content))
-    gen = Generator(f, mangle_from, max_linelen)
-    # From_ handled above, always tell the generator not to include it
-    gen.flatten(msg, False)
-    f.seek(0)
-    return os.linesep.join(f.read().splitlines() + [''])

@@ -1,3 +1,17 @@
+Version 4.0.0a29
+8 July 2004
+
+  -flesh out the getmailrc-examples file (note that it's been renamed from
+  getmailrc-example)
+  -clean up message attributes.  Make Message() class.  Move flatten_msg()
+  out of utilities and make it into a Message method.  Remove header-length
+  checking when generating flattened representation of message.  Change
+  callers to use the new class.
+  -move SENDER check from deliver_maildir() to getmail_maildir where it
+  belongs.
+  -update the miscellaneous documentation files
+  -last alpha, I think
+
 Version 4.0.0a28
 7 July 2004
 

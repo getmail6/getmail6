@@ -22,6 +22,7 @@ import sys
 import os
 import email
 from getmailcore.exceptions import *
+from getmailcore.message import Message
 from getmailcore import logging, constants, destinations
 
 verbose = False
@@ -48,8 +49,11 @@ if not (path and (path.startswith('.') or path.startswith('/')) and not path.end
 if os.path.exists(path) and not os.path.isfile(path):
     raise SystemExit('Error: %s is not an mbox' % path)
 
-msg = email.message_from_file(sys.stdin, strict=False)
-msg.sender = os.environ.get('SENDER', 'unknown')
+msg = Message(fromfile=sys.stdin)
+if os.environ.has_key('SENDER'):
+	msg.sender = os.environ['SENDER']
+if os.environ.has_key('RECIPIENT'):
+	msg.recipient = os.environ['RECIPIENT']
 
 try:
     dest = destinations.Mboxrd(path=path)

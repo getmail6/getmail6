@@ -26,6 +26,32 @@ About getmail
    written in Python, and licensed under the GNU General Public License
    version 2.
    
+  What platforms/machines does getmail run on?
+  
+   getmail runs on basically any platform. It's designed to, and written
+   in a language that helps to maintain cross-platform compatibility.
+   getmail is known to run on the following platforms:
+     * Linux-based GNU systems (all distributions)
+     * HURD-based GNU systems
+     * FreeBSD
+     * OpenBSD
+     * NetBSD
+     * HP/UX
+     * Sun Solaris
+     * IBM AIX
+     * Digital/Compaq Tru64 (a.k.a OSF/1) UNIX
+     * SGI Irix
+     * other commercial Unices
+     * Digital VMS
+     * MS Windows
+     * Cygwin on Windows
+     * Macintosh OS X
+     * Macintosh OS 9
+       
+   But getmail will also run on other, less common platforms. The only
+   real requirement is that Python run on that platform, and porting
+   Python is generally very easy.
+   
   How can I get support for getmail?
   
    getmail is Free Software. As such, it comes with no warranty. However,
@@ -62,8 +88,9 @@ About getmail
        problematic message.
        
    If you absolutely cannot sign up for the mailing list, send the report
-   to me directly. I may not be able to respond to all reports privately,
-   but I will try to address any bugs I find out about this way.
+   to me directly at <getmail-bugs @ discworld.dyndns.org>. I may not be
+   able to respond to all reports privately, but I will try to address
+   any bugs I find out about this way.
    
   Does getmail support virus scanning of retrieved messages?
   
@@ -228,6 +255,13 @@ How do I ...
    to have mail retrieved automatically at intervals. This is precisely
    what cron is designed to do; there's no need to add special code to
    getmail to do this.
+   
+  How do I make getmail retrieve mail from Hotmail?
+  
+   Well, you could write a retriever that speaks Hotmail's proprietary,
+   undocumented, and unsupported access protocol (or pay me to write
+   one), or simply set up the POP3 proxy from the httpmail package, and
+   have getmail retrieve mail from that POP3 proxy.
    
 Using getmail with other software
 

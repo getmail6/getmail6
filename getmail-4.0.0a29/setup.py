@@ -97,7 +97,7 @@ setup(
             'docs/configuration.txt',
             'docs/troubleshooting.txt',
             'docs/getmaildocs.css',
-            'docs/getmailrc-example',
+            'docs/getmailrc-examples',
         ]),
         (GETMAILMANDIR, [
             'docs/getmail.1',

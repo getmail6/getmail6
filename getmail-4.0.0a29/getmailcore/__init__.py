@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.3
 '''A reliable mail-retriever toolkit.
 
-getmail is a reliable, modular, extensible mail retriever with support for 
+getmail is a reliable, modular, extensible mail retriever with support for
 simple and multidrop POP3 mailboxes, multidrop SPDS mailboxes, simple and
 multidrop IMAP mailboxes.  Also supports POP3- and IMAP-over-SSL, message
 filtering, and other features.
@@ -11,9 +11,15 @@ import sys
 if sys.hexversion < 0x2030300:
     raise ImportError('getmail version 4 requires Python version 2.3.3 or later')
 
-__version__ = '4.0.0a28'
+__version__ = '4.0.0a29'
 
 __all__ = [
-    'constants', 'destinations', 'exceptions', 'filters', 'logging',
-    'retrievers', 'utilities'
+    'constants',
+    'destinations',
+    'exceptions',
+    'filters',
+    'logging',
+    'message',
+    'retrievers',
+    'utilities',
 ]

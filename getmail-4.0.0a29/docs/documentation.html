@@ -281,10 +281,10 @@ $ tar xf getmail-<span class="meta">version</span>.tar
     process.  The easiest installation method is to use the included
     <span class="file">setup.py</span>
     <a href="http://docs.python.org/inst/inst.html">Python distutils script</a>
-    to build and install getmail directly.  Alternatively, you can build a 
-    binary package (i.e., an RPM or similar managed software package) for your 
-    system from the source package and install the resulting package, but the 
-    Python distutils support for this is 
+    to build and install getmail directly.  Alternatively, you can build a
+    binary package (i.e., an RPM or similar managed software package) for your
+    system from the source package and install the resulting package, but the
+    Python distutils support for this is
     <a href="http://docs.python.org/dist/postinstallation-script.html">spotty</a>
     at present.
 </p>
@@ -321,7 +321,7 @@ $ su
     <span class="file">/usr/local/doc/getmail-<span class="meta">version</span></span>,
     and the
     <span class="file">getmailcore</span>
-    Python files will be installed into the 
+    Python files will be installed into the
     <span class="file">site-packages</span>
     subdirectory of your Python library directory (typically
     <span class="file">/usr/local/lib/python-<span class="meta">version</span></span>
@@ -335,7 +335,7 @@ $ su
     <span class="file">--prefix=<span class="meta">path</span></span>
     or
     <span class="file">--home=<span class="meta">path</span></span>
-    options when running the 
+    options when running the
     <span class="file">install</span>
     portion of the above commands:
 </p>
@@ -352,7 +352,7 @@ $ python setup.py install --home=~/
 
 <h3 class="warning">Installing in a non-standard location</h3>
 <p>
-	Note:  if you use one of the above methods to install into a directory other 
+	Note:  if you use one of the above methods to install into a directory other
 	than the default, the three scripts (
 	<span class="file">getmail</span>,
 	<span class="file">getmail_maildir</span>,
@@ -378,9 +378,9 @@ $ python setup.py install --home=~/
 		modify the scripts to explicitly tell Python where you've installed
 		them.  Insert a line like this:
 <pre class="example">
-sys.path.insert('/path/to/installation-directory')		
+sys.path.insert('/path/to/installation-directory')
 </pre>
-		containing the path to the directory you installed the 
+		containing the path to the directory you installed the
 		<span class="file">getmailcore</span>
 		directory in, somewhere below the line which reads
 <pre class="example">
@@ -407,15 +407,15 @@ $ python setup.py bdist --format=<span class="meta">package-format</span>
 <ul>
 	<li>
 		<span class="file">rpm</span>
-		&mdash; build a 
+		&mdash; build a
 		<span class="file">.noarch.rpm</span>
-		file which can then be installed with the 
+		file which can then be installed with the
 		<span class="file">rpm</span>
 		package manager.
 	</li>
 	<li>
 		<span class="file">pkgtool</span>
-		&mdash; build a package for the Sun Solaris 
+		&mdash; build a package for the Sun Solaris
 		<span class="file">pkgtool</span>
 		package manager.
 	</li>
@@ -436,9 +436,9 @@ $ python setup.py bdist --format=<span class="meta">package-format</span>
 	<span class="file">dist</span>
 	which can then be installed using the appropriate system-specific tool.
 	If you have problems with this process, please do not ask me for assistance;
-	ask your OS vendor or 
+	ask your OS vendor or
 	<a href="news:comp.lang.python">the comp.lang.python newsgroup</a>.
-	The install-directory-from-source process above is the only one I can 
+	The install-directory-from-source process above is the only one I can
 	support, and it should work on all platforms.
 </p>
 <p>
@@ -461,7 +461,7 @@ $ python setup.py bdist --format=<span class="meta">package-format</span>
 	with to &lt;getmail-unsubscribe @ discworld.dnsalias.org&gt;.
 </p>
 <p>
-	There is a browsable archive of the list at 
+	There is a browsable archive of the list at
 	<a href="http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2">
 		http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2
 	</a>.
@@ -472,9 +472,9 @@ $ python setup.py bdist --format=<span class="meta">package-format</span>
 	and other technical issues related to getmail.
 </p>
 <p>
-	Note:  you are expected to have read the 
+	Note:  you are expected to have read the
 	<a href="documentation.html">documentation</a>
-	and 
+	and
 	<a href="faq.html">Frequently Asked Questions</a>,
 	and browsed/searched the
 	<a href="http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2">mailing list archives</a>
@@ -483,9 +483,9 @@ $ python setup.py bdist --format=<span class="meta">package-format</span>
 
 <h3 id="mailing-list-announce">Announcements List</h3>
 <p>
-	If you only want to be notified of new releases of getmail, an announce-only 
+	If you only want to be notified of new releases of getmail, an announce-only
 	list has been set up.  Send a blank email to
-	&lt;getmail-announce-subscribe @ discworld.dnsalias.org&gt; to subscribe to 
+	&lt;getmail-announce-subscribe @ discworld.dnsalias.org&gt; to subscribe to
 	the list.  The list is very low-volume; you can expect a handful of messages
 	per year.
 </p>

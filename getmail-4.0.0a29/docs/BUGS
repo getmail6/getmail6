@@ -1,0 +1,17 @@
+Known bugs
+----------
+
+None.
+
+Reporting bugs
+--------------
+
+Please include the output of `getmail [options] --dump` with any
+bug report.
+
+If you find a bug in getmail, please either join the getmail users' mailing
+list and report it there (preferred), or send it to me at 
+<getmail-bugs @ discworld.dyndns.org>.
+
+You can join the getmail users' mailing list by sending a (blank) message
+to <getmail-subscribe @ discworld.dnsalias.org>.

@@ -68,6 +68,7 @@
         <li>
             <ul>
             <li><a href="faq.html#faq-about-what">What is getmail?</a></li>
+            <li><a href="faq.html#faq-about-platforms">What platforms/machines does getmail run on?</a></li>
             <li><a href="faq.html#faq-about-support">How can I get support for getmail?</a></li>
             <li><a href="faq.html#faq-about-bug">I think I found a bug!  How do I report it?</a></li>
             <li><a href="faq.html#faq-about-virus">Does getmail support virus scanning of retrieved messages?</a></li>
@@ -92,6 +93,7 @@
             <li><a href="faq.html#faq-how-no-received">How do I stop getmail adding a Received: header to messages?</a></li>
             <li><a href="faq.html#faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</a></li>
             <li><a href="faq.html#faq-how-daemon">How do I run getmail in &quot;daemon&quot; mode?</a></li>
+            <li><a href="faq.html#faq-how-hotmail">How do I make getmail retrieve mail from Hotmail?</a></li>
             </ul>
         </li>
         <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
@@ -124,49 +126,79 @@
 <h3 id="faq-about-what">What is getmail?</h3>
 <p>
 	getmail is a mail retriever with support for POP3, POP3-over-SSL, IMAP4,
-	IMAP4-over-SSL, and SPDS mail accounts.  
+	IMAP4-over-SSL, and SPDS mail accounts.
 	It supports normal single-user mail accounts and multidrop (domain)
 	mailboxes.
 	getmail is written in Python, and licensed under the
 	<a href="COPYING">GNU General Public License version 2</a>.
 </p>
 
+<h3 id="faq-about-platforms">What platforms/machines does getmail run on?</h3>
+<p>
+	getmail runs on basically any platform.  It's designed to, and written
+	in a language that helps to maintain cross-platform compatibility.
+	getmail is known to run on the following platforms:
+</p>
+<ul>
+	<li>Linux-based GNU systems (all distributions)</li>
+	<li>HURD-based GNU systems</li>
+	<li>FreeBSD</li>
+	<li>OpenBSD</li>
+	<li>NetBSD</li>
+	<li>HP/UX</li>
+	<li>Sun Solaris</li>
+	<li>IBM AIX</li>
+	<li>Digital/Compaq Tru64 (a.k.a OSF/1) UNIX</li>
+	<li>SGI Irix</li>
+	<li>other commercial Unices</li>
+	<li>Digital VMS</li>
+	<li>MS Windows</li>
+	<li>Cygwin on Windows</li>
+	<li>Macintosh OS X</li>
+	<li>Macintosh OS 9</li>
+</ul>
+<p>
+	But getmail will also run on other, less common platforms.  The only real
+	requirement is that Python run on that platform, and porting Python is
+	generally very easy.
+</p>
+
 <h3 id="faq-about-support">How can I get support for getmail?</h3>
 <p>
 	getmail is
 	<a href="http://www.fsf.org/">Free Software</a>.
-	As such, it comes with no warranty.  However, I will do my best to support 
+	As such, it comes with no warranty.  However, I will do my best to support
 	getmail on a voluntary basis through the
 	<a href="getmail.html#maillist">getmail mailing list</a>.
 </p>
 <p>
-	If you are using getmail in a commercial or other environment where problems 
+	If you are using getmail in a commercial or other environment where problems
 	cost money, consider contacting me privately for commercial support.
 </p>
 <p>
 	If you have questions about getmail, the first step is to read the
 	<a href="documentation.html">documentation</a>,
-	and the remainder of the Frequently Asked Questions. If your question isn't 
+	and the remainder of the Frequently Asked Questions. If your question isn't
 	answered there, search the getmail mailing list archives at
 	<a href="http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2">
 	    http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2
 	</a>.
 </p>
 <p>
-	If you still haven't found an answer to your question, please subscribe to 
-	the 
-	<a href="documentation.html#mailing-list-users">getmail users' mailing list</a> 
-	by sending a blank email to 
+	If you still haven't found an answer to your question, please subscribe to
+	the
+	<a href="documentation.html#mailing-list-users">getmail users' mailing list</a>
+	by sending a blank email to
 	&lt;getmail-subscribe @ discworld.dnsalias.org&gt;
-	. If you post your question there, I will see it.  As an additional bonus, 
+	. If you post your question there, I will see it.  As an additional bonus,
 	your question may be answered by another member of the list.
 </p>
-	
+
 <h3 id="faq-about-bug">I think I found a bug!  How do I report it?</h3>
 <p>
-	Ideally, you should join the 
+	Ideally, you should join the
 	<a href="documentation.html#mailing-list-users">mailing list</a>
-	and send your bug report there.  You should include the following 
+	and send your bug report there.  You should include the following
 	information:
 </p>
 <ul>
@@ -174,29 +206,31 @@
 	<li>Python version</li>
 	<li>any error message which getmail displayed</li>
 	<li>
-		the output from running getmail with your normal options plus 
+		the output from running getmail with your normal options plus
 		<span class="sample">--dump</span>
 	</li>
 	<li>
-		if your problem is getmail not determining the proper local recipient, 
-		please include the output of running getmail with your normal options 
-		plus 
+		if your problem is getmail not determining the proper local recipient,
+		please include the output of running getmail with your normal options
+		plus
 		<span class="sample">--trace</span>,
-		showing the retrieval of 
+		showing the retrieval of
 		<strong>one</strong>
 		problematic message.
 	</li>
 </ul>
 <p>
-	If you absolutely cannot sign up for the mailing list, send the report to me 
-	directly. I may not be able to respond to all reports privately, but I will 
+	If you absolutely cannot sign up for the mailing list, send the report to me
+	directly at
+	&lt;getmail-bugs @ discworld.dyndns.org&gt;.
+	I may not be able to respond to all reports privately, but I will
 	try to address any bugs I find out about this way.
 </p>
 
 <h3 id="faq-about-virus">Does getmail support virus scanning of retrieved messages?</h3>
 <p>
-	Yes.  You can use getmail message filtering options to do this with an 
-	external virus scanning program, or invoke your virus scanning program 
+	Yes.  You can use getmail message filtering options to do this with an
+	external virus scanning program, or invoke your virus scanning program
 	during delivery with getmail's support for external MDAs.
 </p>
 <p>
@@ -206,8 +240,8 @@
 
 <h3 id="faq-about-spam">Does getmail support spam filtering of retrieved messages?</h3>
 <p>
-	Yes.  You can use getmail message filtering options to do this with an 
-	external spam filtering program, or invoke your spam filtering program 
+	Yes.  You can use getmail message filtering options to do this with an
+	external spam filtering program, or invoke your spam filtering program
 	during delivery with getmail's support for external MDAs.
 </p>
 <p>
@@ -222,20 +256,20 @@
 
 <h3 id="faq-about-rewrite">Does getmail rewrite mail headers when it retrieves mail?</h3>
 <p>
-	No.  Rewriting message header fields is bad.  getmail will add a new 
-	Received: header field and a new Delivered-To: header field, but does not 
-	rewrite existing headers.  You can disable the creation of these header 
+	No.  Rewriting message header fields is bad.  getmail will add a new
+	Received: header field and a new Delivered-To: header field, but does not
+	rewrite existing headers.  You can disable the creation of these header
 	fields.
 </p>
 
 <h3 id="faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4?  What about my &quot;oldmail&quot; files?</h3>
 <p>
-	Yes.  getmail version 4 uses exactly the same 
+	Yes.  getmail version 4 uses exactly the same
 	<span class="file">oldmail-<span class="meta">server</span>-<span class="meta">port</span>-<span class="meta">username</span></span>
-	naming convention for its oldmail files.  The only difference is that 
+	naming convention for its oldmail files.  The only difference is that
 	version 4 escapes a couple of additional characters in this string so that
 	it is truly cross-platform compatible.  If you upgrade from version 3 to
-	version 4, getmail will still remember which messages you've already 
+	version 4, getmail will still remember which messages you've already
 	retrieved.
 </p>
 <p>
@@ -243,7 +277,7 @@
 </p>
 <ol>
     <li>
-        Rename your old getmail rc file, creating a new file in 
+        Rename your old getmail rc file, creating a new file in
         <span class="file">~/.getmail/getmailrc</span>
         .
     </li>
@@ -270,12 +304,12 @@
         <span class="file">type = Maildir</span>,
         <span class="file">type = Mboxrd</span>,
         <span class="file">type = MDA_external</span>,
-        or        
+        or
         <span class="file">type = MultiSorter</span>
         destination as appropriate.
     </li>
     <li>
-        If you were retrieving messages from multiple mail accounts in a 
+        If you were retrieving messages from multiple mail accounts in a
         single version 3 getmail rc file, split them up into one account per
         version 4 rc file.
     </li>
@@ -286,12 +320,12 @@
 
 <h3 id="faq-about-why">Why did you write getmail?  Why not just use fetchmail?</h3>
 <p>
-	I do not like some of the design choices which were made with fetchmail. 
-	getmail does things a little differently, and for my purposes, better. In 
-	addition, most people find getmail easier to configure and use than 
-	fetchmail.  Perhaps most importantly, getmail goes to great lengths to 
-	ensure that mail is never lost, while fetchmail (in its default 
-	configuration) frequently loses mail, causes mail loops, bounces legitimate 
+	I do not like some of the design choices which were made with fetchmail.
+	getmail does things a little differently, and for my purposes, better. In
+	addition, most people find getmail easier to configure and use than
+	fetchmail.  Perhaps most importantly, getmail goes to great lengths to
+	ensure that mail is never lost, while fetchmail (in its default
+	configuration) frequently loses mail, causes mail loops, bounces legitimate
 	messages, and causes many other problems.
 </p>
 <p>
@@ -301,10 +335,10 @@
 </p>
 <blockquote>
 	<p>
-		<em>Maybe</em> refuse multidrop configuration unless 
+		<em>Maybe</em> refuse multidrop configuration unless
 		&quot;envelope&quot; is _explicitly_ configured
 		&hellip;
-		This would prevent a significant class of shoot-self-in-foot 
+		This would prevent a significant class of shoot-self-in-foot
 		problems.
 	</p>
 	<p>
@@ -325,10 +359,10 @@
 </p>
 <ul>
 	<li>
-		versions released before 20 June 2001 contain a buffer overflow, which 
-		can be remotely exploited (see 
+		versions released before 20 June 2001 contain a buffer overflow, which
+		can be remotely exploited (see
 		<a href="http://www.securityfocus.com/bid/2877">www.securityfocus.com/bid/2877</a>
-		for details).  getmail is not vulnerable to buffer overflows, because 
+		for details).  getmail is not vulnerable to buffer overflows, because
 		buffers in Python are dynamically sized.
 	</li>
 	<li>
@@ -338,36 +372,36 @@
 		</a>.
 	</li>
 	<li>
-		Reading fetchmail's UPDATES file, it appears that another security 
-		problem was fixed in 5.9.12, where a server could crash fetchmail on 
-		64-bit platforms.  Also worrying is a mention that it includes a fix for 
+		Reading fetchmail's UPDATES file, it appears that another security
+		problem was fixed in 5.9.12, where a server could crash fetchmail on
+		64-bit platforms.  Also worrying is a mention that it includes a fix for
 		&quot;password shrouding&quot;.
 	</li>
 	<li>
-		Another remotely-exploitable security hole in fetchmail discovered in 
-		September 2002; 
+		Another remotely-exploitable security hole in fetchmail discovered in
+		September 2002;
 		<a href="http://security.e-matters.de/advisories/032002.html">
 		    this hole
 		</a>
 		lets an attacker run arbitrary code on the victim's computer.
 	</li>
 	<li>
-		Another remotely-exploitable security hole in fetchmail discovered in 
-		December 2002; once again, a remote attacker can run arbitrary code on 
-		the machine running fetchmail in its default configuration.  See 
+		Another remotely-exploitable security hole in fetchmail discovered in
+		December 2002; once again, a remote attacker can run arbitrary code on
+		the machine running fetchmail in its default configuration.  See
 		<a href="http://security.e-matters.de/advisories/052002.html">
 		    this advisory
 		</a>
 		for details.
 	</li>
 	<li>
-		January 2003: 
+		January 2003:
 		<a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=3DCAN-2002-1365">
 		    More buffer overflows in fetchmail let attackers run arbitrary code
 		</a>.
 	</li>
 	<li>
-		October 2003: 
+		October 2003:
 		<a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2003-0792">
 		    Anyone can cause fetchmail to crash by sending you a message
 		</a>.
@@ -382,7 +416,7 @@
 	</li>
 </ul>
 <p>
-	I've given up even trying to stay abreast of the various security holes in 
+	I've given up even trying to stay abreast of the various security holes in
 	fetchmail.
 </p>
 <p>
@@ -399,12 +433,12 @@
 
 <h3 id="faq-configuring-domain-mailbox">What is a &quot;domain mailbox&quot;?</h3>
 <p>
-	A domain (or multidrop) mailbox is a POP3 mailbox which receives mail for 
-	all users in a given domain.  Normal mailboxes contain mail for a single 
-	user (like 
+	A domain (or multidrop) mailbox is a POP3 mailbox which receives mail for
+	all users in a given domain.  Normal mailboxes contain mail for a single
+	user (like
 	<span class="file">jason@myisp.co.uk</span>
-	); some Internet Service Providers which provide webhosting or other 
-	services will provide a POP3 mailbox which receives mail for all addresses 
+	); some Internet Service Providers which provide webhosting or other
+	services will provide a POP3 mailbox which receives mail for all addresses
 	in a given domain (i.e. mail for
 	<span class="file">service@smallcompany.net</span>,
 	<span class="file">sales@smallcompany.net</span>,
@@ -413,8 +447,8 @@
 	ends up in the same POP3 mailbox).
 </p>
 <p>
-	getmail provides a method of retrieving mail from a domain mailbox and 
-	distributing it among the various users automatically.  The retriever 
+	getmail provides a method of retrieving mail from a domain mailbox and
+	distributing it among the various users automatically.  The retriever
 	classes
 	<a href="configuration.html#retriever-multidroppop3">MultidropPOP3Retriever</a>
 	,
@@ -430,7 +464,7 @@
 
 <h3 id="faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</h3>
 <p>
-	No.  getmail delivers directly to maildirs, mboxrd files, or via arbitrary 
+	No.  getmail delivers directly to maildirs, mboxrd files, or via arbitrary
 	MDAs, and never injects mail via SMTP, so no MTA is necessary.
 </p>
 
@@ -438,7 +472,7 @@
 
 <h3 id="faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</h3>
 <p>
-	Use the 
+	Use the
 	<a href="configuration.html#conf-options">delivered_to</a>
 	<span class="file">[options]</span>
 	parameter.
@@ -446,7 +480,7 @@
 
 <h3 id="faq-how-no-received">How do I stop getmail adding a Received: header to messages?</h3>
 <p>
-	Use the 
+	Use the
 	<a href="configuration.html#conf-options">received</a>
 	<span class="file">[options]</span>
 	parameter.
@@ -454,7 +488,7 @@
 
 <h3 id="faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</h3>
 <p>
-	You don't need to.  getmail can deliver to maildirs, mboxrd files, or 
+	You don't need to.  getmail can deliver to maildirs, mboxrd files, or
 	through arbitrary external MDAs.
 </p>
 <p>
@@ -464,10 +498,19 @@
 
 <h3 id="faq-how-daemon">How do I run getmail in &quot;daemon&quot; mode?</h3>
 <p>
-	Use your system's cron utility to run getmail periodically if you wish to 
-	have mail retrieved automatically at intervals.  This is precisely what cron 
-	is designed to do; there's no need to add special code to getmail to do 
+	Use your system's cron utility to run getmail periodically if you wish to
+	have mail retrieved automatically at intervals.  This is precisely what cron
+	is designed to do; there's no need to add special code to getmail to do
 	this.
+</p>
+
+<h3 id="faq-how-hotmail">How do I make getmail retrieve mail from Hotmail?</h3>
+<p>
+	Well, you could write a retriever that speaks Hotmail's proprietary, 
+	undocumented, and unsupported access protocol (or pay me to write one),
+	or simply set up the POP3 proxy from the
+	<a href="http://httpmail.sourceforge.net/">httpmail</a>
+	package, and have getmail retrieve mail from that POP3 proxy.
 </p>
 
 <h2 id="faq-integrating">Using getmail with other software</h2>
@@ -487,7 +530,7 @@
 </p>
 <p>
     To filter messages through SpamAssassin in a client/server configuration
-    (i.e. with the 
+    (i.e. with the
     <span class="file">spamd</span>
     daemon), use a configuration like this:
 </p>
@@ -517,14 +560,14 @@ arguments = (&quot;--report&quot;, )
 <p>
     The
     <span class="file">--report</span>
-    option sends the message to the various spam-blocker databases and tags it 
+    option sends the message to the various spam-blocker databases and tags it
     as spam in your bayesian database.
 </p>
 <p>
     Note that if you are using Bayesian (learning) filtering, and you've put
-    your SpamAssassin filter 
+    your SpamAssassin filter
     <em>after</em>
-    any getmail 
+    any getmail
     <span class="file">Filter_classifier</span>,
     you may have a problem with your learning filter learning getmail's
     header fields.  That is, the headers added by the other filters may get
@@ -539,7 +582,7 @@ bayes_ignore_header X-getmail-filter-classifier
 <h3 id="faq-integrating-clamav">How do I use getmail with ClamAV?</h3>
 <p>
     <a href="http://www.clamav.net/">ClamAV</a>,
-    like SpamAssassin, can by used in standalone or client/server 
+    like SpamAssassin, can by used in standalone or client/server
     configurations.
 </p>
 <p>
@@ -632,9 +675,9 @@ ScanMail
 <p>
     To correct this, you can use an additional filter to change the name of
     the added filter header lines immediately after each filter is run.
-    For example, 
+    For example,
     <span class="file">reformail</span>,
-    from the 
+    from the
     <a href="http://www.flounder.net/~mrsam/maildrop/">maildrop</a>
     package (which is in turn part of the
     <a href="http://www.courier-mta.org/">Courier MTA</a>

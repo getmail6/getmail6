@@ -24,7 +24,7 @@ Base classes:
 
 __all__ = ['POP3_ssl_port', 'POP3initMixIn', 'POP3SSLinitMixIn', 'IMAPinitMixIn',
     'IMAPSSLinitMixIn', 'RetrieverSkeleton', 'POP3RetrieverBase', 'MultidropPOP3RetrieverBase',
-    'IMAPRetrieverBase', 'MultidropIMAPRetrieverBase'
+    'IMAPRetrieverBase', 'MultidropIMAPRetrieverBase',
 ]
 
 import os
@@ -37,6 +37,7 @@ import imaplib
 
 from exceptions import *
 from constants import *
+from message import *
 from utilities import *
 from _pop3ssl import POP3SSL, POP3_ssl_port
 from baseclasses import ConfigurableBase
@@ -182,11 +183,13 @@ class RetrieverSkeleton(ConfigurableBase):
 
       _getmsgbyid(self, msgid) - retreive and return a message from the message
                                  store based on its message identifier.  The message
-                                 is returned as an email.Message() class object.
-                                 The message should have additional data attributes
-                                 "sender" and "recipient" if (and only if) the
-                                 protocol/method of message retrieval preserves the
-                                 original message envelope.
+                                 is returned as a Message() class object.
+                                 The message will have additional data attributes
+                                 "sender" and "recipient".  sender should be
+                                 present or "unknown".  recipient should be non-None
+                                 if (and only if) the protocol/method of message 
+                                 retrieval preserves the original message 
+                                 envelope.
 
       _getheaderbyid(self, msgid) - similar to _getmsgbyid() above, but only the message
                                     header should be retrieved, if possible.  It should
@@ -354,16 +357,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         try:
             response, lines, octets = self.conn.retr(msgnum)
             self.log.debug('RETR response "%s", %d octets\n' % (response, octets))
-            msg = email.message_from_string(os.linesep.join(lines))
-            msg.mid = msgid
-            msg.sender = address_no_brackets(msg['return-path'] or 'unknown')
-            if msgid in self.oldmail:
-                msg.new = False
-                msg.seentime = self.oldmail[msgid]
-            else:
-                msg.new = True
-                msg.seentime = int(time.time())
-                self.oldmail[msgid] = msg.seentime
+            msg = Message(fromlines=lines)
             return msg
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
@@ -445,7 +439,7 @@ class MultidropPOP3RetrieverBase(POP3RetrieverBase):
         self.log.trace()
         msg = POP3RetrieverBase._getmsgbyid(self, msgid)
         data = {}
-        for (name, val) in msg._headers:
+        for (name, val) in msg.headers():
             name = name.lower()
             val = val.strip()
             if name in data:
@@ -588,16 +582,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             #   ')',
             #   <maybe more>
             # ]
-            msg = email.message_from_string(response[0][1])
-            msg.mid = msgid
-            msg.sender = address_no_brackets(msg['return-path'] or 'unknown')
-            if msgid in self.oldmail:
-                msg.new = False
-                msg.seentime = self.oldmail[msgid]
-            else:
-                msg.new = True
-                msg.seentime = int(time.time())
-                self.oldmail[msgid] = msg.seentime
+            msg = Message(fromstring=response[0][1])
             return msg
 
         except imaplib.IMAP4.error, o:
@@ -679,7 +664,7 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         self.log.trace()
         msg = IMAPRetrieverBase._getmsgbyid(self, msgid)
         data = {}
-        for (name, val) in msg._headers:
+        for (name, val) in msg.headers():
             name = name.lower()
             val = val.strip()
             if name in data:

@@ -3,12 +3,7 @@ TODO
 
 -RPM package, if the Python distutils can be made to do it right
 
--flush out getmailrc-example
-
--test, test, test
-
--remove the raise statements in the outermost exception handlers from
-  the main script
+-additional documentation on extending getmail's capabilities
 
 DONE
 ====
@@ -36,3 +31,6 @@ DONE
 -do something about the #! line in the scripts?  distutils now does this.
 -finish documentation
 -man pages
+-flush out getmailrc-example
+-remove the raise statements in the outermost exception handlers from
+  the main script

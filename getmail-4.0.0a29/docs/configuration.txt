@@ -59,6 +59,7 @@
                o Creating the [filter-something] sections
                o
                     # [filter-something] examples
+               o getmail rc file examples
      * Running getmail
      *
           + Using getmail as an MDA
@@ -868,6 +869,11 @@ arguments = ('--message-from-stdin', '--remove-all-but-attachment-types=text/pl
 ain,text/rfc822')
 user = nobody
 
+  getmail rc file examples
+  
+   Several examples of different getmail rc configuration are available
+   in the included file getmailrc-examples.
+   
                                 Running getmail
                                        
    To use getmail, simply run the script getmail, which is typically

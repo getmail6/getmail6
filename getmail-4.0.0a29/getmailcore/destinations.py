@@ -115,7 +115,7 @@ class Maildir(DeliverySkeleton):
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        f = deliver_maildir(self.conf['path'], msg_flatten(msg, delivered_to, received), self.hostname, self.dcount)
+        f = deliver_maildir(self.conf['path'], msg.flatten(delivered_to, received), self.hostname, self.dcount)
         self.log.debug('maildir file %s' % f)
         self.dcount += 1
         return 'Maildir %snew/%s' % (self.conf['path'], f)
@@ -189,7 +189,7 @@ class Mboxrd(DeliverySkeleton):
         self.f.seek(0, 2)
         try:
             # Write out message plus blank line with native EOL
-            self.f.write(msg_flatten(msg, delivered_to, received, include_from=True, mangle_from=True) + os.linesep)
+            self.f.write(msg.flatten(delivered_to, received, include_from=True, mangle_from=True) + os.linesep)
             self.f.flush()
             os.fsync(self.f.fileno())
             status_new = os.fstat(self.f.fileno())
@@ -308,7 +308,7 @@ class MDA_qmaillocal(DeliverySkeleton):
                 del msg['delivered-to']
             # Write out message
             msgfile = os.tmpfile()
-            msgfile.write(msg_flatten(msg, delivered_to, received))
+            msgfile.write(msg.flatten(delivered_to, received))
             msgfile.flush()
             os.fsync(msgfile.fileno())
             # Rewind
@@ -481,7 +481,7 @@ class MDA_external(DeliverySkeleton):
             self.log.debug('about to execl() with args %s\n' % str(args))
             # Write out message with native EOL convention
             msgfile = os.tmpfile()
-            msgfile.write(msg_flatten(msg, delivered_to, received, include_from=self.conf['unixfrom']))
+            msgfile.write(msg.flatten(delivered_to, received, include_from=self.conf['unixfrom']))
             msgfile.flush()
             os.fsync(msgfile.fileno())
             # Rewind
@@ -504,9 +504,8 @@ class MDA_external(DeliverySkeleton):
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
         msginfo = {}
-        if hasattr(msg, 'sender'):
-            msginfo['sender'] = msg.sender
-        if hasattr(msg, 'recipient'):
+        msginfo['sender'] = msg.sender
+        if msg.recipient is not None:
             msginfo['recipient'] = msg.recipient
             msginfo['domain'] = msg.recipient.lower().split('@')[-1]
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])

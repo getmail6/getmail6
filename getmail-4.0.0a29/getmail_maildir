@@ -21,10 +21,11 @@ Place - Suite 330, Boston, MA  02111-1307, USA.
 import sys
 import socket
 
+from getmailcore.message import Message
 from getmailcore.utilities import *
 from getmailcore.exceptions import *
 
-hostname = socket.gethostname()
+hostname = socket.getfqdn()
 
 verbose = False
 path = None
@@ -45,10 +46,14 @@ if not (path and (path.startswith('.') or path.startswith('/')) and path.endswit
 if not is_maildir(path):
     raise SystemExit('Error: %s is not a maildir' % path)
 
-msgdata = sys.stdin.read()
+msg = Message(fromfile=sys.stdin)
+if os.environ.has_key('SENDER'):
+	msg.sender = os.environ['SENDER']
+if os.environ.has_key('RECIPIENT'):
+	msg.recipient = os.environ['RECIPIENT']
 
 try:
-    d = deliver_maildir(path, msgdata, hostname)
+    d = deliver_maildir(path, msg.flatten(True, False), hostname)
 except getmailDeliveryError, o:
     raise SystemExit('Error: delivery error delivering to maildir %s (%s)' % (path, o))
 except StandardError, o:
