@@ -1,0 +1,14 @@
+getmail changes since version 1.11:
+
+Version 2.0.1
+18 December 2000
+
+  -add "Apparently-To:" to first group of headers to parse for recipient
+  addresses, to better handle mailing list traffic and bcc with some MTAs.
+  -packaging changes.
+
+Version 2.0
+16 December 2000
+
+  -complete rewrite, plus rewrite of ConfParser module
+

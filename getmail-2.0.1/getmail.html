@@ -1,7 +1,6 @@
 <HTML>
 <HEAD>
-	<TITLE>getmail version 2.0</TITLE>
-	<LINK REL=StyleSheet HREF="getmail.css" TYPE="text/css" MEDIA=screen>
+	<TITLE>getmail version 2</TITLE>
 </HEAD>
 <BODY>
 	<A NAME="top"><H1>getmail</H1></A>
@@ -14,7 +13,9 @@
 	It is intended as a replacement for fetchmail.
 	<BR>
 	<BR>
-
+	The current version of getmail is 2.0.1.
+	<BR>
+	<BR>
 	<A NAME="contents"><H2>Contents</H2></A>
 	<UL>
 		<LI>
@@ -22,6 +23,9 @@
 		</LI>
 		<LI>
 			<A HREF="#changes-v2">Changes Since Version 1.11</A>
+		</LI>
+		<LI>
+			<A HREF="#download">Download getmail</A>
 		</LI>
 		<LI>
 			<A HREF="#maillist">getmail Mailing List</A>
@@ -42,9 +46,6 @@
 					<A HREF="#install">Running getmail</A>
 				</LI>
 			</UL>
-		</LI>
-		<LI>
-			<A HREF="#download">Download getmail</A>
 		</LI>
 		<LI>
 			<A HREF="#example-getmailrc">Example getmailrc File</A>
@@ -174,6 +175,16 @@
 	</UL>	
 	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
 
+	<A NAME="download"><H2>Download getmail</H2></A>
+	Download getmail now:
+	<UL>
+		<LI>
+			<A HREF=getmail-2.0.1.tar.gz>getmail-2.0.1.tar.gz</A>
+		</LI>
+	</UL>
+	<BR>
+	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
+
 	<A NAME="maillist"><H2>getmail Mailing List</H2></A>
 	A mailing list has been set up to discuss getmail.  Send a blank email to
 	&lt;getmail-subscribe @ discworld.dnsalias.org&gt; to subscribe to the list.
@@ -230,6 +241,16 @@
 			or <A HREF="http://em.ca/~bruceg/nullmailer/">nullmailer</A> if
 			you relay all your mail through your ISP's smarthost.  Both of them
 			are better and more secure than sendmail.
+			<BR>
+			<BR>
+		</LI>
+		<LI>
+			<H4>I've configured getmail to deliver to my Maildir, but it won't do it.  Why?</H4>
+			Double-check your getmailrc file.  Starting with version 2.0, Maildir specifications
+			<STR>must</STR> include a trailing slash.  For example,<BR>
+			<KBD>postmaster = /home/adam/Maildir</KBD><BR>
+			is incorrect.  The correct method is:<BR>
+			<KBD>postmaster = /home/adam/Maildir/</KBD>
 			<BR>
 			<BR>
 		</LI>
@@ -767,17 +788,6 @@
 	</OL>
 	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
 
-	<A NAME="download"><H2>Download getmail</H2></A>
-	Download getmail now:
-	<UL>
-		<LI>
-			<A HREF="getmail-2.0.tar.gz">getmail-2.0.tar.gz</A>
-		</LI>
-	</UL>
-	<BR>
-	<BR>
-	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
-
 	<A NAME="example-getmailrc"><H2>Example getmailrc File</H2></A>
 	<PRE>
     
@@ -820,7 +830,3 @@ local = olduser@isp.net,/dev/null               # Throw away mail for this user,
 
 </BODY>
 </HTML>
-
-
-
-
