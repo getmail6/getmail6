@@ -1,6 +1,22 @@
 Changes for getmail:
 ====================
 
+v.0.99 10 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+    -Major bugs discovered related to using the standard ConfigParser module,
+      at least for what getmail needs it to do.  So, to fix the bugs...
+    -Implemented own configuration file parser.  Limitations on configuration
+      file format are now obsolete; do not escape the '@' sign in email
+      addresses when using the domain (multidrop) mailbox features.  Spaces are
+      legal again in section titles.  Leading and trailing whitespace is
+      ignored.  Comments may once again follow data lines in the configuration
+      file.
+
+v.0.98.2 10 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+    -Fixed the broken --rcfile / -r options.
+    -Found new problems in config file format.  See updated example.getmailrc
+      for changes.  Essentially, comments have to be on lines by themselves now,
+      and section titles can't have spaces in them.
+
 v.0.98 9 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
     -Added experimental code for handling domain mailboxes.  Feedback would
       be greatly appreciated.  See the files USAGE and ABOUT and

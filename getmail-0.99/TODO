@@ -10,12 +10,12 @@ Yet to be done:
 -Distribute a Makefile with an 'install' target with the program.  This will
   become a higher priority once there is a proper manpage, etc to install.
 
--Write a new parser for the .getmailrc configuration files to allow more
-  flexible usernames and domain names to be handled.  Either that, or change
-  the syntax.  The second option is easier, I suspect.
-
 Done:
 =====
 
 [Added in v.0.94]  Allow delivery to mbox files.
 [Added in v.0.98]  Experimental support for domain (multidrop) mailboxes.
+[Added in v.0.99]  Wrote a new parser for the .getmailrc configuration files to
+                    allow more flexible usernames and domain names to be
+                    handled.
+

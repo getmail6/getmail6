@@ -49,14 +49,14 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.98'
+VERSION = '0.99'
 
 #
 # Imports
 #
 
 import sys, os, string, time, socket, poplib, getopt, fcntl, \
-    rfc822, cStringIO, ConfigParser, getpass
+    rfc822, cStringIO, getpass
 from types import *
 
 
@@ -108,6 +108,7 @@ opt_showhelp =          0
 
 true, false = ['true', 'yes', '1'], ['false', 'no', '0']
 mailbox, domainbox = 0, 1
+ADDR, DEST = 0, 1
 
 CR =            '\r'
 LF =            '\n'
@@ -121,6 +122,17 @@ RC_NEWMAIL  = 0
 RC_NOMAIL   = 1
 RC_DEBUG    = 100
 RC_HELP     = 101
+
+
+# Parser exceptions
+
+NoOptionError = 'NoOptionError'
+NoSectionError = 'NoSectionError'
+BadConfigFileError = 'BadConfigFileError'
+DuplicateSectionError = 'DuplicateSectionError'
+FileIOError = 'FileIOError'
+ParsingError = 'ParsingError'                   # Not currently used
+DefaultsError = 'DefaultsError'
 
 
 #
@@ -145,67 +157,51 @@ def main ():
                          opt_verbose)
 
         for msg in mail:
-            if opt_accounttype[i] == mailbox:
-                try:
-                    rc = deliver_msg (opt_dest[i], pop3_unescape (msg))
-                    if opt_verbose:
-                        print 'Delivered message to %s' % rc
-                        sys.stdout.flush ()
-
-                except:
-                    stderr ('Error encountered during delivery\n  (%s)\n' % cause)
-
-                    t = 'tmpmail.%s:%s:%s' % (time.time (), os.getpid (),
-                                              len (msg))
-                    f = open (t, 'w')
-                    f.writelines (pop3_unescape (msg))
-                    f.close ()
-                    stderr ('Message saved to file "%s"\n' % t)
-                    time.sleep (1)
-
-            else:
+            msg = pop3_unescape (msg)
+            delivered = 0
+            if opt_accounttype[i] == domainbox:
                 # Domain mailbox
-                delivered = 0
-                recips = domainbox_find_recipients (pop3_unescape (msg))
+                recips = domainbox_find_recipients (msg)
                 for recip in recips:
                     for j in range (len (opt_reciplist[i])):
-                        if recip == opt_reciplist[i][j][0]:
+                        if recip == opt_reciplist[i][j][ADDR]:
                             try:
-                                rc = deliver_msg (opt_reciplist[i][j][1], pop3_unescape (msg))
+                                rc = deliver_msg (opt_reciplist[i][j][DEST], msg)
                                 if opt_verbose:
-                                    print 'Delivered message for %s to %s' % (opt_reciplist[i][j][0], rc)
+                                    print 'Delivered message for %s to %s' \
+                                        % (opt_reciplist[i][j][ADDR], rc)
                                     sys.stdout.flush ()
                                 delivered = 1
 
                             except:
-                                stderr ('Error encountered during delivery\n  (%s)\n' % cause)
-
-                                t = 'tmpmail.%s:%s:%s' % (time.time (), os.getpid (),
+                                stderr ('Error encountered during delivery\n')
+                                t = 'tmpmail.%s:%s:%s' % (time.time (),
+                                                          os.getpid (),
                                                           len (msg))
                                 f = open (t, 'w')
-                                f.writelines (pop3_unescape (msg))
+                                f.writelines (msg)
                                 f.close ()
                                 stderr ('Message saved to file "%s"\n' % t)
                                 time.sleep (1)
 
-                if not delivered:
-                    try:
-                        rc = deliver_msg (opt_dest[i], pop3_unescape (msg))
-                        if opt_verbose:
-                            print 'Delivered message to default %s' % rc
-                            sys.stdout.flush ()
+            if not delivered:
+                # No match in domain mailbox, or this is a regular mailbox
+                # Do default delivery.
+                try:
+                    rc = deliver_msg (opt_dest[i], msg)
+                    if opt_verbose:
+                        print 'Delivered message to default %s' % rc
+                        sys.stdout.flush ()
 
-                    except:
-                        stderr ('Error encountered during delivery\n  (%s)\n' % cause)
-
-                        t = 'tmpmail.%s:%s:%s' % (time.time (), os.getpid (),
-                                                  len (msg))
-                        f = open (t, 'w')
-                        f.writelines (pop3_unescape (msg))
-                        f.close ()
-                        stderr ('Message saved to file "%s"\n' % t)
-                        time.sleep (1)
-
+                except:
+                    stderr ('Error encountered during delivery\n')
+                    t = 'tmpmail.%s:%s:%s' % (time.time (), os.getpid (),
+                                              len (msg))
+                    f = open (t, 'w')
+                    f.writelines (msg)
+                    f.close ()
+                    stderr ('Message saved to file "%s"\n' % t)
+                    time.sleep (1)
 
     if deliverycount:   sys.exit (RC_NEWMAIL)
     else:               sys.exit (RC_NOMAIL)
@@ -352,16 +348,16 @@ def domainbox_find_recipients (message):
         addrlist = m.getaddrlist ('delivered-to')
         if addrlist:
             # DEBUG
-            stderr ('DEBUG:  parsed Delivered-To: header == "%s"\n' % addrlist)
+            #stderr ('DEBUG:  parsed Delivered-To: header == "%s"\n' % addrlist)
 
             for item in addrlist:
                 recipients.append (item [1])    # Get email address
 
                 # DEBUG
-                stderr ('DEBUG:  appending address "%s"\n' % item [1])
+                #stderr ('DEBUG:  appending address "%s"\n' % item [1])
 
             # DEBUG
-            stderr ('DEBUG:  Delivered-To: recipients == "%s"\n' % recipients)
+            #stderr ('DEBUG:  Delivered-To: recipients == "%s"\n' % recipients)
         else:
             # ??? Can't happen
             stderr ('Error:  failure parsing Delivered-To: header\n')
@@ -374,39 +370,39 @@ def domainbox_find_recipients (message):
     if not recipients:
         # Try Resent-To:, Resent-cc:, and Resent-bcc: next
         # DEBUG
-        stderr ('DEBUG:  no Delivered-To: address found\n')
+        #stderr ('DEBUG:  no Delivered-To: address found\n')
 
         for header in ('resent-to', 'resent-cc', 'resent-bcc'):
             addrlist = m.getaddrlist (header)
             for item in addrlist:
                 recipients.append (item [1])    # Get email address
 
-        if recipients:
+        #if recipients:
             # DEBUG
-            stderr ('DEBUG:  Resent-x: recipients == "%s"\n' % recipients)
+            #stderr ('DEBUG:  Resent-x: recipients == "%s"\n' % recipients)
 
     if not recipients:
         # Try To:, cc:, and bcc: last
 
         # DEBUG
-        stderr ('DEBUG:  no Resent-x: addresses found\n')
+        #stderr ('DEBUG:  no Resent-x: addresses found\n')
 
         for header in ('to', 'cc', 'bcc'):
             addrlist = m.getaddrlist (header)
             for item in addrlist:
                 recipients.append (item [1])    # Get email address
 
-        if recipients:
+        #if recipients:
             # DEBUG
-            stderr ('DEBUG:  To, cc, bcc: recipients == "%s"\n' % recipients)
+            #stderr ('DEBUG:  To, cc, bcc: recipients == "%s"\n' % recipients)
 
     f.close ()
 
     # DEBUG
-    if not recipients:
-        stderr ('DEBUG:  no To, cc, bcc: addresses found\n')
-    else:
-        stderr ('DEBUG:  total recipient list found == "%s"\n' % recipients)
+    #if not recipients:
+    #   stderr ('DEBUG:  no To, cc, bcc: addresses found\n')
+    #else:
+    #   stderr ('DEBUG:  total recipient list found == "%s"\n' % recipients)
 
     return recipients
 
@@ -601,7 +597,8 @@ def usage ():
     '.getmailrc configuration file, or supply multiple arguments on the commandline.\n'
     'If not supplied, port defaults to %i.  Passwords not supplied will be prompted\n'
     'for.\n\n'
-        % (me, def_readall, def_readnew, def_del, def_dontdel, ENV_GETMAIL, DEF_PORT))
+        % (me, def_readall, def_readnew, def_del, def_dontdel, ENV_GETMAIL,
+           DEF_PORT))
     return
 
 
@@ -623,16 +620,17 @@ def read_configfile (file):
                }
 
     ignore = ('account', 'host', 'port', 'destination', 'password', 'delete',
-              'readall', 'type', 'default', '__name__')
-
-    conf = ConfigParser.ConfigParser (defaults)
+              'readall', 'type', 'default', '__section__')
 
     if not os.path.isfile (file):
         return
 
+    conf = GetmailParser (defaults)
+
     try:
         conf.read (file)
         sections = conf.sections ()
+
         for section in sections:
             account = conf.get (section, 'account')
             host = conf.get (section, 'host')
@@ -641,7 +639,7 @@ def read_configfile (file):
             dest = conf.get (section, 'destination')
             dele = string.lower (conf.get (section, 'delete'))
             rall = string.lower (conf.get (section, 'readall'))
-            type = string.lower (conf.get (section, 'type'))
+            mtype = string.lower (conf.get (section, 'type'))
 
             # Strip 'poison NUL' bytes just in case
             account = string.replace (account, '\0', '')
@@ -663,52 +661,51 @@ def read_configfile (file):
             else:
                 opt_retrieve_read.append (0)
 
-            if type == 'domainbox':
+            if mtype == 'domainbox':
                 opt_accounttype.append (domainbox)
-
                 # Get list of addresses from remainder of options
                 for option in conf.options (section):
                     if option in ignore:
                         continue
-                    # Not in defaults dict, must be 'email=destination'
-                    a = option
-                    # DEBUG
-                    stderr ('DEBUG:  read address "%s"\n' % a)
-                    a = a [: string.rindex (a, opt_addrsep)] + '@' \
-                        + a [string.rindex (a, opt_addrsep) + 1 :]
-                    # DEBUG
-                    stderr ('DEBUG:  saving address "%s"\n' % a)
-                    recips.append ((a, conf.get (section, option)))
+                    # Not a recognized option, must be 'email=destination'
+                    recips.append ((option, conf.get (section, option)))
                 opt_reciplist.append (recips)
             else:
                 opt_accounttype.append (mailbox)
                 opt_reciplist.append (None)
 
     # User configuration errors
-    except ConfigParser.NoOptionError, cause:
+    except NoOptionError, cause:
         stderr ('Error:  required option missing in configuration file "%s"\n'
                 '  (%s)\n' % (file, cause))
         sys.exit (ERROR)
 
-    except ConfigParser.MissingSectionHeaderError, cause:
-        stderr ('Error:  file "%s" does not appear to be a getmail '
+    except BadConfigFileError, cause:
+        stderr ('Error:  file "%s" does not appear to be a valid getmail '
                 'configuration file\n  (%s)\n' % (file, cause))
         sys.exit (ERROR)
 
-    except ConfigParser.DuplicateSectionError, cause:
+    except DuplicateSectionError, cause:
         stderr ('Error:  duplicated section name in configuration file "%s"\n'
                 '  (%s)\n' % (file, cause))
         sys.exit (ERROR)
 
-    except ConfigParser.ParsingError, cause:
+    except FileIOError, cause:
         stderr ('Warning:  failure reading configuration file "%s"\n'
                 '  (%s)\n' % (file, cause))
         sys.exit (ERROR)
 
     # Bugs in getmail
-    except (ConfigParser.NoSectionError,
-            ConfigParser.InterpolationError), cause:
-        stderr ('Error:  internal error parsing file "%s"\n  (%s)\n'
+    #except getmailparser.ParsingError, cause:
+    #   stderr ('Error:  internal error parsing configuration file\n  (%s)\n' % cause)
+    #   sys.exit (ERROR)
+
+    except DefaultsError, cause:
+        stderr ('Error:  defaults not a dictionary\n  (%s)\n' % cause)
+        sys.exit (ERROR)
+
+    except NoSectionError, cause:
+        stderr ('Error:  no such section in file "%s"\n  (%s)\n'
                 % (file, cause))
         sys.exit (ERROR)
 
@@ -752,9 +749,9 @@ def parse_options (argv):
 
     optslist, args = [], []
 
-    opts = 'ac:dhilnv'
+    opts = 'ac:dhilnr:v'
     longopts = ['all', 'configdir=', 'delete', 'dont-delete', 'dump', 'help',
-                'ignoreconfig', 'new', 'verbose']
+                'ignoreconfig', 'new', 'rcfile=', 'verbose']
 
     try:
         global optslist, args
@@ -936,6 +933,138 @@ def parse_options (argv):
         sys.exit (ERROR)
 
     return
+
+
+#######################################
+class GetmailParser:
+    '''Class to parse a configuration file without all the limitations in
+    ConfigParser.py, but without the dictionary formatting options either.
+    '''
+    rawdata = []
+    data = []
+    sects = []
+    opts = []
+    defs = {}
+
+    #######################################
+    def __init__ (self, defaults = {}):
+        'Constructor..'
+        try:
+            for key in defaults.keys ():
+                self.defs[key] = defaults[key]
+                # DEBUG
+                #stderr ('DEBUG:  set default key "%s", value "%s"\n' % (key, defaults[key]))
+
+        except AttributeError:
+            raise DefaultsError, 'defaults "%s" not a dictionary' % defaults
+
+
+    #######################################
+    def read (self, filename):
+        'Read configuration file.'
+        try:
+            f = open (filename, 'r')
+            self.rawdata = f.readlines ()
+            f.close ()
+            # DEBUG
+            #stderr ('DEBUG:  read data:\n%s\n' % rawdata)
+
+        except IOError:
+            raise FileIOError, 'error reading configuration file "%s"' % filename
+
+        l = 0
+        for line in self.rawdata:
+            line = string.replace (string.replace (line, '\n', ''), '\r', '')
+            try:
+                line = line [ : string.index (line, '#')]
+            except ValueError:
+                pass
+            line = string.strip (line)
+            if line:
+                self.data.append ((l, line))
+                # DEBUG
+                #stderr ('DEBUG:  parsed line == "%s"\n' % line)
+            l = l + 1
+
+        self._parse ()
+        return self
+
+
+    #######################################
+    def _parse (self):
+        'Parse the read-in configuration file.'
+        in_section = 0
+        s = -1
+        for (lineno, line) in self.data:
+            if line[0] == '[':
+                in_section = 1
+                s = s + 1
+                try:
+                    sect_name = string.lower (line [1 : string.index (line, ']') ] )
+
+                except:
+                    raise BadConfigFileError, 'malformed section title in line %i:  "%s"' % (lineno, line)
+
+                if self.sects.count (sect_name):
+                    raise DuplicateSectionError, 'duplicate section "%s" found at line %i' % (sect_name, lineno)
+
+                self.sects.append (sect_name)
+
+                self.opts.append ({'__section__' : sect_name})
+
+                # DEBUG
+                #stderr ('DEBUG:  found section "%s"\n' % sect_name)
+
+                # Insert defaults
+                for key in self.defs.keys ():
+                    self.opts[s][key] = self.defs[key]
+
+                continue
+
+            if in_section:
+                optname = string.strip (line [ : string.find (line, '=') ])
+                try:
+                    optval = line [ string.index (line, '=') : ]
+                    optval = string.strip (optval [ 1 : ])
+                except ValueError:
+                    optval = ''
+                self.opts [s][optname] = optval
+
+                # DEBUG
+                #stderr ('DEBUG:  option "%s" == "%s"\n' % (optname, optval))
+
+        return
+
+
+    #######################################
+    def sections (self):
+        return self.sects
+
+
+    #######################################
+    def options (self, section):
+        'Return list of options in section.'
+        try:
+            s = self.sects.index (string.lower (section))
+
+        except ValueError:
+            raise NoSectionError, 'file has no section "%s"' % section
+
+        return self.opts[s].keys ()
+
+
+    #######################################
+    def get (self, section, option):
+        'Return an option value.'
+        try:
+            s = self.sects.index (string.lower (section))
+        except ValueError:
+            raise NoSectionError, 'file has no section "%s"' % section
+
+        if not self.opts[s].has_key (option):
+            raise NoOptionError, 'section "%s" has no option "%s"' % (section, option)
+
+        return self.opts[s][option]
 
 
 #######################################

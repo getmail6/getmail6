@@ -37,8 +37,8 @@ format:
     port=portnum                # Optional, defaults to standard POP3 port (110)
     password=poppass            # Optional, getmail will prompt for passwords
     destination=path            # Required, path to destination Maildir or mbox
-	delete=value				# Optional, delete mail after retrieving.
-	readall=value				# Optional, retrieve all mail, not just unread.
+    delete=value                # Optional, delete mail after retrieving.
+    readall=value               # Optional, retrieve all mail, not just unread.
 
 'destination' can be either a Maildir or an mbox file.  getmail auto-detects
 Maildirs, and assumes regular files are mboxes.
@@ -161,29 +161,27 @@ specified for that address.  If it finds no matches, it delivers the message
 to a default destination, which should be the postmaster or other person
 responsible for sorting out email issues in that domain.
 
-Note that the current support has limitations on characters which can be
-present in the handled email addresses.  This will change in the future.
+The configuration file uses the '#' symbol to start comments and therefore
+cannot appear in usernames, passwords, etc in that file.  The configuration
+file parser was written from scratch for version 0.99, so the other
+limitations on the file are gone.
 
 The configuration file section for a domain mailbox should look like this:
-	[Section title]
-	type=domainbox
-	account=pop3username
-	host=pophost.domain
-	password=pop_password
-	destination=/path/to/default_delivery_destination
-	delete=(yes|no)
-	readall=(yes|no)
-	email_address=/path/to/destination
-	email_address2=/path/to/destination2
-	[...]
-
-When specifying email addresses, the '@' symbol must be replaced with an
-underscore ('_').  Non-alphanumeric characters in the email address will
-probably cause getmail to fail to parse the file.
+    [Section title]                 # Comments can follow lines
+    type=domainbox
+      account=pop3username          # Leading and trailing whitespace is ignored
+    host=pophost.domain
+    password = pop_password         # Whitespace surrounding the '=' is OK too.
+    destination=/path/to/default_delivery_destination
+    delete=(yes|no)
+    readall=(yes|no)
+    email@address  = /path/to/destination
+    email@address2 = /path/to/destination2
+    [...]
 
 Some examples of the "email=destination" lines are:
-	joe_smallcompany.com=/home/joe/Maildir
-	info_smallcompany.com=/home/paula/inbox
+    joe@smallcompany.com=/home/joe/Maildir
+    info@smallcompany.com=/home/paula/inbox
 
 Note that getmail must have write access to the Maildir or mbox files which
 it delivers mail to.  This may mean making them group-writable, or running

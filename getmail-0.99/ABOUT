@@ -138,9 +138,9 @@ Using getmail
    which should be the postmaster or other person responsible for sorting
    out email issues in that domain.
    
-   Note that the current support has limitations on characters which can
-   be present in the handled email addresses. This will change in the
-   future.
+   Note that the configuration file parser was completely rewritten for
+   version 0.99, so that it removes most of the restrictions that were
+   previously present.
    
    The configuration file section for a domain mailbox should look like
    this:
@@ -152,17 +152,16 @@ Using getmail
    destination=/path/to/default_delivery_destination
    delete=(yes|no)
    readall=(yes|no)
-   email_address=/path/to/destination
-   email_address2=/path/to/destination2
+   email@address=/path/to/destination
+   email@address2=/path/to/destination2
    [...]
    
-   When specifying email addresses, the '@' symbol must be replaced with
-   an underscore ('_'). Non-alphanumeric characters in the email address
-   will probably cause getmail to fail to parse the file.
-   
    Some examples of the "email=destination" lines are:
-   joe_smallcompany.com=/home/joe/Maildir
-   info_smallcompany.com=/home/paula/inbox
+   joe@smallcompany.com=/home/joe/Maildir
+   info@smallcompany.com=/home/paula/inbox
+   
+   See the file example.getmailrc for more details about configuration
+   files.
    
    More details are available in the file USAGE.
    
@@ -171,17 +170,17 @@ Current Version
    The current version of getmail should be available at
    http://www.qcc.sk.ca/~charlesc/software/getmail/ 
    
-   The current version is v.0.98, dated 09-Jan-2000.
+   The current version is v.0.99, dated 11-Jan-2000.
    Questions, comments, bug reports, and feature requests should be
    directed to me at <getmail@discworld.dyndns.org>.
    
   Download
   
                                Download now:
-                            getmail-0.98.tar.gz
-    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.98.tar.gz
-                            getmail-0.98.tar.bz2
-    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.98.tar.bz2
+                            getmail-0.99.tar.gz
+    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.99.tar.gz
+                            getmail-0.99.tar.bz2
+    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.99.tar.bz2
                                       
    Older versions may be found in
    http://www.qcc.sk.ca/~charlesc/software/getmail/old-versions/

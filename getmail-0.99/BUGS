@@ -13,14 +13,6 @@ plus the --dump option and send the output to me.
 -Can't have # symbols in usernames, maildirnames, or passwords in the configfile.
   This is because it is used as a comment delimiter.
 
--Domain mailbox support has limitations on account names supplied in the
-  .getmailrc file due to the configfile parser I am currently using.
-  Underscores in the domain name will not work.
-  Anything non-alphanumeric in the username or domain name will probably not
-  work.
-  I may have to write my own parser to fix this.  I would appreciate any
-  feedback on the experimental domain mailbox support.
-
 -Specifying --new and --delete will not delete messages on the server which
   getmail has previously retrieved.  When --new is specified, getmail skips to
   the next message as soon as it sees a message it has previously downloaded.
@@ -29,9 +21,12 @@ plus the --dump option and send the output to me.
   with the --all and --delete options once; you can then revert to --new
   and --delete.
 
--If the user specifies a non-existent or non-wriatable maildir, or a file/
+-If the user specifies a non-existent or non-writable maildir, or a file/
   directory which is not a maildir, delivery fails.  getmail will save the
   mail in a temporary file in the current directory, and tell you about it.
+
+-mbox files and Maildirs must exist for getmail to deliver to them.  Create
+  an empty Maildir or mbox file before attempting to deliver to it.
 
 -Other bugs?  Possibly.  Report them and I'll try to fix them.
 
