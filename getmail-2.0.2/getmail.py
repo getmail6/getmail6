@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.1'
+__version__ = '2.0.2'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -1183,6 +1183,9 @@ def main ():
 		}
 	cmdline_opts = parse_options (args)
 	overrides.update (cmdline_opts)
+
+	if overrides.get ('help', None):
+		help (exitcodes['OK'])
 	
 	configdir = os.path.expanduser (overrides['getmaildir'])
 	configfile = os.path.expanduser (overrides['rcfilename'])
@@ -1211,9 +1214,6 @@ def main ():
 			'\nError:  no POP3 account configurations found in getmailrc file (%s)\n'
 			% filename)
 		help ()
-
-	if overrides.get ('help', None):
-		help (sys.exitcodes['OK'])
 
 	# Everything is go.
 	if overrides.get ('verbose', None):

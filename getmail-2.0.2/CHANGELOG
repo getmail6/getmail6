@@ -1,0 +1,24 @@
+getmail changes since version 1.11:
+
+Version 2.0.2
+19 December 2000
+
+  -fix bug where getmail would throw an exception when supplied the --help
+  commandline option.  Changed behaviour of --help slightly.
+  -add additional documentation.  Not 100% complete yet, but better.
+  -packaging changes.  Separate files are now included for getmail.txt, 
+  docs.txt, and faq.txt.
+  -updated website.
+
+Version 2.0.1
+18 December 2000
+
+  -add "Apparently-To:" to first group of headers to parse for recipient
+  addresses, to better handle mailing list traffic and bcc with some MTAs.
+  -packaging changes.
+
+Version 2.0
+16 December 2000
+
+  -complete rewrite, plus rewrite of ConfParser module
+

@@ -1,0 +1,352 @@
+
+getmail Documentation
+
+   The formal documentation for getmail is not yet complete. If your
+   question is not answered here or in the Frequently Asked Questions,
+   please subscribe to the mailing list.
+   
+  Installing getmail
+  
+    1. Download getmail.
+    2. Unpack the tarball:
+       tar xzf getmail-version.tar.gz
+    3. Copy the contents to a suitable location:
+       mkdir /usr/local/lib/getmail cp -a getmail-version/*
+       /usr/local/lib/getmail/
+       You can install getmail in your home directory or elsewhere if you
+       prefer.
+    4. Copy the getmail helper script to a location in your PATH, and
+       ensure it is executable:
+       cp -a getmail-version/getmail /usr/local/bin/ chmod 755
+       /usr/local/bin/getmail If you used an installation path other than
+       that in step 3 above, edit the value of GETMAILDIR in this file.
+       
+  Configuring getmail
+  
+    1. Create a getmail configuration/data directory in your home
+       directory:
+       mkdir ~/.getmail You can use another path or directory name, but
+       getmail assumes this name by default. If you choose something
+       different, you will need to specify its name on the getmail
+       command line.
+    2. Create a getmailrc file in the directory you created in step 1
+       above. The file format is similar to an MS-Windows .INI file. The
+       file is broken into sections; the special section "[default]"
+       supplies default values for various options. Each additional
+       section describes one POP3 mailbox you wish to retrieve mail from,
+       and how to deliver mail to local users.
+       See the section on Configuration Directives for details.
+       
+  Running getmail
+  
+   Run the getmail helper script you installed earlier:
+   getmail
+   By default, getmail will read in the default getmailrc file
+   (~/.getmail/getmailrc) and begin retrieving mail.
+   You can also supply commandline options as follows:
+   
+getmailrc Directives
+
+   The getmailrc file is structured similarly to an MS-Windows .INI file.
+   It consists of sections, each of which is preceded by a section title
+   enclosed in square brackets:
+   [Section title]
+   Section titles must be unique.
+   Everything after a "#" symbol is considered a comment, and is ignored.
+   
+  [default] Section
+  
+   There is a a special section, named [default], which supplies default
+   values for the rest of the sections. When checking the value of a
+   particular option, getmail searches for settings in the following
+   order:
+    1. Commandline argument.
+    2. Section-specific directives.
+    3. [default] section directives.
+    4. Built-in defaults.
+       
+  getmailrc Directive Format
+  
+   getmailrc directives are specified using the following format:
+   directive_name = directive_value
+   Leading and trailing whitespace are removed from both the directive
+   name and value. To preserve leading or trailing whitespace in a
+   directive value, quote the value with single (') or double (") quotes.
+   Quoting can also be used to preserve a "#" symbol in a directive
+   value, which would otherwise be considered the beginning of a comment.
+     _________________________________________________________________
+   
+    Account Configurations
+    
+   The following directives are specified in sections other than
+   [default], and are used to configure which POP3 accounts getmail will
+   retrieve mail from.
+     _________________________________________________________________
+   
+      POP3 Server Specification
+      
+   This directive controls what POP3 server getmail will attempt to
+   connect to for mail retrieval.
+   
+   Directive
+          server = <server_name>
+          
+   Optional
+          No
+          
+   Default
+          None
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          server = pop3.isp.co.uk
+     _________________________________________________________________
+   
+      POP3 Port Specification
+      
+   This directive controls what TCP port number getmail will attempt to
+   connect to for mail retrieval.
+   
+   Directive
+          port = <port_number>
+          
+   Optional
+          Yes
+          
+   Default
+          110 (POP3 default)
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          port = 8110
+     _________________________________________________________________
+   
+      POP3 Username Specification
+      
+   This directive controls what POP3 username getmail will attempt to
+   retrieve mail for.
+   
+   Directive
+          username = <POP3_username>
+          
+   Optional
+          No
+          
+   Default
+          None
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          username = jasond
+     _________________________________________________________________
+   
+      POP3 Password Specification
+      
+   This directive controls what POP3 password getmail will use while
+   retrieving mail.
+   
+   Directive
+          password = <POP3_password>
+          
+   Optional
+          Yes
+          
+   Default
+          Prompt user if not supplied.
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          password = H67f3lP4
+          password = "password with trailing spaces "
+          password = "password with embedded # symbol"
+     _________________________________________________________________
+   
+      Default Delivery Instruction (postmaster)
+      
+   This directive controls where getmail will deliver mail to which does
+   not match any of the "local" directives. For a normal POP3 mailbox,
+   set this to be the Maildir or mbox you wish mail to be delivered to.
+   For a domain (multidrop) mailbox, set this to be a Maildir or mbox
+   under the control of an administrative user responsible for mail for
+   which getmail cannot automatically determine the correct local
+   recipient(s).
+   getmail currently understands two types of delivery: qmail-style
+   Maildirs, which must be specified with a trailing "/", and mbox files.
+   
+   Directive
+          postmaster = <delivery_instruction>
+          
+   Optional
+          No
+          
+   Default
+          None
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          postmaster = ~postmaster/Maildir/
+          postmaster = /home/amandal/Mail/inbox
+     _________________________________________________________________
+   
+      Local Delivery Instructions
+      
+   This directive can be specified multiple times, and is typically used
+   with domain (multidrop) mailboxes. Each local directive specifies an
+   email address matching pattern, and a delivery instruction. getmail
+   will attempt to match the specified pattern against recipient
+   addresses in headers of retrieved mail. If the headers match the
+   pattern, a copy of the message will be delivered to the specified
+   destination.
+   These patterns may be Perl-style extended regular expressions.
+   
+   Directive
+          local = <address_pattern>,<delivery_instruction>
+          
+   Optional
+          Yes
+          
+   Default
+          None
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          local = sales@mycompany.net,~jason/Maildir/
+          local = ceo@mycompany.net,~lynette/Maildir/
+          local = jason@mycompany.net,~jasonr/Maildir/
+          local = jason-.+@mycompany.net,~jasonr/Mail/lists
+     _________________________________________________________________
+   
+    getmail Behaviour Configurations
+    
+   The following directives may be specified in any section of the
+   configuration file, including the [default] section. They modify
+   getmail's behaviour on a per-POP3-account basis if specified in an
+   account section, or on a global basis if specified in the [default]
+   section and not in any account sections.
+     _________________________________________________________________
+   
+      getmail Verbosity
+      
+   This directive controls whether getmail displays informational
+   messages during mail retrieval and processing.
+   
+   Directive
+          verbose = [0 | 1]
+          
+   Optional
+          Yes
+          
+   Default
+          1
+          
+   Commandline equivalent
+          --verbose or -v
+          --quiet or -q
+          
+   Examples
+          verbose = 0
+          verbose = 1
+     _________________________________________________________________
+   
+      Specification of Mail to Retrieve
+      
+   This directive controls whether getmail will retrieve all mail, or
+   only mail which getmail has not previously retrieved.
+   
+   Directive
+          readall = [0 | 1]
+          
+   Optional
+          Yes
+          
+   Default
+          1
+          
+   Commandline equivalent
+          --all or -a
+          --new or -n
+          
+   Examples
+          readall = 0
+          readall = 1
+     _________________________________________________________________
+   
+      Deletion of Retrieved Mail
+      
+   This directive controls whether getmail will delete mail from the POP3
+   server after retrieving it and delivering it to local users.
+   
+   Directive
+          delete = [0 | 1]
+          
+   Optional
+          Yes
+          
+   Default
+          0
+          
+   Commandline equivalent
+          --dont-delete or -l
+          --delete or -d
+          
+   Examples
+          delete = 0
+          delete = 1
+     _________________________________________________________________
+   
+      Message Logging
+      
+   This directive controls whether getmail will log information about
+   message retrieval and delivery to a separate file.
+   
+   Directive
+          message_log = <file_path>
+          
+   Optional
+          Yes
+          
+   Default
+          None
+          
+   Commandline equivalent
+          --message_log <file_path>
+          -m <file_path>
+          
+   Examples
+          message_log = "~postmaster/getmail.log"
+     _________________________________________________________________
+   
+      TCP Timeout Settings
+      
+   This value specifies the timeout value for mail connections, in
+   seconds. If this number of seconds elapses without the server
+   responding to a request, getmail will abort the current retrieval
+   cleanly and skip to the next configured POP3 account.
+   
+   Directive
+          timeout = <value>
+          
+   Optional
+          Yes
+          
+   Default
+          180 seconds
+          
+   Commandline equivalent
+          --timeout <value>
+          -t <value>
+          
+   Examples
+          timeout = 300

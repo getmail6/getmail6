@@ -1,0 +1,82 @@
+
+getmail FAQ
+
+   The following are Frequently Asked Questions about getmail. If your
+   question is not answered here, and is not answered in the
+   documentation, please subscribe to the mailing list.
+     _________________________________________________________________
+   
+  What is getmail?
+  
+   getmail is a POP3 mail retriever, with support for both ordinary and
+   domain (or multidrop) POP3 mailboxes. It is written in Python, and
+   licensed under the GNU General Public License version 2.
+   
+  How can I get support for getmail?
+  
+   getmail is Free Software. As such, it comes with no warranty. However,
+   I will do my best to support getmail on a voluntary basis.
+   If you have questions about getmail, the first step is to read the
+   documentation, and the remainder of the Frequently Asked Questions. If
+   your question isn't answered there, please subscribe to the mailing
+   list by sending a blank email to <getmail-subscribe @
+   discworld.dnsalias.org>. If you post your question there, I will see
+   it. As an additional bonus, your question may be answered by another
+   member of the list.
+   
+  What is a "domain mailbox"?
+  
+   A domain (or multidrop) mailbox is a POP3 mailbox which holds mail for
+   all users in a given domain. Normal mailboxes contain mail for a
+   single user (like "jason@myisp.co.uk"'); some Internet Service
+   Providers which provide webhosting or other services will provide a
+   POP3 mailbox which contains mail for all addresses in a given domain
+   (like "service@smallcompany.net" and "sales@smallcompany.net").
+   getmail provides a method of retrieving mail from a domain mailbox and
+   distributing it among the various users automatically.
+   
+  Do I have to run sendmail or another MTA to use getmail?
+  
+   No. getmail delivers directly to Maildirs or mboxes, and does not
+   inject mail via SMTP, so no MTA is necessary.
+   P.S. If you're currently running sendmail, consider switching to qmail
+   if you need a full MTA, or nullmailer if you relay all your mail
+   through your ISP's smarthost. Both of them are better and more secure
+   than sendmail.
+   
+  I've configured getmail to deliver to my Maildir, but it won't do it. Why?
+  
+   Double-check your getmailrc file. Starting with version 2.0, Maildir
+   specifications must include a trailing slash. For example,
+   postmaster = /home/adam/Maildir
+   is incorrect. The correct method is:
+   postmaster = /home/adam/Maildir/
+   
+  How do I make getmail deliver messages by re-injecting with SMTP?
+  
+   You don't. getmail doesn't do this, to prevent mail loops and bounces
+   if getmail or your Mail Transfer Agent is misconfigured.
+   getmail has native support for delivering to qmail-style Maildirs and
+   mboxrd-format mbox files, and therefore you shouldn't need to
+   re-inject retrieved messages. If you want to re-inject messages to run
+   procmail, search freshmeat.net for "procbox"; it was written by
+   getmail user Jeff Clement for this purpose.
+   
+  Does getmail rewrite mail headers when it retrieves mail?
+  
+   No. getmail will add a new Received: header and a new Delivered-To:
+   header, but does not rewrite existing headers.
+   
+  Why does getmail retrieve all my messages when I've told it to only retrieve
+  new mail?
+  
+   Your POP3 mail server is probably broken. getmail requires that the
+   server support the POP3 UIDL command to uniquely identify messages. If
+   the server doesn't support it, getmail cannot tell which messages it
+   has already seen, and therefore retrieves all messages.
+   
+  How do I run getmail in "daemon" mode?
+  
+   Use cron to run getmail periodically if you wish. I may add native
+   support for a daemon mode to getmail in the future; the complete
+   rewrite for version 2.0 made allowances for this.
