@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.1.1'
+__version__ = '2.1.2'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -1200,6 +1200,11 @@ def read_configfile (filename, overrides):
 	if not os.path.isfile (filename):
 		return None
 
+	s = os.stat (filename)
+	mode = stat.S_IMODE (s[stat.ST_MODE])
+	if (mode & 022):
+		raise getmailConfigException, 'file is group- or world-writable'
+	
 	# Instantiate configuration file parser
 	conf = ConfParser.ConfParser (defs)
 

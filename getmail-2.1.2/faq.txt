@@ -86,6 +86,12 @@ getmail FAQ
    What version of Python are you running? Versions earlier than 1.5.2
    can cause this problem. Upgrade to Python 1.5.2 or later.
    
+  getmail refuses to run, saying "file is group- or world-writable". What's
+  wrong?
+  
+   Your getmailrc configuration file is group- or world-writable. That's
+   a no-no. Change the permissions on that file.
+   
   When I start getmail, I get the error "SyntaxWarning: name 'timeoutsocket' is
   assigned to before global declaration". What's wrong?
   
@@ -132,9 +138,6 @@ getmail FAQ
    security precaution, getmail will refuse to deliver to programs if it
    is running as root. Warning: if you don't know what you're doing, you
    can shoot yourself in the foot with this option.
-   getmail has native support for delivering to qmail-style Maildirs and
-   mboxrd-format mbox files, as well as to commands (pipe delivery).
-   Therefore you shouldn't need to re-inject retrieved messages.
    
   My 'net connection is via PPP/SLIP/modem, and when it's down, my cron'd
   getmail throws a "error: host not found" exception.

@@ -1,6 +1,13 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.1.2
+1 August 2001
+
+  -getmail will now check the permissions on your getmailrc file, and refuse
+  to run if the file is group- or world-writable.  Thanks to Fredrik Steen for
+  the request.
+
 Version 2.1.1
 29 June 2001
 

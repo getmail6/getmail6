@@ -35,6 +35,7 @@ getmail Documentation
        supplies default values for various options. Each additional
        section describes one POP3 mailbox you wish to retrieve mail from,
        and how to deliver mail to local users.
+       Note: the configuration file must not be group- or world-writable.
        See the section on Configuration Directives for details.
        
   Running getmail
