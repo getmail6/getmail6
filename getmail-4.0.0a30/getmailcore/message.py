@@ -81,5 +81,8 @@ class Message(object):
         f.seek(0)
         return os.linesep.join(f.read().splitlines() + [''])
 
+    def add_header(self, name, content):
+        self.__msg[name] = content.rstrip()
+
     def headers(self):
         return self.__msg._headers

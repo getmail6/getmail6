@@ -8,12 +8,10 @@ Currently implemented:
   MultidropPOP3Retriever
   MultidropPOP3SSLRetriever
   MultidropSPDSRetriever
-
-  SimpleIMAPRetriever (very alpha) -- IMAP, as a protocol, is a FPOS, and
-    it shows.  The Python standard library module imaplib leaves much up to
+  SimpleIMAPRetriever -- IMAP, as a protocol, is a FPOS, and it shows.
+    The Python standard library module imaplib leaves much up to
     the user because of this.
   SimpleIMAPSSLRetriever - the above, for IMAP-over-SSL.
-
   MultidropIMAPRetriever
   MultidropIMAPSSLRetriever
 '''

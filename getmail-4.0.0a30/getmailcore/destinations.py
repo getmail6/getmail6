@@ -657,6 +657,15 @@ class MultiSorter(DeliverySkeleton):
     def showconf(self):
         self.log.info('MultiSorter(%s)\n' % self._confstring())
 
+    def retriever_info(self, retriever):
+        '''Override base class to pass this to the encapsulated destinations.
+        '''
+        self.log.trace()
+        DeliverySkeleton.retriever_info(self, retriever)
+        self.default.retriever_info(retriever)
+        for (unused, destination) in self.targets:
+            destination.retriever_info(retriever)
+
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
         matched = []

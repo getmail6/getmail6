@@ -73,7 +73,7 @@ class FilterSkeleton(ConfigurableBase):
             raise getmailOperationError('filter %s returned %d (%s)\n' % (self, exitcode, err))
 
         # Check the filter was sane
-        if len(newmsg) < len(msg):
+        if len(newmsg.headers()) < len(msg.headers()):
             # Kind of a hack, but one user tried to use an MDA as a filter (instead of
             # having getmail use it as an external MDA), and ended up having getmail
             # deliver 0-byte messages after the MDA had already done it.
@@ -319,6 +319,6 @@ class Filter_classifier(Filter_external):
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'], pid, exitcode))
 
         for line in [line.strip() for line in stdout.readlines() if line.strip()]:
-            msg['X-getmail-filter-classifier'] = line
+            msg.add_header('X-getmail-filter-classifier', line)
 
         return exitcode, msg, err

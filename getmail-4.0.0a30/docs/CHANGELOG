@@ -1,3 +1,12 @@
+Version 4.0.0a30
+8 July 2004
+
+  -documentation updates
+  -change header-adding code from filters to a method in Message class.  Thanks:
+  Frankye Fattarelli.
+  -make MultiSorter pass retriever info down to its sub-destinations.  This
+  fixes a problem reported by Frankye Fattarelli.
+
 Version 4.0.0a29
 8 July 2004
 

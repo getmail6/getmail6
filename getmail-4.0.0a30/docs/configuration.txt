@@ -62,6 +62,7 @@
                o getmail rc file examples
      * Running getmail
      *
+          + Commandline options
           + Using getmail as an MDA
           +
                o Using the getmail_maildir MDA
@@ -882,7 +883,11 @@ user = nobody
    directory (~/.getmail/) and begin operating.
    
    You can modify this behaviour by supplying commandline options to
-   getmail. getmail understands the following options:
+   getmail.
+   
+Commandline options
+
+   getmail understands the following options:
      * --version -- show getmail's version number and exit
      * --help or -h -- show a brief usage summary and exit
      * --getmaildir=DIR or -gDIR -- use DIR for configuration and data
@@ -929,8 +934,10 @@ Using getmail as an MDA
    commandline. This path must (after expansion by the shell, if
    applicable) start with a dot or slash and end with a slash.
    
-   If the environment variable SENDER is set, getmail_maildir will record
-   it in a new Return-Path: header field at the top of the message.
+   getmail_maildir uses the contents of the SENDER environment variable
+   to construct a Return-Path: header field and the contents of the
+   RECIPIENT environment variable to construct a Delivered-To: header
+   field at the top of the message.
    
    getmail_maildir also accepts the options --verbose or -v which tell it
    to print a status message on success. The default is to operate
@@ -951,8 +958,10 @@ $ getmail_maildir $HOME/Maildir/
    the commandline. This path must (after expansion by the shell, if
    applicable) start with a dot or slash and not end with a slash.
    
-   getmail_mbox will use the contents of the environment variable SENDER
-   , if set, to construct the From_ line for the message.
+   getmail_maildir uses the contents of the SENDER environment variable
+   to construct a Return-Path: header field and mbox From_ line and the
+   contents of the RECIPIENT environment variable to construct a
+   Delivered-To: header field at the top of the message.
    
    getmail_mbox also accepts the options --verbose or -v which tell it to
    print a status message on success. The default is to operate silently

@@ -104,6 +104,7 @@
     <li><a href="configuration.html#running">Running getmail</a></li>
     <li>
         <ul>
+        <li><a href="configuration.html#running-commandline-options">Commandline options</a></li>
         <li><a href="configuration.html#running-mda">Using getmail as an MDA</a></li>
         <li>
             <ul>
@@ -1775,6 +1776,10 @@ user = nobody
 </p>
 <p>
     You can modify this behaviour by supplying commandline options to getmail.
+</p>
+
+<h2 id="running-commandline-options">Commandline options</h2>
+<p>
     getmail understands the following options:
 </p>
 <ul>
@@ -1859,12 +1864,15 @@ $ getmail --getmaildir /path/to/otherdir --rcfile getmailrc-account1 --rcfile ge
 	or slash and end with a slash.
 </p>
 <p>
-	If the environment variable
-	<span class="file">SENDER</span>
-	is set,
 	<span class="file">getmail_maildir</span>
-	will record it in a new
+	uses the contents of the
+	<span class="file">SENDER</span>
+	environment variable to construct a
 	<span class="file">Return-Path:</span>
+	header field and the contents of the
+	<span class="file">RECIPIENT</span>
+	environment variable to construct a
+	<span class="file">Delivered-To:</span>
 	header field at the top of the message.
 </p>
 <p>
@@ -1899,12 +1907,18 @@ $ getmail_maildir $HOME/Maildir/
 	dot or slash and not end with a slash.
 </p>
 <p>
-	<span class="file">getmail_mbox</span>
-	will use the contents of the environment variable
+	<span class="file">getmail_maildir</span>
+	uses the contents of the
 	<span class="file">SENDER</span>
-	, if set, to construct the
+	environment variable to construct a
+	<span class="file">Return-Path:</span>
+	header field and mbox
 	<span class="file">From_</span>
-	line for the message.
+	line and the contents of the
+	<span class="file">RECIPIENT</span>
+	environment variable to construct a
+	<span class="file">Delivered-To:</span>
+	header field at the top of the message.
 </p>
 <p>
 	<span class="file">getmail_mbox</span>

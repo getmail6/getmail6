@@ -35,6 +35,7 @@
           + Creating a getmail rc file
      * Running getmail
      *
+          + Commandline options
           + Using getmail as an MDA
      * Troubleshooting
      *

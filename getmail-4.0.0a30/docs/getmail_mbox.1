@@ -10,7 +10,16 @@ getmail_mbox \- read a message from stdin and deliver to a named mboxrd-format m
 Deliver a mail message from standard input, to the mboxrd-format mbox file named 
 PATH.  PATH must start with a dot or a slash and must not end with a slash.
 .PP
-If SENDER is set, it's contents are used in creating the From_ line.
+.B getmail_mbox
+uses the SENDER environment variable to construct a 
+.B Return-Path:
+header field and the contents of the RECIPIENT environment variable to construct 
+a 
+.B Delivered-To:
+header field at the top of the message.  SENDER is also used in creating the
+mbox
+.B From_
+line.
 .TP
 \fB\-\-verbose, \-v\fR
 print a status message on success\fR

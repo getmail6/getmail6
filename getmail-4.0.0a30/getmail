@@ -413,9 +413,13 @@ def main():
 
     except getmailConfigurationError, o:
         log.error('Configuration error: %s\n' % o)
+        # For alpha/beta testing
+        raise
         sys.exit(2)
     except getmailOperationError, o:
         log.error('Error: %s\n' % o)
+        # For alpha/beta testing
+        raise
         sys.exit(3)
     except StandardError, o:
         log.critical('\nException:  please include the following information in any bug report:\n\n')

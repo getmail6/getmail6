@@ -5,6 +5,9 @@ TODO
 
 -additional documentation on extending getmail's capabilities
 
+-remove the raise statements in the outermost exception handlers from
+  the main script (when leaving beta)
+
 DONE
 ====
 
@@ -32,5 +35,3 @@ DONE
 -finish documentation
 -man pages
 -flush out getmailrc-example
--remove the raise statements in the outermost exception handlers from
-  the main script

@@ -10,7 +10,13 @@ getmail_maildir \- read a message from stdin and deliver to a named maildir
 Deliver a mail message from standard input, to the maildir named PATH.  PATH
 must start with a dot or a slash and end with a slash.
 .PP
-If SENDER is set, a new Return-Path: header field is recorded with its contents.
+.B getmail_maildir
+uses the SENDER environment variable to construct a 
+.B Return-Path:
+header field and the contents of the RECIPIENT environment variable to construct 
+a 
+.B Delivered-To:
+header field at the top of the message.
 .TP
 \fB\-\-verbose, \-v\fR
 print a status message on success\fR
