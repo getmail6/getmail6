@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.1.0'
+__version__ = '2.1.1'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -126,6 +126,7 @@ defs = {
 	'use_apop' :		0,					# Use APOP instead of PASS for
 											#   authentication
 	'no_delivered_to' :	0,					# Don't add Delivered-To: header
+	'no_received' :		0,					# Don't add Received: header
 	'dump' :			0,					# Leave this alone.
 	'help' :			0,					# Leave this alone.
 	}
@@ -140,7 +141,7 @@ me = None
 
 # Options recognized in configuration getmailrc file
 intoptions = ('verbose', 'readall', 'delete', 'timeout', 'use_apop',
-	'no_delivered_to')
+	'no_delivered_to', 'no_received')
 stringoptions = ('message_log', 'recipient_header')
 
 # Exit codes
@@ -788,12 +789,15 @@ class getmail:
 			delivered_to = format_header ('Delivered-To', 
 				'%s@%s\n' % (_local, self.info['hostname']))
 
-		# Construct Received: header
-		info = 'from %(server)s (%(ipaddr)s)' % self.account \
-			+ ' by %(hostname)s' % self.info \
-			+ ' with POP3 for <%s>; ' % recipient \
-			+ timestamp ()
-		received = format_header ('Received', info)
+		if self.opts['no_received']:
+			received = ''
+		else:
+			# Construct Received: header
+			info = 'from %(server)s (%(ipaddr)s)' % self.account \
+				+ ' by %(hostname)s' % self.info \
+				+ ' with POP3 for <%s>; ' % recipient \
+				+ timestamp ()
+			received = format_header ('Received', info)
 
 		return delivered_to + received + message
 

@@ -1,6 +1,19 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.1.1
+29 June 2001
+
+  -add "no_received" option, similar to no_delivered_to, at request of getmail
+  user Nigel Cunningham.
+  -got rid of some trailing tabs in ConfigParser.py after a report from
+  Fredrik Steen -- they're harmless, but unclean.  Fredrik is also in the
+  process of packaging getmail for use in Debian.  Thanks, Fredrik.
+  -changed the default path to the getmail library dir from /usr/local/lib/...
+  to /usr/lib/... .  This only affects the getmail wrapper script; if you're
+  using that, you may have to edit your copy, or change where you install the
+  files to.
+
 Version 2.1.0
 23 June 2001
 

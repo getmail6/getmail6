@@ -127,15 +127,14 @@ getmail FAQ
   How do I make getmail deliver messages to a program?
   
    As of version 2.1.0, getmail can deliver messages to a program (pipe
-   delivery). Specify the delivery target as "|path-to-command". You
-   should probably use full paths (e.g. "/usr/bin/maildrop"). getmail
-   will run the command with the message as standard input, beginning
-   with an mboxrd-style "From " line. getmail will consider the delivery
-   a failure if program exits non-zero or prints anything to standard
-   error. As a basic security precaution, getmail will refuse to deliver
-   to programs if it is running as root.
-   Warning: if you don't know what you're doing, you can shoot yourself
-   in the foot with this option.
+   delivery). Specify the delivery target as ":|path-to-command". You
+   should probably use full paths (e.g. "/usr/bin/maildrop"). As a basic
+   security precaution, getmail will refuse to deliver to programs if it
+   is running as root. Warning: if you don't know what you're doing, you
+   can shoot yourself in the foot with this option.
+   getmail has native support for delivering to qmail-style Maildirs and
+   mboxrd-format mbox files, as well as to commands (pipe delivery).
+   Therefore you shouldn't need to re-inject retrieved messages.
    
   My 'net connection is via PPP/SLIP/modem, and when it's down, my cron'd
   getmail throws a "error: host not found" exception.
@@ -196,6 +195,10 @@ getmail FAQ
   How do I stop getmail adding a Delivered-To: header to email?
   
    Use the no_delivered_to configuration directive.
+   
+  How do I stop getmail adding a Received: header to email?
+  
+   Use the no_received configuration directive.
    
   Why did you write getmail? Why not just use fetchmail?
   

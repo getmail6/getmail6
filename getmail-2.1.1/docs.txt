@@ -285,6 +285,27 @@ getmailrc Directives
           no_delivered_to = 1
      _________________________________________________________________
    
+      Received: Header Suppression Specification
+      
+   This directive controls whether getmail will suppress creation of a
+   Received: header in mail it delivers.
+   
+   Directive
+          no_received = <1>
+          
+   Optional
+          Yes
+          
+   Default
+          No. Created Received: headers.
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          no_received = 1
+     _________________________________________________________________
+   
       Default Delivery Instruction (postmaster)
       
    This directive controls where getmail will deliver mail to which does

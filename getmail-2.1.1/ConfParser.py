@@ -404,4 +404,3 @@ class ConfParser:
 				else:
 					sys.stderr.write ('    %s:  %s\n' % (option, values))
 			sys.stderr.write ('\n')
-			
