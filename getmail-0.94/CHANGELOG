@@ -1,6 +1,12 @@
 Changes for getmail:
 ====================
 
+v.0.94 4 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Added mbox delivery.
+	-Added autodetection of delivery destination type; getmail will auto-
+	  detect Maildirs.  If a file is supplied as the destination, getmail
+	  assumes it is an mbox file.
+
 v.0.93 4 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 	-Changed method of generating emergency save filenames to reduce
 	  collisions when multiple failures occur rapidly.

@@ -5,7 +5,7 @@ Yet to be done:
   documentation.  Possibly a good, solid overview document for first timers
   and technophiles who don't like long documentation.
 
--Allow delivery to mbox files, and possibly mh folders.
+-Possibly allow delivery to mh folders.
 
 -Possibly allow delivery to various maildirs based on headers in received
   messages, to allow the use of mailbox-per-domain.  I believe 'fetchmail'
@@ -15,3 +15,7 @@ Yet to be done:
   become a higher priority once there is a proper manpage, etc to install.
 
 
+Done:
+=====
+
+[Added in v.0.94]  Allow delivery to mbox files.

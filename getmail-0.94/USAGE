@@ -5,7 +5,8 @@ getmail is intended as a simple replacement for 'fetchmail', for those people
 who don't need its various and sundry configuration options, complexities, and
 bugs.  It retrieves mail from one or more POP3 servers for one or more email
 accounts, and reliably delivers into a Maildir specified on a per-account
-basis.
+basis.  It can now also deliver into mbox files, although this should not
+be attempted over NFS.
 
 Bugs, questions, feature requests, and comments should be directed to me
 (Charles Cazabon) at <getmail@discworld.dyndns.org>.
@@ -23,16 +24,24 @@ In a nutshell:
 
 5.  Create the environment variable GETMAIL, containing the path to the above
 directory.  You can automate this in your logon by putting
+
   export GETMAIL=$HOME/.getmail
+
 in your .bash_profile or .bashrc file if you use the bash shell.
 
 6.  Create a file .getmailrc in the above directory.  In it, place one line for
 each mail account you wish to retrieve mail for.  The line is in this format:
-	username@popmailhost[:port],maildir[,password]
+
+	username@popmailhost[:port],destination[,password]
+
 For example, to retrieve mail for account 'joe' on mailhost 'popmail.isp.com'
 on the default POP3 port (110), and deliver the mail into a maildir in joe's
 home directory named 'Maildir', with password 'poppass', enter the following:
+
 	joe@popmail.isp.com,/home/joe/Maildir,poppass
+
+'destination' can be either a Maildir or an mbox file.  getmail auto-detects
+Maildirs, and assumes regular files are mboxes.
 
 7.  Run getmail with no options to retrieve all mail for joe.
 Use option -n or --new for only unread mail.  Use option -v or --verbose to
@@ -45,8 +54,8 @@ Basic usage for getmail.py:
 Run without arguments for help.
 
 To retrieve mail for accounts, run with arguments as follows:
-getmail.py [options] user1@mailhost1[:port],maildir1[,password1] \
-  user2@mailhost2[:port],maildir2[,password2]
+getmail.py [options] user1@mailhost1[:port],destination1[,password1] \
+  user2@mailhost2[:port],destination2[,password2]
 
 For example, to retrieve mail for account 'joe' on mailhost 'mail.isp.com',
 running on port 8110, and deliver that mail into the maildir 'Maildir' in
@@ -59,10 +68,10 @@ You may omit the :port portion if the server runs on the standard POP3 port
 (110).
 
 You can retrieve mail for multiple accounts at once, delivering to different
-maildirs, by specifying multiple arguments:
+destinations, by specifying multiple arguments:
 
 getmail.py [options] user1@mailhost1.net:8110,$HOME/Maildir,password \
-  user2@mailhost2.com,$HOME/Mail/user2Maildir
+  user2@mailhost2.com,$HOME/inbox
 
 Note in this case, mailhost2 is on the standard POP3 port and the user
 will be prompted only for user2's password.

@@ -6,6 +6,7 @@
 # for details.
 #
 # getmail is a simple POP3 mail retriever with robust Maildir delivery.
+# It can now also deliver to mbox-style files.
 # It is intended as a simple replacement for 'fetchmail' for those people
 # who don't need its various and sundry options, bugs, and configuration
 # difficulties.  It currently supports retrieving mail for multiple accounts
@@ -20,11 +21,15 @@
 #
 # To retrieve mail for accounts on a one-time basis, run with arguments as
 # follows:
-#  getmail.py [options] user1@mailhost1[:port],maildir1[,password1] \
-#    user2@mailhost2[:port],maildir2[,password2]
+#  getmail.py [options] user1@mailhost1[:port],destination[,password1] \
+#    user2@mailhost2[:port],destination[,password2]
 #
 # If port is omitted, it defaults to the standard POP3 port, 110.
 # If passwords are omitted, they will be prompted for.
+# 'destination' is the delivery target; getmail currently supports Maildirs
+# and mbox files.  getmail will complain if a directory is given but is
+# not a Maildir.  If a regular file is given, getmail assumes it is an mbox
+# file.
 #
 # To regularly retrieve from the same accounts, it is easiest to place this
 # information in a configuration file (suggested:  $HOME/.getmail/.getmailrc),
@@ -43,13 +48,13 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.93'
+VERSION = '0.94'
 
 #
 # Imports
 #
 
-import sys, os, string, time, socket, poplib, getopt, termios, TERMIOS
+import sys, os, string, time, socket, poplib, getopt, termios, TERMIOS, fcntl
 from types import *
 
 
@@ -78,7 +83,7 @@ opt_account =			[]
 opt_password =			[]
 opt_delete_retrieved =	DEF_DELETE
 opt_retrieve_read =		DEF_READ_ALL
-opt_maildir =			[]
+opt_dest =				[]
 opt_verbose =			0
 opt_rcfile =			None
 opt_configdir =			None
@@ -112,6 +117,7 @@ def main ():
 	parse_options (sys.argv)
 
 	for i in range (len (opt_account)):
+		print
 		mail = get_mail (opt_host[i], opt_port[i], opt_account[i],
 						 opt_password[i], opt_configdir,
 						 opt_delete_retrieved, opt_retrieve_read,
@@ -119,11 +125,15 @@ def main ():
 
 		for msg in mail:
 			try:
-				maildirdeliver (opt_maildir[i], pop3_unescape (msg))
-			except:
-				stderr ('Error encountered during Maildir delivery\n')
+				rc = deliver_msg (opt_dest[i], pop3_unescape (msg))
+				if opt_verbose:
+					print 'Delivered message to %s' % rc
+					sys.stdout.flush ()
 
-				t = 'tmpmail.%s:%s:%s' % (time.time ()), os.getpid (),
+			except:
+				stderr ('Error encountered during delivery\n')
+
+				t = 'tmpmail.%s:%s:%s' % (time.time (), os.getpid (),
 										  len (msg))
 				f = open (t, 'w')
 				f.writelines (pop3_unescape (msg))
@@ -250,6 +260,35 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
 
 
 #######################################
+def deliver_msg (dest, message):
+	'''Determine the type of destination and dispatch to appropriate delivery
+	routine.  Currently understands Maildirs and assumes any regular file is
+	an mbox file.
+	'''
+	mdir_new = os.path.join (dest, 'new')
+	mdir_tmp = os.path.join (dest, 'tmp')
+
+	if os.path.isdir (mdir_new) and os.path.isdir (mdir_tmp):
+		maildirdeliver (dest, message)
+		return 'Maildir "%s"' % dest
+
+	elif os.path.isfile (dest):
+		mboxdeliver (dest, message)
+		return 'mbox file "%s"' % dest
+
+	elif not os.path.exists (dest):
+		stderr ('Error:  "%s" does not exist\n' % dest)
+		raise 'error:  "%s" does not exist\n' % dest
+
+	else:
+		stderr ('Error:  "%s" is not a Maildir or mbox\n' % dest)
+		raise 'error:  "%s" is not a Maildir or mbox' % dest
+
+	# Can't reach
+	return
+
+
+#######################################
 def maildirdeliver (maildir, message):
 	'Reliably deliver a mail message into a Maildir.'
 	# Uses Dan Bernstein's recommended naming convention for maildir delivery
@@ -264,16 +303,11 @@ def maildirdeliver (maildir, message):
 	fname_tmp = os.path.join (maildir, 'tmp', filename)
 	fname_new = os.path.join (maildir, 'new', filename)
 
-	# Verify we're trying to deliver to a maildir
-	if not (os.path.isdir (os.path.join (maildir, 'tmp'))
-		and os.path.isdir (os.path.join (maildir, 'new'))):
-		stderr ('Error:  "%s" is not a Maildir\n' % maildir)
-		raise 'Error:  "%s" is not a Maildir' % maildir
-
 	# Try to open file for reading first
 	try:
 		f = open (fname_tmp, 'rb')
 		f.close ()
+		stderr ('Error:  file "%s" exists\n' % fname_tmp)
 		raise 'error:  file "%s" exists' % fname_tmp
 
 	except IOError:
@@ -287,6 +321,7 @@ def maildirdeliver (maildir, message):
 		f.close ()
 
 	except IOError:
+		stderr ('Error:  failure writing file "%s"\n' % fname_tmp)
 		raise 'error: failure writing file "%s"' % fname_tmp
 
 	# Move from tmp to new
@@ -294,8 +329,57 @@ def maildirdeliver (maildir, message):
 		os.rename (fname_tmp, fname_new)
 
 	except OSError:
+		stderr ('Error: failure moving file "%s" to "%s"\n' \
+			   % (fname_tmp, fname_new))
 		raise 'error: failure moving file "%s" to "%s"' \
 			   % (fname_tmp, fname_new)
+
+	# Delivery done
+	deliverycount = deliverycount + 1
+	return
+
+
+#######################################
+def mboxdeliver (mbox, message):
+	'Deliver a mail message into an mbox file.'
+	global deliverycount
+	dtime = time.asctime (time.gmtime (time.time ()))
+
+	if message[0][0 : 13] == 'Return-Path: ':
+		env_sender = message[0][13 : string.find (message[0], ' ', 13) ]
+	elif message[0][0 : 6] == 'From ':
+		env_sender = message[0][6 : string.find (message[0], ' ', 6) ]
+	else:
+		# DEBUG
+		stderr ('message[0] = "%s"\n' % message[0])
+		raise 'No Return-Path: header in message'
+
+	env_sender = string.replace (string.replace (env_sender, '<', ''), '>', '')
+
+	fromline = '\nFrom %s %s\n' % (env_sender, dtime)
+
+	# Open mbox
+	try:
+		f = open (mbox, 'a')
+		fcntl.flock (f.fileno (), fcntl.LOCK_EX)
+		f.seek (0, 2) 					# Seek to end
+		f.write (fromline)
+		esc_from = 0
+		for line in message:
+			if esc_from and line[0 : 5] == 'From ':
+				line = '>%s' % line
+			f.write (line)
+			if line == '\n':	esc_from = 1
+			else:				esc_from = 0
+		f.flush ()
+		fcntl.flock (f.fileno (), fcntl.LOCK_UN)
+		f.close ()
+
+	except IOError, cause:
+		# ???
+		stderr ('Error:  failure writing message to mbox file "%s":  %s\n'
+				% (cause, mbox))
+		raise
 
 	# Delivery done
 	deliverycount = deliverycount + 1
@@ -338,7 +422,7 @@ def usage ():
 	else:					def_readnew =	'(default)'
 
 	stderr ('\n'
-	'Usage:  %s [options] [user@mailhost[:port],maildir[,password]] [...]\n'
+	'Usage:  %s [options] [user@mailhost[:port],destination[,password]] [...]\n'
 	'Options:\n'
 	'  -a or --all                retrieve all messages                %s\n'
 	'  -n or --new                retrieve unread messages             %s\n'
@@ -351,9 +435,11 @@ def usage ():
 	'      Default configdir is directory set in "%s" environment variable\n'
 	'  --dump                     dump configuration for debugging\n'
 	'\n'
-	'For multiple account retrieval, multiple user@mailhost[:port],maildir[,password]\n'
-	'options can be used.  If not supplied, port defaults to %i.  Passwords not\n'
-	'supplied will be prompted for.\n\n'
+	'\'destination\' can be a Maildir or an mbox file.  Do not attempt to deliver\n'
+	'to an mbox file over NFS.\n'
+	'Supply multiple user@mailhost[:port],destination[,password] options for\n'
+	'multiple account retrieval.  If not supplied, port defaults to %i.  Passwords\n'
+	'not supplied will be prompted for.\n\n'
 		% (me, def_readall, def_readnew, def_del, def_dontdel, ENV_GETMAIL, DEF_PORT))
 	return
 
@@ -366,7 +452,7 @@ def parse_options (argv):
 	'''
 	#
 	global opt_delete_retrieved, opt_retrieve_read, \
-		opt_port, opt_host, opt_account, opt_password, opt_maildir, \
+		opt_port, opt_host, opt_account, opt_password, opt_dest, \
 		opt_verbose, opt_rcfile, opt_configdir, opt_dump
 
 	error = 0
@@ -472,7 +558,7 @@ def parse_options (argv):
 	except IOError:
 		stderr ('Warning:  failed to open .getmailrc file "%s"\n' % opt_rcfile)
 
-	# Parse arguments given in user@mailhost[:port],maildir[,password] format
+	# Parse arguments given in user@mailhost[:port],dest[,password] format
 	for arg in args:
 		try:
 			userhost, mdir, pw = string.split (arg, ',')
@@ -483,9 +569,9 @@ def parse_options (argv):
 				opt_password.append (None)
 			except ValueError:
 				stderr ('Error:  argument "%s" not in format \''
-						'user@mailhost[:port],maildir[,password]\'\n' % arg)
+						'user@mailhost[:port],dest[,password]\'\n' % arg)
 
-		opt_maildir.append (mdir)
+		opt_dest.append (mdir)
 		opt_account.append (userhost [ : string.rfind (userhost, '@')])
 
 		try:
@@ -505,14 +591,14 @@ def parse_options (argv):
 	if not opt_account:
 		stderr ('Error:  no account(s) supplied\n')
 		error = 1
-	if not opt_maildir:
-		stderr ('Error:  no maildir(s) supplied\n')
+	if not opt_dest:
+		stderr ('Error:  no destination(s) supplied\n')
 		error = 1
 
-	if not (len (opt_host) == len (opt_account) == len (opt_maildir)) \
+	if not (len (opt_host) == len (opt_account) == len (opt_dest)) \
 		and (len (opt_password) != 0) \
 		and (len (opt_password) != len (opt_account)):
-		stderr ('Error:  different numbers of hosts/names/maildirs/passwords supplied\n')
+		stderr ('Error:  different numbers of hosts/names/destinations/passwords supplied\n')
 		error = 1
 
 	# Put in default port if not specified
@@ -565,7 +651,7 @@ def parse_options (argv):
 		print 'Accounts:'
 		for i in range (len (opt_account)):
 			print '  %s,%s,%s,%s' % (opt_account[i], opt_host[i], opt_port[i],
-									 opt_maildir[i])
+									 opt_dest[i])
 		sys.exit (OK)
 
 	if error:
