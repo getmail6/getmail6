@@ -40,6 +40,7 @@ import getpass
 import email
 import poplib
 import imaplib
+import _imap4fix
 
 from exceptions import *
 from constants import *
@@ -119,6 +120,8 @@ class POP3SSLinitMixIn(object):
             raise getmailOperationError('timeout during connect')
         except socket.gaierror, o:
             raise getmailOperationError('socket error during connect (%s)' % o)
+        except socket.sslerror, o:
+            raise getmailOperationError('socket sslerror during connect (%s)' % o)
 
         self.log.trace('POP3 SSL connection %s established\n' % self.conn)
 
@@ -129,7 +132,7 @@ class IMAPinitMixIn(object):
     def _connect(self):
         self.log.trace()
         try:
-            self.conn = imaplib.IMAP4(self.conf['server'], self.conf['port'])
+            self.conn = _imap4fix.getmail_IMAP4(self.conf['server'], self.conf['port'])
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
@@ -166,13 +169,13 @@ class IMAPSSLinitMixIn(object):
                     ' with keyfile %s, certfile %s\n'
                     % (self.conf['server'], self.conf['port'],
                         self.conf['keyfile'], self.conf['certfile']))
-                self.conn = imaplib.IMAP4_SSL(self.conf['server'],
+                self.conn = _imap4fix.IMAP4_SSL(self.conf['server'],
                     self.conf['port'], self.conf['keyfile'],
                     self.conf['certfile'])
             else:
                 self.log.trace('establishing IMAP SSL connection to %s:%d\n'
                     % (self.conf['server'], self.conf['port']))
-                self.conn = imaplib.IMAP4_SSL(self.conf['server'],
+                self.conn = _imap4fix.getmail_IMAP4_SSL(self.conf['server'],
                     self.conf['port'])
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
@@ -180,6 +183,8 @@ class IMAPSSLinitMixIn(object):
             raise getmailOperationError('timeout during connect')
         except socket.gaierror, o:
             raise getmailOperationError('socket error during connect (%s)' % o)
+        except socket.sslerror, o:
+            raise getmailOperationError('socket sslerror during connect (%s)' % o)
 
         self.log.trace('IMAP SSL connection %s established\n' % self.conn)
 
@@ -248,6 +253,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.headercache = {}
         self.oldmail = {}
         self.deleted = {}
+        self.__delivered = {}
         self.timestamp = int(time.time())
         self.__oldmail_written = False
         self.__initialized = False
@@ -292,7 +298,7 @@ class RetrieverSkeleton(ConfigurableBase):
         wrote = 0
         try:
             f = updatefile(self.oldmail_filename)
-            for msgid in self.msgids:
+            for msgid in self.__delivered:
                 self.log.debug('msgid %s ...' % msgid)
                 if msgid in self.deleted:
                     # Already deleted, don't remember this one
@@ -323,6 +329,9 @@ class RetrieverSkeleton(ConfigurableBase):
         self.received_from = '%s (%s)' % (self.conf['server'],
             socket.getaddrinfo(self.conf['server'], None)[0][4][0])
         self.__initialized = True
+
+    def delivered(self, msgid):
+        self.__delivered[msgid] = None
 
     def getheader(self, msgid):
         if not self.__initialized:
@@ -443,6 +452,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
     def quit(self):
         self.log.trace()
         self._write_oldmailfile()
+        if not hasattr(self, 'conn'):
+            return
         try:
             self.conn.quit()
             self.conn = None
@@ -517,6 +528,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         RetrieverSkeleton.__init__(self, **args)
         self.log.trace()
         self.mailbox = None
+        self.uidvalidity = None
         #self.log.debug('configuration: %s\n' % self.conf)
 
     def __del__(self):
@@ -552,8 +564,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             % (cmd, args), resplist))
         return resplist
 
-    def _parse_imapuidresponse(self, line):
-        self.log.trace('parsing uid response line %s\n' % line)
+    def _parse_imapattrresponse(self, line):
+        self.log.trace('parsing attributes response line %s\n' % line)
         r = {}
         try:
             parts = line[line.index('(') + 1:line.rindex(')')].split()
@@ -578,10 +590,17 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             return
         self.log.debug('selecting mailbox "%s"\n' % mailbox)
         response = self._parse_imapcmdresponse('SELECT', mailbox)
-        c = int(response[0])
+        try:
+            count = int(response[0])
+            uidvalidity = int(response[1])
+        except (IndexError, ValueError), o:
+            raise getmailOperationError('IMAP server failed to return correct'
+                'SELECT response (%s)' % response)
         self.log.debug('select(%s) returned message count of %d\n'
-            % (mailbox, c))
+            % (mailbox, count))
         self.mailbox = mailbox
+        self.uidvalidity = uidvalidity
+        return count
 
     def _getmsglist(self):
         self.log.trace()
@@ -590,24 +609,17 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.msgsizes = {}
         for mailbox in self.conf['mailboxes']:
             try:
-                self._selectmailbox(mailbox)
-                # Get UIDs for messages in mailbox
-                response = self._parse_imapuidcmdresponse('SEARCH', 'ALL')
-                uids = response[0].split()
-                if not uids:
-                    continue
-                self.log.debug('uid("SEARCH", "ALL") returned %d UIDs (%s)\n'
-                    % (len(uids), uids))
-                # Get message sizes
-                response = self._parse_imapuidcmdresponse('FETCH',
-                    ','.join(uids), 'RFC822.SIZE')
+                # Get number of messages in mailbox
+                msgcount = self._selectmailbox(mailbox)
+                # Get UIDs and sizes for all messages in mailbox
+                response = self._parse_imapcmdresponse('FETCH', 
+                    '1:%d' % msgcount, '(UID RFC822.SIZE)')
                 for line in response:
-                    r = self._parse_imapuidresponse(line)
-                    msgid = '%s/%s' % (mailbox, r['uid'])
+                    r = self._parse_imapattrresponse(line)
+                    msgid = '%s/%s/%s' % (self.uidvalidity, mailbox, r['uid'])
                     self._mboxuids[msgid] = (mailbox, r['uid'])
                     self.msgids.append(msgid)
                     self.msgsizes[msgid] = int(r['rfc822.size'])
-
             except imaplib.IMAP4.error, o:
                 raise getmailOperationError('IMAP error (%s)' % o)
         self.gotmsglist = True
@@ -698,6 +710,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def quit(self):
         self.log.trace()
         self._write_oldmailfile()
+        if not hasattr(self, 'conn'):
+            return
         try:
             self.conn.close()
             self.conn.logout()

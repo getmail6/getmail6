@@ -11,6 +11,7 @@ __all__ = [
 import os
 import time
 import signal
+import sets
 
 from exceptions import *
 from logging import logger
@@ -83,6 +84,11 @@ class ConfigurableBase(object):
                     raise getmailConfigurationError('configuration value'
                         ' %s (%s) not of required type %s (%s)'
                         % (name, val, dtype, o))
+        unknown_params = sets.ImmutableSet(self.conf.keys()).difference(
+            sets.ImmutableSet([item['name'] for item in self._confitems]))
+        for param in unknown_params:
+            self.log.warning('%s: ignoring unknown parameter %s\n' 
+                % (str(self), param))
         self.__confchecked = True
         self.log.trace('done\n')
 

@@ -37,12 +37,14 @@ for (pos, arg) in enumerate(args):
 
 GETMAILDOCDIR = os.path.join(
     datadir or prefix,
+    'share',
     'doc',
     'getmail-%s' % __version__
 )
 
 GETMAILMANDIR = os.path.join(
     datadir or prefix,
+    'share',
     'man',
     'man1'
 )
@@ -60,7 +62,7 @@ setup(
     version=__version__,
     description='a mail retrieval, sorting, and delivering system',
     long_description=('getmail is a multi-protocol mail retrieval system with'
-        'support for simple and domain POP3 and IMAP4 mailboxes, domain SPDS '
+        'support for simple and domain POP3 and IMAP4 mailboxes, domain SDPS '
         'mailboxes, POP3-over-SSL and IMAP-over-SSL, mail sorting, message '
         'filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and '
         'other advanced features.'),

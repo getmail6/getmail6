@@ -1,10 +1,33 @@
+Version 4.0.7
+5 August 2004
+
+  -change failure of a message filter to produce at least as many mail headers
+  as it was provided from a fatal to a non-fatal error.  The message will
+  be skipped.  Thanks: Payal Rathod.
+  -a few non-conformant IMAP4 servers don't implement SEARCH, so getmail
+  couldn't get a list of UIDs.  Changed to use FETCH instead.
+  Thanks: Matthias Andree.
+  -prevent traceback if IMAP SSL connection closed during connect().
+  Thanks: Payal Rathod.
+  -add warning if unknown parameters are supplied to a retriever, filter,
+  or destination.
+  -write subclasses of Python imaplib classes to work around missing
+  UIDVALIDITY select() response.  Add it to the state getmail keeps.
+  Thanks:  Matthias Andree.
+  -move message state saving to later, so getmail doesn't falsely remember
+  having handled a message.  Thanks:  Matthias Andree.
+  -change location of documentation/man pages to
+  <prefix>/share/{doc/getmail,man}/ to be more comformant with the FHS.
+  -documentation updates
+
+
 Version 4.0.6
 4 August 2004
 
-  -if the connection failed in a certain way, getmail could forget which 
+  -if the connection failed in a certain way, getmail could forget which
   messages it had already retrieved, and therefore retrieve them again when
   the next successful connection occurred.  Fixed.  Thanks: Wim Uyttebroek.
-  --add win32 executable installer as third download option.
+  -add win32 executable installer as third download option.
 
 Version 4.0.5
 3 August 2004
@@ -17,7 +40,7 @@ Version 4.0.5
 Version 4.0.4
 2 August 2004
 
-  -corrupt-message handler introduced in 4.0.1 needed tweaking.   
+  -corrupt-message handler introduced in 4.0.1 needed tweaking.
   Thanks: Bernhard Riedel.
 
 Version 4.0.3
@@ -37,7 +60,7 @@ Version 4.0.2
   -trying to use MDA_qmaillocal destination with a non-multidrop retriever
   would raise an exception instead of printing a configuration error message.
   Fixed.  Thanks: Clemens Buschmann.
-  
+
 Version 4.0.1
 26 July 2004
 
@@ -50,7 +73,7 @@ Version 4.0.0
 23 July 2004
 
   -exit beta; final release of version 4.0.0, with approximately four thousand
-  lines (~150 kbytes) of Python code and five thousand lines (~180 kbytes) of 
+  lines (~150 kbytes) of Python code and five thousand lines (~180 kbytes) of
   documentation.
 
 Version 4.0.0b10
@@ -73,8 +96,8 @@ Version 4.0.0b10
 Version 4.0.0b9
 19 July 2004
 
-  -change syntax of MultiSorter's locals parameter.  The previous syntax was 
-  fragile and was mostly a holdover from previous versions; it is now a tuple of 
+  -change syntax of MultiSorter's locals parameter.  The previous syntax was
+  fragile and was mostly a holdover from previous versions; it is now a tuple of
   items, each of which is a 2-tuple of quoted strings.
   -add Python version to --dump output.
   -eliminate redundant _confstring() method in _retrieverbases.py.
@@ -92,7 +115,7 @@ Version 4.0.0b7
   -changes to an "impossible" error handler in _child_handler(), just in case.
   -move some code from destinations.MultiSorter() into new MultiDestinationBase
   base class.
-  -fix MultiDestinationBase._get_destination() 
+  -fix MultiDestinationBase._get_destination()
   -add MultiDestination class to deliver messages to multiple destinations
   unconditionally.
   -cosmetic fixes to output
@@ -110,7 +133,7 @@ Version 4.0.0b5
 
   -apply the child fix from b3 to Filter_classifier; I missed this in the
   update.  Thanks: Dave Osbourn.
-  -cosmetic fix for output describing filters and destination objects.  
+  -cosmetic fix for output describing filters and destination objects.
   Thanks: Dave Osbourn.
   -catch configuration error of non-multidrop retriever with multidrop-only
   destination.  This broke when I cleaned up the message attribute interface
@@ -232,7 +255,7 @@ Version 4.0.0a23
   -add explicit checks for socket.ssl(), which is optional.  Raise
   getmailConfigurationError if they're not present and the user tries
   to use it.  Thanks: Thomas Schwinge.
-  -fix missing received_by in destinations.  Thanks: Frankye Fattarelli and 
+  -fix missing received_by in destinations.  Thanks: Frankye Fattarelli and
   Andrew Raines.
 
 Version 4.0.0a22
@@ -286,7 +309,7 @@ Version 4.0.0a19
   -bring some docstrings, comments, and documentation up to date.
   -add Filter_classifier filter module, to support adding information
   to the message header from programs that don't provide the original message
-  back on stdout (like clamscan/clamdscan, apparently).  Thanks: Frankye 
+  back on stdout (like clamscan/clamdscan, apparently).  Thanks: Frankye
   Fattarelli.
   -missed seek(0) in msg_flatten().  Add missing imports.
   Thanks: Andrew Raines.
@@ -294,7 +317,7 @@ Version 4.0.0a19
 Version 4.0.0a18
 24 June 2004
 
-  -add msg_flatten(), msg_lines() and use them exclusively to prevent 
+  -add msg_flatten(), msg_lines() and use them exclusively to prevent
   .as_string() from changing header fields for spurious reasons.
   Thanks: Andrew Raines.
   -remove code doing From_-escaping in Mboxrd and let the email module do it.
@@ -310,14 +333,14 @@ Version 4.0.0a17
 Version 4.0.0a16
 23 June 2004
 
-  -add user and group, and allow_root_commands parameters to MDA_external 
+  -add user and group, and allow_root_commands parameters to MDA_external
   destination and Filter_external filter classes.
   -make import pwd fail gracefully for Windows, etc.
-  -add allow_root_commands parameter to MDA_external destination and 
-  Filter_external filter classes to force overriding of running external 
+  -add allow_root_commands parameter to MDA_external destination and
+  Filter_external filter classes to force overriding of running external
   commands as root.
   -pass reference to configparser to retriever, destination, and filters
-  -add MultiSorter destination of "[section]" which invokes another 
+  -add MultiSorter destination of "[section]" which invokes another
   destination from the same getmail rc file.  Use this to deliver to programs
   by including an MDA_external destination in a section named [foo] in the
   rc file, then specify that section name in the MultiSorter in the locals
@@ -330,8 +353,8 @@ Version 4.0.0a16
       chris [myprogram]
     [myprogram]
     type = MDA_external
-	path = /usr/local/bin/mymda
-	arguments = ("--strip-attachments", "-f%(sender)", "--fast")
+    path = /usr/local/bin/mymda
+    arguments = ("--strip-attachments", "-f%(sender)", "--fast")
   Don't try to cause a loop using this to point to itself.  You have been
   warned.
   -MultiSorter is now a little stricter about destination names.  A maildir
@@ -341,11 +364,11 @@ Version 4.0.0a16
     locals = sam@example.net subdir/maildir/
   You'll need to change it to:
     locals = sam@example.net ./subdir/maildir/
-  Of course, 
+  Of course,
     locals = sam@example.net ~sam/maildir/
   is already okay if sam is a valid user and has a valid home directory.
   -add message_log_syslog
-  
+
 Version 4.0.0a15
 22 June 2004
 
@@ -364,7 +387,7 @@ Version 4.0.0a14
 
   -fix IMAP-over-SSL.  socket.ssl objects are apparently incompatible with
   socket timeouts, even in the IMAP_SSL class.
-  -ensure --trace debugging output doesn't output passwords.  
+  -ensure --trace debugging output doesn't output passwords.
   Thanks: Julian Gomez.
   -IMAP classes would stop indexing mailboxes when they hit an empty one.
   Fixed.  Thanks: Julian Gomez.
@@ -372,14 +395,14 @@ Version 4.0.0a14
 Version 4.0.0a13
 21 June 2004
 
-  -add missing default for max_messages_per_session.  Thanks:  Frankye 
+  -add missing default for max_messages_per_session.  Thanks:  Frankye
   Fattarelli.
 
 Version 4.0.0a12
 21 June 2004
 
   -slight change to quit() to ensure old connections are closed
-  and garbage-collected before trying to make new ones.  Thanks:  Frankye 
+  and garbage-collected before trying to make new ones.  Thanks:  Frankye
   Fattarelli.
   -move default documentation directory to /usr/local/share/doc/ .
   -filters.py now checks that the filtered message is at least basically
@@ -397,7 +420,7 @@ Version 4.0.0a11
   -rename pop3ssl.py
   -fix --quiet.  i.e., getmail should again operate truly silently if you
   want it to.
-  -retrievers' quit() method wasn't getting called.  Fix.  Thanks: Frankye 
+  -retrievers' quit() method wasn't getting called.  Fix.  Thanks: Frankye
   Fattarelli.
 
 Version 4.0.0a10
@@ -436,8 +459,8 @@ Version 4.0.0a6
 16 June 2004
 
   -add pseudofile class to implement readline() and sslwrapper to implement
-  sendall() on ssl objects.  
-  ssl objects in Python don't behave like a file, or like a socket; they're just 
+  sendall() on ssl objects.
+  ssl objects in Python don't behave like a file, or like a socket; they're just
   ... broken. It's a deficiency in the Python standard library.
   This might make POP3-over-SSL work, or it might need more work yet.  I've
   got it talking some SSL, but it hangs at the moment.  Might be blocking
@@ -472,7 +495,7 @@ Version 4.0.0a3
 15 June 2004
 
   -fix typo in processing filters.  Thanks: K. Shantanu.
-  -fix typo in processing non-default parameters.  Thanks: Andrew Raines. 
+  -fix typo in processing non-default parameters.  Thanks: Andrew Raines.
   -document SSL retrievers
   -move retrievers.py configuration functionality into ConfigurableBase class
   -convert filters.py to use ConfigurableBase
@@ -481,7 +504,7 @@ Version 4.0.0a3
 Version 4.0.0a2
 14 June 2004
 
-  -fix default/'default' in filters module.  Thanks: Andrew Raines. 
+  -fix default/'default' in filters module.  Thanks: Andrew Raines.
   -add the mix-in classes for SSL support with POP3 classes.  Meant small
   rewrites to the POP3 classes, but the design should be even cleaner now.
 

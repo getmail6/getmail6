@@ -14,6 +14,7 @@ __all__ = [
 
 import os
 import email
+import types
 import sets
 
 from exceptions import *
@@ -88,7 +89,7 @@ class FilterSkeleton(ConfigurableBase):
             # (instead of having getmail use it as an external MDA), and ended
             # up having getmail deliver 0-byte messages after the MDA had
             # already done it.
-            raise getmailOperationError('filter %s returned fewer headers'
+            raise getmailDeliveryError('filter %s returned fewer headers'
                 ' (%d) than supplied (%d)\n'
                 % (self, len(newmsg.headers()), len(msg.headers())))
 
@@ -160,6 +161,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
         {'name' : 'user', 'type' : str, 'default' : None},
         {'name' : 'group', 'type' : str, 'default' : None},
         {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
     def initialize(self):
@@ -360,6 +362,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
         {'name' : 'group', 'type' : str, 'default' : None},
         {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
         {'name' : 'conf-break', 'type' : str, 'default' : '-'},
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
     def initialize(self):

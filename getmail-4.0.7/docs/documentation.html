@@ -45,6 +45,7 @@
             <li><a href="documentation.html#installing-impatient">For the impatient</a></li>
             <li><a href="documentation.html#installing-full">Full installation instructions</a></li>
             <li><a href="documentation.html#installing-rpm">Installing from the RPM</a></li>
+            <li><a href="documentation.html#installing-win32inst">Installing from the MS Windows installer</a></li>
             <li><a href="documentation.html#installing-source">Installing directly from the source</a></li>
             <li>
                 <ul>
@@ -275,7 +276,9 @@ make install
 
 <h3 id="installing-impatient">For the impatient</h3>
 <p>
-    Installing getmail is very easy; just unpack it, change into the directory
+    Installing getmail is very easy; MS Windows users can download and run
+    the self-installer, and everyone else can just download the tarball
+    distribution, unpack it, change into the directory
     it unpacks into, and run this command:
 </p>
 <pre class="example">
@@ -283,8 +286,8 @@ $ python setup.py install
 </pre>
 <p>
     That's all there is to it.  99.9% of users don't need a special
-    package/port/etc.  If you'd like more details on install options, keep
-    reading.
+    package/port/etc (even MS Windows users can use the tarball, if they want).
+    If you'd like more details on install options, keep reading.
 </p>
 
 <h3 id="installing-full">Full installation instructions</h3>
@@ -296,8 +299,8 @@ $ python setup.py install
 $ tar xzf getmail-<span class="meta">version</span>.tar.gz
 </pre>
 <p>
-    On Windows or Macintosh systems, use a Zip-type program to unpack the
-    tarball.
+    On Windows or Macintosh systems, use a Zip-type archiver program to unpack 
+    the tarball.
 </p>
 <p>
     On SystemV-like Unix systems, you may instead need to break this down
@@ -328,6 +331,12 @@ $ tar xf getmail-<span class="meta">version</span>.tar
 <pre class="example">
 $ rpm -ihv getmail-<span class="meta">version</span>-<span class="meta">release</span>.noarch.rpm
 </pre>
+
+<h3 id="installing-win32inst">Installing from the MS Windows installer</h3>
+<p>
+    If you downloaded the MS Windows self-executing installer, just run it
+    to install getmail.
+</p>
 
 <h3 id="installing-source">Installing directly from the source</h3>
 <p>

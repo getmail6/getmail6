@@ -32,6 +32,7 @@ __all__ = [
 import socket
 import poplib
 import imaplib
+import types
 
 from exceptions import *
 from constants import *
@@ -48,6 +49,7 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
     '''Retriever class for single-user POP3 mailboxes.
     '''
     _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
         {'name' : 'timeout', 'type' : int, 'default' : 180},
@@ -78,6 +80,7 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
     '''Retriever class for single-user POP3-over-SSL mailboxes.
     '''
     _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
         {'name' : 'timeout', 'type' : int, 'default' : 180},
@@ -110,6 +113,7 @@ class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
     '''Retriever class for multi-drop POP3 mailboxes.
     '''
     _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
         {'name' : 'timeout', 'type' : int, 'default' : 180},
@@ -141,6 +145,7 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
     '''Retriever class for multi-drop POP3-over-SSL mailboxes.
     '''
     _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
         {'name' : 'timeout', 'type' : int, 'default' : 180},
@@ -181,6 +186,7 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
     Support originally requested by Paul Clifford for getmail v.2/3.
     '''
     _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
         {'name' : 'timeout', 'type' : int, 'default' : 180},
@@ -230,6 +236,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
     '''Retriever class for single-user IMAPv4 mailboxes.
     '''
     _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
         {'name' : 'timeout', 'type' : int, 'default' : 180},
@@ -266,6 +273,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
     '''Retriever class for single-user IMAPv4-over-SSL mailboxes.
     '''
     _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
         # socket.ssl() and socket timeouts are incompatible in Python 2.3
@@ -306,6 +314,7 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
     '''Retriever class for multi-drop IMAPv4 mailboxes.
     '''
     _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
         {'name' : 'timeout', 'type' : int, 'default' : 180},
@@ -344,6 +353,7 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
     '''Retriever class for multi-drop IMAPv4-over-SSL mailboxes.
     '''
     _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
         # socket.ssl() and socket timeouts are incompatible in Python 2.3

@@ -8,6 +8,23 @@ import pprint
 from optparse import OptionParser, OptionGroup
 from socket import timeout, gaierror
 
+options_bool = (
+    'verbose',
+    'read_all',
+    'delete',
+    'delivered_to',
+    'received',
+    'message_log_syslog'
+)
+options_int = (
+    'delete_after',
+    'max_message_size',
+    'max_messages_per_session'
+)
+options_str = (
+    'message_log',
+)
+
 # Unix only
 try:
     import syslog
@@ -110,6 +127,7 @@ def go(configs):
                                     % mail_filter)
                                 logline += (', dropped by filter %s'
                                     % mail_filter)
+                                retriever.delivered(msgid)
                                 break
 
                         if msg is not None:
@@ -117,6 +135,7 @@ def go(configs):
                                 options['delivered_to'], options['received'])
                             log.info('delivered to %s ... ' % r)
                             logline += ', delivered to %s' % r
+                            retriever.delivered(msgid)
                         if options['delete']:
                             delete = True
                     else:
@@ -284,8 +303,7 @@ def main():
             configparser.readfp(f, path)
 
             try:
-                for option in ('verbose', 'read_all', 'delete', 'delivered_to',
-                        'received', 'message_log_syslog'):
+                for option in options_bool:
                     log.debug('  looking for option %s ... ' % option)
                     if configparser.has_option('options', option):
                         log.debug('got "%s"' % configparser.get('options',
@@ -304,8 +322,7 @@ def main():
                         log.debug('not found')
                     log.debug('\n')
 
-                for option in ('delete_after', 'max_message_size',
-                        'max_messages_per_session'):
+                for option in options_int:
                     log.debug('  looking for option %s ... ' % option)
                     if configparser.has_option('options', option):
                         log.debug('got "%s"' % configparser.get('options',
@@ -325,7 +342,7 @@ def main():
                     log.debug('\n')
 
                 # Message log file
-                for option in ('message_log', ):
+                for option in options_str:
                     log.debug('  looking for option %s ... ' % option)
                     if configparser.has_option('options', option):
                         log.debug('got "%s"' % configparser.get('options',

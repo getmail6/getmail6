@@ -116,6 +116,7 @@ class Maildir(DeliverySkeleton):
     '''
     _confitems = (
         {'name' : 'path', 'type' : str},
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
     def initialize(self):
@@ -161,6 +162,7 @@ class Mboxrd(DeliverySkeleton):
     '''
     _confitems = (
         {'name' : 'path', 'type' : str},
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
     def initialize(self):
@@ -324,6 +326,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
         {'name' : 'localpart_translate', 'type' : tuple, 'default' : ('', '')},
         {'name' : 'strip_delivered_to', 'type' : bool, 'default' : False},
         {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
     def initialize(self):
@@ -492,6 +495,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         {'name' : 'user', 'type' : str, 'default' : None},
         {'name' : 'group', 'type' : str, 'default' : None},
         {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
     def initialize(self):
