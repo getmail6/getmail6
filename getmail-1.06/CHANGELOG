@@ -1,6 +1,12 @@
 Changes for getmail:
 ====================
 
+v.1.06 15 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-changed the way getmail parses the results of the POP3 UIDL command to fix
+	a problem when servers do not use the message ID as the UIDL result.
+
+v.1.05 Not released
+	
 v.1.04 12 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 	-getmail can now change the ownership of message files delivered to a
 	Maildir on a per-recipient basis for domain mailboxes if run with root

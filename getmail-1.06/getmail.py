@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.04'
+VERSION = '1.06'
 
 #
 # Imports
@@ -250,7 +250,7 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
                 sys.stdout.flush ()
 
             rc = session.uidl (msgnum)
-            uidl = rc [ string.find (rc, '<') : string.find (rc, '>') + 1 ]
+            uidl = string.replace (string.split (rc, ' ', 1)[1], '\n', '')
 
             if getall or ('%s\n' % uidl) not in oldmail:
                 result = session.retr (int (msgnum))
