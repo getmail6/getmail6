@@ -13,7 +13,8 @@
 # from multiple POP3 hosts, with delivery to Maildirs specified on a
 # per-account basis.
 #
-# getmail returns the number of messages retrieved, or -1 on error.
+# getmail returns 0 when it retrieves mail, 1 if there is no mail to retrieve,
+#, -1 on error.  100 and 101 are debugging/diagnostic codes for now.
 #
 # Basic usage:
 #
@@ -31,16 +32,16 @@
 # not a Maildir.  If a regular file is given, getmail assumes it is an mbox
 # file.
 #
-# To regularly retrieve from the same accounts, it is easiest to place this
-# information in a configuration file (suggested:  $HOME/.getmail/.getmailrc),
-# one per line, with '#' indicating the start of comments.
-# This file can be specified on the commandline with the -r or --rcfile
-# options.  If not specified, the default is '.getmailrc' in the directory
-# specified in the environment variable 'GETMAIL' if it exists.  This directory
-# can be overridden with the -c or --configdir options.
+# To regularly retrieve from the same accounts, it is easiest to use a
+# configuration file and data directory.  Create a directory named '.getmail'
+# in your home directory, and a file named '.getmailrc' in this directory.
+# The format of this file is described in the file USAGE.
+# The configuration file can be specified on the commandline with the -r or
+# --rcfile options, and the directory can be overridden with the contents of
+# the GETMAIL environment variable or the --configdir or -c options.
 #
 # Use of a config/data directory allows getmail to keep track of messages it
-# has already seen, and can then retrieve only new mail.
+# has already seen, and can then retrieve only new mail if desired.
 #
 # Maildir is the mail storage format designed by Dan Bernstein, author of
 # qmail (among other things).  It is supported by many Unix MUAs, including
@@ -48,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.95'
+VERSION = '0.96'
 
 #
 # Imports
@@ -94,6 +95,7 @@ opt_configdir =			None
 opt_dump =				0
 opt_ignoreconfig =		0
 opt_addrext =			DEF_ADDREXT
+opt_showhelp =			0
 
 
 #
@@ -101,12 +103,20 @@ opt_addrext =			DEF_ADDREXT
 #
 
 OK, ERROR = (0, -1)
+true, false = ['true', 'yes', '1'], ['false', 'no', '0']
 
 CR =			'\r'
 LF =			'\n'
 deliverycount = 0
 argv = 			sys.argv
 stderr = 		sys.stderr.write
+
+# Exit codes
+RC_NEWMAIL	= 0
+RC_NOMAIL	= 1
+RC_DEBUG	= 100
+RC_HELP		= 101
+
 
 #
 # Functions
@@ -147,7 +157,8 @@ def main ():
 				stderr ('Message saved to file "%s"\n' % t)
 				time.sleep (1)
 
-	sys.exit (deliverycount)
+	if deliverycount:	sys.exit (RC_NEWMAIL)
+	else:				sys.exit (RC_NOMAIL)
 
 
 #######################################
@@ -176,7 +187,7 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
 		if verbose:  print '%s:  POP3 greeting:  %s' % (shorthost, rc)
 	except poplib.error_proto, response:
 		stderr ('%s:  returned greeting "%s"\n' % (shorthost, response))
-		return
+		return []
 	except socket.error, txt:
 		stderr ('Exception connecting to %s:  %s\n' % (opt_host, txt))
 		return []
@@ -351,14 +362,21 @@ def mboxdeliver (mbox, message):
 	global deliverycount
 	dtime = time.asctime (time.gmtime (time.time ()))
 
-	if message[0][0 : 13] == 'Return-Path: ':
-		env_sender = message[0][13 : string.find (message[0], ' ', 13) ]
-	elif message[0][0 : 6] == 'From ':
-		env_sender = message[0][6 : string.find (message[0], ' ', 6) ]
-	else:
-		# DEBUG
-		stderr ('message[0] = "%s"\n' % message[0])
-		raise 'No Return-Path: header in message'
+	f = cStringIO.StringIO ()
+	f.writelines (message)
+	f.flush ()
+	f.seek (0)
+
+	m = rfc822.Message (f)
+	addrlist = m.getaddrlist ('return-path')
+	try:
+		env_sender = addrlist[0][1]
+	except IndexError:
+		# No Return-Path: header
+		stderr ('Warning:  no Return-Path: header in message\n')
+		env_sender = '<@[]>'
+
+	f.close ()
 
 	env_sender = string.replace (string.replace (env_sender, '<', ''), '>', '')
 
@@ -451,16 +469,6 @@ def usage ():
 	return
 
 
-		#try:
-		#	f = open (opt_rcfile)
-		#	for line in f.readlines ():
-		#		line = string.strip (line [ : string.find (line, '#') ])
-		#		if line and line != '#':
-		#			args.append (line)
-		#except IOError:
-		#	stderr ('Warning:  failed to open .getmailrc file "%s"\n' % opt_rcfile)
-
-
 #######################################
 def read_configfile (file):
 	'''Read in configuration file.
@@ -548,7 +556,8 @@ def parse_options (argv):
 	#
 	global opt_delete_retrieved, opt_retrieve_read, \
 		opt_port, opt_host, opt_account, opt_password, opt_dest, \
-		opt_verbose, opt_rcfile, opt_configdir, opt_dump, opt_ignoreconfig
+		opt_verbose, opt_rcfile, opt_configdir, opt_dump, opt_ignoreconfig, \
+		opt_showhelp
 
 	error = 0
 
@@ -562,8 +571,9 @@ def parse_options (argv):
 	try:
 		oldargv = argv
 		newargs = [argv[0]]
-		for a in string.split (os.environ[ENV_GETMAILOPTS]):
-			newargs.append (a)
+		if os.environ.has_key (ENV_GETMAILOPTS):
+			for a in string.split (os.environ[ENV_GETMAILOPTS]):
+				newargs.append (a)
 		for a in argv[1 : ]:
 			newargs.append (a)
 		argv = newargs
@@ -588,13 +598,13 @@ def parse_options (argv):
 	for option, value in optslist:
 		# parse options
 		if option == '--help' or option == '-h':
-			error = 1
+			opt_showhelp = 1
 
 		elif option == '--delete' or option == '-d':
 			opt_delete_retrieved = 1
 
 		elif option == '--dont-delete' or option == '-l':
-			opt_delete_retrieved = 1
+			opt_delete_retrieved = 0
 
 		elif option == '--all' or option == '-a':
 			opt_retrieve_read = 1
@@ -630,13 +640,21 @@ def parse_options (argv):
 			stderr ('Error:  unrecognized option %s\n' % option)
 			error = 1
 
+	#
+	if opt_showhelp:
+		usage ()
+		sys.exit (RC_HELP)
+
 	# Check for data directory
 	if not opt_configdir:
-		stderr ('Warning:  configuration/data directory not supplied, and "%s" environment\n'
-				'  variable not set.  getmail will not be able to retreive only unread mail.\n'
-				% ENV_GETMAIL)
-		opt_configdir = ''
-		opt_retrieve_read = 1
+		if os.environ.has_key ('HOME'):
+			opt_configdir = os.path.join (os.environ['HOME'], '.getmail')
+			if not os.path.isdir (opt_configdir):
+				opt_configdir = ''
+				stderr ('Warning:  configuration/data directory not supplied, and "%s" environment\n'
+						'  variable not set.  Cannot retrieve only new mail.\n'
+						% ENV_GETMAIL)
+				opt_retrieve_read = 1
 
 	# Read config file, setting default if necessary
 	if not opt_ignoreconfig:
@@ -691,16 +709,6 @@ def parse_options (argv):
 		stderr ('Error:  no destination(s) supplied\n')
 		error = 1
 
-	if not (len (opt_host) == len (opt_account) == len (opt_dest)) \
-		and (len (opt_password) != 0) \
-		and (len (opt_password) != len (opt_account)):
-		stderr ('Error:  different numbers of hosts/names/destinations/passwords supplied\n')
-		error = 1
-
-	# Put in default port if not specified -- this should be scrapped
-	for i in range (len (opt_account) - len (opt_port)):
-		opt_port.append (int (DEF_PORT))
-
 	# Read password(s) from stdin if not supplied
 	if not error:
 		for i in range (len (opt_password)):
@@ -747,7 +755,7 @@ def parse_options (argv):
 		for i in range (len (opt_account)):
 			print '  %s,%s:%s,%s' % (opt_account[i], opt_host[i], opt_port[i],
 									 opt_dest[i])
-		sys.exit (OK)
+		sys.exit (RC_DEBUG)
 
 	if error:
 		usage ()

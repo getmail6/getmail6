@@ -1,7 +1,7 @@
 # This is a sample .getmailrc file
 # Comment lines begin with '#'.  Comments can also be placed after an option
 # on the same line.
-  # Leading and trailing whitespace is ignored.
+# Trailing whitespace is ignored.
 # Blank lines are ignored.
 #
 # Accounts to retrieve mail from are specified, one per section in this format:

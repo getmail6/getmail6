@@ -1,6 +1,18 @@
 Changes for getmail:
 ====================
 
+v.0.96 8 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Fixed a bug which resulted in failure to deliver to an mbox file when
+	  there was no Return-Path: header in a retrieved email.
+	-Fixed a bug where explicitly specifying the --dont-delete or -l options
+	  (even though they are the default) caused mail to be deleted from the
+	  POP3 server.
+	-The GETMAIL environment variable is now unnecessary if your getmail
+	  configuration/data directory is located at $HOME/.getmail
+	-Some unnecessary code removed.
+	-Exit codes changed.  0 means mail retrieved, 1 means no mail, -1 means
+	  fatal error, and 100/101 are exits due to options --help and --dump.
+
 v.0.95 5 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 	-Changed the .getmailrc configuration file format to a sectioned
 	  'option=value' format.  It is now much easier to read and write,
