@@ -454,6 +454,9 @@ postmaster = "|/path/to/mda [options] 2>&1"
             <TD CLASS="listitem"><A HREF="#directive-max-message-size">max_message_size</A></TD><TD>Yes</TD><TD>0 (No limit)</TD><TD>Do not retrieve messages larger than this setting</TD>
         </TR>
         <TR>
+            <TD CLASS="listitem"><A HREF="#directive-max-messages-per-session">max_messages_per_session</A></TD><TD>Yes</TD><TD>0 (No limit)</TD><TD>Do not retrieve more than X messages</TD>
+        </TR>
+        <TR>
             <TD CLASS="listitem"><A HREF="#directive-eliminate-duplicates">eliminate_duplicates</A></TD><TD>Yes</TD><TD>0 (No)</TD><TD>Eliminate duplicate messages from POP3 mailbox</TD>
         </TR>
         <TR>
@@ -1354,6 +1357,60 @@ PERFORMANCE OF THIS SOFTWARE.</PRE>
     </TABLE>
 
     <H3><A NAME="directive-max-message-size" HREF="#directive-retrieval">Maximum message size to retrieve</A></H3>
+    <TABLE>
+        <TR>
+            <TD CLASS="rowlabel">
+                Function
+            </TD>
+            <TD CLASS="rowdata">
+                Specify a maximum message size to retrieve.  Messages larger
+                than this will be left on the server and not retrieved.
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Syntax
+            </TD>
+            <TD CLASS="rowdata">
+                max_message_size = <EM CLASS="example">value (bytes)</EM>
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Optional
+            </TD>
+            <TD CLASS="rowdata">
+                Yes
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Default
+            </TD>
+            <TD CLASS="rowdata">
+                0 (No limit)
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Commandline equivalent
+            </TD>
+            <TD CLASS="rowdata">
+                None
+            </TD>
+        </TR>
+        <TR>
+            <TD CLASS="rowlabel">
+                Examples
+            </TD>
+            <TD CLASS="sample">
+                max_message_size = 2000000<BR>
+                max_message_size = 150000
+            </TD>
+        </TR>
+    </TABLE>
+
+    <H3><A NAME="directive-max-messages-per-session" HREF="#directive-retrieval">Maximum message size to retrieve</A></H3>
     <TABLE>
         <TR>
             <TD CLASS="rowlabel">

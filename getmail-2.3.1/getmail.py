@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.0'
+__version__ = '2.3.1'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -120,7 +120,8 @@ defs = {
     'no_received' :     0,                  # Don't add Received: header
     'eliminate_duplicates' :    0,          # Eliminate duplicate messages
     'max_message_size' :        0,          # Maximum message size to retrieve
-
+    'max_messages_per_session' : 0,         # Stop after X messages; 0 for no
+                                            #   limit.
     'message_log' :     '',                 # Log info about getmail actions
                                             #   leading ~[user]/ will be expanded
                                             #   Will be prepended with value of
@@ -153,13 +154,11 @@ defs = {
 # For signal handling
 getmailobj = None
 
-# name getmail was invoked with
-me = None
-
 # Options recognized in configuration getmailrc file
 intoptions = ('verbose', 'readall', 'delete', 'timeout', 'use_apop',
     'no_delivered_to', 'no_received', 'eliminate_duplicates',
-    'max_message_size', 'delete_after', 'extension_depth')
+    'max_message_size', 'max_messages_per_session', 'delete_after',
+    'extension_depth')
 stringoptions = ('message_log', 'recipient_header', 'extension_sep')
 
 # For these headers, only the first will be parsed
@@ -1090,10 +1089,20 @@ class getmail:
                     # No more messages; POP3.list() returns a final int
                     self.logfunc (INFO, '  finished retrieving messages\n')
                     break
-                self.logfunc (INFO, '  msg #%i/%i : len %s ... '
-                    % (msgnum, len (msglist) - 1, msglen))
+
                 # Append msgid to list of current inbox contents
                 inbox.append (msgid)
+
+                if self.conf['max_messages_per_session']:
+                    if self.info['msgcount'] == self.conf['max_messages_per_session']:
+                        self.logfunc (INFO, '  retrieved %(max_messages_per_session)i messages, quitting.\n')
+                        continue
+                    elif self.info['msgcount'] > self.conf['max_messages_per_session']:
+                        continue
+
+                self.logfunc (INFO, '  msg #%i/%i : len %s ... '
+                    % (msgnum, len (msglist) - 1, msglen))
+
                 if msglen and self.conf['max_message_size'] and msglen > self.conf['max_message_size']:
                     self.logfunc (INFO,
                         'over max message size of %(max_message_size)i, skipping ...\n')
@@ -1221,31 +1230,28 @@ def alarm_handler (dummy, unused):
 
 #######################################
 def blurb ():
+    print 'getmail - POP3 mail retriever with reliable Maildir and mbox delivery.'
     print
-    print 'getmail v.%s - POP3 mail retriever with reliable Maildir and mbox delivery.' \
-        % __version__
-    print '  (ConfParser version %s)' % ConfParser.__version__,
-    try:
-        result = re.search (r'\d+\.\d+', timeoutsocket.__version__)
-        if result:
-            print '(timeoutsocket version %s)' % result.group (),
-        else:
-            print '(timeoutsocket version ?)',
-    except AttributeError:
-        pass
-    print '\n'
-    print 'Copyright (C) 2001 Charles Cazabon <getmail @ discworld.dyndns.org>'
+
+#######################################
+def version ():
+    print 'getmail version %s ' % __version__
+    print
+    print 'Copyright (C) 2001 Charles Cazabon'
+    print
     print 'Licensed under the GNU General Public License version 2.  See the file'
     print 'COPYING for details.'
     print
+    print 'Written by Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #######################################
 def help (ec=exitcodes['ERROR']):
     blurb ()
-    print 'Usage:  %s [options]' % me
+    print 'Usage:  getmail [OPTION] ...'
     print
     print 'Options:'
-    print '  -h or --help                      this text'
+    print '  -h or --help                      display brief usage information and exit'
+    print '  -V or --version                   display version information and exit'
     print '  -g or --getmaildir <dir>          use <dir> for getmail data directory'
     print '                                      (default:  %(getmaildir)s)' \
         % defs
@@ -1276,11 +1282,11 @@ def help (ec=exitcodes['ERROR']):
         print '                                      (default:  new messages)'
     print '  -v or --verbose                   be verbose during operation'
     print '  -q or --quiet                     be quiet during operation'
-    if defs['verbose']:
+    if defs['log_level'] < WARN:
         print '                                      (default:  verbose)'
     else:
         print '                                      (default:  quiet)'
-    print '  -m or --message-log <file>        log mail info to <file>'
+    print '  -m or --message-log <file>        log retrieval info to <file>'
     print
     sys.exit (ec)
 
@@ -1312,6 +1318,11 @@ def read_configfile (filename, default_config):
             try:
                 if key in intoptions:
                     options[key] = conf.getint ('default', key)
+                    if key == 'verbose':
+                    	if options[key]:
+                    		options['log_level'] = INFO
+                    	else:
+                    		options['log_level'] = WARN
                 else:
                     options[key] = conf.get ('default', key)
             except ConfParser.NoOptionError:
@@ -1348,6 +1359,11 @@ def read_configfile (filename, default_config):
             # Read integer options
             for item in intoptions:
                 account[item] = conf.getint (section, item)
+                if item == 'verbose':
+                	if account[item]:
+                		account['log_level'] = INFO
+                	else:
+                		account['log_level'] = WARN
 
             # Read string options
             for item in stringoptions:
@@ -1387,10 +1403,10 @@ def read_configfile (filename, default_config):
 #######################################
 def parse_options (args):
     o = {}
-    shortopts = 'adg:hlm:nqr:t:v'
+    shortopts = 'adg:hlm:nqr:t:vV'
     longopts = ['all', 'delete', 'dont-delete', 'dump', 'getmaildir=', 'help',
                 'message-log=', 'new', 'quiet', 'rcfile=', 'timeout=',
-                'trace', 'verbose']
+                'trace', 'verbose', 'version']
     try:
         opts, args = getopt.getopt (args, shortopts, longopts)
 
@@ -1430,6 +1446,9 @@ def parse_options (args):
                     '\nError:  invalid integer value for timeout (%s)\n' % value,
                     defs)
                 help ()
+        elif option == '--version' or option == '-V':
+        	version ()
+        	sys.exit (0)
         elif option == '--rcfile' or option == '-r':
             o['rcfilename'] = value
         elif option == '--getmaildir' or option == '-g':
@@ -1476,11 +1495,9 @@ def dump_config (cmdopts, mail_configs):
 def main ():
     '''Main entry point for getmail.
     '''
-    global me
-    me, args = os.path.split (sys.argv[0])[-1], sys.argv[1:]
     config = defs.copy ()
     
-    cmdline_opts = parse_options (args)
+    cmdline_opts = parse_options (sys.argv[1:])
     config.update (cmdline_opts)
 
     if config['help']:
@@ -1509,6 +1526,7 @@ def main ():
         # Everything is go.
         if config['log_level'] < WARN:
             blurb ()
+            version ()
     
         if config['dump']:
             dump_config (config, mail_configs)

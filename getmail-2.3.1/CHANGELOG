@@ -1,6 +1,18 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.1
+16 March 2002
+
+  -add max_messages_per_session configuration directive.  Use this if you
+  want to configure getmail to quit after retrieving a fixed number of messages.
+  Defaults to 0, which is no limit.
+  -fix bug in help() introduced in 2.3.0 rewrite
+  -fix up handling of verbose configuration directive
+  -change some internals to make auto-generating a man page possible.
+  -include auto-generated man page in tarball and RPM
+  -RPM release improvements
+
 Version 2.3.0
 15 March 2002
 
