@@ -31,7 +31,9 @@ postmaster = /var/spool/mail/postmaster         # mbox default destination if no
 local = ^user1@isp.net$,~user1/Maildir/         # Mail for "user1@isp.net" is delivered to ~user1/Maildir/
 local = ^user2@isp.net$,~user2/mbox             # Mail for "user2@isp.net" is delivered to ~user1/mbox
 local = ^user3-list@isp.net$,~user3/Mail/list   # handle this qmail-style extension address separately.
-local = ^user3@isp.net$,~user3/Mail/inbox/      # 
+local = ^user3@isp.net$,|/usr/bin/maildrop		# Deliver mail for "user3@isp.net" to /usr/bin/maildrop for
+												#    further processing
+
 
 local = olduser@isp.net,/dev/null               # Throw away mail for this user, who no longer exists here,
                                                 #     to prevent the postmaster from receiving it.

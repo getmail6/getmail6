@@ -294,8 +294,9 @@ getmailrc Directives
    under the control of an administrative user responsible for mail for
    which getmail cannot automatically determine the correct local
    recipient(s).
-   getmail currently understands two types of delivery: qmail-style
-   Maildirs, which must be specified with a trailing "/", and mbox files.
+   getmail currently understands three types of delivery: qmail-style
+   Maildirs, which must be specified with a trailing "/", mbox files, and
+   commands (pipe delivery).
    
    Directive
           postmaster = <delivery_instruction>
@@ -312,6 +313,7 @@ getmailrc Directives
    Examples
           postmaster = ~postmaster/Maildir/
           postmaster = /home/amandal/Mail/inbox
+          postmaster = |/path/to/command
      _________________________________________________________________
    
       Local Delivery Instructions
@@ -342,6 +344,7 @@ getmailrc Directives
           local = ceo@mycompany.net,~lynette/Maildir/
           local = jason@mycompany.net,~jasonr/Maildir/
           local = jason-.+@mycompany.net,~jasonr/Mail/lists
+          local = shawna-.+@mycompany.net,|/usr/bin/procmail
      _________________________________________________________________
    
       Local Recipient Header Specification

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.20'
+__version__ = '2.1.0'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -30,7 +30,6 @@ try:
 	import timeoutsocket
 	Timeout = timeoutsocket.Timeout
 except ImportError:
-	global timeoutsocket
 	# Prevent errors later for references to timeoutsocket
 	Timeout = None
 	class null_timeoutsocket:
@@ -58,7 +57,6 @@ import stat
 import traceback
 import getopt
 import getpass
-import md5
 from types import *
 
 
@@ -154,9 +152,6 @@ exitcodes = {
 # Names for output logging levels
 (TRACE, DEBUG, INFO, WARN, ERROR, FATAL) = range (1, 7)
 
-# Simple re to determine if a string might be an email address
-re_mailaddr = re.compile ('.+@.+\..+')
-
 # Count of deliveries for getmail; used in Maildir delivery
 deliverycount = 0
 
@@ -170,14 +165,18 @@ line_end = {
 	'mbox' : '\n'
 	}
 
-# Regular expression object to escape "From ", ">From ", ">>From ", ... 
-# with ">From ", ">>From ", ... in mbox deliveries.  This is for mboxrd format
-# mboxes.
-re_escapefrom = re.compile (r'^(?P<gts>\>*)From ', re.MULTILINE)
-# Regular expression object to find line endings
-re_eol = re.compile (r'\r?\n\s*', re.MULTILINE)
-# Regular expression to do POP3 leading-dot unescapes
-re_leadingdot = re.compile (r'^\.\.', re.MULTILINE)
+res = {
+	# Simple re to determine if a string might be an email address
+	'mailaddr' : re.compile ('.+@.+\..+'),
+	# Regular expression object to escape "From ", ">From ", ">>From ", ... 
+	# with ">From ", ">>From ", ... in mbox deliveries.  This is for mboxrd format
+	# mboxes.
+	'escapefrom' : re.compile (r'^(?P<gts>\>*)From ', re.MULTILINE),
+	# Regular expression object to find line endings
+	'eol' : re.compile (r'\r?\n\s*', re.MULTILINE),
+	# Regular expression to do POP3 leading-dot unescapes
+	'leadingdot' : re.compile (r'^\.\.', re.MULTILINE),
+}
 
 #
 # Utility functions
@@ -226,7 +225,7 @@ def format_header (name, line):
 	'''
 	header = ''
 	# Ensure 'line' is formatted as a single long line, and add header name.
-	line = string.strip (name) + ': ' + re_eol.sub (' ', string.rstrip (line))
+	line = string.strip (name) + ': ' + res['eol'].sub (' ', string.rstrip (line))
 	# Split into lines of maximum 78 characters long plus newline, if
 	# possible.  A long line may result if no space characters are present.
 	while 1:
@@ -245,7 +244,19 @@ def format_header (name, line):
 def pop3_unescape (msg):
 	'''Do leading dot replacement in retrieved message.
 	'''
-	return re_leadingdot.sub ('.', msg)
+	return res['leadingdot'].sub ('.', msg)
+
+#######################################
+def lock_file (file):
+	'''Do fcntl file locking
+	'''
+	fcntl.flock (file.fileno (), fcntl.LOCK_EX)
+
+#######################################
+def unlock_file (file):
+	'''Do fcntl file unlocking
+	'''
+	fcntl.flock (file.fileno (), fcntl.LOCK_UN)
 
 #
 # Classes
@@ -397,8 +408,10 @@ class getmail:
 		oldmail = {}
 		try:
 			f = open (self.oldmail_filename, 'r')
+			lock_file (f)
 			for line in f.readlines ():
 				oldmail[string.rstrip (line)] = None
+			unlock_file (f)
 			f.close ()
 			self.logfunc (TRACE, 'read_oldmailfile():  read %i' % len (oldmail)
 				+ ' uids for %(server)s:%(username)s\n' % self.account,
@@ -413,8 +426,10 @@ class getmail:
 		'''Write oldmail info to oldmail file.'''
 		try:
 			f = open (self.oldmail_filename, 'w')
+			lock_file (f)
 			for msgid in self.oldmail.keys ():
 				f.write ('%s\n' % msgid)
+			unlock_file (f)
 			f.close ()
 			self.logfunc (TRACE, 'write_oldmailfile():  wrote %i'
 				% len (self.oldmail)
@@ -456,6 +471,8 @@ class getmail:
 			msglog ('socket error during POP3 connect for %(username)s on %(server)s:%(port)i'
 				% self.account + ' (%s)' % txt, self.opts)
 			raise getmailSocketException, txt
+		except KeyboardInterrupt:
+			raise
 		except Exception, txt:
 			txt = 'Unknown exception connecting to %(server)s' % self.account \
 				+ ' (%s)' % txt
@@ -505,6 +522,8 @@ class getmail:
 			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('socket error during POP3 login (%s)' % txt, self.opts)
 			raise getmailSocketException, txt
+		except KeyboardInterrupt:
+			raise
 		except Exception, txt:
 			txt = 'Unknown exception during login to %(server)s' \
 				% self.account + ' (%s)' % txt
@@ -539,6 +558,8 @@ class getmail:
 			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('socket error during POP3 list (%s)' % txt, self.opts)
 			raise getmailSocketException, txt
+		except KeyboardInterrupt:
+			raise
 		except Exception, txt:
 			txt = 'Unknown exception for list command on %(server)s' \
 				% self.account + ' (%s)' % txt
@@ -588,7 +609,7 @@ class getmail:
 				for line in received:
 					recips = getmailAddressList (line).addresslist
 					for (name, address) in recips:
-						if address and re_mailaddr.search (address):
+						if address and res['mailaddr'].search (address):
 							# Looks like an email address, keep it
 							recipients[string.lower (address)] = None
 							self.logfunc (TRACE,
@@ -598,7 +619,7 @@ class getmail:
 			elif mess822.has_key (header_type):
 				recips = mess822.getaddrlist (header_type)
 				for (name, address) in recips:
-					if address and re_mailaddr.search (address):
+					if address and res['mailaddr'].search (address):
 						# Looks like an email address, keep it
 						recipients[string.lower (address)] = None
 						self.logfunc (TRACE,
@@ -714,7 +735,18 @@ class getmail:
 		file if the specified destination does not exist.  `touch` the file
 		first if you want to deliver to an empty mbox file.
 		'''
-
+		if not dest:
+			raise getmailDeliveryException, 'destination is blank'
+		
+		# Handle command delivery first
+		if dest[0] == '|':
+			dest = dest[1:]
+			# Ensure destination path exists	
+			if not os.path.exists (dest):
+				raise getmailDeliveryException, \
+					'destination command "%s" does not exist' % dest
+			return self.deliver_command (dest, msg, env_sender)
+				
 		# Ensure destination path exists	
 		if not os.path.exists (dest):
 			raise getmailDeliveryException, \
@@ -739,7 +771,7 @@ class getmail:
 			'destination "%s" is not a Maildir or mbox' % dest
 
 	###################################
-	def message_add_info (self, message, recipient, from_=0):
+	def message_add_info (self, message, recipient):
 		'''Add Delivered-To: and Received: info to headers of message.
 		'''
 		# Extract local_part of recipient address
@@ -836,7 +868,7 @@ class getmail:
 		try:
 			# Open mbox file
 			f = open (mbox, 'rb+')
-			fcntl.flock (f.fileno (), fcntl.LOCK_EX)
+			lock_file (f)
 			# Check if it _is_ an mbox file
 			# mbox files must start with "From " in their first line, or
 			# are 0-length files.
@@ -844,7 +876,7 @@ class getmail:
 			first_line = f.readline ()
 			if first_line != '' and first_line[:5] != 'From ':
 				# Not an mbox file; abort here
-				fcntl.flock (f.fileno (), fcntl.LOCK_UN)
+				unlock_file (f)
 				f.close ()
 				raise getmailDeliveryException, \
 					'destination "%s" is not an mbox file' % mbox
@@ -854,7 +886,7 @@ class getmail:
 
 			# Replace lines beginning with "From ", ">From ", ">>From ", ... 
 			# with ">From ", ">>From ", ">>>From ", ...
-			msg = re_escapefrom.sub ('>\g<gts>From ', msg)
+			msg = res['escapefrom'].sub ('>\g<gts>From ', msg)
 			# Add trailing newline if last line incomplete
 			if msg[-1] != '\n':  msg = msg + '\n'
 			
@@ -864,12 +896,12 @@ class getmail:
 			f.write ('\n')
 			f.flush ()
 			# Unlock and close file
-			fcntl.flock (f.fileno (), fcntl.LOCK_UN)
+			unlock_file (f)
 			f.close ()
 	
 		except IOError, txt:
 			try:
-				fcntl.flock (f.fileno (), fcntl.LOCK_UN)
+				unlock_file (f)
 				f.close ()
 			except:
 				pass
@@ -882,6 +914,65 @@ class getmail:
 
 		deliverycount = deliverycount + 1
 		return 'mbox file "%s"' % mbox
+
+	#######################################
+	def deliver_command (self, command, msg, env_sender):
+		'Deliver a mail message to a command.'
+		global deliverycount
+
+		# At least some security...
+		if os.geteuid () == 0:
+			raise getmailDeliveryException, 'refuse to deliver to commands as root'
+
+		# Construct mboxrd-style 'From_' line
+		delivery_date = mbox_timestamp ()
+		fromline = 'From %s %s\n' % (env_sender, delivery_date)
+
+		self.logfunc (TRACE, 'deliver_command():  delivering to command "%s"\n'
+			% command, self.opts)
+
+		try:
+			import popen2
+
+			popen2._cleanup()
+			cmd = popen2.Popen3 (command, 1, bufsize=-1)
+			cmdout, cmdin, cmderr = cmd.fromchild, cmd.tochild, cmd.childerr
+
+			delivery_date = mbox_timestamp ()
+			fromline = 'From %s %s\n' % (env_sender, delivery_date)
+			cmdin.write (fromline)
+			cmdin.write (string.replace (msg, line_end['pop3'], line_end['mbox']))
+			# Add trailing blank line
+			cmdin.write ('\n')
+			cmdin.flush ()
+
+			cmdin.close ()
+			err = string.strip (cmderr.read ())
+			cmderr.close ()
+			out = string.strip (cmdout.read ())
+			cmdout.close ()
+			
+			r = cmd.poll ()
+			if err or r:
+				raise getmailDeliveryException, 'command "%s" returned %i (%s)' \
+					 % (command, r or 0, err)
+
+		except ImportError:
+			raise getmailDeliveryException, 'popen2 module not found'
+
+		except getmailDeliveryException:
+			raise
+			
+		except Exception, txt:
+			raise getmailDeliveryException, \
+				'failure delivering message to command "%s" (%s)' % (command, txt)
+	
+		# Delivery done
+		self.logfunc (TRACE, 'deliver_command():  delivered to command "%s" (%s)\n'
+			% (command, out), self.opts)
+
+		deliverycount = deliverycount + 1
+		return 'command "%s"' % command
 
 	###################################
 	def abort (self, txt):
@@ -1356,7 +1447,6 @@ def main ():
 		try:
 			mail = getmail (account, loptions, locals)
 			mail.go ()
-			log (INFO, '\n')
 			try:
 				del mail
 			except:
@@ -1364,6 +1454,10 @@ def main ():
 		except getmailNetworkError, txt:
 			# Network not up (PPP, etc)
 			log (INFO, 'Network error, skipping...\n')
+			break
+		except KeyboardInterrupt, txt:
+			# User aborted
+			log (INFO, 'User aborted...\n')
 			try:
 				del mail
 			except:

@@ -121,20 +121,21 @@ getmail FAQ
    You don't. getmail doesn't do this, to prevent lost mail, mail loops,
    and bounces if getmail or your Mail Transfer Agent is misconfigured.
    getmail has native support for delivering to qmail-style Maildirs and
-   mboxrd-format mbox files, and therefore you shouldn't need to
-   re-inject retrieved messages. If you want to re-inject messages to run
-   procmail, search freshmeat.net for "procbox"; it was written by
-   getmail user Jeff Clement for this purpose.
-   Another alternative, if you absolutely have to do this, is:
-     * Deliver all your messages into a specific Maildir with your
-       postmaster configuration directive.
-     * Run getmail.
-     * Run a shellscript on the Maildir which feeds each message to
-       maildrop, procmail, /usr/bin/sendmail, or whatever.
-       
-   I will not provide support for this idea; if you're smart enough to
-   anticipate and handle the possible problems, you're smart enough to
-   write the script to do it.
+   mboxrd-format mbox files, as well as to commands (pipe delivery).
+   Therefore you shouldn't need to re-inject retrieved messages.
+   
+  How do I make getmail deliver messages to a program?
+  
+   As of version 2.1.0, getmail can deliver messages to a program (pipe
+   delivery). Specify the delivery target as "|path-to-command". You
+   should probably use full paths (e.g. "/usr/bin/maildrop"). getmail
+   will run the command with the message as standard input, beginning
+   with an mboxrd-style "From " line. getmail will consider the delivery
+   a failure if program exits non-zero or prints anything to standard
+   error. As a basic security precaution, getmail will refuse to deliver
+   to programs if it is running as root.
+   Warning: if you don't know what you're doing, you can shoot yourself
+   in the foot with this option.
    
   My 'net connection is via PPP/SLIP/modem, and when it's down, my cron'd
   getmail throws a "error: host not found" exception.

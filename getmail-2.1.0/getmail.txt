@@ -5,7 +5,7 @@ Summary of Features
        servers.
      * Support for multidrop or domain mailboxes.
      * Safe and reliable delivery to qmail-style Maildirs and
-       mboxrd-format mboxes.
+       mboxrd-format mboxes, as well as program (pipe) delivery.
      * Does not destroy information by rewriting mail headers.
      * Does not cause mail loops by doing SMTP injection, and therefore
        does not require that you run an MTA (like qmail or sendmail) on

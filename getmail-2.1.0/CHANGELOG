@@ -1,6 +1,20 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.1.0
+23 June 2001
+
+  -fix the "blank lines output, even in quiet mode" problem which caused cron
+  to send email every time getmail was run.  Thanks to Errol Casey for finding
+  the cause.
+  -Handle user aborting getmail better.
+  -Remove dead parameter from message_add_info()
+  -move file locking to separate functions
+  -add file locking around handling of oldmail file
+  -move regular expression objects into a dictionary
+  -add ability to deliver to a command (pipe delivery) like maildrop or
+  procmail.  getmail won't do this if it's running as root.
+
 Version 2.0.20
 20 June 2001
 
