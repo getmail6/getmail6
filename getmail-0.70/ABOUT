@@ -1,0 +1,68 @@
+
+                                    getmail
+                                       
+  Utility to retrieve mail from POP3 servers with reliable Maildir delivery
+  
+    by Charles Cazabon <getmail@discworld.dyndns.org>
+    
+   Copyright © 2000 Charles Cazabon.
+   Licensed under the GNU General Public License version 2. See the file
+   COPYING for license details.
+   
+  About getmail
+  
+   getmail is intended as a simple replacement for 'fetchmail', for those
+   people who don't need its various and sundry configuration options,
+   complexities, and bugs. It retrieves mail from one or more POP3
+   servers for one or more email accounts, and reliably delivers into a
+   Maildir specified on a per-account basis.
+   
+  Installing getmail
+  
+   getmail is a Python script. Ensure the Python interpreter is installed
+   on your machine (see www.python.org for details). Put the script
+   somewhere with executable permissions (probably 0755). If you like,
+   make a symbolic link named 'getmail' to the actual script
+   'getmail.py'.
+   
+  Using getmail
+  
+   Run without arguments for help.
+   To retrieve mail for accounts, run with arguments as follows:
+   getmail.py [options] user1@mailhost1[:port],maildir1[,password1] user2
+   @mailhost2[:port],maildir2[,password2]
+   For example, to retrieve mail for account 'joe' on mailhost
+   'mail.isp.com', running on port 8110, and deliver that mail into the
+   maildir 'Maildir' in your home directory, run as follows:
+   getmail.py [options] joe@mail.isp.com:8110,$HOME/Maildir,password
+   If you omit the final ',password', getmail will prompt you for your
+   password. You may omit the :port portion if the server runs on the
+   standard POP3 port (110).
+   You can retrieve mail for multiple accounts at once, delivering to
+   different maildirs, by specifying multiple arguments:
+   getmail.py [options] user1@mailhost1.net:8110,$HOME/Maildir,password u
+   ser2@mailhost2.com,$HOME/Mail/user2Maildir
+   Note in this case, mailhost2 is on the standard POP3 port and the user
+   will be prompted only for user2's password.
+   
+   More details are available in the file USAGE.
+   
+  Current Version
+  
+   The current version of getmail should be available at
+   http://www.qcc.sk.ca/~charlesc/software/getmail/ 
+   
+   The current version is v.0.70, dated 01-Jan-2000.
+   Questions, comments, bug reports, and feature requests should be
+   directed to me at <getmail@discworld.dyndns.org>.
+   
+  Download
+  
+                               Download now:
+                            getmail-0.70.tar.gz
+    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.70.tar.gz
+                            getmail-0.70.tar.bz2
+    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.70.tar.bz2
+                                      
+   Older versions may be found in
+   http://www.qcc.sk.ca/~charlesc/software/getmail/old-versions/

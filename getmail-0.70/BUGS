@@ -1,0 +1,11 @@
+Known bugs:
+===========
+
+Please report bugs to me at <getmail@discworld.dyndns.org>.
+
+-Can't have commas in usernames or maildir names.  Commas are used as
+  delimiters in the argument format.
+-Can't have # symbols in usernames, maildirnames, or passwords in the configfile.
+  This is because it is used as a comment delimiter.
+
+-Other bugs?  Probably.

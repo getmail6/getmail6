@@ -1,8 +1,9 @@
 #!/usr/bin/python
 #
-# getmail.py Copyright (C) 1999 Charles Cazabon <getmail@discworld.dyndns.org>
+# getmail.py Copyright (C) 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 #
-# Licensed under the GNU General Public License version 2.
+# Licensed under the GNU General Public License version 2. See the file COPYING
+# for details.
 #
 # getmail is a simple POP3 mail retriever with robust Maildir delivery.
 # It is intended as a simple replacement for 'fetchmail' for those people
@@ -11,16 +12,32 @@
 # from multiple POP3 hosts, with delivery to Maildirs specified on a
 # per-account basis.
 #
-# Maildir is the mail storage format designed by Dan Bernstein, author of
-# qmail (among other things).  It is supported by many Unix MUAs, including
-# mutt (www.mutt.org) and modified versions of pine.
-# For more information on the Maildir format,
-# see http://cr.yp.to/proto/maildir.html.
-#
 # getmail returns the number of messages retrieved, or -1 on error.
 #
+# Basic usage:
+#
+# Run without arguments for help.
+#
+# To retrieve mail for accounts, run with arguments as follows:
+#  getmail.py [options] user1@mailhost1[:port],maildir1[,password1] \
+#    user2@mailhost2[:port],maildir2[,password2]
+#
+# These arguments can also be placed in a configfile (suggested:
+# $HOME/.getmailrc), one per line, with '#' indicating the start of comments.
+# This file can be specified on the commandline with the -c or --config
+# options, or in the environment variable as specified in ENV_RCFILE below
+# (default:  GETMAILRC).
+#
+# If port is omitted, it defaults to the standard POP3 port, 110.
+# If passwords are omitted, they will be prompted for.
+#
+# Maildir is the mail storage format designed by Dan Bernstein, author of
+# qmail (among other things).  It is supported by many Unix MUAs, including
+# mutt (www.mutt.org) and modified versions of pine. For more information
+# on the Maildir format, see http://cr.yp.to/proto/maildir.html.
+#
 
-VERSION = '0.65'
+VERSION = '0.70'
 
 #
 # Imports
@@ -33,13 +50,14 @@ from types import *
 #
 # Defaults
 #
-# These can all be overridden with commandline options.
+# These can all be overridden with commandline arguments.
 #
 
 DEF_PORT =				110				# Normal POP3 port
 DEF_DELETE =			0				# Delete mail after retrieving (0, 1)
 DEF_READ_ALL =			1				# Retrieve all mail (1) or just new (0)
-DEF_PASSWORD_STDIN =	1				# Read POP3 password from stdin (0, 1)
+ENV_RCFILE =			'GETMAILRC'		# Environment variable to get config
+										#  filename from, if it exists.
 
 
 #
@@ -50,7 +68,6 @@ opt_host =				[]
 opt_port =				[]
 opt_account =			[]
 opt_password =			[]
-opt_password_stdin =	DEF_PASSWORD_STDIN
 opt_delete_retrieved =	DEF_DELETE
 opt_retrieve_read =		DEF_READ_ALL
 opt_maildir =			[]
@@ -250,8 +267,9 @@ def pop3_unescape (raw_lines):
 #######################################
 def about ():
 	print 'getmail v.%s\n' \
-		  'Copyright (C) 1999 Charles Cazabon <getmail@discworld.dyndns.org>\n' \
-		  'Licensed under the GNU General Public License version 2.\n' \
+		  'Copyright (C) 2000 Charles Cazabon <getmail@discworld.dyndns.org>\n' \
+		  'Licensed under the GNU General Public License version 2.  See the file\n' \
+		  'COPYING for details.\n' \
 		  % VERSION
 	return
 	
@@ -260,60 +278,51 @@ def about ():
 def usage ():
 	me = string.strip (os.path.split (sys.argv[0])[-1])
 	# Set up default option displays
-	def_del = def_dontdel = def_readall = def_readnew = def_stdin = ''
+	def_del = def_dontdel = def_readall = def_readnew = ''
 	if DEF_DELETE:			def_del =		'(default)'
 	else:					def_dontdel =	'(default)'
 	if DEF_READ_ALL:		def_readall =	'(default)'
 	else:					def_readnew =	'(default)'
-	if DEF_PASSWORD_STDIN:	def_stdin =		'(default)'
 	
 	stderr ('\n'
 	'Usage:  %s [options] [user@mailhost[:port],maildir[,password]] [...]\n'
 	'Options:\n'
-	'  -h or --host <hostname>    POP3 hostname                 \n'
-	'  -n or --name <account>     POP3 account name             \n'
-	'  -m or --maildir <maildir>  maildir to deliver to         \n'
-	'  -P or --port <portnum>     POP3 port                     (default: %i)\n'
-	'  -p or --pass <password>    POP3 password\n'
-	'  -s or --stdin              read POP3 password from stdin %s\n'
-	'  -a or --all                retrieve all messages         %s\n'
-	'  -u or --new           (NI) retrieve unread messages      %s\n'
-	'  -d or --delete             delete mail after retrieving  %s\n'
-	'  -l or --dont-delete        leave mail on server          %s\n'
+	'  -a or --all                retrieve all messages                %s\n'
+	'  -u or --new           (NI) retrieve unread messages             %s\n'
+	'  -d or --delete             delete mail after retrieving         %s\n'
+	'  -l or --dont-delete        leave mail on server                 %s\n'
 	'  -v or --verbose            output more information\n'
+	'  -h or --help               this screen\n'
 	'  -c or --config <file>      accounts from <file> in format above\n'
-	'           This overrides configfile from GETMAILRC environment variable\n'
+	'           This overrides configfile from %s environment variable\n'
 	'\n  NI : option not yet implemented\n\n'
-	'For multiple account retrieval, specify multiple --host, --name, --maildir,\n'
-	'(and optionally --port) options.  Passwords must either all be supplied on\n'
-	'the commandline, or all read from stdin.\n\n'
-		% (me, DEF_PORT, def_stdin, def_readall, def_readnew, def_del,
-		   def_dontdel))
+	'For multiple account retrieval, multiple user@mailhost[:port],maildir[,password]\n'
+	'options can be used.  If not supplied, port defaults to %i.  Passwords not\n'
+	'supplied will be prompted for.\n\n'
+		% (me, def_readall, def_readnew, def_del, def_dontdel, ENV_RCFILE, DEF_PORT))
 	return
 	
 #######################################
 def parse_options (argv):
 	'''Parse commandline options.  Options handled:
-	--delete -d, --dont-delete -l, --all -a, --new -u, --stdin -s,
-	--port -P <portnum>,--host -h <hostname>, --name -n <account>,
-	--pass -p <password>, --maildir -m <maildir>, --verbose -v
-	--config -c <configfile>
+	--delete -d, --dont-delete -l, --all -a, --new -u, --verbose -v,
+	--help -h, --config -c <configfile>
 	'''
 	#
-	global opt_delete_retrieved, opt_retrieve_read, opt_password_stdin, \
+	global opt_delete_retrieved, opt_retrieve_read, \
 		opt_port, opt_host, opt_account, opt_password, opt_maildir, \
 		opt_verbose, opt_configfile
 
 	error = 0
 
-	if os.environ.has_key ('GETMAILRC'):
-		opt_configfile = os.environ['GETMAILRC']
+	if os.environ.has_key (ENV_RCFILE):
+		opt_configfile = os.environ[ENV_RCFILE]
 		
 	optslist, args = [], []
 
-	opts = 'c:dlausvP:h:n:p:m:'
-	longopts = ['delete', 'dont-delete', 'all', 'new', 'stdin', 'port=',
-				'host=', 'name=', 'pass=', 'maildir=', 'verbose', 'config=']
+	opts = 'c:dlauvh'
+	longopts = ['delete', 'dont-delete', 'all', 'new', 'verbose', 'config=',
+		'help']
 	
 	try:
 		global optslist, args
@@ -321,11 +330,15 @@ def parse_options (argv):
 
 	except getopt.error, cause:
 		stderr ('Error:  "%s"\n' % cause)
+		usage ()
 		sys.exit (ERROR)
 
 	for option, value in optslist:
 		# parse options
-		if option == '--delete' or option == '-d':
+		if option == '--help' or option == '-h':
+			error = 1
+
+		elif option == '--delete' or option == '-d':
 			opt_delete_retrieved = 1
 
 		elif option == '--dont-delete' or option == '-l':
@@ -338,46 +351,8 @@ def parse_options (argv):
 			# Not implemented
 			opt_retrieve_read = 0
 
-		elif option == '--stdin' or option == '-s':
-			opt_password_stdin = 1
-
 		elif option == '--verbose' or option == '-v':
 			opt_verbose = 1
-
-		elif option == '--port' or option == '-P':
-			if not value:
-				stderr ('Error:  option --port supplied without value\n')
-				error = 1
-			else:
-				opt_port.append (int (value))
-
-		elif option == '--host' or option == '-h':
-			if not value:
-				stderr ('Error:  option --host supplied without value\n')
-				error = 1
-			else:
-				opt_host.append (value)
-
-		elif option == '--name' or option == '-n':
-			if not value:
-				stderr ('Error:  option --name supplied without value\n')
-				error = 1
-			else:
-				opt_account.append (value)
-
-		elif option == '--pass' or option == '-p':
-			if not value:
-				stderr ('Error:  option --pass supplied without value\n')
-				error = 1
-			else:
-				opt_password.append (value)
-
-		elif option == '--maildir' or option == '-m':
-			if not value:
-				stderr ('Error:  option --maildir supplied without value\n')
-				error = 1
-			else:
-				opt_maildir.append (value)
 
 		elif option == '--config' or option == '-c':
 			if not value:
@@ -391,8 +366,8 @@ def parse_options (argv):
 		try:
 			f = open (opt_configfile)
 			for line in f.readlines ():
-				line = string.strip (line)
-				if line and line[0] != '#':
+				line = string.strip (line [ : string.find (line, '#') ])
+				if line and line != '#':
 					args.append (line)
 		except IOError:
 			stderr ('Error:  exception reading file "%s"\n' % opt_configfile)
@@ -405,10 +380,11 @@ def parse_options (argv):
 		except ValueError:
 			try:
 				userhost, mdir = string.split (arg, ',')
+				opt_password.append (None)
 			except ValueError:
 				stderr ('Error:  argument "%s" not in format \''
 						'user@mailhost[:port],maildir[,password]\'\n' % arg)
-			
+				
 		opt_maildir.append (mdir)
 		opt_account.append (userhost [ : string.rfind (userhost, '@')])
 
@@ -443,27 +419,23 @@ def parse_options (argv):
 	for i in range (len (opt_account) - len (opt_port)):
 		opt_port.append (int (DEF_PORT))
 	
-	# Read password from stdin if requested and no --pass option
-	if not error and not opt_password and opt_password_stdin:
-		for i in range (len (opt_account)):
+	# Read password(s) from stdin if not supplied
+	if not error:
+		for i in range (len (opt_password)):
+			if opt_password[i] != None:
+				continue
 			fd = sys.stdin.fileno ()
 			oldattr = termios.tcgetattr(fd)
 			newattr = termios.tcgetattr(fd)
 			newattr[3] = newattr[3] & ~TERMIOS.ECHO          # lflags
 			try:
 				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, newattr)
-				opt_password.append \
-					(raw_input ('Enter password for %s@%s:  '
-								% (opt_account[i], opt_host[i])))
+				opt_password[i] = raw_input ('Enter password for %s@%s:  '
+								% (opt_account[i], opt_host[i]))
 	
 			finally:
 				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, oldattr)
 			print
-
-	if not error and not opt_password \
-		or (len (opt_password) != len (opt_account)):
-		stderr ('Error:  not enough passwords supplied\n')
-		error = 1
 
 	if error:
 		usage ()
