@@ -69,6 +69,12 @@ getmail FAQ
    is incorrect. The correct method is:
    postmaster = /home/adam/Maildir/
    
+  getmail complains about "incomplete format string" ...
+  
+   Double any percent signs you have in your getmailrc file -- i.e., if
+   your password is "foo&pcnt;bar", then actually specify it as
+   "foo&pcnt;&pcnt;bar".
+   
   getmail says it can't find my default config file (getmailrc) file, but I've
   checked everything and it's fine. What's wrong?
   
@@ -171,6 +177,10 @@ getmail FAQ
    Use cron to run getmail periodically if you wish. I may add native
    support for a daemon mode to getmail in the future; the complete
    rewrite for version 2.0 made allowances for this.
+   
+  How do I stop getmail adding a Delivered-To: header to email?
+  
+   Use the no_delivered_to configuration directive.
    
   Why did you write getmail? Why not just use fetchmail?
   

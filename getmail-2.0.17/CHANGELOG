@@ -1,6 +1,27 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.0.17 (release codename:  "Dan")
+15 February 2001
+
+  -fix typo in output of login() while printing the response to the USER 
+  command.  I had "reponse".  Thanks to Dan Reish for the patch.
+  -change a contraction to two words in the docstring for deliver_msg().
+  Emacs apparently doesn't like apostrophes in a triple-quoted docstring if
+  the apostrophe isn't on the first line.  Funny, my editor does the same
+  thing :).  Again, thanks to Dan Reish.
+  -add workaround for servers which violate RFC1939 in their response to the 
+  LIST command.  getmail will print a warning and try to gracefully continue. 
+  Dan Reish reported this; it appears to have been a temporary problem with the 
+  POP3 service of a webmail site.  Please let me know if other servers trigger 
+  this.
+  -fix APOP.  Was misinterpreting an earlier POP3 RFC.  getmail will fall back
+  to normal USER/PASS authentication if you configure it to use APOP for a
+  server which does not support it.
+  -clean up exception handling.
+  -add "no_delivered_to" configuration directive to suppress creation of this
+  header.
+
 Version 2.0.16
 11 February 2001
 

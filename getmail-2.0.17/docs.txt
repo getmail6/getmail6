@@ -141,6 +141,10 @@ getmailrc Directives
    directive value, quote the value with single (') or double (") quotes.
    Quoting can also be used to preserve a "#" symbol in a directive
    value, which would otherwise be considered the beginning of a comment.
+   Note: if an option value contains a percent sign (&pcnt;), it must be
+   escaped by doubling the percent sign. For example, if your want to
+   specify a password of "foo&pcnt;bar", specify it in the configuration
+   file as "foo&pcnt;&pcnt;bar".
      _________________________________________________________________
    
     Account Configurations
@@ -255,6 +259,27 @@ getmailrc Directives
           
    Examples
           use_apop = 1
+     _________________________________________________________________
+   
+      Delivered-To: Header Suppression Specification
+      
+   This directive controls whether getmail will suppress creation of a
+   Delivered-To: header in mail it delivers.
+   
+   Directive
+          no_delivered_to = <1>
+          
+   Optional
+          Yes
+          
+   Default
+          No. Created Delivered-To: headers.
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          no_delivered_to = 1
      _________________________________________________________________
    
       Default Delivery Instruction (postmaster)

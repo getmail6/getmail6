@@ -18,14 +18,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.16'
+__version__ = '2.0.17'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
 # Imports
 #
 
-# Try importing timeoutsocket.  If it doesn't exist, just skip it.
+# Try importing timeoutsocket.  If it does not exist, just skip it.
 try:
 	import timeoutsocket
 	Timeout = timeoutsocket.Timeout
@@ -86,10 +86,10 @@ class getmailProtoException (getmailException):
 class getmailDeliveryException (getmailException):
 	pass
 
-class getmailUnhandledException (getmailException):
+class getmailNetworkError (getmailException):
 	pass
 
-class getmailNetworkError (getmailException):
+class getmailUnhandledException (Exception):
 	pass
 
 #
@@ -106,8 +106,8 @@ defs = {
 	'getmaildir' :		'~/.getmail/',		# getmail config directory path
 											#	leading ~[user]/ will be expanded
 	'rcfilename' :		'getmailrc',		# getmail control file name
-	'verbose' :			1,					# show what's happening
-	'message_log' :		'',					# Log info about getmail's actions
+	'verbose' :			1,					# show what is happening
+	'message_log' :		'',					# Log info about getmail actions
 											#	leading ~[user]/ will be expanded
 											#	Will be prepended with value of
 											#   getmaildir if message_log is not
@@ -127,6 +127,7 @@ defs = {
 							],
 	'use_apop' :		0,					# Use APOP instead of PASS for
 											#   authentication
+	'no_delivered_to' :	0,					# Don't add Delivered-To: header
 	'dump' :			0,					# Leave this alone.
 	'help' :			0,					# Leave this alone.
 	}
@@ -140,7 +141,8 @@ defs = {
 me = None
 
 # Options recognized in configuration getmailrc file
-intoptions = ('verbose', 'readall', 'delete', 'timeout', 'use_apop')
+intoptions = ('verbose', 'readall', 'delete', 'timeout', 'use_apop',
+	'no_delivered_to')
 stringoptions = ('message_log', 'recipient_header')
 
 # Exit codes
@@ -426,14 +428,21 @@ class getmail:
 	def login (self):
 		'''Issue the POP3 USER and PASS directives.'''
 		try:
-			rc = self.session.user (self.account['username'])
-			self.logfunc (INFO, '%(server)s:' % self.account
-				+ '  POP3 user reponse:  %s\n' % rc, self.opts)
+			logged_in = 0
 			if self.opts['use_apop']:
-				rc = self.session.apop (self.account['password'])
+				try:
+					rc = self.session.apop (self.account['username'], 
+						self.account['password'])
+					self.logfunc (INFO, '%(server)s:' % self.account
+						+ '  POP3 APOP response:  %s\n' % rc, self.opts)
+					logged_in = 1
+				except poplib.error_proto:
+					self.logfunc (WARN, 'Warning:  server does not support ' 
+						'APOP authentication, trying USER/PASS...\n', self.opts)
+			if not logged_in:
+				rc = self.session.user (self.account['username'])
 				self.logfunc (INFO, '%(server)s:' % self.account
-					+ '  POP3 APOP response:  %s\n' % rc, self.opts)
-			else:
+					+ '  POP3 user response:  %s\n' % rc, self.opts)
 				rc = self.session.pass_ (self.account['password'])
 				self.logfunc (INFO, '%(server)s:' % self.account
 					+ '  POP3 PASS response:  %s\n' % rc, self.opts)
@@ -498,7 +507,12 @@ class getmail:
 		for s in msglist_txt:
 			# Handle broken POP3 servers which return something after the length
 			msgnum, msginfo = string.split (s, None, 1)
-			msgnum = int (msgnum)
+			try:
+				msgnum = int (msgnum)
+			except ValueError, txt:
+				self.logfunc (ERROR, 'Error:  POP3 server violates RFC1939 '
+					+ '("%s"), skipping line...\n' % s, self.opts)
+				continue
 			msglist.append ( (msgnum, msginfo) )
 		msglist.append ( (None, None) )
 		return msglist
@@ -649,8 +663,8 @@ class getmail:
 		'''Determine the type of destination and dispatch to appropriate
 		delivery routine.  Currently understands Maildirs and mboxrd-style mbox
 		files.  The destination must exist; i.e. getmail will not create an mbox
-		file if the specified destination doesn't exist.  `touch` the file first
-		if you want to deliver to an empty mbox file.
+		file if the specified destination does not exist.  `touch` the file
+		first if you want to deliver to an empty mbox file.
 		'''
 
 		# Ensure destination path exists	
@@ -686,9 +700,13 @@ class getmail:
 			_local = recipient
 		else:
 			_local = recipient[:localsep]
-		# Construct Delivered-To: header with address local_part@localhostname
-		delivered_to = format_header ('Delivered-To', 
-			'%s@%s\n' % (_local, self.info['hostname']))
+
+		if self.opts['no_delivered_to']:
+			delivered_to = ''
+		else:
+			# Construct Delivered-To: header with address local_part@localhostname
+			delivered_to = format_header ('Delivered-To', 
+				'%s@%s\n' % (_local, self.info['hostname']))
 
 		# Construct Received: header
 		info = 'from %(server)s (%(ipaddr)s)' % self.account \
@@ -843,8 +861,7 @@ class getmail:
 			self.login ()
 			# Retrieve message list for this user.
 			msglist = self.get_msglist ()
-		except (getmailTimeoutException, getmailSocketException, 
-			getmailProtoException, Timeout), txt:
+		except (getmailException, Timeout), txt:
 			# Failed to connect; return to skip this user.
 			self.logfunc (WARN, 'failed to retrieve message list '
 				'for "%(username)s"' % self.account + ' (%s)\n' % txt,

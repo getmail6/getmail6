@@ -105,6 +105,7 @@ class ParsingError (ConfParserException):
 # Globals
 #
 
+# Regular expression strings
 s_section = r'^\s*\[(?P<name>.*?)\].*?$(?P<contents>.*?)(?=^\s*\[)'
 s_lastsection = r'^\s*\[(?P<name>.*?)\](\s*(#.*?)?$)(?P<contents>.*)'
 s_option = r'''^(\s|#.*$)*(?P<name>.+?)\s*(\=\s*(?P<quote>['"]?)(?P<value>.*?)(?P=quote)(\s*)(#.*?)?)?$'''

@@ -33,8 +33,11 @@ getmail Requirements
        
    back to top
    
-Changes Since Version 1.11
+Changes From Version 1.x to Version 2
 
+   This is a list of major changes between version 1.x and version 2 of
+   getmail. For a list of incremental changes since the relase of version
+   2.0, please see the changelog.
      * Completely rewritten for better modularity, configurability, and
        reliability.
      * Uses version 2.0 of my ConfParser module, which has also been
