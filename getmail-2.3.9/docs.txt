@@ -768,7 +768,8 @@ Note        copies and that both that copyright notice and this permission
 
                           Specify whether getmail writes message retrieval    
    Function               and delivery information to a log file. Set to the  
-                          empty string to disable logging.                    
+                          empty string to disable logging. This value is      
+                          expanded for leading "~" or "~user".                
    Syntax                 message_log = file                                  
    Optional               Yes                                                 
    Default                None                                                

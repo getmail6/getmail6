@@ -59,7 +59,15 @@
     buffer overflow, which can be remotely exploited (see 
     <A HREF="http://www.securityfocus.com/bid/2877">www.securityfocus.com/bid/2877</A>
     for details).  getmail is not vulnerable to buffer overflows, because
-    buffers in Python are dynamically sized.
+    buffers in Python are dynamically sized.<BR>
+    <BR>
+    <STRONG>Update June 2002</STRONG>:  And there's yet another remotely-exploitable security
+    hole discovered in fetchmail; <A HREF="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2002-0146">versions prior to 5.9.10 (released in June 2002)
+    are exploitable</A>.  Think this will be the last security problem in fetchmail?<BR>
+    <BR>
+    <STRONG>Another Update June 2002</STRONG>:  Reading fetchmail's UPDATES file, it appears that another
+    security problem was fixed in 5.9.12, where a server could crash fetchmail on 64-bit
+    platforms.  Also worrying is a mention that it includes a fix for &quot;password shrouding&quot;.
 
     <H4><A NAME="about-getmail-support" HREF="#about-getmail">How can I get support for getmail?</A></H4>
     getmail is <A HREF="http://www.fsf.org/">Free Software</A>.  As such, it
@@ -314,7 +322,12 @@
     If <EM CLASS="sample">extension_depth</EM> is 2, it will instead set
     <EM CLASS="sample">EXT</EM> to <EM CLASS="sample">ext1-ext2</EM>.<BR>
     <BR>
-    You will then need a wrapper around TMDA to use in a 
+    TMDA renames existing Delivered-To: header fields to Old-Delivered-To:.  Previous
+    versions (0.55 through 0.57 or so) instead tried to strip recent Delivered-To:
+    fields and may have required disabling getmail's addition of new Delivered-To:
+    header fields.<BR>
+    <BR>
+    You will need a wrapper around TMDA to use in a 
     <A HREF="docs.html#delivery-targets">command delivery target</A>
     which conditionally delivers the message based on TMDA's exit code.
     getmail does not include such a wrapper; you will need to write it or find
@@ -325,7 +338,12 @@
     server is configured to record the envelope recipient in a message header 
     field (i.e. as qmail does with Delivered-To:), and you have configured 
     getmail to only look at that header field with the
-    <A HREF="docs.html#directive-recipient-header">recipient_header</A> directive.
+    <A HREF="docs.html#directive-recipient-header">recipient_header</A> directive.<BR>
+    <BR>
+    If anyone has concrete experience using getmail and TMDA together, please 
+    feel free to send instructions or your wrapper script to me; I personally do 
+    not use a filtering MDA and therefore have no experience making TMDA work 
+    with getmail.
 
 
 

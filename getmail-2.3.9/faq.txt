@@ -40,6 +40,16 @@ About getmail
    www.securityfocus.com/bid/2877 for details). getmail is not vulnerable to
    buffer overflows, because buffers in Python are dynamically sized.
 
+   Update June 2002: And there's yet another remotely-exploitable security
+   hole discovered in fetchmail; versions prior to 5.9.10 (released in June
+   2002) are exploitable. Think this will be the last security problem in
+   fetchmail?
+
+   Another Update June 2002: Reading fetchmail's UPDATES file, it appears
+   that another security problem was fixed in 5.9.12, where a server could
+   crash fetchmail on 64-bit platforms. Also worrying is a mention that it
+   includes a fix for "password shrouding".
+
     How can I get support for getmail?
 
    getmail is Free Software. As such, it comes with no warranty. However, I
@@ -289,8 +299,13 @@ How do I ...
    extension_depth is set to 1, then getmail will set EXT to user-ext1-ext2.
    If extension_depth is 2, it will instead set EXT to ext1-ext2.
 
-   You will then need a wrapper around TMDA to use in a command delivery
-   target which conditionally delivers the message based on TMDA's exit code.
+   TMDA renames existing Delivered-To: header fields to Old-Delivered-To:.
+   Previous versions (0.55 through 0.57 or so) instead tried to strip recent
+   Delivered-To: fields and may have required disabling getmail's addition of
+   new Delivered-To: header fields.
+
+   You will need a wrapper around TMDA to use in a command delivery target
+   which conditionally delivers the message based on TMDA's exit code.
    getmail does not include such a wrapper; you will need to write it or find
    it yourself.
 
@@ -299,4 +314,9 @@ How do I ...
    POP3 server is configured to record the envelope recipient in a message
    header field (i.e. as qmail does with Delivered-To:), and you have
    configured getmail to only look at that header field with the
-   recipient_header directive. 
+   recipient_header directive.
+
+   If anyone has concrete experience using getmail and TMDA together, please
+   feel free to send instructions or your wrapper script to me; I personally
+   do not use a filtering MDA and therefore have no experience making TMDA
+   work with getmail. 

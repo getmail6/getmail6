@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.8'
+__version__ = '2.3.9'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -441,7 +441,7 @@ class getmail:
 
         if self.conf['message_log']:
             try:
-                filename = os.path.join (self.conf['getmaildir'],
+                filename = os.path.join (os.path.expanduser (self.conf['getmaildir']),
                     os.path.expanduser (self.conf['message_log']))
                 self.logfile = open (filename, 'a')
             except IOError, txt:

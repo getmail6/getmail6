@@ -1,6 +1,13 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.9
+16 July 2002
+
+  -have getmail expand the message_log configuration value for leading
+  "~" or "~user" as it does for getmaildir, etc.  Thanks to
+  Jacques L'helgoualc'h for noticing getmail didn't do this.
+  
 Version 2.3.8
 7 June 2002
 
