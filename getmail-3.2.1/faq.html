@@ -98,7 +98,11 @@
 			configuration.  See <a href="http://security.e-matters.de/advisories/052002.html">this advisory</a>
 			for details.
 		</li>
+		<li>
+			January 2003: <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=3DCAN-2002-1365">More buffer overflows in fetchmail let attackers run arbitrary code</a>.
+		</li>
 	</ul>
+	<p>I've given up even trying to stay abreast of the various security holes in fetchmail.</p>
 	<p>
 		<a href="http://docs.freebsd.org/cgi/getmsg.cgi?fetch=585008+0+archive/2001/freebsd-arch/20010218.freebsd-arch">But don't just
 		take my word for it</a>.
@@ -196,6 +200,12 @@
 	</ol>
 
 	<h3 id="error-messages"><a href="#faq">Error Messages</a></h3>
+
+	<h4 id="error-message-fsync"><a href="#error-messages">getmail fails with a message &quot;<span class="error">AttributeError: 'module' object has no attribute 'fsync'</a></h4>
+	<p>
+		This is not a problem with getmail; it is a <a href="http://www.python.org/2.3.1/bugs.html">well-known bug in the Python 2.3.1 distribution</a>.
+		Downgrade to Python version 2.3.0 or before, or upgrade to 2.3.2, which should fix the problem.
+	</p>
 
 	<h4 id="error-message-percent"><a href="#error-messages">getmail complains about &quot;<span class="error">incomplete format string</span>&quot; &hellip;</a></h4>
 	<p>

@@ -1,6 +1,15 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.2.1
+13 October 2003
+
+  -Change the "over max message size of %(max_message_size)i, skipping ..."
+  message from informational to warning so it can be seen when using
+  -q/--quiet/verbose=0.  Thanks to Volker Kuhlmann for the report.
+  -Change error message resulting from failed APOP attempt.  Thanks to 
+  Matthias Andree for the report.
+  
 Version 3.2.0
 22 September 2003
 

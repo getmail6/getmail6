@@ -560,16 +560,17 @@ Maximum message size to retrieve
    Examples max_message_size = 2000000
    max_message_size = 150000
 
-Maximum message size to retrieve
+Maximum number of messages to retrieve per session
 
-   Function Specify a maximum message size to retrieve. Messages larger
-   than this will be left on the server and not retrieved.
-   Syntax max_message_size = value (bytes)
+   Function Specify a maximum number of messages to retrieve and process
+   before getmail exits. If more than this number of messages are
+   eligible for retrieval, they will be left on the server for the next
+   time getmail is run.
+   Syntax max_messages_per_session = value (number)
    Optional Yes
    Default 0 (No limit)
    Commandline equivalent None
-   Examples max_message_size = 2000000
-   max_message_size = 150000
+   Examples max_messages_per_session = 10
 
 Delete messages from server after retrieval
 

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.2.0'
+__version__ = '3.2.1'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -208,7 +208,7 @@ class getmail:
                 rc = self.session.apop (self.conf['username'], self.conf['password'])
                 self.logfunc (INFO, '  POP3 APOP response:  %s\n' % rc)
             except SPDS_error_proto:
-                raise getmailConfigException, 'server does not support APOP'
+                raise getmailConfigException, 'error during attempted APOP authentication'
         else:
             rc = self.session.user (self.conf['username'])
             self.logfunc (INFO, '  POP3 user response:  %s\n' % rc)
@@ -575,7 +575,7 @@ class getmail:
                 self.logfunc (INFO, '  msg #%i/%i : len %s ... ' % (msgnum, len (self.msglist) - 1, msglen))
 
                 if msglen and self.conf['max_message_size'] and msglen > self.conf['max_message_size']:
-                    self.logfunc (INFO, 'over max message size of %(max_message_size)i, skipping ...\n')
+                    self.logfunc (WARN, 'over max message size of %(max_message_size)i, skipping ...\n')
                     continue
 
                 # Retrieve this message if:

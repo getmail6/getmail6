@@ -1496,15 +1496,16 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 		</tr>
 	</table>
 
-	<h6 id="directive-max-messages-per-session"><a href="#directive-retrieval">Maximum message size to retrieve</a></h6>
+	<h6 id="directive-max-messages-per-session"><a href="#directive-retrieval">Maximum number of messages to retrieve per session</a></h6>
 	<table class="directive">
 		<tr>
 			<td class="rowlabel">
 				Function
 			</td>
 			<td class="rowdata">
-				Specify a maximum message size to retrieve.  Messages larger
-				than this will be left on the server and not retrieved.
+				Specify a maximum number of messages to retrieve and process before getmail exits.
+				If more than this number of messages are eligible for retrieval, they will be
+				left on the server for the next time getmail is run.
 			</td>
 		</tr>
 		<tr>
@@ -1512,7 +1513,7 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				Syntax
 			</td>
 			<td class="rowdata">
-				max_message_size = <span class="sample">value (bytes)</span>
+				max_messages_per_session = <span class="sample">value (number)</span>
 			</td>
 		</tr>
 		<tr>
@@ -1544,8 +1545,7 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				Examples
 			</td>
 			<td class="sample">
-				max_message_size = 2000000<br />
-				max_message_size = 150000
+				max_messages_per_session = 10<br />
 			</td>
 		</tr>
 	</table>

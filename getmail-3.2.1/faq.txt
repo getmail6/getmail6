@@ -61,6 +61,11 @@ Why did you write getmail? Why not just use fetchmail?
        in  December 2002; once again, a remote attacker can run arbitrary
        code   on   the   machine   running   fetchmail   in  its  default
        configuration. See this advisory for details.
+     * January 2003: More buffer overflows in fetchmail let attackers run
+       arbitrary code.
+
+   I've  given  up  even  trying  to stay abreast of the various security
+   holes in fetchmail.
 
    But don't just take my word for it.
 
@@ -139,6 +144,13 @@ How does getmail decide what local recipients to deliver a message to?
        delivery instruction (postmaster directive).
 
 Error Messages
+
+getmail fails with a message "AttributeError: 'module' object has no
+attribute 'fsync'
+
+   This  is  not  a  problem  with getmail; it is a well-known bug in the
+   Python  2.3.1  distribution.  Downgrade  to  Python  version  2.3.0 or
+   before, or upgrade to 2.3.2, which should fix the problem.
 
 getmail complains about "incomplete format string" ...
 
