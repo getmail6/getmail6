@@ -169,7 +169,8 @@ The current retrievers are:
     MultidropSPDSRetriever - multi-drop (domain mailbox) retriever for use with
                            demon.co.uk SPDS mailboxes.  Provides recipient
                            information about retrieved messages.
-    SimpleIMAPv4Retriever - not yet complete.
+    SimpleIMAPRetriever - basic IMAPv4r1 support.
+    SimpleIMAPSSLRetriever - same as above for IMAP-over-SSL support.
 
 SimplePOP3Retriever takes the following configuration parameters:
 
@@ -193,6 +194,8 @@ SimplePOP3Retriever takes the following configuration parameters:
 SimplePOP3SSLRetriever takes the same configuration parameters as
 SimplePOP3Retriever, plus two optional additional parameters:
 
+    port (optional) - same as above, but the default is the standard 
+                      POP3-over-SSL port (995).
     keyfile (optional) - path to an SSL PEM-formatted key file containing
                          the private key to use.
     certfile (optional) - path to a PEM-formatted certificate chain file.
@@ -239,6 +242,45 @@ SimplePOP3Retriever, except that it does not take the use_apop parameter.
         server = pop.demon.co.uk
         username = exampledotcom
         password = mailpassword
+
+SimpleIMAPRetriever takes the following configuration parameters:
+
+    server - server name or IP address of the POP3 server.
+    port (optional) - TCP port to connect to.  Defaults to the standard IMAP
+                      port (143).
+    username - IMAP username.
+    password (optional) - IMAP password.  If not supplied, getmail will prompt
+                          you to enter it.
+    use_cram_md5 (optional) - whether to use CRAM-MD5 for IMAP login.
+                              Defaults to False.  This will not work, so don't
+                              use it.
+    timeout (optional) - defaults to 180 seconds.
+    mailboxes (optional) - a Python tuple of strings.  Each string is a mailbox
+                           in the IMAP mailstore to retrieve mail from.
+                           Defaults to ("INBOX", ).  To retrieve mail from
+                           several mailboxes, you might set this to
+                           ("INBOX", "spam", "list-getmail") or similar.
+    
+    example:
+
+        [retriever]
+        type = SimpleIMAPRetriever
+        server = mail.example.net
+        username = jeff.plotzky
+        password = mailpassword
+        mailboxes = ('INBOX', 'lists/getmail', 'lists/foobar')
+
+SimpleIMAPSSLRetriever takes the same configuration parameters as
+SimpleIMAPRetriever, plus two optional additional parameters:
+
+    port (optional) - same as above, but the default is the standard 
+                      IMAP-over-SSL port (993).
+    keyfile (optional) - path to an SSL PEM-formatted key file containing
+                         the private key to use.
+    certfile (optional) - path to a PEM-formatted certificate chain file.
+
+Note that Python's socket.ssl() function does not do any certificate
+verification!
 
 Destinations
 ------------

@@ -1,3 +1,13 @@
+Version 4.0.0a8
+18 June 2004
+
+  -fix 6 instances of getmailConfirurationError typo in retrievers.py
+  -finish basics of IMAP support -- i.e., it successfully retrieves mail.
+  delete might not work yet.  IMAP-over-SSL /might/, but the server I was
+  testing against wasn't working with SSL (no connection).
+  -handle email.Utils.getaddresses returning None.  Thanks:  Frankye.
+  -fix default port for MultidropPOP3SSLRetriever.
+
 Version 4.0.0a7
 17 June 2004
 

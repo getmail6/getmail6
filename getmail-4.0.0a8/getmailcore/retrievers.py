@@ -4,6 +4,7 @@
 Currently implemented:
 
   RetrieverSkeleton (base class; not to be instantiated directly)
+
   POP3initMixIn (mix-in initialization class for non-SSL POP3 classes; not to be instantiated directly)
   POP3SSLinitMixIn (mix-in initialization class for POP3-over-SSL classes; not to be instantiated directly)
   POP3RetrieverBase (base class; not to be instantiated directly)
@@ -15,9 +16,15 @@ Currently implemented:
   MultidropPOP3SSLRetriever
   MultidropSPDSRetriever
 
-  SimpleIMAPv4Retriever (incomplete -- IMAP, as a protocol, is a FPOS, and
+  IMAPinitMixIn (mix-in initialization class for non-SSL IMAP classes; not to be instantiated directly)
+  IMAPSSLinitMixIn (mix-in initialization class for IMAP-over-SSL classes; not to be instantiated directly)
+  IMAPRetrieverBase  (base class; not to be instantiated directly)
+
+  SimpleIMAPRetriever (very alpha) -- IMAP, as a protocol, is a FPOS, and
     it shows.  The Python standard library module imaplib leaves much up to
-    the user because of this.)
+    the user because of this.
+  SimpleIMAPSSLRetriever - the above, for IMAP-over-SSL.
+  
 '''
 
 import os
@@ -215,12 +222,12 @@ class POP3SSLinitMixIn(object):
     def _connect(self):
         self.log.trace()
         if self.conf['keyfile'] is not None and not os.path.isfile(self.conf['keyfile']):
-            raise getmailConfiruationError('optional keyfile must be path to a valid file')
+            raise getmailConfigurationError('optional keyfile must be path to a valid file')
         if self.conf['certfile'] is not None and not os.path.isfile(self.conf['certfile']):
-            raise getmailConfiruationError('optional certfile must be path to a valid file')
+            raise getmailConfigurationError('optional certfile must be path to a valid file')
         if not (self.conf['certfile'] == self.conf['keyfile'] == None):
             if self.conf['certfile'] is None or self.conf['keyfile'] is None:
-                raise getmailConfiruationError('optional certfile and keyfile must be supplied together')
+                raise getmailConfigurationError('optional certfile and keyfile must be supplied together')
         try:
             self.conn = POP3SSL(self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile'])
             if self.conf['use_apop']:
@@ -230,6 +237,35 @@ class POP3SSLinitMixIn(object):
                 self.conn.pass_(self.conf['password'])
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
+
+#######################################
+class IMAPinitMixIn(object):
+    '''Mix-In class to do IMAP non-SSL initialization.
+    '''
+    def _connect(self):
+        self.log.trace()
+        try:
+            self.conn = imaplib.IMAP4(self.conf['server'], self.conf['port'])
+        except imaplib.IMAP4.error, o:
+            raise getmailOperationError('IMAP error (%s)' % o)
+
+#######################################
+class IMAPSSLinitMixIn(object):
+    '''Mix-In class to do IMAP over SSL initialization.
+    '''
+    def _connect(self):
+        self.log.trace()
+        if self.conf['keyfile'] is not None and not os.path.isfile(self.conf['keyfile']):
+            raise getmailConfigurationError('optional keyfile must be path to a valid file')
+        if self.conf['certfile'] is not None and not os.path.isfile(self.conf['certfile']):
+            raise getmailConfigurationError('optional certfile must be path to a valid file')
+        if not (self.conf['certfile'] == self.conf['keyfile'] == None):
+            if self.conf['certfile'] is None or self.conf['keyfile'] is None:
+                raise getmailConfigurationError('optional certfile and keyfile must be supplied together')
+        try:
+            self.conn = imaplib.IMAP4_SSL(self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile'])
+        except imaplib.IMAP4.error, o:
+            raise getmailOperationError('IMAP error (%s)' % o)
 
 #######################################
 class POP3RetrieverBase(RetrieverSkeleton):
@@ -256,6 +292,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             response, msglist, octets = self.conn.uidl()
             self.log.debug('UIDL response "%s", %d octets\n' % (response, octets))
             self.msgids = [line.split(None, 1)[1] for line in msglist]
+            self.log.debug('Message IDs: %s\n' % self.msgids)
             response, msglist, octets = self.conn.list()
             for line in msglist:
                 msgnum = int(line.split()[0])
@@ -278,7 +315,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self.log.debug('RETR response "%s", %d octets\n' % (response, octets))
             msg = email.message_from_string(os.linesep.join(lines))
             msg.mid = msgid
-            msg.sender = address_no_brackets(msg['return-path']) or 'unknown'
+            msg.sender = address_no_brackets(msg['return-path'] or 'unknown')
             if msgid in self.oldmail:
                 msg.new = False
                 msg.seentime = self.oldmail[msgid]
@@ -306,6 +343,11 @@ class POP3RetrieverBase(RetrieverSkeleton):
         socket.setdefaulttimeout(self.conf['timeout'])
         try:
             self._connect()
+            if self.conf['use_apop']:
+                self.conn.apop(self.conf['username'], self.conf['password'])
+            else:
+                self.conn.user(self.conf['username'])
+                self.conn.user(self.conf['password'])
             self._getmsglist()
             self.log.debug('msgids: %s\n' % self.msgids)
             self.log.debug('msgsizes: %s\n' % self.msgsizes)
@@ -430,7 +472,7 @@ class MultidropPOP3RetrieverBase(POP3RetrieverBase):
             line = data[self.envrecipname][self.envrecipnum]
         except (KeyError, IndexError), unused:
             raise getmailConfigurationError('envelope_recipient specified header missing (%s)' % self.conf['envelope_recipient'])
-        msg.recipient = [address_no_brackets(address) for (name, address) in email.Utils.getaddresses([line])]
+        msg.recipient = [address_no_brackets(address) for (name, address) in email.Utils.getaddresses([line]) if address]
         if len(msg.recipient) != 1:
             raise getmailConfigurationError('extracted <> 1 envelope recipient address (%s)' % msg.recipient)
         msg.recipient = msg.recipient[0]
@@ -476,7 +518,7 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
 
         {'name' : 'timeout', 'type' : int, 'default' : 180},
         {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
+        {'name' : 'port', 'type' : int, 'default' : POP3_ssl_port},
         {'name' : 'username', 'type' : str},
         {'name' : 'password', 'type' : str, 'default' : None},
         {'name' : 'use_apop', 'type' : bool, 'default' : False},
@@ -554,74 +596,126 @@ class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
         return msg
 
 #######################################
-class SimpleIMAPv4Retriever(RetrieverSkeleton):
-    '''Retriever class for single-user IMAPv4 mailboxes.
-
-    Incomplete.
+class IMAPRetrieverBase(RetrieverSkeleton):
+    '''Base class for single-user IMAP mailboxes.
     '''
-    _confitems = (
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
-
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 143},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
-    )
-
     def __init__(self, **args):
         RetrieverSkeleton.__init__(self, **args)
         self.log.trace()
+        self.mailbox = None
         #self.log.debug('configuration: %s\n' % self.conf)
 
     def __del__(self):
         self.quit()
         RetrieverSkeleton.__del__(self)
 
-    def __str__(self):
-        self.log.trace()
-        return 'SimpleIMAPv4Retriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def _getmsgnumbyid(self, msgid):
+    def _getmboxuidbymsgid(self, msgid):
         self.log.trace()
         if not msgid in self.msgids:
             raise getmailOperationError('no such message ID %s' % msgid)
-        return self.msgids.index(msgid) + 1
+        mailbox, uid = self._mboxuids[msgid]
+        return mailbox, uid
+
+    def _parse_imapcmdresponse(self, cmd, *args):
+        self.log.trace()
+        result, resplist = getattr(self.conn, cmd)(*args)
+        if result != 'OK':
+            raise getmailOperationError('IMAP error (command %s returned %s)' % ('%s %s' % (cmd, args), result))
+        self.log.debug('command %s response %s\n' % ('%s %s' % (cmd, args), resplist))
+        return resplist
+
+    def _parse_imapuidcmdresponse(self, cmd, *args):
+        self.log.trace()
+        result, resplist = self.conn.uid(cmd, *args)
+        if result != 'OK':
+            raise getmailOperationError('IMAP error (command %s returned %s)' % ('%s %s' % (cmd, args), result))
+        self.log.debug('command uid %s response %s\n' % ('%s %s' % (cmd, args), resplist))
+        return resplist
+
+    def _parse_imapuidresponse(self, line):
+        self.log.trace('parsing uid response line %s\n' % line)
+        r = {}
+        try:
+            parts = line[line.index('(') + 1:line.rindex(')')].split()
+            if len(parts) % 2:
+                # Not zero -- i.e. an uneven number of parts
+                raise ValueError
+            while parts:
+                # Interesting; RHS is evaluated first, breaking this expression...
+                # r[parts.pop(0).lower()] = parts.pop(0)
+                name = parts.pop(0).lower()
+                r[name] = parts.pop(0)
+        except ValueError:
+            raise getmailOperationError('IMAP error (failed to parse UID response line %s)' % line)
+        self.log.trace('got %s\n' % r)
+        return r
+
+    def _selectmailbox(self, mailbox):
+        self.log.trace()
+        if mailbox == self.mailbox:
+            return
+        self.log.debug('selecting mailbox "%s"\n' % mailbox)
+        response = self._parse_imapcmdresponse('SELECT', mailbox)
+        c = int(response[0])
+        self.log.debug('select(%s) returned message count of %d\n' % (mailbox, c))
+        self.mailbox = mailbox
 
     def _getmsglist(self):
         self.log.trace()
-        try:
-            response, msglist, octets = self.conn.uidl()
-            self.log.debug('UIDL response "%s", %d octets\n' % (response, octets))
-            self.msgids = [line.split(None, 1)[1] for line in msglist]
-            response, msglist, octets = self.conn.list()
-            for line in msglist:
-                msgnum = int(line.split()[0])
-                msgsize = int(line.split()[1])
-                self.msgsizes[self.msgids[msgnum - 1]] = msgsize
-        except imaplib.IMAP4.error, o:
-            raise getmailOperationError('IMAP error (%s)' % o)
+        self.msgids = []
+        self._mboxuids = {}
+        self.msgsizes = {}
+        for mailbox in self.conf['mailboxes']:
+            try:
+                self._selectmailbox(mailbox)
+                # Get UIDs for messages in mailbox
+                response = self._parse_imapuidcmdresponse('SEARCH', 'ALL')
+                uids = response[0].split()
+                self.log.debug('uid("SEARCH", "ALL") returned %d UIDs (%s)\n' % (len(uids), uids))
+                # Get message sizes
+                response = self._parse_imapuidcmdresponse('FETCH', ','.join(uids), 'RFC822.SIZE')
+                for line in response:
+                    r = self._parse_imapuidresponse(line)
+                    msgid = '%s/%s' % (mailbox, r['uid'])
+                    self._mboxuids[msgid] = (mailbox, r['uid'])
+                    self.msgids.append(msgid)
+                    self.msgsizes[msgid] = int(r['rfc822.size'])
+
+            except imaplib.IMAP4.error, o:
+                raise getmailOperationError('IMAP error (%s)' % o)
 
     def _delmsgbyid(self, msgid):
         self.log.trace()
-        msgnum = self._getmsgnumbyid(msgid)
-        self.conn.dele(msgnum)
-
-    def _getmsgbyid(self, msgid):
-        self.log.debug('msgid %s\n' % msgid)
-        msgnum = self._getmsgnumbyid(msgid)
-        self.log.debug('msgnum %i\n' % msgnum)
         try:
-            response, lines, octets = self.conn.retr(msgnum)
-            self.log.debug('RETR response "%s", %d octets\n' % (response, octets))
-            msg = email.message_from_string(os.linesep.join(lines))
+            mailbox, uid = self._getmboxuidbymsgid(msgid)
+            self._selectmailbox(mailbox)
+            # Delete message
+            self.log.debug('deleting message "%s"\n' % uid)
+            response = self._parse_imapuidcmdresponse('STORE', uid, 'FLAGS', '(\Deleted)')
+        except imaplib.IMAP4.error, o:
+            raise getmailOperationError('IMAP error (%s)' % o)
+
+    def _getmsgpartbyid(self, msgid, part):
+        self.log.trace()
+        try:
+            mailbox, uid = self._getmboxuidbymsgid(msgid)
+            self._selectmailbox(mailbox)
+            # Retrieve message
+            self.log.debug('retrieving body for message "%s"\n' % uid)
+            response = self._parse_imapuidcmdresponse('FETCH', uid, part)
+            # Response is really ugly:
+            #
+            # [
+            #   (
+            #       '1 (UID 1 RFC822 {704}',
+            #       'message text here with CRLF EOL'
+            #   ),
+            #   ')',
+            #   <maybe more>
+            # ]
+            msg = email.message_from_string(response[0][1])
             msg.mid = msgid
-            msg.sender = address_no_brackets(msg['return-path']) or 'unknown'
+            msg.sender = address_no_brackets(msg['return-path'] or 'unknown')
             if msgid in self.oldmail:
                 msg.new = False
                 msg.seentime = self.oldmail[msgid]
@@ -630,19 +724,17 @@ class SimpleIMAPv4Retriever(RetrieverSkeleton):
                 msg.seentime = int(time.time())
                 self.oldmail[msgid] = msg.seentime
             return msg
+
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
 
+    def _getmsgbyid(self, msgid):
+        self.log.trace()
+        return self._getmsgpartbyid(msgid, '(RFC822)')
+
     def _getheaderbyid(self, msgid):
         self.log.trace()
-        msgnum = self._getmsgnumbyid(msgid)
-        response, headerlist, octets = self.conn.top(msgnum, 0)
-        parser = email.Parser.Parser(strict=False)
-        return parser.parsestr(os.linesep.join(headerlist), headersonly=True)
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('SimpleIMAPv4Retriever(%s)\n' % self._confstring())
+        return self._getmsgpartbyid(msgid, '(RFC822[header])')
 
     def initialize(self):
         self.log.trace()
@@ -652,27 +744,20 @@ class SimpleIMAPv4Retriever(RetrieverSkeleton):
         RetrieverSkeleton.initialize(self)
         socket.setdefaulttimeout(self.conf['timeout'])
         try:
-            self.conn = imaplib.IMAP4(self.conf['server'], self.conf['port'])
+            self._connect()
             if self.conf['use_cram_md5']:
-                self.conn.login_cram_md5(self.conf['username'], self.conf['password'])
+                self._parse_imapcmdresponse('login_cram_md5', self.conf['username'], self.conf['password'])
             else:
-                self.conn.login(self.conf['username'], self.conf['password'])
-            # FIXME: todo
-            msgcount = self.conn.select()
+                self._parse_imapcmdresponse('login', self.conf['username'], self.conf['password'])
             self._getmsglist()
             self.log.debug('msgids: %s\n' % self.msgids)
             self.log.debug('msgsizes: %s\n' % self.msgsizes)
-        except imaplib.IMAP4.error, o:
-            raise getmailOperationError('IMAP error (%s)' % o)
+        except poplib.error_proto, o:
+            raise getmailOperationError('POP error (%s)' % o)
 
     def abort(self):
         self.log.trace()
-        try:
-            self.conn.rset()
-            self.conn.quit()
-        except imaplib.IMAP4.error:
-            pass
-        del self.conn
+        self.quit()
 
     def quit(self):
         try:
@@ -681,3 +766,70 @@ class SimpleIMAPv4Retriever(RetrieverSkeleton):
             self.conn = None
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
+
+#######################################
+class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
+    '''Retriever class for single-user IMAPv4 mailboxes.
+    '''
+    _confitems = (
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_PORT},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+
+        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
+
+        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
+        # so we can't do this yet.
+        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
+    )
+
+    def __str__(self):
+        self.log.trace()
+        return 'SimpleIMAPRetriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('SimpleIMAPRetriever(%s)\n' % self._confstring())
+
+#######################################
+class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
+    '''Retriever class for single-user IMAPv4-over-SSL mailboxes.
+    '''
+    _confitems = (
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_SSL_PORT},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+
+        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
+
+        {'name' : 'keyfile', 'type' : str, 'default' : None},
+        {'name' : 'certfile', 'type' : str, 'default' : None},
+
+        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
+        # so we can't do this yet.
+        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
+    )
+
+    def __str__(self):
+        self.log.trace()
+        return 'SimpleIMAPSSLRetriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('SimpleIMAPSSLRetriever(%s)\n' % self._confstring())
