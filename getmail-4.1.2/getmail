@@ -497,7 +497,7 @@ def main():
 
         if options.dump_config:
             blurb()
-            for (retriever, _filters, destination, config) in configs:
+            for (filename, retriever, _filters, destination, config) in configs:
                 log.info('getmail configuration:\n')
                 log.info('  getmail version %s\n' % __version__)
                 log.info('  Python version %s\n' % sys.version)

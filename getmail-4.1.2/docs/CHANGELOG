@@ -1,3 +1,9 @@
+Version 4.1.2
+28 August 2004
+
+  -dumping config would raise an exception since 4.1.0; fixed.
+  Thanks: Ilya Krel.
+
 Version 4.1.1
 27 August 2004
 
