@@ -52,6 +52,8 @@ def corrupt_message(why, fromlines=None, fromstring=None):
     elif fromstring:
         body.extend([line.rstrip() for line in fromstring.splitlines()])
     msg.set_payload(os.linesep.join(body))
+    for attr in message_attributes:
+        setattr(msg, attr, '')
     return msg
 
 #######################################

@@ -125,9 +125,6 @@ class Maildir(DeliverySkeleton, ForkingBase):
         if not self.conf['path'].endswith('/'):
             raise getmailConfigurationError('maildir path missing trailing /'
                 ' (%s)' % self.conf['path'])
-        if not is_maildir(self.conf['path']):
-            raise getmailConfigurationError('not a maildir (%s)'
-                % self.conf['path'])
 
     def __str__(self):
         self.log.trace()
@@ -228,22 +225,6 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
     def initialize(self):
         self.log.trace()
         self.conf['path'] = expand_user_vars(self.conf['path'])
-        if not os.path.exists(self.conf['path']):
-            raise getmailConfigurationError('mboxrd does not exist (%s)'
-                % self.conf['path'])
-        if not os.path.isfile(self.conf['path']):
-            raise getmailConfigurationError('not an mboxrd file (%s)'
-                % self.conf['path'])
-        # Check if it _is_ an mbox file.  mbox files must start with "From "
-        # in their first line, or are 0-length files.
-        f = open(self.conf['path'], 'r+b')
-        lock_file(f)
-        first_line = f.readline()
-        unlock_file(f)
-        if first_line and first_line[:5] != 'From ':
-            # Not an mbox file; abort here
-            raise getmailConfigurationError('not an mboxrd file (%s)'
-                % self.conf['path'])
 
     def __str__(self):
         self.log.trace()
@@ -264,6 +245,14 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                     raise getmailConfigurationError(
                         'refuse to deliver mail as root'
                     )
+
+            if not os.path.exists(self.conf['path']):
+                raise getmailDeliveryError('mboxrd does not exist (%s)'
+                    % self.conf['path'])
+            if not os.path.isfile(self.conf['path']):
+                raise getmailDeliveryError('not an mboxrd file (%s)'
+                    % self.conf['path'])
+
             # Open mbox file, refusing to create it if it doesn't exist
             fd = os.open(self.conf['path'], os.O_RDWR)
             status_old = os.fstat(fd)
@@ -276,7 +265,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             if first_line and first_line[:5] != 'From ':
                 # Not an mbox file; abort here
                 unlock_file(f)
-                raise getmailConfigurationError('not an mboxrd file (%s)'
+                raise getmailDeliveryError('not an mboxrd file (%s)'
                     % self.conf['path'])
             # Seek to end
             f.seek(0, 2)

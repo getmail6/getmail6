@@ -1,3 +1,13 @@
+Version 4.2.1
+8 October 2004
+
+  -set message attributes on corrupt container objects to prevent problems
+  with destinations that expect multidrop-retrieved messages.
+  Thanks: Harry Wearne.
+  -move tests for existence of file from mbox destination initialization
+  to delivery method, and change error from configuration to delivery error.
+  Thanks: David Watson.
+
 Version 4.2.0
 18 September 2004
 
