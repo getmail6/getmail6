@@ -58,6 +58,9 @@
                     # [options] example
                o Creating the [filter-something] sections
                o
+                    # Filter_classifier
+                    # Filter_external
+                    # Filter_TMDA
                     # [filter-something] examples
                o getmail rc file examples
      * Running getmail
@@ -809,14 +812,27 @@ message_log = ~/.getmail/log
        message from the program in this fasion before proceeding to the
        next filter or destination. Messages can be dropped by having the
        filter return specific exit codes.
+     * Filter_TMDA -- run the message through the tmda-filter program for
+       use with the Tagged Message Delivery Agent (TMDA) package. If
+       tmda-filter returns 0, the message will be passed to the next
+       filter (or destination). If it returns 99, the message will be
+       dropped, and TMDA is responsible for sending a challenge message,
+       queuing the original, etc.
        
-   Both of these filter types take the same parameters. The required
-   parameter is:
+    Filter_classifier
+    
+   Filter_classifier runs the message through an external program,
+   placing the output of that program into X-getmail-filter-classifier:
+   header fields. It can also cause messages to be dropped by exiting
+   with a return code listed in the exitcodes_drop parameter.
+   
+   Filter_classifier has one required parameter:
      * path (string) -- the path to the command to run. This value will
        be expanded for leading ~ or ~USER and environment variables in
        the form $VARNAME or ${VARNAME}.
        
-   In addition, they take the following optional parameters:
+   In addition, Filter_classifier takes the following optional
+   parameters:
      * arguments (tuple of quoted strings) -- arguments to be supplied to
        the command. The following substrings will be substituted with the
        equivalent values from the message, if availble:
@@ -849,6 +865,56 @@ message_log = ~/.getmail/log
        getmail assumes the filter encountered an error. getmail will then
        not proceed, so that the message is not lost. The default is (0,
        ).
+       
+    Filter_external
+    
+   Filter_external runs the message through an external program, and
+   replaces the message with the output of that program, allowing the
+   filter to make arbitrary changes to messages. It can also cause
+   messages to be dropped by exiting with a return code listed in the
+   exitcodes_drop parameter.
+   
+   Filter_external has one required parameter:
+     * path (string) -- see Filter_classifier for definition.
+       
+   In addition, Filter_external takes the following optional parameters:
+     * arguments (tuple of quoted strings) -- see Filter_classifier for
+       definition.
+     * unixfrom (boolean) -- see Filter_classifier for definition.
+     * user (string) -- see Filter_classifier for definition.
+     * group (string) -- see Filter_classifier for definition.
+     * allow_root_commands (boolean) -- see Filter_classifier for
+       definition.
+     * exitcodes_drop (tuple of integers) -- see Filter_classifier for
+       definition.
+     * exitcodes_keep (tuple of integers) -- see Filter_classifier for
+       definition.
+       
+    Filter_TMDA
+    
+   Filter_external runs the message through the external program
+   tmda-filter, allowing the use of the Tagged Message Delivery Agent
+   (TMDA) package. As TMDA relies on the message envelope, this filter
+   requires the use of a multidrop retriever class to function. It sets
+   the three environment variables SENDER, RECIPIENT, and EXT prior to
+   running tmda-filter.
+   
+   This filter has not been extensively tested. I would appreciate
+   feedback from TMDA users.
+   
+   Filter_external has no required parameters. It has the following
+   optional parameters:
+     * path (string) -- the path to the tmda-filter binary. Default:
+       /usr/local/bin/tmda-filter. This value will be expanded for
+       leading ~ or ~USER and environment variables in the form $VARNAME
+       or ${VARNAME}.
+     * user (string) -- see Filter_classifier for definition.
+     * group (string) -- see Filter_classifier for definition.
+     * allow_root_commands (boolean) -- see Filter_classifier for
+       definition.
+     * conf-break (string) -- this value will be used to split the
+       local-part of the envelope recipient address to determine the
+       value of the EXT environment variable. Default: "-".
        
     [filter-something] examples
     

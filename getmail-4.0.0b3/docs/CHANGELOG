@@ -1,3 +1,12 @@
+Version 4.0.0b3
+13 July 2004
+
+  -different fix for the reaping child problem.  This one tested by Paul
+  and confirmed working on Mandrake 10's kernel.
+  -add Filter_TMDA filter class.
+  -changes to setup.py to account for --install-data specifying a non-default
+  path for the documentation and man pages
+
 Version 4.0.0b2
 13 July 2004
 

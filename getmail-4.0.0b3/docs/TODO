@@ -8,6 +8,9 @@ TODO
 -remove the raise statements in the outermost exception handlers from
   the main script (when leaving beta)
 
+-rewrite the distutils setup script to properly allow the user to specify
+  alternate installation directories for types of files
+
 DONE
 ====
 
@@ -35,3 +38,4 @@ DONE
 -finish documentation
 -man pages
 -flush out getmailrc-example
+-Filter_TMDA filter class

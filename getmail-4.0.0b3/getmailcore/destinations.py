@@ -17,7 +17,7 @@ import socket
 import re
 import signal
 import types
-import errno
+import time
 
 # Only on Unix
 try:
@@ -90,7 +90,7 @@ class Maildir(DeliverySkeleton):
 
     Parameters:
 
-      path - path to maildir, which will be expanded for leading '~/' or 
+      path - path to maildir, which will be expanded for leading '~/' or
       '~USER/', as well as environment variables.
 
     getmail will attempt to chown the file created to the UID and GID of the
@@ -131,7 +131,7 @@ class Mboxrd(DeliverySkeleton):
 
     Parameters:
 
-      path - path to mboxrd file, which will be expanded for leading '~/' 
+      path - path to mboxrd file, which will be expanded for leading '~/'
       or '~USER/', as well as environment variables.
 
     Note the differences between various subtypes of mbox format (mboxrd, mboxo,
@@ -325,17 +325,29 @@ class MDA_qmaillocal(DeliverySkeleton):
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
             change_uidgid(self.log, self.conf['user'], self.conf['group'])
-            try:
-                os.execl(*args)
-            except OSError, o:
-                raise getmailDeliveryError('exec of qmail-local failed (%s)' % o)
+            os.execl(*args)
         except StandardError, o:
             # Child process; any error must cause us to exit nonzero for parent to detect it
             self.log.critical('exec of qmail-local failed (%s)' % o)
             os._exit(127)
 
+    def _child_handler(self, sig, stackframe):
+        self.log.trace('handler called for signal %s' % sig)
+        try:
+            pid, r = os.wait()
+        except OSError, o:
+            # No children on SIGCHLD.  Can't happen?
+            self.log.warning('handler called, but no children (%s)' % o)
+        self._child_pid = pid
+        self._child_status = r
+        self.log.trace('handler reaped child %s with status %s' % (pid, r))
+        self._child_exited = True
+
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
+        self._child_exited = False
+        self._child_pid = None
+        self._child_status = None
         try:
             msginfo = {
                 'sender' : msg.sender,
@@ -365,8 +377,7 @@ class MDA_qmaillocal(DeliverySkeleton):
         if os.geteuid() == 0 and not self.conf['allow_root_commands']:
             raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
-        orighandler = signal.getsignal(signal.SIGCHLD)
-        signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        signal.signal(signal.SIGCHLD, self._child_handler)
 
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -378,16 +389,15 @@ class MDA_qmaillocal(DeliverySkeleton):
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
-        try:
-            pid, r = os.waitpid(childpid, 0)
-        except OSError, o:
-            if o.errno == errno.ECHILD:
-                # Child already exited, reap it
-                pid, r = os.wait()
-            else:
-                raise getmailDeliveryError('failed waiting for qmail-local %d (%s)' % (childpid, o))
+        while not self._child_exited:
+            self.log.trace('waiting for child %d' % childpid)
+            time.sleep(1.0)
+            #raise getmailDeliveryError('failed waiting for qmail-local %d (%s)' % (childpid, o))
 
-        signal.signal(signal.SIGCHLD, orighandler)
+        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+        pid = self._child_pid
+        r = self._child_status
+
         stdout.seek(0)
         stderr.seek(0)
         out = stdout.read().strip()
@@ -503,17 +513,29 @@ class MDA_external(DeliverySkeleton):
                     arg = arg.replace('%%(%s)' % key, value)
                 args.append(arg)
             self.log.debug('about to execl() with args %s\n' % str(args))
-            try:
-                os.execl(*args)
-            except OSError, o:
-                raise getmailDeliveryError('exec of command %s failed (%s)' % (self.conf['command'], o))
+            os.execl(*args)
         except StandardError, o:
             # Child process; any error must cause us to exit nonzero for parent to detect it
             self.log.critical('exec of command %s failed (%s)' % (self.conf['command'], o))
             os._exit(127)
 
+    def _child_handler(self, sig, stackframe):
+        self.log.trace('handler called for signal %s' % sig)
+        try:
+            pid, r = os.wait()
+        except OSError, o:
+            # No children on SIGCHLD.  Can't happen?
+            self.log.warning('handler called, but no children (%s)' % o)
+        self._child_pid = pid
+        self._child_status = r
+        self.log.trace('handler reaped child %s with status %s' % (pid, r))
+        self._child_exited = True
+
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
+        self._child_exited = False
+        self._child_pid = None
+        self._child_status = None
         msginfo = {}
         msginfo['sender'] = msg.sender
         if msg.recipient is not None:
@@ -526,8 +548,7 @@ class MDA_external(DeliverySkeleton):
         if os.geteuid() == 0 and not self.conf['allow_root_commands'] and self.conf['user'] == None:
             raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
-        orighandler = signal.getsignal(signal.SIGCHLD)
-        signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        signal.signal(signal.SIGCHLD, self._child_handler)
 
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -539,16 +560,15 @@ class MDA_external(DeliverySkeleton):
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
-        try:
-            pid, r = os.waitpid(childpid, 0)
-        except OSError, o:
-            if o.errno == errno.ECHILD:
-                # Child already exited, reap it
-                pid, r = os.wait()
-            else:
-                raise getmailDeliveryError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
+        while not self._child_exited:
+            self.log.trace('waiting for child %d' % childpid)
+            time.sleep(1.0)
+            #raise getmailDeliveryError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
 
-        signal.signal(signal.SIGCHLD, orighandler)
+        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+        pid = self._child_pid
+        r = self._child_status
+
         stdout.seek(0)
         stderr.seek(0)
         out = stdout.read().strip()

@@ -18,27 +18,31 @@ from getmailcore import __version__
 # This hacks around this limitation.
 #
 prefix = distutils.sysconfig.get_config_var('prefix')
+datadir = None
 args = sys.argv[1:]
 for (pos, arg) in enumerate(args):
     # hack hack hack
-    if arg.startswith('--home=') or arg.startswith('--prefix='):
+    if arg.startswith('--prefix='):
         # hack hack hack hack hack
         prefix = arg.split('=', 1)[1]
-    elif arg in ('--home', '--prefix'):
+    elif arg == '--prefix':
         # hack hack hack hack hack hack hack
         prefix = args[pos + 1]
-    
-if not os.path.isdir(prefix):
-    print 'Warning: specified home or prefix directory %s does not exist, will create it' % prefix
+    elif arg.startswith('--install-data='):
+        # hack hack hack hack hack
+        datadir = arg.split('=', 1)[1]
+    elif arg == '--install-data':
+        # hack hack hack hack hack hack hack
+        datadir = args[pos + 1]
 
 GETMAILDOCDIR = os.path.join(
-    prefix,
+    datadir or prefix,
     'doc',
     'getmail-%s' % __version__
 )
 
 GETMAILMANDIR = os.path.join(
-    prefix,
+    datadir or prefix,
     'man',
     'man1'
 )
@@ -76,9 +80,9 @@ setup(
         'getmailcore'
     ],
     scripts=[
-	'getmail',
-	'getmail_maildir',
-	'getmail_mbox'
+    'getmail',
+    'getmail_maildir',
+    'getmail_mbox'
     ],
     data_files=[
         (GETMAILDOCDIR, [

@@ -93,6 +93,9 @@
             <li><a href="configuration.html#conf-filters">Creating the <span class="file">[filter-<span class="meta">something</span>]</span> sections</a></li>
             <li>
                 <ul>
+                <li><a href="configuration.html#conf-filters-classifier">Filter_classifier</a></li>
+                <li><a href="configuration.html#conf-filters-external">Filter_external</a></li>
+                <li><a href="configuration.html#conf-filters-tmda">Filter_TMDA</a></li>
                 <li><a href="configuration.html#filter-examples"><span class="file">[filter-<span class="meta">something</span>]</span> examples</a></li>
                 </ul>
             </li>
@@ -1613,7 +1616,7 @@ message_log = ~/.getmail/log
 </p>
 <ul>
     <li>
-        Filter_classifier
+        <a href="#conf-filters-classifier">Filter_classifier</a>
         &mdash; run the message through an external program, and insert the
         output of the program into
         <span class="file">X-getmail-filter-classifier:</span>
@@ -1621,17 +1624,38 @@ message_log = ~/.getmail/log
         filter return specific exit codes.
     </li>
     <li>
-        Filter_external
+        <a href="#conf-filters-external">Filter_external</a>
         &mdash; supply the message to an external program, which can then modify
         the message in any fashion.  The program must print the modified message
         to stdout. getmail reads the modified message from the program in this
         fasion before proceeding to the next filter or destination.  Messages
         can be dropped by having the filter return specific exit codes.
     </li>
+    <li>
+        <a href="#conf-filters-tmda">Filter_TMDA</a>
+        &mdash; run the message through the
+        <span class="file">tmda-filter</span>
+        program for use with the 
+        <a href="http://www.tmda.net/">Tagged Message Delivery Agent (TMDA)</a>
+        package.  If
+        <span class="file">tmda-filter</span>
+        returns 0, the message will be passed to the next filter (or 
+        destination).  If it returns 99, the message will be dropped,
+        and TMDA is responsible for sending a challenge message, queuing
+        the original, etc.
+    </li>
 </ul>
+
+<h4 id="conf-filters-classifier">Filter_classifier</h4>
 <p>
-    Both of these filter types take the same parameters.  The required parameter
-    is:
+    Filter_classifier runs the message through an external program, placing the
+    output of that program into
+    <span class="file">X-getmail-filter-classifier:</span>
+    header fields.  It can also cause messages to be dropped by exiting with
+    a return code listed in the exitcodes_drop parameter.
+</p>
+<p>
+	Filter_classifier has one required parameter:
 </p>
 <ul>
     <li>
@@ -1649,7 +1673,7 @@ message_log = ~/.getmail/log
     </li>
 </ul>
 <p>
-    In addition, they take the following optional parameters:
+    In addition, Filter_classifier takes the following optional parameters:
 </p>
 <ul>
     <li>
@@ -1729,6 +1753,152 @@ message_log = ~/.getmail/log
         getmail assumes the filter encountered an error.  getmail will then not
         proceed, so that the message is not lost. The default is
         <span class="sample">(0, )</span>.
+    </li>
+</ul>
+
+
+<h4 id="conf-filters-external">Filter_external</h4>
+<p>
+    Filter_external runs the message through an external program, and replaces 
+    the message with the output of that program, allowing the filter to make 
+    arbitrary changes to messages.  It can also cause messages to be dropped by 
+    exiting with a return code listed in the exitcodes_drop parameter.
+</p>
+<p>
+	Filter_external has one required parameter:
+</p>
+<ul>
+    <li>
+        path 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+</ul>
+<p>
+    In addition, Filter_external takes the following optional parameters:
+</p>
+<ul>
+    <li>
+        arguments 
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        unixfrom 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        user 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        group 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        allow_root_commands 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        exitcodes_drop 
+        (<a href="#parameter-tupleintegers">tuple of integers</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        exitcodes_keep 
+        (<a href="#parameter-tupleintegers">tuple of integers</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+</ul>
+
+<h4 id="conf-filters-tmda">Filter_TMDA</h4>
+<p>
+    Filter_external runs the message through the external program
+    <span class="file">tmda-filter</span>, allowing the use of the
+    <a href="http://www.tmda.net/">Tagged Message Delivery Agent (TMDA)</a>
+    package.  As TMDA relies on the message envelope, this filter requires
+    the use of a multidrop retriever class to function.  It sets the
+    three environment variables
+    <span class="file">SENDER</span>,
+    <span class="file">RECIPIENT</span>,
+    and
+    <span class="file">EXT</span>
+    prior to running 
+    <span class="file">tmda-filter</span>.
+</p>
+<p class="warning">
+	This filter has not been extensively tested.  I would appreciate feedback
+	from TMDA users.
+</p>
+<p>
+	Filter_external has no required parameters.  It has the following optional
+	parameters:
+</p>
+<ul>
+    <li>
+        path 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; the path to the 
+        <span class="file">tmda-filter</span>
+        binary.  Default:
+        <span class="file">/usr/local/bin/tmda-filter</span>.
+        This value will be expanded for leading
+        <span class="file">~</span>
+        or
+        <span class="file">~<span class="meta">USER</span></span>
+        and environment variables in the form
+        <span class="file">$<span class="meta">VARNAME</span></span>
+        or
+        <span class="file">${<span class="meta">VARNAME</span>}</span>.
+    </li>
+    <li>
+        user 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        group 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        allow_root_commands 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        conf-break 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; this value will be used to split the local-part of the envelope 
+        recipient address to determine the value of the 
+        <span class="file">EXT</span>
+        environment variable. Default: &quot;-&quot;.
     </li>
 </ul>
 
