@@ -61,4 +61,4 @@ except StandardError, o:
     raise SystemExit('Error: other error delivering to maildir %s (%s)' % (path, o))
 
 if verbose:
-    sys.stdout.write('Delivered to maildir %s as %s\n' % d)
+    sys.stdout.write('Delivered to maildir %s\n' % path)

@@ -68,7 +68,7 @@ class FilterSkeleton(ConfigurableBase):
         exitcode, newmsg, err = self._filter_message(msg)
         if exitcode in self.exitcodes_drop:
             # Drop message
-            self.log.info('filter %s returned %d; dropping message\n' % (self, exitcode))
+            self.log.debug('filter %s returned %d; dropping message\n' % (self, exitcode))
             return None
         elif (exitcode not in self.exitcodes_keep) or err:
             raise getmailOperationError('filter %s returned %d (%s)\n' % (self, exitcode, err))
@@ -170,7 +170,7 @@ class Filter_external(FilterSkeleton):
 
     def __str__(self):
         self.log.trace()
-        return 'Filter_external %s' % self._confstring()
+        return 'Filter_external %s %s' % (self.conf['command'], self.conf['arguments'])
 
     def showconf(self):
         self.log.trace()
@@ -281,7 +281,7 @@ class Filter_classifier(Filter_external):
     '''
     def __str__(self):
         self.log.trace()
-        return 'Filter_classifier %s' % self._confstring()
+        return 'Filter_classifier %s %s' % (self.conf['command'], self.conf['arguments'])
 
     def showconf(self):
         self.log.trace()
@@ -385,14 +385,12 @@ class Filter_TMDA(FilterSkeleton):
             raise getmailConfigurationError('no such command %s' % self.conf['path'])
         if not os.access(self.conf['path'], os.X_OK):
             raise getmailConfigurationError('%s not executable' % self.conf['path'])
-        if type(self.conf['arguments']) != tuple:
-            raise getmailConfigurationError('incorrect arguments format; see documentation (%s)' % self.conf['arguments'])
         self.exitcodes_keep = (0, )
         self.exitcodes_drop = (99, )
 
     def __str__(self):
         self.log.trace()
-        return 'Filter_TMDA %s' % self._confstring()
+        return 'Filter_TMDA %s' % self.conf['command']
 
     def showconf(self):
         self.log.trace()

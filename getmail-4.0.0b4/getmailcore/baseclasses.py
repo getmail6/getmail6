@@ -80,6 +80,8 @@ class ConfigurableBase(object):
             if confstring:  confstring += ', '
             if name.lower() == 'password':
                 confstring += '%s="*"' % name
+            elif name.lower() == 'configparser':
+                continue
             else:
                 confstring += '%s="%s"' % (name, self.conf[name])
         return confstring

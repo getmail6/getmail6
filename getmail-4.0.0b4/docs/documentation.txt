@@ -13,42 +13,6 @@
    (only). If you wish to obtain a license to use getmail under other
    terms, please contact me directly.
    
-                               Table of Contents
-                                       
-     * getmail documentation
-     *
-          + Features
-          + Differences from previous versions
-          + Requirements
-          + Obtaining getmail
-          + Installing getmail
-          +
-               o Installing directly from the source
-               o Installing the getmailcore package in a non-standard
-                 location
-               o Building a binary package from the source
-          + getmail mailing lists
-          +
-               o getmail-users' mailing list
-               o Announcements List
-     * Configuring getmail
-     *
-          + Creating a getmail rc file
-     * Running getmail
-     *
-          + Commandline options
-          + Using getmail as an MDA
-     * Troubleshooting
-     *
-          + Error messages
-          + Unexpected Behaviour
-     * Frequently-Asked Questions (FAQs)
-     *
-          + About getmail
-          + Configuring getmail
-          + How do I ...
-          + Using getmail with other software
-       
 Features
 
    getmail is a mail retriever designed to allow you to get your mail
@@ -168,7 +132,14 @@ $ cd getmail-version
 $ python setup.py build
 
    When that completes in a few seconds, become root and then install the
-   software:
+   software. You can install in the default location, or specify an
+   alternate location to install the software, or specify alternate
+   directories for only part of the package.
+   
+    Installing in the default location
+    
+   To install in the default location, become user root and install with
+   the following commands:
 $ su
 enter root password
 # python setup.py install
@@ -189,27 +160,56 @@ enter root password
      * The manual pages for the three scripts will be installed under
        prefix/man/
        
+   You can see a list of the default installation locations by running:
+# python setup.py install --show-default-install-dirs
+
+    Installing under an alternate prefix directory
+    
    You can specify an alternate prefix directory by supplying the
    --prefix option to the install command, like this:
 # python setup.py install --prefix=path
 
+   This will install the various parts of the package in subdirectories
+   like in the default installation (see the section Installing in the
+   default location above), but under your specified prefix directory.
    These alternate installations allow you to install the software
    without root privileges (say, by installing under $HOME/). Note,
    however, that the getmailcore package will not be in the default
-   Python module search path if you do this; see the next section for
-   details.
+   Python module search path if you do this; see the section Installing
+   the getmailcore package in a non-standard location if you use this
+   option.
    
+    Installing parts of the package to alternate directories
+    
    If you only want to change the directory for some of the components,
    use the following options:
      * --install-lib=path specifies the directory the getmailcore package
-       is installed under. See the next section if you use this option.
+       is installed under (i.e., it will be installed as path/getmailcore
+       ). See the section Installing the getmailcore package in a
+       non-standard location if you use this option.
      * --install-scripts=path specifies the directory the three scripts
-       are installed under.
+       are installed under (i.e., they will be installed directly in
+       path/ ).
      * --install-data=path specifies the directory the documentation is
-       installed under (i.e., path/doc/getmail-getmail-version/ for the
-       HTML and plaintext documentation, and path/man/ for the manual
-       pages).
+       installed under (i.e., the HTML and plaintext documentation will
+       be installed in the directory path/doc/getmail-getmail-version/,
+       and the man(1) pages will be installed in path/man/man1/.
        
+   For example, if your Python installation is located under /usr/
+   because it was installed as part of your OS, but you would like the
+   getmail scripts installed into /usr/local/bin/ instead of /usr/bin/,
+   while still letting the getmailcore package be installed under
+   /usr/lib/python-python-version/site-packages/, and the documentation
+   and man pages under /usr/doc/ and /usr/man/ you could use this command
+   to install:
+# python setup.py --install-scripts=/usr/local/bin/
+
+   If you also wanted to locate the documentation and man pages under
+   /usr/local/ but still install the getmailcore package in the default
+   /usr/lib/python-python-version/site-packages/, you would instead use
+   this command to install:
+# python setup.py --install-scripts=/usr/local/bin/ --install-data=/usr/local/
+
   Installing the getmailcore package in a non-standard location
   
    Note: if you use one of the above methods to install the getmailcore

@@ -1,3 +1,14 @@
+Version 4.0.0b4
+14 July 2004
+
+  -remove unneeded code raising a ConfigurationError in Filter_TMDA
+  -clean up output for Maildir, Mboxrd destinations and getmail_maildir
+  script, messages dropped by filters, various other bits
+  -add --show-default-install-dirs to setup.py
+  -documentation updates, including more clarification and examples of
+  installation options
+  -tweak to getmail manpage.  Thanks: Frankye Fattarelli.
+
 Version 4.0.0b3
 13 July 2004
 

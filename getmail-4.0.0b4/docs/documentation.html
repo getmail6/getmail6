@@ -43,7 +43,14 @@
         <li>
             <ul>
             <li><a href="documentation.html#installing-source">Installing directly from the source</a></li>
-            <li><a href="documentation.html# class=">Installing the <span class="file">getmailcore</span> package in a non-standard location</a></li>
+            <li>
+                <ul>
+                <li><a href="documentation.html#installing-source-default">Installing in the default location</a></li>
+                <li><a href="documentation.html#installing-source-altprefix">Installing under an alternate <span class="file">prefix</span> directory</a></li>
+                <li><a href="documentation.html#installing-source-altdirs">Installing parts of the package to alternate directories</a></li>
+                </ul>
+            </li>
+            <li><a href="documentation.html#install-alt-libdir">Installing the <span class="file">getmailcore</span> package in a non-standard location</a></li>
             <li><a href="documentation.html#installing-binary">Building a binary package from the source</a></li>
             </ul>
         </li>
@@ -301,7 +308,15 @@ $ python setup.py build
 </pre>
 <p>
     When that completes in a few seconds, become root and then install the
-    software:
+    software.  You can install in the default location, or specify an alternate
+    location to install the software, or specify alternate directories for
+    only part of the package.
+</p>
+
+<h4 id="installing-source-default">Installing in the default location</h4>
+<p>
+    To install in the default location, become user root and install with
+    the following commands:
 </p>
 <pre class="example">
 $ su
@@ -349,6 +364,14 @@ $ su
 	</li>
 </ul>
 <p>
+    You can see a list of the default installation locations by running:
+</p>
+<pre class="example">
+# python setup.py install --show-default-install-dirs
+</pre>
+
+<h4 id="installing-source-altprefix">Installing under an alternate <span class="file">prefix</span> directory</h4>
+<p>
     You can specify an alternate
     <span class="meta">prefix</span>
     directory by supplying the
@@ -359,14 +382,23 @@ $ su
 # python setup.py install --prefix=<span class="meta">path</span>
 </pre>
 <p>
-	These alternate installations allow you to install the software without
-	root privileges (say, by installing under
+	This will install the various parts of the package in subdirectories like in 
+	the default installation (see the section 
+	<a href="#installing-source-default">Installing in the default location</a>
+	above), but under your specified 
+	<span class="file">prefix</span>
+	directory. These alternate installations allow you to install the software 
+	without root privileges (say, by installing under
 	<span class="file">$HOME/</span>).
 	Note, however, that the 
 	<span class="file">getmailcore</span>
 	package will not be in the default Python module search path if you do
-	this; see the next section for details.
+	this; see the section
+    <a href="#install-alt-libdir">Installing the <span class="file">getmailcore</span> package in a non-standard location</a>
+	if you use this option.
 </p>
+
+<h4 id="installing-source-altdirs">Installing parts of the package to alternate directories</h4>
 <p>
 	If you only want to change the directory for some of the components, use
 	the following options:
@@ -376,24 +408,63 @@ $ su
 		<span class="file">--install-lib=<span class="meta">path</span></span>
 		specifies the directory the
 		<span class="file">getmailcore</span>
-		package is installed under.  See the next section if you use this
-		option.
+		package is installed under (i.e., it will be installed as
+		<span class="file"><span class="meta">path</span>/getmailcore</span>
+		).  See the section
+		<a href="#install-alt-libdir">Installing the <span class="file">getmailcore</span> package in a non-standard location</a>
+		if you use this option.
 	</li>
 	<li>
 		<span class="file">--install-scripts=<span class="meta">path</span></span>
-		specifies the directory the three scripts are installed under.
+		specifies the directory the three scripts are installed under  (i.e.,
+		they will be installed directly in
+		<span class="file"><span class="meta">path</span>/</span>
+		).
 	</li>
 	<li>
 		<span class="file">--install-data=<span class="meta">path</span></span>
-		specifies the directory the documentation is installed under (i.e.,
-		<span class="file"><span class="meta">path</span>/doc/getmail-<span class="meta">getmail-version</span>/</span>
-		for the HTML and plaintext documentation, and
-		<span class="file"><span class="meta">path</span>/man/</span>
-		for the manual pages).
+		specifies the directory the documentation is installed under (i.e., the 
+		HTML and plaintext documentation will be installed in the directory
+		<span class="file"><span class="meta">path</span>/doc/getmail-<span class="meta">getmail-version</span>/</span>,
+		and the man(1) pages will be installed in 
+		<span class="file"><span class="meta">path</span>/man/man1/</span>.
 	</li>
 </ul>
+<p>
+	For example, if your Python installation is located under 
+	<span class="file">/usr/</span>
+	because it was installed as part of your OS, but you would like the getmail
+	scripts installed into
+	<span class="file">/usr/local/bin/</span>
+	instead of 
+	<span class="file">/usr/bin/</span>,
+	while still letting the 
+	<span class="file">getmailcore</span>
+	package be installed under
+	<span class="file">/usr/lib/python-<span class="meta">python-version</span>/site-packages/</span>,
+	and the documentation and man pages under
+	<span class="file">/usr/doc/</span>
+	and
+	<span class="file">/usr/man/</span>
+	you could use this command to install:
+</p>
+<pre class="example">
+# python setup.py --install-scripts=/usr/local/bin/
+</pre>
+<p>
+	If you also wanted to locate the documentation and man pages under
+	<span class="file">/usr/local/</span>
+	but still install the 
+	<span class="file">getmailcore</span>
+	package in the default
+	<span class="file">/usr/lib/python-<span class="meta">python-version</span>/site-packages/</span>,
+	you would instead use this command to install:
+</p>
+<pre class="example">
+# python setup.py --install-scripts=/usr/local/bin/ --install-data=/usr/local/
+</pre>
 
-<h3 class="warning">Installing the <span class="file">getmailcore</span> package in a non-standard location</h3>
+<h3 class="warning" id="install-alt-libdir">Installing the <span class="file">getmailcore</span> package in a non-standard location</h3>
 <p>
 	Note:  if you use one of the above methods to install the
 	<span class="file">getmailcore</span> 

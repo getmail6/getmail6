@@ -123,7 +123,7 @@ class Maildir(DeliverySkeleton):
         f = deliver_maildir(self.conf['path'], msg.flatten(delivered_to, received), self.hostname, self.dcount)
         self.log.debug('maildir file %s' % f)
         self.dcount += 1
-        return 'Maildir %snew/%s' % (self.conf['path'], f)
+        return self
 
 #######################################
 class Mboxrd(DeliverySkeleton):
@@ -223,7 +223,7 @@ class Mboxrd(DeliverySkeleton):
                 pass
             raise getmailDeliveryError('failure writing message to mbox file "%s" (%s)' % (self.conf['path'], o))
 
-        return 'Mboxrd %s' % self.conf['path']
+        return self
 
 #######################################
 class MDA_qmaillocal(DeliverySkeleton):
@@ -486,7 +486,7 @@ class MDA_external(DeliverySkeleton):
 
     def __str__(self):
         self.log.trace()
-        return 'MDA_external %s' % self._confstring()
+        return 'MDA_external %s %s' % (self.conf['command'], self.conf['arguments'])
 
     def showconf(self):
         self.log.info('MDA_external(%s)\n' % self._confstring())
