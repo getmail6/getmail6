@@ -8,8 +8,8 @@ accounts, and reliably delivers into a Maildir specified on a per-account
 basis.  It can now also deliver into mbox files, although this should not
 be attempted over NFS.
 
-Experimental support for domain (multidrop) mailboxes has been added.  Feedback
-on this feature would be greatly appreciated.
+Support for domain (multidrop) mailboxes has been added.  Feedback on this
+feature would be greatly appreciated.
 
 Bugs, questions, feature requests, and comments should be directed to me
 (Charles Cazabon) at <getmail@discworld.dyndns.org>.
@@ -136,19 +136,20 @@ Options that getmail currently recognizes are:
     use, plus --dump and send the output to me at <getmail@discworld.dyndns.org>.
 
 
-Experimental Support for Domain Mailboxes
------------------------------------------
+Support for Domain Mailboxes
+----------------------------
 
-I have added experimental support for domain (multidrop) mailboxes.  A domain
-mailbox is a POP3 mailbox which receives mail for multiple users.  For example,
-all mail for anyone at mycompany.com might be delivered to a single POP3
-mailbox named 'mycompany@isp.com'.
+I have added support for domain (multidrop) mailboxes.  A domain mailbox is a
+POP3 mailbox which receives mail for multiple users.  For example, all mail for
+anyone at mycompany.com might be delivered to a single POP3 mailbox named
+'mycompany@isp.com'.
 
 getmail can be configured to retrieve mail from a domain mailbox, and deliver
-each message separately, to the user it was originally addressed to.  This
-type of operation is not supported in a standard way by the majority of
-the email infrastructure, so the support is experimental for now.  I would
-appreciate feedback on how this works for you if you try it.
+each message separately, to the user it was originally addressed to.  It can
+also change the ownership of message files delivered to a Maildir on a per-
+recipient basis.  This type of operation is not supported in a standard way by
+the majority of the email infrastructure, so there is the possibility of
+problems when attempting this.
 
 getmail tries to determine who each message was originally intended for
 by looking at the message headers.  If the first valid header is a
@@ -182,19 +183,21 @@ The configuration file section for a domain mailbox should look like this:
     destination=/path/to/default_delivery_destination
     delete=(yes|no)
     readall=(yes|no)
-    email@address  = /path/to/destination
-    email@address2 = /path/to/destination2
+    email@address  = /path/to/destination[:username]
+    email@address2 = /path/to/destination2[:username]
     [...]
 
 Some examples of the "email=destination" lines are:
-    joe@smallcompany.com=/home/joe/Maildir
-    info@smallcompany.com=/home/paula/inbox
+    joe@smallcompany.com=/home/joe/Maildir:joe
+    info@smallcompany.com=/home/paula/inbox:paula
 
-Note that getmail must have write access to the Maildir or mbox files which
-it delivers mail to.  This may mean making them group-writable, or running
-getmail as root.  getmail never forks any processes or execs any other
-programs, so the security implications are limited.  Note, however, that
-any regular file specified as a destination will be appended to with messages
-for that destination -- getmail does not verify that a file it can write to
-is indeed an mbox file.  This is one more reason to use Maildirs.
+Note that getmail must have write access to the Maildir or mbox files which it
+delivers mail to.  This may mean making them group-writable, or running getmail
+as root.  If run as root, getmail will change the ownership of message files it
+creates in a Maildir to the UID and GID of the user specified after a colon in
+the destination line (if provided).  getmail never forks any processes or execs
+any other programs, so the security implications are limited.  Note, however,
+that any regular file specified as a destination will be appended to with
+messages for that destination -- getmail does not verify that a file it can
+write to is indeed an mbox file.  This is one more reason to use Maildirs.
 

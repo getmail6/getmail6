@@ -29,8 +29,9 @@
 #type=(mailbox|domainbox)       # Optional, defaults to 'mailbox'.  'domainbox'
 #                               # is a domain mailbox, also known as a multidrop
 #                               # mailbox.
-#email=destination              # For domain mailbox accounts, specify email=destination pairs
-#email=destination
+#email=destination[:username]   # For domain mailbox accounts, specify lines with
+#email=destination[:username]	#  email=destination[:username to change
+								#  ownership of Maildir files] pairs
 #[...]
 
 
@@ -72,10 +73,14 @@ destination=/home/postmaster/Maildir    # The default destination, for
 password = companypass
 delete=yes
         # The remainder of the lines here are in the
-        # format 'email=destination'.  If the incoming
+        # format 'email=destination[:username]'.  If the incoming
         # message has a recipient matching one of these,
-        # it will be delivered to that destination.
-joe@mycompany.com       = /home/joe/Maildir
-paula@mycompany.com     = /home/paula/Maildir
-info@mycompany.com      = /home/paula/Mail/info
-webmaster@mycompany.com = /home/jeff/inbox
+        # it will be delivered to that destination.  If 'username' is supplied,
+        # and the destination is a Maildir, the message files created in that
+        # Maildir will have their ownership (UID, GID) changed to match those
+        # of the system account with that name.
+joe@mycompany.com       = /home/joe/Maildir:joe
+paula@mycompany.com     = /home/paula/Maildir:paula
+info@mycompany.com      = /home/paula/Mail/info:paula
+webmaster@mycompany.com = /home/jeff/inbox:jeff
+

@@ -3,7 +3,7 @@
                                        
 Frequently Asked Questions about getmail
 
-10 Febuary 2000
+12 Febuary 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -23,13 +23,15 @@ Frequently Asked Questions about getmail
           + 1.9 Can getmail retrieve mail from an IMAP server?
           + 1.10 Can getmail deliver by re-injecting messages via SMTP
             like fetchmail?
-          + 1.11 Can I leave whitespace in option values in the config
+          + 1.11 Why can't I read messages delivered to a Maildir from a
+            domain mailbox?
+          + 1.12 Can I leave whitespace in option values in the config
             file?
-          + 1.12 How do I make getmail be less verbose?
-          + 1.13 How does getmail determine the recipient of a message in
+          + 1.13 How do I make getmail be less verbose?
+          + 1.14 How does getmail determine the recipient of a message in
             a domain mailbox?
-          + 1.14 How do I report a bug, or request a feature?
-          + 1.15 I have a question about getmail that isn't answered
+          + 1.15 How do I report a bug, or request a feature?
+          + 1.16 I have a question about getmail that isn't answered
             here...
      * 2 Other Questions
           + 2.1 Do you have any other software available?
@@ -157,21 +159,32 @@ destination = /home/username/Maildir # default Maildir
 popusername-extension1@isp.net = /home/username/Mail/list1
 popusername-extension2@isp.net = /home/username/Mail/list2
 
-1.11 Can I leave whitespace in option values in the config file?
+1.11 Why can't I read messages delivered to a Maildir from a domain mailbox?
+
+   If you're running getmail as root to deliver to a Maildir you wouldn't
+   normally have write access to, then getmail is creating the message
+   files in the Maildir with ownership `root:root'. The user who owns
+   that Maildir will probably not be able to read those files.
+   
+   To fix this, add `:username' to the end of the destination line in
+   your `.getmailrc' file, and getmail will change the ownership of the
+   message files it creates to match the system account of that name.
+   
+1.12 Can I leave whitespace in option values in the config file?
 
    Yes, internal spaces are always okay. Leading and trailing whitespace
    is stripped by default. To preserve leading and trailing whitespace,
    quote the value with either single `'' or double `"' quotes.
 password = ' a password with leading whitespace'
 
-1.12 How do I make getmail be less verbose?
+1.13 How do I make getmail be less verbose?
 
    Well, you could avoid supplying the `--verbose' or `-v' options. If
    you've specified one of these in the environment variable
    `GETMAILOPTS' and want to override it on the commandline, use the
    `--quiet' or `-q' option.
    
-1.13 How does getmail determine the recipient of a message in a domain mailbox?
+1.14 How does getmail determine the recipient of a message in a domain mailbox?
 
    getmail examines the headers messages retrieved from domain mailboxes.
    The algorithm works as follows:
@@ -194,12 +207,12 @@ password = ' a password with leading whitespace'
    the stated destination `Maildir' or `mbox' file. Each non-match is
    delivered to the default destination for the domain mailbox.
    
-1.14 How do I report a bug, or request a feature?
+1.15 How do I report a bug, or request a feature?
 
    To report a bug, make a feature request, or get support with getmail,
    please send email to me at <getmail @ discworld.dyndns.org>.
    
-1.15 I have a question about getmail that isn't answered here...
+1.16 I have a question about getmail that isn't answered here...
 
    Have you read the documentation? Have you looked at the
    `example.getmailrc' file? Then write to me, so you can get help, and
@@ -214,5 +227,5 @@ password = ' a password with leading whitespace'
    http://www.qcc.sk.ca/~charlesc/software/.
      _________________________________________________________________
    
-   This document was generated on 10 Febuary 2000 using the texi2html
+   This document was generated on 12 Febuary 2000 using the texi2html
    translator version 1.51a.

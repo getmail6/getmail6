@@ -49,14 +49,14 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.03.01'
+VERSION = '1.04'
 
 #
 # Imports
 #
 
 import sys, os, string, time, socket, poplib, getopt, fcntl, \
-    rfc822, cStringIO, getpass
+    rfc822, cStringIO, pwd, getpass
 from types import *
 
 
@@ -103,7 +103,7 @@ opt_showhelp =          0
 
 true, false = ['true', 'yes', '1', 't', 'y'], ['false', 'no', '0', 'f', 'n']
 mailbox, domainbox = 0, 1
-ADDR, DEST = 0, 1
+ADDR, DEST, UID, GID = 0, 1, 2, 3
 
 CR =            '\r'
 LF =            '\n'
@@ -161,7 +161,7 @@ def main ():
                     for j in range (len (opt_reciplist[i])):
                         if recip == opt_reciplist[i][j][ADDR]:
                             try:
-                                rc = deliver_msg (opt_reciplist[i][j][DEST], msg)
+                                rc = deliver_msg (opt_reciplist[i][j][DEST], msg, uid=opt_reciplist[i][j][UID] , gid=opt_reciplist[i][j][GID])
                                 if opt_verbose:
                                     print 'Delivered message for %s to %s' \
                                         % (opt_reciplist[i][j][ADDR], rc)
@@ -169,15 +169,7 @@ def main ():
                                 delivered = 1
 
                             except:
-                                stderr ('Error encountered during delivery\n')
-                                t = 'tmpmail.%s:%s:%s' % (time.time (),
-                                                          os.getpid (),
-                                                          len (msg))
-                                f = open (t, 'w')
-                                f.writelines (msg)
-                                f.close ()
-                                stderr ('Message saved to file "%s"\n' % t)
-                                time.sleep (1)
+								tmpmail_save (msg)
 
             if not delivered:
                 # No match in domain mailbox, or this is a regular mailbox
@@ -189,14 +181,7 @@ def main ():
                         sys.stdout.flush ()
 
                 except:
-                    stderr ('Error encountered during delivery\n')
-                    t = 'tmpmail.%s:%s:%s' % (time.time (), os.getpid (),
-                                              len (msg))
-                    f = open (t, 'w')
-                    f.writelines (msg)
-                    f.close ()
-                    stderr ('Message saved to file "%s"\n' % t)
-                    time.sleep (1)
+					tmpmail_save (msg)
 
     if deliverycount:   sys.exit (RC_NEWMAIL)
     else:               sys.exit (RC_NOMAIL)
@@ -386,7 +371,7 @@ def domainbox_find_recipients (message):
 
 
 #######################################
-def deliver_msg (dest, message):
+def deliver_msg (dest, message, uid=None, gid=None):
     '''Determine the type of destination and dispatch to appropriate delivery
     routine.  Currently understands Maildirs and assumes any regular file is
     an mbox file.
@@ -395,7 +380,7 @@ def deliver_msg (dest, message):
     mdir_tmp = os.path.join (dest, 'tmp')
 
     if os.path.isdir (mdir_new) and os.path.isdir (mdir_tmp):
-        maildirdeliver (dest, message)
+        maildirdeliver (dest, message, uid, gid)
         return 'Maildir "%s"' % dest
 
     elif os.path.isfile (dest):
@@ -415,7 +400,7 @@ def deliver_msg (dest, message):
 
 
 #######################################
-def maildirdeliver (maildir, message):
+def maildirdeliver (maildir, message, uid=None, gid=None):
     'Reliably deliver a mail message into a Maildir.'
     # Uses Dan Bernstein's recommended naming convention for maildir delivery
     # See http://cr.yp.to/proto/maildir.html
@@ -450,6 +435,14 @@ def maildirdeliver (maildir, message):
         stderr ('Error:  failure writing file "%s"\n' % fname_tmp)
         raise 'error: failure writing file "%s"' % fname_tmp
 
+	# Change ownership if necessary
+	if uid and gid:
+		try:
+			os.chown (fname_tmp, uid, gid)
+		except:
+			stderr ('Failure changing ownership of message to %d:%d\n'
+				% (uid, gid))
+
     # Move from tmp to new
     try:
         os.rename (fname_tmp, fname_new)
@@ -463,6 +456,19 @@ def maildirdeliver (maildir, message):
     # Delivery done
     deliverycount = deliverycount + 1
     return
+
+
+#######################################
+def tmpmail_save (message):
+    '''After a failed delivery, save in a temporary file to preserve the
+    message.'''
+    stderr ('Error encountered during delivery\n')
+    t = 'tmpmail.%s:%s:%s' % (time.time (), os.getpid (), len (message))
+    f = open (t, 'w')
+    f.writelines (msg)
+    f.close ()
+    stderr ('Message saved to file "%s"\n' % t)
+    time.sleep (1)
 
 
 #######################################
@@ -646,8 +652,23 @@ def read_configfile (file):
                 for option in conf.options (section):
                     if option in ignore:
                         continue
-                    # Not a recognized option, must be 'email=destination'
-                    recips.append ((option, conf.get (section, option)))
+                    # Not a recognized option, must be 'email=destination[:uid:gid]'
+                    val = conf.get (section, option)
+                    try:
+                    	dest, user = string.split (val, ':')
+                    	pwd_item = pwd.getpwnam (user)
+                    	uid, gid = pwd_item[2], pwd_item[3]
+                    	recips.append (option, dest, uid, gid)
+
+                    except ValueError:
+                    	# Wrong number of items in option value
+                    	recips.append (option, val, None, None)
+
+                    except KeyError:
+                    	stderr ('Error:  no such user in /etc/passwd ("%s")\n'
+                    		% user)
+                    	recips.append (option, dest, None, None)
+
                 opt_reciplist.append (recips)
             else:
                 opt_accounttype.append (mailbox)

@@ -3,7 +3,7 @@
                                        
 POP3 mail retriever with reliable Maildir delivery
 
-10 Febuary 2000
+12 Febuary 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -261,11 +261,18 @@ readall=yes
        All other `option=value' pairs in a given section will be treated
        as destinations in a domain mailbox, in the form of email address,
        `=', and a destination path which is a `Maildir' or `mbox' file.
+       This is optionally followed by a colon (`:') and a system
+       username. If the username is provided, message files created in a
+       Maildir for this recipient will have their ownership (UID and GID)
+       changed to match the UID and GID associated with that system
+       account. Note that this only works if getmail runs with root
+       privileges. Typically you would set the username to be the same as
+       the owner of the Maildir getmail is delivering to.
        e.g.
 john.smith-lists-weasel-farming@isp.net=/users/jsmith/Mail/list-weasels
 john.smith-lists-perl@isp.net=/users/jsmith/Mail/list-perl
 john.smith-home@isp.net=/users/jsmith/Mail/personal
-info@mycompany.com=/users/rharrington/Mail/info-requests/
+info@mycompany.com=/users/rharrington/Mail/info-requests/:rharrington
        
                         5 Support for Domain Mailboxes
                                        
@@ -314,13 +321,13 @@ password = "  pop_password with leading whitespace"
 destination=/path/to/default_delivery_destination
 delete=(yes|no)
 readall=(yes|no)
-email@address=/path/to/destination
-email@address2=/path/to/destination2
+email@address=/path/to/destination[:username]
+email@address2=/path/to/destination2[:username]
 [...]
 
    Some examples of the `email=destination' lines are:
-joe@smallcompany.com=/home/joe/Maildir
-info@smallcompany.com=/home/paula/inbox
+joe@smallcompany.com=/home/joe/Maildir[:joe]
+info@smallcompany.com=/home/paula/inbox[:paula]
 
    See the file `example.getmailrc' for more details about configuration
    files.
@@ -338,5 +345,5 @@ info@smallcompany.com=/home/paula/inbox
    please send email to me at <getmail @ discworld.dyndns.org>.
      _________________________________________________________________
    
-   This document was generated on 10 Febuary 2000 using the texi2html
+   This document was generated on 12 Febuary 2000 using the texi2html
    translator version 1.51a.
