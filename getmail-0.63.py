@@ -20,7 +20,7 @@
 # getmail returns the number of messages retrieved, or -1 on error.
 #
 
-VERSION = '0.62'
+VERSION = '0.63'
 
 #
 # Imports
@@ -277,7 +277,7 @@ def usage ():
 	'  -d or --delete             delete mail after retrieving  %s\n'
 	'  -l or --dont-delete        leave mail on server          %s\n'
 	'  -v or --verbose            output more information\n'
-	'  -c or --config <file>      get accounts from <file>\n'
+	'  -c or --config <file>      accounts from <file> in format above\n'
 	'\n  NI : option not yet implemented\n\n'
 	'For multiple account retrieval, specify multiple --host, --name, --maildir,\n'
 	'(and optionally --port) options.  Passwords must either all be supplied on\n'
@@ -380,7 +380,8 @@ def parse_options (argv):
 		try:
 			f = open (opt_configfile)
 			for line in f.readlines ():
-				if line [0] != '#':
+				line = string.strip (line)
+				if line and line[0] != '#':
 					args.append (line)
 		except IOError:
 			stderr ('Error:  exception reading file "%s"\n' % opt_configfile)
