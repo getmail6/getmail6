@@ -1,3 +1,10 @@
+Version 4.0.2
+30 July 2004
+
+  -trying to use MDA_qmaillocal destination with a non-multidrop retriever
+  would raise an exception instead of printing a configuration error message.
+  Fixed.  Thanks: Clemens Buschmann.
+  
 Version 4.0.1
 26 July 2004
 

@@ -379,7 +379,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
         if msg.recipient == None:
             raise getmailConfigurationError('MDA_qmaillocal destination'
                 ' requires a message source that preserves the message'
-                ' envelope (%s)' % o)
+                ' envelope (%s)')
         msginfo = {
             'sender' : msg.sender,
             'local' : '@'.join(msg.recipient.lower().split('@')[:-1])
