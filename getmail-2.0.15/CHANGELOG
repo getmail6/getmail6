@@ -1,6 +1,18 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.0.15
+10 February 2001
+
+  -make "recipient_header" a configuration option.  It defaults to the
+  list of headers which was previously hardcoded.  List once for each header
+  type you want to look in.
+  -include semi-manual parser for extracting addresses from Received: headers.
+    Thanks to Ian ? for the bug report which made me do this.
+  -optimize process_msg()
+  -remove obsolete "options" global
+  -update documentation, FAQ, and example getmailrc file
+  
 Version 2.0.14
 8 February 2001
 

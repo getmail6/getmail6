@@ -58,6 +58,11 @@ getmailrc Commandline Options
           options and dump configuration to stdout. Useful for submitting
           bug reports and diagnosing configuration errors.
           
+   --trace
+          Enable copious debugging output while running. This is
+          primarily useful to include in a bug report to the list or the
+          author.
+          
    --quiet
    -q
           Do not display informational messages while running.
@@ -288,6 +293,45 @@ getmailrc Directives
           local = ceo@mycompany.net,~lynette/Maildir/
           local = jason@mycompany.net,~jasonr/Maildir/
           local = jason-.+@mycompany.net,~jasonr/Mail/lists
+     _________________________________________________________________
+   
+      Local Recipient Header Specification
+      
+   This directive can be specified multiple times, and is typically used
+   for advanced mail sorting from a domain (multidrop) mailbox or mailbox
+   containing mail from multiple mailing lists. Each recipient_header
+   directive specifies the name of a mail header which will be checked
+   for local recipient addresses (configured in locals, above).
+   
+   Directive
+          recipient_header = header_name
+          
+   Optional
+          Yes
+          
+   Defaults
+          Delivered-To
+          Envelope-To
+          Apparently-To
+          X-Envelope-To
+          Resent-To
+          Resent-cc
+          Resent-bcc
+          To
+          cc
+          bcc
+          Received
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          recipient_header = received
+          recipient_header = x-envelope-to
+          recipient_header = delivered-to
+          recipient_header = to
+          recipient_header = cc
+          recipient_header = apparently-to
      _________________________________________________________________
    
     getmail Behaviour Configurations

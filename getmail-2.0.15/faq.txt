@@ -134,6 +134,38 @@ getmail FAQ
    the server doesn't support it, getmail cannot tell which messages it
    has already seen, and therefore retrieves all messages.
    
+  How does getmail decide what local recipients to deliver a message to?
+  
+   getmail first extracts everything it can find which looks like an
+   email address in certain headers in the message. It then compares each
+   address in that list to any configured local recipient address
+   patterns. Any of these that match get exactly one copy of the message,
+   even if they match multiple addresses. If none match, it is delivered
+   to the default delivery instruction (postmaster directive).
+   The default headers that getmail examines for addresses are:
+     * Delivered-To
+     * Envelope-To
+     * Apparently-To
+     * X-Envelope-To
+     * Resent-To
+     * Resent-cc
+     * Resent-bcc
+     * To
+     * cc
+     * bcc
+     * Received
+       
+   As of version 2.0.15, these can be changed with the recipient_header
+   directive.
+   
+  getmail delivered two copies of the same message to one delivery target!
+  
+   No, it didn't. What happened was that there were two almost-identical
+   messages retrieved from the POP3 mailbox. The target received one copy
+   of each of the two messages. This will happen if the mailbox is a
+   domain mailbox, and the same address is specified in To: and cc: or
+   bcc: recipients by the original message sender.
+   
   How do I run getmail in "daemon" mode?
   
    Use cron to run getmail periodically if you wish. I may add native

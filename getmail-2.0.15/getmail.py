@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.14'
+__version__ = '2.0.15'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -111,6 +111,19 @@ defs = {
 											#	Will be prepended with value of
 											#   getmaildir if message_log is not
 											#   absolute after ~ expansion.
+	'recipient_header' :	[				# Headers to search for local
+							'Delivered-To',	#   recipient addresses
+							'Envelope-To',
+							'Apparently-To',
+							'X-Envelope-To',
+							'Resent-To',
+							'Resent-cc',
+							'Resent-bcc',
+							'To',
+							'cc',
+							'bcc',
+							'Received'
+							],
 	'dump' :			0,					# Leave this alone.
 	'help' :			0,					# Leave this alone.
 	}
@@ -125,7 +138,7 @@ me = None
 
 # Options recognized in configuration getmailrc file
 intoptions = ('verbose', 'readall', 'delete', 'timeout')
-stringoptions = ('message_log', )
+stringoptions = ('message_log', 'recipient_header')
 
 # Exit codes
 exitcodes = {
@@ -176,7 +189,7 @@ re_eol = re.compile (r'\r?\n\s*', re.MULTILINE)
 # Regular expression to do POP3 leading-dot unescapes
 re_leadingdot = re.compile (r'^\.\.', re.MULTILINE)
 
-options = defs.copy ()						# Start as a copy of defaults
+#options = defs.copy ()						# Start as a copy of defaults
 
 #
 # Utility functions
@@ -482,11 +495,40 @@ class getmail:
 	###################################
 	def extract_recipients (self, mess822):
 		recipients = {}
-		for header_type in RECIPIENT_HEADERS:
-			if mess822.has_key (header_type):
-				self.logfunc (TRACE,
-					'extract_recipients():  parsing header "%s"\n'
-					% header_type, self.opts)
+		header_types = self.opts['recipient_header']
+		if type (header_types) != type ([]):
+			header_types = [header_types]
+		for header_type in header_types:
+			self.logfunc (TRACE, 'extract_recipients():  parsing header "%s"\n'
+				% header_type, self.opts)
+			# Handle Received: headers specially
+			if string.lower (header_type) == 'received':
+				# Construct list of strings, one Received: header per string
+				raw_received = mess822.getallmatchingheaders ('received')
+				received = []
+				current_line = ''
+				for line in raw_received:
+					if line[0] not in string.whitespace:
+						if string.strip (current_line):
+							received.append (current_line)
+						current_line = line
+					else:
+						current_line = current_line + ' ' + string.strip (line)
+				if string.strip (current_line):
+					received.append (current_line)
+
+				# Process each reconstructed Received: header
+				for line in received:
+					recips = rfc822.AddressList (line).addresslist
+					for (name, address) in recips:
+						if address and re_mailaddr.search (address):
+							# Looks like an email address, keep it
+							recipients[string.lower (address)] = None
+							self.logfunc (TRACE,
+								'extract_recipients():  found address "%s"\n'
+								% address, self.opts)
+										
+			elif mess822.has_key (header_type):
 				recips = mess822.getaddrlist (header_type)
 				for (name, address) in recips:
 					if address and re_mailaddr.search (address):
@@ -506,10 +548,7 @@ class getmail:
 		'''Process retrieved message and deliver to appropriate recipients.'''
 
 		# Extract envelope sender address from last Return-Path: header
-		f = cStringIO.StringIO ()
-		f.writelines (msg)
-		f.flush ()
-		f.seek (0)
+		f = cStringIO.StringIO (msg)
 		mess = rfc822.Message (f)
 		addrlist = mess.getaddrlist ('return-path')
 		msgid = mess.get ('message-id', 'None')
