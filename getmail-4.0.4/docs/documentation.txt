@@ -13,6 +13,50 @@
    (only). If you wish to obtain a license to use getmail under other
    terms, please contact me directly.
    
+                               Table of Contents
+                                       
+     * getmail documentation
+     *
+          + Features
+          + Differences from previous versions
+          + Requirements
+          + Obtaining getmail
+          + Installing getmail
+          +
+               o For the impatient
+               o Full installation instructions
+               o Installing from the RPM
+               o Installing directly from the source
+               o
+                    # Installing in the default location
+                    # Installing under an alternate prefix directory
+                    # Installing parts of the package to alternate
+                      directories
+               o Installing the getmailcore package in a non-standard
+                 location
+               o Building a binary package from the source
+          + getmail mailing lists
+          +
+               o getmail-users' mailing list
+               o Announcements List
+     * Configuring getmail
+     *
+          + Creating a getmail rc file
+     * Running getmail
+     *
+          + Commandline options
+          + Using getmail as an MDA
+     * Troubleshooting
+     *
+          + Error messages
+          + Unexpected Behaviour
+     * Frequently-Asked Questions (FAQs)
+     *
+          + About getmail
+          + Configuring getmail
+          + How do I ...
+          + Using getmail with other software
+       
 Features
 
    getmail is a mail retriever designed to allow you to get your mail
@@ -107,6 +151,18 @@ Obtaining getmail
    
 Installing getmail
 
+  For the impatient
+  
+   Installing getmail is very easy; just unpack it, change into the
+   directory it unpacks into, and run this command:
+$ python setup.py install
+
+   That's all there is to it. 99.9% of users don't need a special
+   package/port/etc. If you'd like more details on install options, keep
+   reading.
+   
+  Full installation instructions
+  
    Once you have downloaded or otherwise obtained getmail, unpack it. On
    GNU-ish Unix-like systems, this means:
 $ tar xzf getmail-version.tar.gz

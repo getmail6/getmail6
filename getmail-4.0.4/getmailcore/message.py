@@ -33,7 +33,7 @@ def corrupt_message(why, fromlines=None, fromstring=None):
     log.error('failed to parse retrieved message; constructing container for contents\n')
     if fromlines == fromstring == None:
         raise SystemExit('corrupt_message() called with wrong arguments')
-    msg = email.Message()
+    msg = email.message_from_string('')
     msg['From'] = '"unknown sender" <>'
     msg['Subject'] = 'Corrupt message received'
     msg['Date'] = email.Utils.formatdate(localtime=True)

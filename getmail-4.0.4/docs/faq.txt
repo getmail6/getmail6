@@ -12,6 +12,77 @@
    (only). If you wish to obtain a license to use getmail under other
    terms, please contact me directly.
    
+                               Table of Contents
+                                       
+     * getmail documentation
+     *
+          + Features
+          + Differences from previous versions
+          + Requirements
+          + Obtaining getmail
+          + Installing getmail
+          + getmail mailing lists
+     * Configuring getmail
+     *
+          + Creating a getmail rc file
+     * Running getmail
+     *
+          + Commandline options
+          + Using getmail as an MDA
+     * Troubleshooting
+     *
+          + Error messages
+          + Unexpected Behaviour
+     * Frequently-Asked Questions (FAQs)
+     *
+          + About getmail
+          +
+               o What is getmail?
+               o What platforms/machines does getmail run on?
+               o
+                    # Does getmail run on MS Windows?
+                    # Does getmail run on Macintosh systems?
+                    # Does getmail require Unix/Linux?
+               o How can I get support for getmail?
+               o I think I found a bug! How do I report it?
+               o Does getmail support virus scanning of retrieved
+                 messages?
+               o Does getmail support spam filtering of retrieved
+                 messages?
+               o Does getmail support SSL?
+               o Does getmail rewrite mail headers when it retrieves
+                 mail?
+               o Can I upgrade from getmail 3 to getmail 4? What about my
+                 "oldmail" files?
+               o Why did you write getmail? Why not just use fetchmail?
+          + Configuring getmail
+          +
+               o What is a "domain mailbox"?
+               o Do I have to run sendmail or another MTA to use getmail?
+               o What's a maildir?
+               o What's "mboxrd" format?
+               o This rc stuff seems complicated. Does it have to be?
+          + How do I ...
+          +
+               o How do I stop getmail adding a Delivered-To: header to
+                 messages?
+               o How do I stop getmail adding a Received: header to
+                 messages?
+               o How do I make getmail deliver messages by re-injecting
+                 with SMTP?
+               o How do I make getmail deliver messages to an mh folder?
+               o How do I run getmail in "daemon" mode?
+               o How do I make getmail retrieve mail from Hotmail?
+          + Using getmail with other software
+          +
+               o How do I use SpamAssassin with getmail?
+               o How do I use ClamAV with getmail?
+               o
+                    # Getting prettier output from ClamAV
+               o How do I use procmail with getmail?
+               o How do I use maildrop with getmail?
+               o How do I use TMDA with getmail?
+       
                        Frequently-Asked Questions (FAQs)
                                        
    The following questions about getmail come up more-or-less frequently.
