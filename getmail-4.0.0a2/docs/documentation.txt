@@ -140,6 +140,7 @@ The current retrievers are:
     SimplePOP3Retriever - single-drop POP3 retriever with optional APOP support.
                         Does not provide recipient information about retrieved
                         messages.
+    SimplePOP3SSLRetriever - same as above for POP3-over-SSL support.
     MultidropPOP3Retriever - multi-drop (domain mailbox) retriever with 
                            optional APOP support.  Provides recipient
                            information about retrieved messages.
@@ -166,8 +167,17 @@ SimplePOP3Retriever takes the following configuration parameters:
         server = pop.example.net
         user = jeff.plotzky
         password = mailpassword
-    
-    
+
+SimplePOP3SSLRetriever takes the same configuration parameters as
+SimplePOP3Retriever, plus two optional additional parameters:
+
+    keyfile (optional) - path to an SSL PEM-formatted key file containing
+                         the private key to use.
+    certfile (optional) - path to a PEM-formatted certificate chain file.
+
+Note that Python's socket.ssl() function does not do any certificate
+verification!
+
 MultidropPOP3Retriever takes the same configuration parameters as 
 SimplePOP3Retriever, plus one additional parameter:
 

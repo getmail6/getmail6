@@ -91,7 +91,7 @@ class __Logger(object):
 
     def warning(self, msg):
         '''Log a message with level WARNING.'''
-        self.log(WARN, msg)
+        self.log(WARNING, msg)
 
     def error(self, msg):
         '''Log a message with level ERROR.'''

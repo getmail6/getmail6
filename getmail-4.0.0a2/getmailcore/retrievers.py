@@ -4,9 +4,17 @@
 Currently implemented:
 
   RetrieverSkeleton (base class; not to be instantiated directly)
+  POP3initMixIn (mix-in initialization class for non-SSL POP3 classes; not to be instantiated directly)
+  POP3SSLinitMixIn (mix-in initialization class for POP3-over-SSL classes; not to be instantiated directly)
+  POP3RetrieverBase (base class; not to be instantiated directly)
+  MultidropPOP3RetrieverBase (base class; not to be instantiated directly)
+
   SimplePOP3Retriever
+  SimplePOP3SSLRetriever
   MultidropPOP3Retriever
+  MultidropPOP3SSLRetriever
   MultidropSPDSRetriever
+
   SimpleIMAPv4Retriever (incomplete -- IMAP, as a protocol, is a FPOS, and
     it shows.  The Python standard library module imaplib leaves much up to
     the user because of this.)
@@ -24,6 +32,7 @@ from exceptions import *
 from constants import *
 from utilities import updatefile, address_no_brackets
 from logging import logger
+from pop3ssl import POP3SSL, POP3_ssl_port
 
 #
 # Functional classes
@@ -157,8 +166,8 @@ class RetrieverSkeleton(object):
                 try:
                     self.log.debug('converting %s (%s) to type %s\n' % (name, self.conf['name'], dtype))
                     self.conf[name] = dtype(eval(self.conf[name]))
-                except:
-                    raise getmailConfigurationError('configuration value %s not of required type %s (%s)' % (name, dtype))
+                except StandardError, o:
+                    raise getmailConfigurationError('configuration value %s not of required type %s (%s)' % (name, dtype, o))
         self.__confchecked = True
         self.log.trace('done\n')
 
@@ -213,20 +222,48 @@ class RetrieverSkeleton(object):
         del self.msgids[i]
 
 #######################################
-class SimplePOP3Retriever(RetrieverSkeleton):
-    '''Retriever class for single-user POP3 mailboxes.
+class POP3initMixIn(object):
+    '''Mix-In class to do POP3 non-SSL initialization.
     '''
-    _confitems = (
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+    def _connect(self):
+        self.log.trace()
+        try:
+            self.conn = poplib.POP3(self.conf['server'], self.conf['port'])
+            if self.conf['use_apop']:
+                self.conn.apop(self.conf['username'], self.conf['password'])
+            else:
+                self.conn.user(self.conf['username'])
+                self.conn.pass_(self.conf['password'])
+        except poplib.error_proto, o:
+            raise getmailOperationError('POP error (%s)' % o)
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-    )
+#######################################
+class POP3SSLinitMixIn(object):
+    '''Mix-In class to do POP3 over SSL initialization.
+    '''
+    def _connect(self):
+        self.log.trace()
+        if self.conf['keyfile'] is not None and not os.path.isfile(self.conf['keyfile']):
+            raise getmailConfiruationError('optional keyfile must be path to a valid file')
+        if self.conf['certfile'] is not None and not os.path.isfile(self.conf['certfile']):
+            raise getmailConfiruationError('optional certfile must be path to a valid file')
+        if not (self.conf['certfile'] == self.conf['keyfile'] == None):
+            if self.conf['certfile'] is None or self.conf['keyfile'] is None:
+                raise getmailConfiruationError('optional certfile and keyfile must be supplied together')
+        try:
+            self.conn = POP3SSL(self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile'])
+            if self.conf['use_apop']:
+                self.conn.apop(self.conf['username'], self.conf['password'])
+            else:
+                self.conn.user(self.conf['username'])
+                self.conn.pass_(self.conf['password'])
+        except poplib.error_proto, o:
+            raise getmailOperationError('POP error (%s)' % o)
 
+#######################################
+class POP3RetrieverBase(RetrieverSkeleton):
+    '''Base class for single-user POP3 mailboxes.
+    '''
     def __init__(self, **args):
         RetrieverSkeleton.__init__(self, **args)
         self.log.trace()
@@ -235,14 +272,6 @@ class SimplePOP3Retriever(RetrieverSkeleton):
     def __del__(self):
         self.quit()
         RetrieverSkeleton.__del__(self)
-
-    def __str__(self):
-        self.log.trace()
-        return 'SimplePOP3Retriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
 
     def _getmsgnumbyid(self, msgid):
         self.log.trace()
@@ -297,10 +326,6 @@ class SimplePOP3Retriever(RetrieverSkeleton):
         parser = email.Parser.Parser(strict=False)
         return parser.parsestr(os.linesep.join(headerlist), headersonly=True)
 
-    def showconf(self):
-        self.log.trace()
-        self.log.info('SimplePOP3Retriever(%s)\n' % self._confstring())
-
     def initialize(self):
         self.log.trace()
         # Handle password
@@ -309,12 +334,7 @@ class SimplePOP3Retriever(RetrieverSkeleton):
         RetrieverSkeleton.initialize(self)
         socket.setdefaulttimeout(self.conf['timeout'])
         try:
-            self.conn = poplib.POP3(self.conf['server'], self.conf['port'])
-            if self.conf['use_apop']:
-                self.conn.apop(self.conf['username'], self.conf['password'])
-            else:
-                self.conn.user(self.conf['username'])
-                self.conn.pass_(self.conf['password'])
+            self._connect()
             self._getmsglist()
             self.log.debug('msgids: %s\n' % self.msgids)
             self.log.debug('msgsizes: %s\n' % self.msgsizes)
@@ -339,9 +359,67 @@ class SimplePOP3Retriever(RetrieverSkeleton):
         except AttributeError:
             pass
 
+
 #######################################
-class MultidropPOP3Retriever(SimplePOP3Retriever):
-    '''Retriever class for multi-drop POP3 mailboxes.
+class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
+    '''Retriever class for single-user POP3 mailboxes.
+    '''
+    _confitems = (
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : 110},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+        {'name' : 'use_apop', 'type' : bool, 'default' : False},
+    )
+
+    def __str__(self):
+        self.log.trace()
+        return 'SimplePOP3Retriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('SimplePOP3Retriever(%s)\n' % self._confstring())
+
+#######################################
+class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
+    '''Retriever class for single-user POP3-over-SSL mailboxes.
+    '''
+    _confitems = (
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : POP3_ssl_port},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+        {'name' : 'use_apop', 'type' : bool, 'default' : False},
+        {'name' : 'keyfile', 'type' : str, 'default' : None},
+        {'name' : 'certfile', 'type' : str, 'default' : None},
+    )
+
+    def __str__(self):
+        self.log.trace()
+        return 'SimplePOP3SSLRetriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('SimplePOP3SSLRetriever(%s)\n' % self._confstring())
+
+
+#######################################
+class MultidropPOP3RetrieverBase(POP3RetrieverBase):
+    '''Base retriever class for multi-drop POP3 mailboxes.
 
     Envelope is reconstructed from Return-Path: (sender) and a header specified
     by the user (recipient).  This header is specified with the "envelope_recipient"
@@ -350,27 +428,10 @@ class MultidropPOP3Retriever(SimplePOP3Retriever):
     if the envelope recipient is present in the second Delivered-To: header field
     of each message, envelope_recipient should be specified as "delivered-to:2".
     '''
-    def __init__(self, **args):
-        SimplePOP3Retriever.__init__(self, **args)
-        self._confitems += (
-            {'name' : 'envelope_recipient', 'type' : str},
-        )
-
-    def __str__(self):
-        self.log.trace()
-        return 'MultidropPOP3Retriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('MultidropPOP3Retriever(%s)\n' % self._confstring())
 
     def initialize(self):
         self.log.trace()
-        SimplePOP3Retriever.initialize(self)
+        POP3RetrieverBase.initialize(self)
         self.envrecipname = self.conf['envelope_recipient'].split(':')[0].lower()
         self.envrecipnum = 0
         try:
@@ -384,7 +445,7 @@ class MultidropPOP3Retriever(SimplePOP3Retriever):
 
     def _getmsgbyid(self, msgid):
         self.log.trace()
-        msg = SimplePOP3Retriever._getmsgbyid(self, msgid)
+        msg = POP3RetrieverBase._getmsgbyid(self, msgid)
         data = {}
         for (name, val) in msg._headers:
             name = name.lower()
@@ -405,7 +466,71 @@ class MultidropPOP3Retriever(SimplePOP3Retriever):
         return msg
 
 #######################################
-class MultidropSPDSRetriever(SimplePOP3Retriever):
+class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
+    '''Retriever class for multi-drop POP3 mailboxes.
+    '''
+    _confitems = (
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : 110},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+        {'name' : 'use_apop', 'type' : bool, 'default' : False},
+        {'name' : 'envelope_recipient', 'type' : str},
+    )
+
+    def __init__(self, **args):
+        MultidropPOP3RetrieverBase.__init__(self, **args)
+
+    def __str__(self):
+        self.log.trace()
+        return 'MultidropPOP3Retriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('MultidropPOP3Retriever(%s)\n' % self._confstring())
+
+#######################################
+class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
+    '''Retriever class for multi-drop POP3-over-SSL mailboxes.
+    '''
+    _confitems = (
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : 110},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+        {'name' : 'use_apop', 'type' : bool, 'default' : False},
+        {'name' : 'envelope_recipient', 'type' : str},
+        {'name' : 'keyfile', 'type' : str, 'default' : None},
+        {'name' : 'certfile', 'type' : str, 'default' : None},
+    )
+
+    def __init__(self, **args):
+        MultidropPOP3RetrieverBase.__init__(self, **args)
+
+    def __str__(self):
+        self.log.trace()
+        return 'MultidropPOP3SSLRetriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('MultidropPOP3SSLRetriever(%s)\n' % self._confstring())
+
+#######################################
+class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
     '''Retriever class for multi-drop SPDS (demon.co.uk) mailboxes.
 
     Extend POP3 class to include support for Demon's protocol extensions,
@@ -415,6 +540,20 @@ class MultidropSPDSRetriever(SimplePOP3Retriever):
 
     Support originally requested by Paul Clifford for getmail v.2/3.
     '''
+    _confitems = (
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : 110},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+        #{'name' : 'use_apop', 'type' : bool, 'default' : False},
+    )
+
+    def __init__(self, **args):
+        SimplePOP3Retriever.__init__(self, **args)
+
     def __str__(self):
         self.log.trace()
         return 'MultidropSPDSRetriever:%s@%s:%s' % (
@@ -422,6 +561,10 @@ class MultidropSPDSRetriever(SimplePOP3Retriever):
             self.conf.get('server', 'server'),
             self.conf.get('port', 'port')
         )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('MultidropSPDSRetriever(%s)\n' % self._confstring())
 
     def _getmsgbyid(self, msgid):
         self.log.trace()
@@ -438,10 +581,6 @@ class MultidropSPDSRetriever(SimplePOP3Retriever):
         msg.sender = lines[2]
         msg.recipient = lines[3]
         return msg
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('MultidropSPDSRetriever(%s)\n' % self._confstring())
 
 #######################################
 class SimpleIMAPv4Retriever(RetrieverSkeleton):

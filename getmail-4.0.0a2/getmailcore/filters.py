@@ -6,9 +6,8 @@ Currently implemented:
 '''
 
 import os
-import socket
-import re
 import signal
+import email
 
 from exceptions import *
 from utilities import is_maildir, deliver_maildir, mbox_from_escape, mbox_timestamp, lock_file, unlock_file
@@ -64,8 +63,8 @@ class FilterSkeleton(object):
                 try:
                     self.log.debug('converting %s (%s) to type %s\n' % (name, self.conf['name'], dtype))
                     self.conf[name] = dtype(eval(self.conf[name]))
-                except:
-                    raise getmailConfigurationError('configuration value %s not of required type %s (%s)' % (name, dtype))
+                except StandardError, o:
+                    raise getmailConfigurationError('configuration value %s not of required type %s (%s)' % (name, dtype, o))
         try:
             self._process_args(**args)
         except KeyError, o:
@@ -133,7 +132,7 @@ class Filter_external(FilterSkeleton):
     _confitems = (
         {'name' : 'path', 'type' : str},
         {'name' : 'unixfrom', 'type' : bool, 'default' : False},
-        {'name' : 'arguments', 'type' : tuple, default : '()'},
+        {'name' : 'arguments', 'type' : tuple, 'default' : '()'},
     )
 
     def _process_args(self, **args):

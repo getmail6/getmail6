@@ -1,3 +1,16 @@
+Version 4.0.0a2
+??
+
+  -fix default/'default' in filters module.  Thanks: Andrew Raines. 
+  -add the mix-in classes for SSL support with POP3 classes.  Meant small
+  rewrites to the POP3 classes, but the design should be even cleaner now.
+
+Version 4.0.0a1
+14 June 2004
+
+  -first alpha release of getmail version 4
+
+
 Changes since getmail version 3
 -------------------------------
 

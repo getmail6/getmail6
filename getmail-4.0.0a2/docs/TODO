@@ -17,3 +17,6 @@ DONE
 ====
 
 -distutils setup script
+-convert POP3-based classes to use the MixIn classes for
+  SSL and non-SSL connections.
+
