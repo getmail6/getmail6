@@ -4,8 +4,8 @@
 
 __all__ = [
     'address_no_brackets', 'change_uidgid', 'deliver_maildir', 'eval_bool',
-    'is_maildir', 'lock_file', 'logfile', 'mbox_from_escape', 'mbox_timestamp',
-    'msg_flatten', 'msg_lines', 'unlock_file', 'updatefile'
+    'is_maildir', 'lock_file', 'logfile', 'mbox_from_escape',
+    'msg_flatten', 'unlock_file', 'updatefile'
 ]
 
 
@@ -28,6 +28,16 @@ except ImportError:
 from exceptions import *
 
 logtimeformat = '%Y-%m-%d %H:%M:%S'
+_bool_values = {
+    'true'  : True,
+    'yes'   : True,
+    'on'    : True,
+    '1'     : True,
+    'false' : False,
+    'no'    : False,
+    'off'   : False,
+    '0'     : False
+}
 
 #######################################
 class updatefile(object):
@@ -111,7 +121,7 @@ def is_maildir(d):
     for sub in ('', 'tmp', 'cur', 'new'):
         if not os.path.isdir(os.path.join(d, sub)):
             return False
-    return True            
+    return True
 
 #######################################
 def deliver_maildir(maildirpath, data, hostname, dcount=None):
@@ -188,6 +198,8 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
         except OSError:
             # Not running as root, can't chown file
             pass
+        if os.environ.has_key('SENDER'):
+            f.write('Return-Path: %s%s' % (os.environ['SENDER'], os.linesep))
         f.write(data)
         f.flush()
         os.fsync(f.fileno())
@@ -224,11 +236,6 @@ def mbox_from_escape(s):
     return ''.join([(c in (' ', '\t', '\n')) and '-' or c for c in s])
 
 #######################################
-def mbox_timestamp(t=time.time(), localtime=False):
-    '''Return the current time in the format expected in an mbox From_ line.'''
-    return time.asctime(time.gmtime(time.time()))
-
-#######################################
 def lock_file(file):
     '''Do fcntl file locking.'''
     fcntl.flock(file.fileno(), fcntl.LOCK_EX)
@@ -247,12 +254,10 @@ def address_no_brackets(addr):
 def eval_bool(s):
     '''Handle boolean values intelligently.
     '''
-    val = str(s).lower()
-    if val in ('0', 'false', 'no', 'off'):
-        return False
-    elif val in ('1', 'true', 'yes', 'on'):
-        return True
-    return bool(eval(val))
+    try:
+        return _bool_values[str(s).lower()]
+    except KeyError:
+        raise getmailConfigurationError('boolean parameter requires value to be one of true or false, not "%s"' % s)
 
 #######################################
 def change_uidgid(logger, user=None, _group=None):
@@ -281,19 +286,53 @@ def change_uidgid(logger, user=None, _group=None):
         raise getmailDeliveryError('change UID/GID to %s/%s failed (%s)' % (user, _group, o))
 
 #######################################
-def msg_lines(msg, mangle_from=False, include_from=False, max_linelen=998):
-    '''Take a message object and return a list of text lines.
+def format_header(name, line):
+    '''Take a long line and return rfc822-style multiline header.
     '''
-    f = cStringIO.StringIO()
-    gen = Generator(f, mangle_from, max_linelen)
-    gen.flatten(msg, include_from)
-    # email module apparently doesn't always use native EOL, so force it
-    f.seek(0)
-    return f.read().splitlines()
+    header = ''
+    line = name.strip() + ': ' + ' '.join([part.strip() for part in line.splitlines()])
+    # Split into lines of maximum 78 characters long plus newline, if
+    # possible.  A long line may result if no space characters are present.
+    while line and len(line) > 78:
+        i = line.rfind(' ', 0, 78)
+        if i == -1:
+            # No space in first 78 characters, try a long line
+            i = line.rfind(' ')
+            if i == -1:
+                # No space at all
+                break
+        if header:
+            header += os.linesep + '  '
+        header += line[:i]
+        line = line[i:].lstrip()
+    if header:
+        header += os.linesep + '  '
+    if line:
+        header += line.strip() + os.linesep
+    return header
 
 #######################################
-def msg_flatten(msg, mangle_from=False, include_from=False, max_linelen=998):
+def msg_flatten(msg, delivered_to, received, mangle_from=False, include_from=False, max_linelen=998):
     '''Take a message object and return a string with native EOL convention.
+    
+    The email module apparently doesn't always use native EOL, so we
+    force it by writing out what we need, letting the generator write out the
+    message, splitting it into lines, and joining them with the platform EOL.
     '''
-    # email module apparently doesn't always use native EOL, so force it
-    return os.linesep.join(msg_lines(msg, mangle_from, include_from, max_linelen))
+    f = cStringIO.StringIO()
+    if include_from:
+        # This needs to be written out first, so we can't rely on the generator
+        f.write('From %s %s' % (mbox_from_escape(msg.sender), time.asctime()) + os.linesep)
+    if delivered_to:
+        f.write(format_header('Delivered-To', getattr(msg, 'recipient', 'unknown')))
+    if received:
+        content = 'from %s by %s with %s' % (msg.received_from, msg.received_by, msg.received_with)
+        if hasattr(msg, 'recipient'):
+            content += ' for <%s>' % msg.recipient
+        content += '; ' + time.strftime('%d %b %Y %H:%M:%S -0000', time.gmtime())
+        f.write(format_header('Received', content))
+    gen = Generator(f, mangle_from, max_linelen)
+    # From_ handled above, always tell the generator not to include it
+    gen.flatten(msg, False)
+    f.seek(0)
+    return os.linesep.join(f.read().splitlines() + [''])

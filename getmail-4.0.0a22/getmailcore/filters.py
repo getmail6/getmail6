@@ -73,7 +73,7 @@ class FilterSkeleton(ConfigurableBase):
             # Kind of a hack, but one user tried to use an MDA as a filter (instead of
             # having getmail use it as an external MDA), and ended up having getmail
             # deliver 0-byte messages after the MDA had already done it.
-            raise getmailOperationError('filter %s returned fewer headers than supplied (%d)\n' % (self, len(newmsg), len(msg)))
+            raise getmailOperationError('filter %s returned fewer headers (%d) than supplied (%d)\n' % (self, len(newmsg), len(msg)))
 
         # Copy envelope info from original message
         if hasattr(msg, 'sender'):
@@ -184,7 +184,7 @@ class Filter_external(FilterSkeleton):
             self.log.debug('about to execl() with args %s\n' % str(args))
             # Write out message with native EOL convention
             msgfile = os.tmpfile()
-            msgfile.write(msg_flatten(msg, include_from=self.conf['unixfrom']))
+            msgfile.write(msg_flatten(msg, False, False, include_from=self.conf['unixfrom']))
             msgfile.flush()
             os.fsync(msgfile.fileno())
             # Rewind

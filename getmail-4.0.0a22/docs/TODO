@@ -39,5 +39,6 @@ DONE
   -how to include arguments, replacements, etc. without having to parse
   a string into separate argv values?
   -add specified-section for program destinations in MultiSorter
+-port getmail_maildir and getmail_mbox wrappers
 
 

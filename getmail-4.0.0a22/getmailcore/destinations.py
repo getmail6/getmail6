@@ -49,8 +49,11 @@ class DeliverySkeleton(ConfigurableBase):
                          other validation necessary, and set self.__initialized
                          when done.
 
-      _deliver_message(self, msg) - accept the message and deliver it, returning
-                                    a string describing the result.
+      retriever_info(self, retriever) - extract information from retriever and store
+                         it for use in message deliveries.
+
+      _deliver_message(self, msg, delivered_to, received) - accept the message and deliver
+                         it, returning a string describing the result.
 
     See the Maildir class for a good, simple example.
     '''
@@ -60,11 +63,21 @@ class DeliverySkeleton(ConfigurableBase):
             self.initialize()
         except KeyError, o:
             raise getmailConfigurationError('missing parameter %s' % o)
+        self.received_from = None
+        self.received_with = None
         self.log.trace('done\n')
 
-    def deliver_message(self, msg):
+    def retriever_info(self, retriever):
         self.log.trace()
-        return self._deliver_message(msg)
+        self.received_from = retriever.received_from
+        self.received_with = retriever.received_with
+        self.received_by = retriever.received_by
+
+    def deliver_message(self, msg, delivered_to=True, received=True):
+        self.log.trace()
+        msg.received_from = self.received_from
+        msg.received_with = self.received_with
+        return self._deliver_message(msg, delivered_to, received)
 
 #######################################
 class Maildir(DeliverySkeleton):
@@ -99,9 +112,9 @@ class Maildir(DeliverySkeleton):
     def showconf(self):
         self.log.info('Maildir(%s)\n' % self._confstring())
 
-    def _deliver_message(self, msg):
+    def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        f = deliver_maildir(self.conf['path'], msg_flatten(msg), self.hostname, self.dcount)
+        f = deliver_maildir(self.conf['path'], msg_flatten(msg, delivered_to, received), self.hostname, self.dcount)
         self.log.debug('maildir file %s' % f)
         self.dcount += 1
         return 'Maildir %snew/%s' % (self.conf['path'], f)
@@ -167,16 +180,15 @@ class Mboxrd(DeliverySkeleton):
     def showconf(self):
         self.log.info('Mboxrd(%s)\n' % self._confstring())
 
-    def _deliver_message(self, msg):
+    def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
         status_old = os.fstat(self.f.fileno())
         lock_file(self.f)
         # Seek to end
         self.f.seek(0, 2)
         try:
-            self.f.write('From %s %s%s' % (mbox_from_escape(msg.sender), mbox_timestamp(), os.linesep))
-            # Write out message with native EOL
-            self.f.write(os.linesep.join(msg_lines(msg, mangle_from=True) + ['', '']))
+            # Write out message plus blank line with native EOL
+            self.f.write(msg_flatten(msg, delivered_to, received, include_from=True, mangle_from=True) + os.linesep)
             self.f.flush()
             os.fsync(self.f.fileno())
             status_new = os.fstat(self.f.fileno())
@@ -281,7 +293,7 @@ class MDA_qmaillocal(DeliverySkeleton):
     def showconf(self):
         self.log.info('MDA_qmaillocal(%s)\n' % self._confstring())
 
-    def _deliver_qmaillocal(self, msg, msginfo, stdout, stderr):
+    def _deliver_qmaillocal(self, msg, msginfo, delivered_to, received, stdout, stderr):
         try:
             args = (self.conf['qmaillocal'], self.conf['qmaillocal'], '--', self.conf['user'], self.conf['homedir'], msginfo['local'], msginfo['dash'], msginfo['ext'], self.conf['localdomain'], msginfo['sender'], self.conf['defaultdelivery'])
             self.log.debug('about to execl() with args %s\n' % str(args))
@@ -290,7 +302,7 @@ class MDA_qmaillocal(DeliverySkeleton):
                 del msg['delivered-to']
             # Write out message
             msgfile = os.tmpfile()
-            msgfile.write(msg_flatten(msg))
+            msgfile.write(msg_flatten(msg, delivered_to, received))
             msgfile.flush()
             os.fsync(msgfile.fileno())
             # Rewind
@@ -309,7 +321,7 @@ class MDA_qmaillocal(DeliverySkeleton):
             self.log.critical('exec of qmail-local failed (%s)' % o)
             os._exit(127)
 
-    def _deliver_message(self, msg):
+    def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
         try:
             msginfo = {
@@ -349,7 +361,7 @@ class MDA_qmaillocal(DeliverySkeleton):
 
         if not childpid:
             # Child
-            self._deliver_qmaillocal(msg, msginfo, stdout, stderr)
+            self._deliver_qmaillocal(msg, msginfo, delivered_to, received, stdout, stderr)
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
@@ -452,7 +464,7 @@ class MDA_external(DeliverySkeleton):
     def showconf(self):
         self.log.info('MDA_external(%s)\n' % self._confstring())
 
-    def _deliver_command(self, msg, msginfo, stdout, stderr):
+    def _deliver_command(self, msg, msginfo, delivered_to, received, stdout, stderr):
         try:
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
@@ -462,7 +474,7 @@ class MDA_external(DeliverySkeleton):
             self.log.debug('about to execl() with args %s\n' % str(args))
             # Write out message with native EOL convention
             msgfile = os.tmpfile()
-            msgfile.write(msg_flatten(msg, include_from=self.conf['unixfrom']))
+            msgfile.write(msg_flatten(msg, delivered_to, received, include_from=self.conf['unixfrom']))
             msgfile.flush()
             os.fsync(msgfile.fileno())
             # Rewind
@@ -482,7 +494,7 @@ class MDA_external(DeliverySkeleton):
             self.log.critical('exec of command %s failed (%s)' % (self.conf['command'], o))
             os._exit(127)
 
-    def _deliver_message(self, msg):
+    def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
         msginfo = {}
         if hasattr(msg, 'sender'):
@@ -506,7 +518,7 @@ class MDA_external(DeliverySkeleton):
 
         if not childpid:
             # Child
-            self._deliver_command(msg, msginfo, stdout, stderr)
+            self._deliver_command(msg, msginfo, delivered_to, received, stdout, stderr)
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
@@ -579,42 +591,45 @@ class MultiSorter(DeliverySkeleton):
         {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
+    def _get_destination(self, path):
+        p = os.path.expanduser(path)
+        if p.startswith('[') and p.endswith(']'):
+            destsectionname = p[1:-1]
+            if not destsectionname in self.conf['configparser'].sections():
+                raise getmailConfigurationError('destination specifies section name %s which does not exist' % path)
+            # Construct destination instance
+            log.debug('  getting destination for %s\n' % path)
+            destination_type = self.conf['configparser'].get(destsectionname, 'type')
+            log.debug('    type="%s"\n' % destination_type)
+            destination_func = getattr(globals(), destination_type)
+            if not callable(destination_func):
+                raise getmailConfigurationError('configuration file section %s specifies incorrect destination type (%s)' % (destsectionname, destination_type))
+            destination_args = {'configparser' : self.conf['configparser']}
+            for (name, value) in self.conf['configparser'].items(destsectionname):
+                if name in ('type', 'configparser'): continue
+                log.debug('    parameter %s="%s"\n' % (name, value))
+                destination_args[name] = value
+            log.debug('    instantiating destination %s with args %s\n' % (destination_type, destination_args))
+            dest = destination_func(**destination_args)
+        elif (p.startswith('/') or p.startswith('.')) and p.endswith('/'):
+            dest = Maildir(path=p)
+        elif (p.startswith('/') or p.startswith('.')):
+            dest = Mboxrd(path=p)
+        else:
+            raise getmailConfigurationError('specified destination %s not of recognized type' % p)
+        return dest
+
     def initialize(self):
         self.log.trace()
         self.hostname = socket.gethostname()
-        p = os.path.expanduser(self.conf['default'])
-        if p.endswith('/'):
-            self.default = Maildir(path=p)
-        else:
-            self.default = Mboxrd(path=p)
+        self.default = self._get_destination(self.conf['default'])
         self.targets = []
         try:
             for (pattern, path) in [line.strip().split(None, 1) for line in self.conf['locals'].split(os.linesep) if line.strip()]:
-                p = os.path.expanduser(path)
-                if p.startswith('[') and p.endswith(']'):
-                    destsectionname = p[1:-1]
-                    if not destsectionname in self.conf['configparser'].sections():
-                        raise getmailConfigurationError('pattern %s specifies destination section name %s which does not exist' % (pattern, path))
-                    # Construct destination instance
-                    log.debug('  getting destination for %s\n' % pattern)
-                    destination_type = self.conf['configparser'].get(destsectionname, 'type')
-                    log.debug('    type="%s"\n' % destination_type)
-                    destination_func = getattr(globals(), destination_type)
-                    if not callable(destination_func):
-                        raise getmailConfigurationError('configuration file section %s specifies incorrect destination type (%s)' % (destsectionname, destination_type))
-                    destination_args = {'configparser' : self.conf['configparser']}
-                    for (name, value) in self.conf['configparser'].items(destsectionname):
-                        if name in ('type', 'configparser'): continue
-                        log.debug('    parameter %s="%s"\n' % (name, value))
-                        destination_args[name] = value
-                    log.debug('    instantiating destination %s with args %s\n' % (destination_type, destination_args))
-                    dest = destination_func(**destination_args)
-                elif (p.startswith('/') or p.startswith('.')) and p.endswith('/'):
-                    dest = Maildir(path=p)
-                elif (p.startswith('/') or p.startswith('.')):
-                    dest = Mboxrd(path=p)
-                else:
-                    raise getmailConfigurationError('specified destination %s not of recognized type' % p)
+                try:
+                    dest = self._get_destination(path)
+                except getmailConfigurationError, o:
+                    raise getmailConfigurationError('pattern %s destination error %s' % (pattern, o))
                 self.targets.append( (re.compile(pattern.replace('\\', '\\\\'), re.IGNORECASE), dest) )
         except re.error, o:
             raise getmailConfigurationError('invalid regular expression %s' % o)
@@ -636,7 +651,7 @@ class MultiSorter(DeliverySkeleton):
     def showconf(self):
         self.log.info('MultiSorter(%s)\n' % self._confstring())
 
-    def _deliver_message(self, msg):
+    def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
         matched = []
         try:
@@ -644,14 +659,14 @@ class MultiSorter(DeliverySkeleton):
                 self.log.debug('checking recipient %s against pattern %s\n' % (msg.recipient, pattern.pattern))
                 if pattern.search(msg.recipient):
                     self.log.debug('recipient %s matched target %s\n' % (msg.recipient, dest))
-                    dest.deliver_message(msg)
+                    dest.deliver_message(msg, delivered_to, received)
                     matched.append(str(dest))
             if not matched:
                 if self.targets:
                     self.log.debug('recipient %s not matched; using default %s\n' % (msg.recipient, self.default))
                 else:
                     self.log.debug('using default %s\n' % self.default)
-                return 'MultiSorter (default %s)' % self.default.deliver_message(msg)
+                return 'MultiSorter (default %s)' % self.default.deliver_message(msg, delivered_to, received)
             return 'MultiSorter (%s)' % matched
         except AttributeError, o:
             raise getmailConfigurationError('MultiSorter recipient matching requires a retriever (message source) that preserves the message envelope (%s)' % o)

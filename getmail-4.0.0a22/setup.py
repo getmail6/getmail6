@@ -40,8 +40,10 @@ setup(
     packages=[
         'getmailcore'
     ],
-    py_modules = [
-        'getmail'
+    scripts=[
+	'getmail',
+	'getmail_maildir',
+	'getmail_mbox'
     ],
     data_files=[
         ('/usr/local/share/doc/getmail-4/', ['README', 'docs/BUGS', 'docs/COPYING', 'docs/CHANGELOG', 'docs/documentation.txt', 'docs/getmailrc-example', 'docs/TODO']),

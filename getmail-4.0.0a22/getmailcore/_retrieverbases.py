@@ -58,7 +58,7 @@ class POP3initMixIn(object):
         except socket.timeout:
             raise getmailOperationError('timeout during connect')
         except socket.gaierror, o:
-            raise getmailOperationError('socket error during connect (%s)' % o)
+            raise getmailOperationError('error resolving name %s during connect (%s)' % (self.conf['server'], o))
 
         self.log.trace('POP3 connection %s established\n' % self.conn)
 

@@ -128,11 +128,13 @@ are:
     delete_after (integer) - default: 0
     max_message_size (integer) - default: 0
     max_messages_per_session (integer) - default: 0
+    delivered_to (boolean) - default: True
+    received (boolean) - default: True
     message_log (string filename) - default: None
     message_log_syslog (boolean) - default: False
 
 Boolean options can be set to True or False (case-insensitive).  They also
-accept "1", "on", "0", and "off" for compatibility.
+accept "1", "on", "yes", "0", "off", and "no" for compatibility.
 
 Integer options take any positive integer, and the default value of 0 means to
 disable that function.
@@ -157,6 +159,10 @@ The specific meaning of the options are:
     before closing the mail retrieval session.  May help people with extremely
     unreliable servers avoid duplicate retrieved messages.
 
+	delivered_to - whether to add a Delivered-To: header field to messages.
+	
+	received - whether to add a Received: header field to messages.
+	
     message_log - log activity to the specified file.  The specified file will
     be expanded for leading "~/" or "~user/".
 

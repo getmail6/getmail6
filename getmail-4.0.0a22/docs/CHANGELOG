@@ -1,5 +1,33 @@
+Version 4.0.0a22
+30 June 2004
+
+  -MultiSorter default destination can now be a named destination section as
+  well, so postmaster mail can go to an external MDA, etc.
+  -deliver_maildir writes out a new Return-Path: header field if SENDER
+  is set.
+  -include getmail_maildir and getmail_mbox delivery scripts for use as
+  MDAs with other programs.
+  -add starting/finishing log lines for each retriever
+  -change eval_bool to raise exception on unexpected values, rather than
+  using Python's native idea of what is boolean True and False
+  -ensure no message has partial final line regardless of delivery method.
+  Thanks: Thomas Schwinge.
+  -get rid of msg_lines(), mbox_timestamp() and their only callers.
+  -add the Delivered-To: and Received: header creation like getmail v.3 had,
+  and boolean options delivered_to and received to allow the user to disable
+  them.  This necessitates adding some data attributes to retriever classes
+  and additional code to destination classes and utilities.
+  Thanks: Thomas Schwinge.
+  -drop .py suffix on the name of the main getmail script
+  -declare the three scripts to be scripts instead of modules (for distutils)
+  -some fixups to the distutils setup script.  If files or directories
+  are still installed with "wrong" permissions (like 0600/0700 instead of
+  0644/0755), please let me know.
+  -a few miscellaneous fixups
+  -heading for beta, working on documentation ...
+
 Version 4.0.0a21
-25 June 2004
+27 June 2004
 
   -leave Return-Path header field alone for program deliveries.  Thanks:
   Andrew Raines.
