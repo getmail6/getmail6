@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.11'
+__version__ = '2.0.12'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -136,20 +136,23 @@ exitcodes = {
 # Names for output logging levels
 (TRACE, DEBUG, INFO, WARN, ERROR, FATAL) = range (1, 7)
 
-# First-try headers to parse for recipient addresses
+# Headers which are parsed looking for local recipient email addresses
 RECIPIENT_HEADERS = (
 	'Delivered-To',
 	'Envelope-To',
 	'Apparently-To',
 	'X-Envelope-To',
+	'Resent-To',
+	'Resent-cc',
+	'Resent-bcc',
+	'To',
+	'cc',
+	'bcc',
+	'Received',
 	)
 
-# If the above fail, the first matching set of the following headers are used
-EXTRA_RECIPIENT_HEADERS = (
-	('Resent-To', 'Resent-cc', 'Resent-bcc'),
-	('To', 'cc', 'bcc'),
-	('Received', ),
-	)
+# Simple re to determine if a string might be an email address
+re_mailaddr = re.compile ('.+@.+\..+')
 
 # Count of deliveries for getmail; used in Maildir delivery
 deliverycount = 0
@@ -296,7 +299,7 @@ class getmail:
 		# Construct list of (re_obj, delivery_target) pairs
 		self.users = []
 		for (re_s, target) in users:
-			self.users.append ( {'re' : re.compile (re_s),
+			self.users.append ( {'re' : re.compile (re_s, re.IGNORECASE),
 				'target' : os.path.expanduser (target)} )
 			self.logfunc (TRACE, '__init__():  User #%i:  re="%s", target="%s"\n'
 				% (len (self.users), re_s, self.users[-1]['target']), self.opts)
@@ -478,43 +481,25 @@ class getmail:
 
 	###################################
 	def extract_recipients (self, mess822):
-		recipients = []
-		headers = mess822.headers[:]
-		try:
-			for line in headers:
-				# Find what type of header it is
-				header_type = mess822.isheader (line)
-
+		recipients = {}
+		for header_type in RECIPIENT_HEADERS:
+			if mess822.has_key (header_type):
 				self.logfunc (TRACE,
 					'extract_recipients():  parsing header "%s"\n'
 					% header_type, self.opts)
-				
-				for header_group in EXTRA_RECIPIENT_HEADERS:
-					if header_type in header_group:
-						# We hit an EXTRA_RECIPIENT_HEADER header-type before 
-						# finding a valid recipient in a RECIPIENT_HEADERS 
-						# header-type.
-						raise IndexError	# Exit outer loop
-						
-				if header_type not in RECIPIENT_HEADERS:
-					continue
-
-				reciplist = mess822.getaddrlist (header_type)
-				if not reciplist:
-					continue
-
-				for (comment, address) in reciplist:
-					recipients.append (address)
-					self.logfunc (TRACE,
-						'extract_recipients():  found address "%s"\n'
-						% address, self.opts)
-
-				raise IndexError			# Exit outer loop				
-				
-		except IndexError:
-			pass
-									
-		return recipients		
+				recips = mess822.getaddrlist (header_type)
+				for (name, address) in recips:
+					if re_mailaddr.search (address):
+						# Looks like an email address, keep it
+						recipients[string.lower (address)] = None
+						self.logfunc (TRACE,
+							'extract_recipients():  found address "%s"\n'
+							% address, self.opts)
+		self.logfunc (TRACE,
+			'extract_recipients():  found %i recipients\n'
+			% len (recipients.keys ()), self.opts)
+		
+		return recipients.keys ()
 
 	###################################
 	def process_msg (self, msg):
@@ -541,43 +526,22 @@ class getmail:
 			% env_sender, self.opts)
 
 		# Extract possible recipients
-		#headers = mess.headers[:]
 		recipients = self.extract_recipients (mess)
 
-		self.logfunc (TRACE,
-			'process_msg():  extract_recipients found %i recipients\n'
-			% len (recipients), self.opts)
-
-		# Iff we have not found any recipient addresses, look for recipients in
-		# particular headers, one group at a time.  Quit after first group which
-		# finds one or more recipients.  Note all headers in a given
-		# group will be searched or not; it does not quit partway through a group.
-		for header_group in EXTRA_RECIPIENT_HEADERS:
-			if not recipients:
-				for header in header_group:
-					addrlist = mess.getaddrlist (header)
-					for (comment, address) in addrlist:
-						# mess822 can sometimes return None instead of an
-						# address here, at least in Python 2.0.  Double-check
-						# it before adding it to the list.
-						if address:
-							recipients.append (address)
-							self.logfunc (TRACE, 'process_msg():  found address'
-								+ ' "%s" in header "%s"\n' % (address, header),
-								self.opts)
-						else:
-							self.logfunc (TRACE, 'process_msg():  getaddrlist()'
-								+ ' for header "%s" returned None' % header
-								+ ' as address, skipping...', self.opts)
-
-		# Force lowercase
-		recipients = map (string.lower, recipients)
-		
 		msglog ('new message "%s": from <%s>, to: %s'
 			% (msgid, env_sender, string.join (recipients, ', ')[:80]),
 			self.opts)
 
 		count = self.do_deliveries (recipients, msg, msgid, env_sender)
+
+		if count == 0:
+			# Made no deliveries of this message; send it to the default delivery
+			# target.
+			dt = self.deliver_msg (self.default_delivery,
+				self.message_add_info (msg,
+					'postmaster@%(hostname)s' % self.info),
+				 env_sender)
+			msglog ('delivered to default %s' % dt, self.opts)
 
 		self.logfunc (TRACE, 'process_msg():  do_deliveries did %i deliveries\n'
 			% count, self.opts)
@@ -628,18 +592,6 @@ class getmail:
 						'do_deliveries():  user re did not match recipient "%s"\n'
 						% recipient, self.opts)
 							
-		if not len (delivered):
-			# Made no deliveries of this message; send it to the default delivery
-			# target.
-			self.logfunc (TRACE, 'do_deliveries():  no matches, '
-				'delivering to default target "%s"\n'
-				% self.default_delivery, self.opts)
-			delivered[None] = 1
-			dt = self.deliver_msg (self.default_delivery,
-				self.message_add_info (msg,
-				'postmaster@%(hostname)s' % self.info), env_sender)
-			msglog ('delivered to default %s' % dt, self.opts)
-					
 		return len (delivered)
 
 	#######################################
@@ -893,7 +845,9 @@ class getmail:
 
 				# Find recipients for this message and deliver to them.
 				count = self.process_msg (msg)
-				if count == 1:
+				if count == 0:
+					self.logfunc (INFO, ' ... delivered to postmaster', self.opts)
+				elif count == 1:
 					self.logfunc (INFO, ' ... delivered 1 copy', self.opts)
 				else:
 					self.logfunc (INFO, ' ... delivered %i copies' % count, 

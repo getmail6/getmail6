@@ -1,5 +1,13 @@
 getmail changes since version 1.11:
 
+Version 2.0.12
+5 February 2001
+
+  -new method of determining local recipients.  The desired headers are all
+  parsed; only if no local configuration directives match any of the
+  detected email addresses is the message delivered to the postmaster
+  configuration.
+
 Version 2.0.11
 1 February 2001
 
