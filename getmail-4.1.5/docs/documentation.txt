@@ -42,9 +42,15 @@
                o
                     # getmail-users' mailing list
                     #
+                         @ How to subscribe
+                         @ How to unsubscribe
+                         @ How to post
                          @ Archives of the getmail-users' mailing list
                     # Announcements List
                     #
+                         @ How to subscribe
+                         @ How to unsubscribe
+                         @ How to post
                          @ Archives of the getmail announcements mailing
                            list
      * getmail configuration
@@ -355,16 +361,33 @@ getmail mailing lists
 
   getmail-users' mailing list
   
-   A mailing list has been set up to discuss getmail. Send a blank email
-   to <getmail-subscribe @ discworld.dnsalias.org> to subscribe to the
-   list.
-   
-   Similarly, to unsubscribe, send mail from the same address you
-   subscribed with to <getmail-unsubscribe @ discworld.dnsalias.org>.
+   A mailing list has been set up to discuss getmail. Only subscribers
+   may post to the list.
    
    The list is available for free getmail support from me and other
    users, for discussions of bugs, configuration issues, documentation,
    and other technical issues related to getmail.
+   
+    How to subscribe
+    
+   To subscribe to the list, send a blank email to <getmail-subscribe @
+   discworld.dnsalias.org> and follow the instructions in the message you
+   receive. Read and save the "welcome" message you receive when you
+   subscribe; it contains valuable instructions about how to use the
+   list.
+   
+    How to unsubscribe
+    
+   To un-subscribe from the list, send a blank email from the same
+   address you subscribed with to <getmail-unsubscribe @
+   discworld.dnsalias.org> and follow the instructions in the message you
+   receive.
+   
+    How to post
+    
+   Once you have subscribed to the list, you may post messages to the
+   list by sending them to <getmail @ discworld.dnsalias.org>. Complete
+   instructions for using the list are sent to you when you subscribe.
    
    The list allows plaintext message bodies and plaintext attachments. Do
    not attempt to send binary files (gzip, etc), HTML, or other types, as
@@ -385,17 +408,33 @@ getmail mailing lists
   Announcements List
   
    If you only want to be notified of new releases of getmail, an
-   announce-only list has been set up. Send a blank email to
-   <getmail-announce-subscribe @ discworld.dnsalias.org> to subscribe to
-   the list. The list is very low-volume; you can expect a handful of
-   messages per year.
+   announce-only list has been set up. The list is very low-volume; you
+   can expect to receive only a small number of messages per month.
    
-   Similarly, to unsubscribe, send mail from the same address you
-   subscribed with to <getmail-announce-unsubscribe @
-   discworld.dnsalias.org>.
-   
-   All announcements will be sent to both lists, so there is no need to
+   All announcements are sent to both lists, so there is no need to
    subscribe to the announcements list if you are on the discussion list.
+   
+    How to subscribe
+    
+   To subscribe to the list, send a blank email to
+   <getmail-announce-subscribe @ discworld.dnsalias.org> and follow the
+   instructions in the message you receive. Read and save the "welcome"
+   message you receive when you subscribe; it contains valuable
+   instructions about how to use the list.
+   
+    How to unsubscribe
+    
+   To un-subscribe from the list, send a blank email from the same
+   address you subscribed with to <getmail-announce-unsubscribe @
+   discworld.dnsalias.org> and follow the instructions in the message you
+   receive.
+   
+    How to post
+    
+   You cannot post messages directly to the announcements list. If you
+   feel you have an announcement regarding getmail which should be
+   distributed, send it to me and request that I send it to the
+   announcements list.
    
     Archives of the getmail announcements mailing list
     

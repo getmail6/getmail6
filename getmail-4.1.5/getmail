@@ -161,6 +161,10 @@ def go(configs):
                             % (options['delete_after'], (now - timestamp)))
                         delete = True
 
+                    if options['delete'] and timestamp:
+                        log.debug('    will delete\n')
+                        delete = True
+
                     if not retrieve and timestamp is None:
                         # We haven't retrieved this message.  Don't delete it.
                         log.debug('    not yet retrieved, not deleting\n')

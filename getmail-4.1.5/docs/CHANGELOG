@@ -1,3 +1,11 @@
+Version 4.1.5
+13 September 2004
+
+  -getmail would not delete messages from the server if it was configured not
+  to retrieve them and the delete_after directive was not in use (i.e. user
+  normally left messages on server but occasionally wanted to force-delete 
+  them).  Fixed.  Thanks:  Frankye Fattarelli.
+
 Version 4.1.4
 1 September 2004
 
