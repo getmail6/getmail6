@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.97'
+VERSION = '0.97.1'
 
 #
 # Imports
@@ -760,17 +760,15 @@ def parse_options (argv):
 			print '%s' % a,
 		print
 		print 'Option status:\n' \
-			'  opt_delete_retrieved = "%s"\n' \
-			'  opt_retrieve_read = "%s"\n' \
 			'  opt_verbose = "%s"\n' \
 			'  opt_rcfile = "%s"\n' \
 			'  opt_configdir = "%s"\n' \
-			% (opt_delete_retrieved, opt_retrieve_read, opt_verbose,
-			   opt_rcfile, opt_configdir)
+			% (opt_verbose, opt_rcfile, opt_configdir)
 		print 'Accounts:'
 		for i in range (len (opt_account)):
-			print '  %s,%s:%s,%s' % (opt_account[i], opt_host[i], opt_port[i],
-									 opt_dest[i])
+			print '  %s,%s:%s,%s delete=%s readall=%s' \
+				% (opt_account[i], opt_host[i], opt_port[i], opt_dest[i],
+				   opt_delete_retrieved[i], opt_retrieve_read[i])
 		sys.exit (RC_DEBUG)
 
 	if error:
