@@ -20,7 +20,7 @@
 # getmail returns the number of messages retrieved, or -1 on error.
 #
 
-VERSION = '0.63'
+VERSION = '0.64'
 
 #
 # Imports
@@ -144,6 +144,7 @@ def get_mail (host, port, account, password, delete = 0):
 			msgnum, msglen = string.split (item)
 			if opt_verbose:
 				print '  msg %i : len %i ...' % (int (msgnum), int (msglen)),
+				sys.stdout.flush ()
 			result = session.retr (int (msgnum))
 			rc = result[0]
 			msg = result[1]
@@ -153,14 +154,17 @@ def get_mail (host, port, account, password, delete = 0):
 
 			if opt_verbose:
 				print 'retrieved',
+				sys.stdout.flush ()
 
 			if delete:
 				rc = session.dele (int (msgnum))
 				if opt_verbose:
 					print '... deleted',
+					sys.stdout.flush ()
 
 			if opt_verbose:
 				print ''
+				sys.stdout.flush ()
 
 	except poplib.error_proto, response:
 		stderr ('%s:  exception "%s" during retrieval, resetting...\n'
@@ -295,8 +299,9 @@ def parse_options (argv):
 	--config -c <configfile>
 	'''
 	#
-	global opt_delete_retrieved, opt_retrieve_read, opt_password_stdin, opt_port, \
-		opt_host, opt_account, opt_password, opt_maildir, opt_verbose, opt_configfile
+	global opt_delete_retrieved, opt_retrieve_read, opt_password_stdin, \
+		opt_port, opt_host, opt_account, opt_password, opt_maildir, \
+		opt_verbose, opt_configfile
 	error = 0
 	optslist, args = [], []
 
@@ -392,13 +397,18 @@ def parse_options (argv):
 			userhost, mdir, pw = string.split (arg, ',')
 			opt_password.append (pw)
 		except ValueError:
-			userhost, mdir = string.split (arg, ',')
-
+			try:
+				userhost, mdir = string.split (arg, ',')
+			except ValueError:
+				stderr ('Error:  argument "%s" not in format \''
+						'user@mailhost[:port],maildir[,password]\'\n' % arg)
+			
 		opt_maildir.append (mdir)
 		opt_account.append (userhost [ : string.rfind (userhost, '@')])
 
 		try:
-			opt_host.append (userhost [string.rfind (userhost, '@') + 1 : string.rindex (userhost, ':')])
+			opt_host.append (userhost [string.rfind (userhost, '@') + 1
+							 : string.rindex (userhost, ':')])
 		except ValueError:
 			opt_host.append (userhost [string.rfind (userhost, '@') + 1 : ])
 		try:
@@ -444,7 +454,8 @@ def parse_options (argv):
 				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, oldattr)
 			print
 
-	if not error and not opt_password or (len (opt_password) != len (opt_account)):
+	if not error and not opt_password \
+		or (len (opt_password) != len (opt_account)):
 		stderr ('Error:  not enough passwords supplied\n')
 		error = 1
 
@@ -458,5 +469,3 @@ def parse_options (argv):
 #######################################
 if __name__ == '__main__':
 	main ()
-
-					
