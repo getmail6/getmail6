@@ -1,0 +1,38 @@
+This is an alpha-testing release of getmail version 4.
+
+See docs/COPYING for copyright and distribution information.  In short:  please
+don't distribute this software in its alpha stages.
+
+See docs/docs.html or docs/docs.txt for details on setting up and using getmail.  
+This documentation is incomplete.
+
+getmail version 4 requires Python version 2.3.3 or later.  You can have
+several installed versions of Python peacefully co-existing, see
+python.org for details.
+
+See docs/BUGS for how to report bugs.
+
+To install:  getmail v.4 uses the standard Python distutils.  Do the following
+  as a regular user:
+
+    python setup.py build
+
+  Then (probably as root), do:
+
+    python setup.py install
+
+  This will install the Python files under the site-packages directory of your
+  Python installation (typically /usr/local/lib/pythonXXX or
+  /usr/lib/pythonXXX), and the documentation under 
+  /usr/local/share/doc/getmail-4/ .
+
+  You can specify an alternate directory to install under with
+  --prefix=<path>, like:
+
+    python setup.py install --prefix=/package/misc/host/localhost/getmail-VERSION/
+
+The three scripts included in the package (getmail, getmail_maildir, and
+getmail_mbox) will have their "#!"-interpreter line automatically modified 
+to invoke the Python interpreter you run the setup script with.  If you later
+remove this version of Python, and the newer version does not provide a link
+to the interpreter with that name, you may have to modify the scripts.

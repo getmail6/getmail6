@@ -55,11 +55,14 @@ class FilterSkeleton(ConfigurableBase):
         try:
             self.initialize()
         except KeyError, o:
-            raise getmailConfigurationError('missing parameter %s' % o)
+            raise getmailConfigurationError('missing required configuration parameter %s' % o)
         self.log.trace('done\n')
 
-    def filter_message(self, msg):
+    def filter_message(self, msg, retriever):
         self.log.trace()
+        msg.received_from = retriever.received_from
+        msg.received_with = retriever.received_with
+        msg.received_by = retriever.received_by
         exitcode, newmsg, err = self._filter_message(msg)
         if exitcode in self.exitcodes_drop:
             # Drop message

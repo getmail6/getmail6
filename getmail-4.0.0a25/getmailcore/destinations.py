@@ -62,7 +62,7 @@ class DeliverySkeleton(ConfigurableBase):
         try:
             self.initialize()
         except KeyError, o:
-            raise getmailConfigurationError('missing parameter %s' % o)
+            raise getmailConfigurationError('missing required configuration parameter %s' % o)
         self.received_from = None
         self.received_with = None
         self.log.trace('done\n')

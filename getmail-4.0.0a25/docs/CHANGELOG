@@ -1,3 +1,13 @@
+Version 4.0.0a25
+2 July 2004
+
+  -add handler for KeyboardInterrupt.  Thanks: Thomas Schwinge.
+  -change setup script to not error if the specified directory prefix doesn't
+  exist.  Thanks: Thomas Schwinge.
+  -pass retriever protocol info to filters.  Thanks:  Frankye Fattarelli.
+  -first inclusion of "real" documentation.  See docs/docs.html or its
+  plaintext counterpart docs/docs.txt.
+
 Version 4.0.0a24
 1 July 2004
 
@@ -16,8 +26,8 @@ Version 4.0.0a23
   -add explicit checks for socket.ssl(), which is optional.  Raise
   getmailConfigurationError if they're not present and the user tries
   to use it.  Thanks: Thomas Schwinge.
-  -fix missing received_by in destinations.  Thanks: Frankye and Andrew
-  Raines.
+  -fix missing received_by in destinations.  Thanks: Frankye Fattarelli and 
+  Andrew Raines.
 
 Version 4.0.0a22
 30 June 2004
@@ -62,7 +72,7 @@ Version 4.0.0a20
   -finish MDA_qmaillocal address handling and add strip_delivered_to
   parameter.  Document MDA_qmaillocal.
   -change email module import in utilities.py.  Submit bug report to
-  Python bug tracker.  Thanks: Frankye.
+  Python bug tracker.  Thanks: Frankye Fattarelli.
 
 Version 4.0.0a19
 24 June 2004
@@ -70,7 +80,8 @@ Version 4.0.0a19
   -bring some docstrings, comments, and documentation up to date.
   -add Filter_classifier filter module, to support adding information
   to the message header from programs that don't provide the original message
-  back on stdout (like clamscan/clamdscan, apparently).  Thanks: Frankye.
+  back on stdout (like clamscan/clamdscan, apparently).  Thanks: Frankye 
+  Fattarelli.
   -missed seek(0) in msg_flatten().  Add missing imports.
   Thanks: Andrew Raines.
 
@@ -88,7 +99,7 @@ Version 4.0.0a17
 23 June 2004
 
   -add exitcodes_keep and exitcodes_drop parameters to Filter_external.
-  Thanks: Frankye.
+  Thanks: Frankye Fattarelli.
 
 Version 4.0.0a16
 23 June 2004
@@ -133,7 +144,7 @@ Version 4.0.0a15
 22 June 2004
 
   -add summary "Retrieved X messages for ..." for each rc file at program
-  close.  Thanks: Frankye.
+  close.  Thanks: Frankye Fattarelli.
   -add explicit delete of retriever after quit() to try to force writing
   oldmail file immediately instead of at garbage collection.  Python makes
   no guarantees about when garbage collection takes place, so this won't be
@@ -155,13 +166,15 @@ Version 4.0.0a14
 Version 4.0.0a13
 21 June 2004
 
-  -add missing default for max_messages_per_session.  Thanks:  Frankye.
+  -add missing default for max_messages_per_session.  Thanks:  Frankye 
+  Fattarelli.
 
 Version 4.0.0a12
 21 June 2004
 
   -slight change to quit() to ensure old connections are closed
-  and garbage-collected before trying to make new ones.  Thanks:  Frankye.
+  and garbage-collected before trying to make new ones.  Thanks:  Frankye 
+  Fattarelli.
   -move default documentation directory to /usr/local/share/doc/ .
   -filters.py now checks that the filtered message is at least basically
   sane in that it has a header no shorter than the message it was supplied.
@@ -178,7 +191,8 @@ Version 4.0.0a11
   -rename pop3ssl.py
   -fix --quiet.  i.e., getmail should again operate truly silently if you
   want it to.
-  -retrievers' quit() method wasn't getting called.  Fix.  Thanks: Frankye.
+  -retrievers' quit() method wasn't getting called.  Fix.  Thanks: Frankye 
+  Fattarelli.
 
 Version 4.0.0a10
 19 June 2004
@@ -200,7 +214,7 @@ Version 4.0.0a8
   -finish basics of IMAP support -- i.e., it successfully retrieves mail.
   delete might not work yet.  IMAP-over-SSL /might/, but the server I was
   testing against wasn't working with SSL (no connection).
-  -handle email.Utils.getaddresses returning None.  Thanks:  Frankye.
+  -handle email.Utils.getaddresses returning None.  Thanks:  Frankye Fattarelli.
   -fix default port for MultidropPOP3SSLRetriever.
 
 Version 4.0.0a7
@@ -222,7 +236,7 @@ Version 4.0.0a6
   This might make POP3-over-SSL work, or it might need more work yet.  I've
   got it talking some SSL, but it hangs at the moment.  Might be blocking
   in read().
-  -move Mboxrd file locking to _deliver_message().  Thanks:  Frankye.
+  -move Mboxrd file locking to _deliver_message().  Thanks:  Frankye Fattarelli.
   -make --trace more useful and add extra debug info to main script.
   -eliminate noise from defaults in non-[options] section processing
   -found Python's ConfigParser .getboolean() method failed when the passed-in
@@ -235,8 +249,8 @@ Version 4.0.0a6
 Version 4.0.0a5
 16 June 2004
 
-  -document tuple syntax.  Thanks:  Frankye.
-  -fix "filters" name collision in script.  Thanks:  Frankye.
+  -document tuple syntax.  Thanks:  Frankye Fattarelli.
+  -fix "filters" name collision in script.  Thanks:  Frankye Fattarelli.
 
 Version 4.0.0a4
 15 June 2004
@@ -244,7 +258,7 @@ Version 4.0.0a4
   -fix default values in three classes' parameters which previously relied
   on type conversion.  Thanks: Andrew Raines.
   -fix default port for POP3-over-SSL and "username" parameter in documentation.
-  Thanks: Frankye.
+  Thanks: Frankye Fattarelli.
   -enable delete and read_all in [options] of rc file.  Change handling of
   verbose.
 

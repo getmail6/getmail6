@@ -14,9 +14,13 @@ try:
 except ImportError:
     pass
 
-from getmailcore import __version__, retrievers, destinations, filters, logging
-from getmailcore.exceptions import *
-from getmailcore.utilities import eval_bool, logfile
+try:
+    from getmailcore import __version__, retrievers, destinations, filters, logging
+    from getmailcore.exceptions import *
+    from getmailcore.utilities import eval_bool, logfile
+except ImportError, o:
+    sys.stderr.write('ImportError:  %s\n' % o)
+    sys.exit(127)
 
 log = logging.logger()
 log.addhandler(sys.stdout, logging.INFO, maxlevel=logging.INFO)
@@ -87,7 +91,7 @@ def go(configs):
 
                         for mail_filter in _filters:
                             log.debug('passing to filter %s ... ' % mail_filter)
-                            msg = mail_filter.filter_message(msg)
+                            msg = mail_filter.filter_message(msg, retriever)
                             if msg is None:
                                 log.info('dropped by filter %s ... ' % mail_filter)
                                 logline += ', dropped by filter %s' % mail_filter
@@ -390,6 +394,10 @@ def main():
             sys.exit()
 
         go(configs)
+
+    except KeyboardInterrupt:
+        log.warning('Operation aborted by user (keyboard interrupt)\n')
+        sys.exit(0)
 
     except getmailConfigurationError, o:
         # DEBUG

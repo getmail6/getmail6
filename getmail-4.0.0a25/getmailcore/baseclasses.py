@@ -51,7 +51,7 @@ class ConfigurableBase(object):
                 if 'default' in item:
                     self.conf[name] = item['default']
                 else:
-                    raise getmailConfigurationError('missing required configuration directive %s' % name)
+                    raise getmailConfigurationError('missing required configuration parameter %s' % name)
             elif type(self.conf[name]) is not dtype:
                 # Value supplied, but not of expected type.  Try to convert.
                 try:

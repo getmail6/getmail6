@@ -29,7 +29,7 @@ for (pos, arg) in enumerate(args):
         prefix = args[pos + 1]
     
 if not os.path.isdir(prefix):
-    raise SystemExit('Error: specified home or prefix directory %s does not exist' % prefix)
+    print 'Warning: specified home or prefix directory %s does not exist, will create it' % prefix
 
 GETMAILDOCDIR = os.path.join(
     prefix,
