@@ -13,7 +13,6 @@ __all__ = [
 ]
 
 import os
-import email
 import types
 import sets
 

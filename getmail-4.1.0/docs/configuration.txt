@@ -16,77 +16,85 @@
                                        
      * getmail documentation
      *
-          + Features
-          + Differences from previous versions
-          + Requirements
-          + Obtaining getmail
-          + Installing getmail
-          + getmail mailing lists
-     * Configuring getmail
-     *
-          + Creating a getmail rc file
+          + getmail documentation
           +
-               o Parameter types and formats
-               o
-                    # string
-                    # integer
-                    # boolean
-                    # tuple of quoted strings
-                    # tuple of integers
-                    # tuple of 2-tuples
-               o Creating the [retriever] section
-               o
-                    # Common retriever parameters
-                    # SimplePOP3Retriever
-                    # SimpleIMAPRetriever
-                    # SimplePOP3SSLRetriever
-                    # SimpleIMAPSSLRetriever
-                    # MultidropPOP3Retriever
-                    # MultidropPOP3SSLRetriever
-                    # MultidropSDPSRetriever
-                    # MultidropIMAPRetriever
-                    # MultidropIMAPSSLRetriever
-               o Retriever examples
-               o Creating the [destination] section
-               o
-                    # Maildir
-                    # Mboxrd
-                    # MDA_external
-                    # MultiDestination
-                    # MultiSorter
-                    # MultiGuesser
-                    # MDA_qmaillocal
-               o Creating the [options] section
-               o
-                    # [options] example
-               o Creating the [filter-something] sections
-               o
-                    # Filter_classifier
-                    # Filter_external
-                    # Filter_TMDA
-                    # [filter-something] examples
-               o getmail rc file examples
-     * Running getmail
+               o Features
+               o Differences from previous versions
+               o Requirements
+               o Obtaining getmail
+               o Installing getmail
+               o getmail mailing lists
+     * getmail configuration
      *
-          + Commandline options
-          + Using getmail as an MDA
-          +
-               o Using the getmail_maildir MDA
-               o
-                    # Example
-               o Using the getmail_mbox MDA
-               o
-                    # Example
-     * Troubleshooting
-     *
-          + Error messages
-          + Unexpected Behaviour
-     * Frequently-Asked Questions (FAQs)
-     *
-          + About getmail
           + Configuring getmail
-          + How do I ...
-          + Using getmail with other software
+          +
+               o Creating a getmail rc file
+               o
+                    # Parameter types and formats
+                    #
+                         @ string
+                         @ integer
+                         @ boolean
+                         @ tuple of quoted strings
+                         @ tuple of integers
+                         @ tuple of 2-tuples
+                    # Creating the [retriever] section
+                    #
+                         @ Common retriever parameters
+                         @ SimplePOP3Retriever
+                         @ SimpleIMAPRetriever
+                         @ SimplePOP3SSLRetriever
+                         @ SimpleIMAPSSLRetriever
+                         @ MultidropPOP3Retriever
+                         @ MultidropPOP3SSLRetriever
+                         @ MultidropSDPSRetriever
+                         @ MultidropIMAPRetriever
+                         @ MultidropIMAPSSLRetriever
+                    # Retriever examples
+                    # Creating the [destination] section
+                    #
+                         @ Maildir
+                         @ Mboxrd
+                         @ MDA_external
+                         @ MultiDestination
+                         @ MultiSorter
+                         @ MultiGuesser
+                         @ MDA_qmaillocal
+                    # Creating the [options] section
+                    #
+                         @ [options] example
+                    # Creating the [filter-something] sections
+                    #
+                         @ Filter_classifier
+                         @ Filter_external
+                         @ Filter_TMDA
+                         @ [filter-something] examples
+                    # getmail rc file examples
+          + Running getmail
+          +
+               o Commandline options
+               o Using getmail as an MDA
+               o
+                    # Using the getmail_maildir MDA
+                    #
+                         @ Example
+                    # Using the getmail_mbox MDA
+                    #
+                         @ Example
+     * getmail troubleshooting
+     *
+          + Troubleshooting problems
+          +
+               o Error messages
+               o Unexpected Behaviour
+     * getmail frequently-asked questions (FAQs)
+     *
+          + Frequently-Asked Questions (FAQs)
+          +
+               o About getmail
+               o Configuring getmail
+               o How do I ...
+               o Using getmail with other software
        
                               Configuring getmail
                                        
@@ -873,9 +881,10 @@ localpart_translate = ('mailhostaccount-', '')
    The optional options section of the rc file can be used to alter
    getmail's default behaviour. The parameters supported in this section
    are as follows:
-     * verbose (boolean) -- if set, getmail prints messages about each of
-       its actions. If unset, getmail will only print warnings and
-       errors. Default: True.
+     * verbose (integer) -- controls getmail's verbosity. If set to 2,
+       getmail prints messages about each of its actions. If set to 1, it
+       prints messages about retrieving and deleting messages (only). If
+       set to 0, getmail will only print warnings and errors. Default: 1.
      * read_all (boolean) -- if set, getmail retrieves all available
        messages. If unset, getmail only retrieves messages it has not
        seen before. Default: True.
@@ -927,7 +936,7 @@ localpart_translate = ('mailhostaccount-', '')
    delete messages after retrieving them, and to log its actions to a
    file, you could provide the following in your getmail rc file(s):
 [options]
-verbose = false
+verbose = 0
 read_all = false
 delete = true
 message_log = ~/.getmail/log
@@ -1141,7 +1150,8 @@ Commandline options
        
    In addition, the following commandline options can be used to override
    any values specified in the [options] section of the getmail rc files:
-     * --verbose or -v -- print informational messages while running
+     * --verbose or -v -- operate more verbosely. Can be given multiple
+       times.
      * --quiet or -q -- print only warnings or errors while running
      * --delete or -d -- delete messages after retrieving
      * --dont-delete or -l -- do not delete messages after retrieving

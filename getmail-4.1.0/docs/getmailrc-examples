@@ -28,7 +28,7 @@ path = ~jeffp/Maildir/
 #
 
 [options]
-verbose = false
+verbose = 0
 delete = true
 message_log = ~/.getmail/log
 

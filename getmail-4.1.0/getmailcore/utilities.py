@@ -107,7 +107,7 @@ class logfile(object):
             # Seek to end
             self.file.seek(0, 2)
             self.file.write(time.strftime(logtimeformat, time.localtime())
-                + ' ' + s + os.linesep)
+                + ' ' + s.rstrip() + os.linesep)
             self.file.flush()
         finally:
             unlock_file(self.file)
@@ -246,7 +246,9 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
         signal.alarm(0)
         try:
             os.unlink(fname_tmp)
-        except:
+        except KeyboardInterrupt:
+            raise
+        except StandardError:
             pass
         raise getmailDeliveryError('failure renaming "%s" to "%s"'
             % (fname_tmp, fname_new))

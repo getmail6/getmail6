@@ -27,9 +27,7 @@ __all__ = [
 import os
 import socket
 import re
-import signal
 import types
-import time
 import email.Utils
 
 # Only on Unix
@@ -247,7 +245,9 @@ class Mboxrd(DeliverySkeleton):
                     # If it's already closed, or the error occurred at close(),
                     # then there's not much we can do.
                     self.f.truncate(status_old.st_size)
-            except:
+            except KeyboardInterrupt:
+                raise
+            except StandardError:
                 pass
             raise getmailDeliveryError('failure writing message to mbox file'
                 ' "%s" (%s)' % (self.conf['path'], o))
@@ -728,17 +728,17 @@ class MultiSorterBase(MultiDestinationBase):
         self._destinations.append(self.default)
         self.targets = []
         try:
-            locals = self.conf['locals']
+            _locals = self.conf['locals']
             # Special case for convenience if user supplied one base 2-tuple
-            if (len(locals) == 2 and type(locals[0]) == str
-                    and type(locals[1]) == str):
-                locals = (locals, )
-            for item in locals:
+            if (len(_locals) == 2 and type(_locals[0]) == str
+                    and type(_locals[1]) == str):
+                _locals = (_locals, )
+            for item in _locals:
                 if not (type(item) == tuple and len(item) == 2
                         and type(item[0]) == str and type(item[1]) == str):
                     raise getmailConfigurationError('invalid syntax for locals'
                         ' ; see documentation')
-            for (pattern, path) in locals:
+            for (pattern, path) in _locals:
                 try:
                     dest = self._get_destination(path)
                 except getmailConfigurationError, o:
@@ -820,7 +820,7 @@ class MultiSorter(MultiSorterBase):
         if msg.recipient == None and self.targets:
             raise getmailConfigurationError('MultiSorter recipient matching'
                 ' requires a retriever (message source) that preserves the'
-                ' message envelope (%s)' % o)
+                ' message envelope')
         for (pattern, dest) in self.targets:
             self.log.debug('checking recipient %s against pattern %s\n'
                 % (msg.recipient, pattern.pattern))

@@ -17,50 +17,59 @@
                                        
      * getmail documentation
      *
-          + Features
-          + Differences from previous versions
-          + Requirements
-          + Obtaining getmail
-          + Installing getmail
+          + getmail documentation
           +
-               o For the impatient
-               o Full installation instructions
-               o Installing from the RPM
-               o Installing from the MS Windows installer
-               o Installing directly from the source
+               o Features
+               o Differences from previous versions
+               o Requirements
+               o Obtaining getmail
+               o Installing getmail
                o
-                    # Installing in the default location
-                    # Installing under an alternate prefix directory
-                    # Installing parts of the package to alternate
-                      directories
-               o Installing the getmailcore package in a non-standard
-                 location
-               o Building a binary package from the source
-          + getmail mailing lists
-          +
-               o getmail-users' mailing list
+                    # For the impatient
+                    # Full installation instructions
+                    # Installing from the RPM
+                    # Installing from the MS Windows installer
+                    # Installing directly from the source
+                    #
+                         @ Installing in the default location
+                         @ Installing under an alternate prefix directory
+                         @ Installing parts of the package to alternate
+                           directories
+                    # Installing the getmailcore package in a
+                      non-standard location
+                    # Building a binary package from the source
+               o getmail mailing lists
                o
-                    # Archives of the getmail-users' mailing list
-               o Announcements List
-               o
-                    # Archives of the getmail announcements mailing list
-     * Configuring getmail
+                    # getmail-users' mailing list
+                    #
+                         @ Archives of the getmail-users' mailing list
+                    # Announcements List
+                    #
+                         @ Archives of the getmail announcements mailing
+                           list
+     * getmail configuration
      *
-          + Creating a getmail rc file
-     * Running getmail
-     *
-          + Commandline options
-          + Using getmail as an MDA
-     * Troubleshooting
-     *
-          + Error messages
-          + Unexpected Behaviour
-     * Frequently-Asked Questions (FAQs)
-     *
-          + About getmail
           + Configuring getmail
-          + How do I ...
-          + Using getmail with other software
+          +
+               o Creating a getmail rc file
+          + Running getmail
+          +
+               o Commandline options
+               o Using getmail as an MDA
+     * getmail troubleshooting
+     *
+          + Troubleshooting problems
+          +
+               o Error messages
+               o Unexpected Behaviour
+     * getmail frequently-asked questions (FAQs)
+     *
+          + Frequently-Asked Questions (FAQs)
+          +
+               o About getmail
+               o Configuring getmail
+               o How do I ...
+               o Using getmail with other software
        
 Features
 

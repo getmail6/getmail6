@@ -158,7 +158,9 @@ class Message(object):
                 # and returned a badly-misformatted one?
                 raise getmailDeliveryError('failed to parse retrieved message '
                     'and could not recover (%s)' % o)
-            return corrupt_message(o, fromstring=self.__raw).flatten()
+            self.__msg = corrupt_message(o, fromstring=self.__raw)
+            return self.flatten(delivered_to, received, mangle_from, 
+                include_from)
 
     def add_header(self, name, content):
         self.__msg[name] = content.rstrip()

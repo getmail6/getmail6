@@ -12,7 +12,7 @@
    (only). If you wish to obtain a license to distribute getmail under
    other terms, please contact me directly.
    
-                                Troubleshooting
+                           Troubleshooting problems
                                        
    This section of the documentation is to be added to as getmail version
    4 progresses through beta testing to release state. If you have

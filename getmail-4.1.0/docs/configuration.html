@@ -25,125 +25,145 @@
 <p class="about">
     getmail is licensed under the
     <a href="COPYING">GNU General Public License version 2</a>
-    (only). If you wish to obtain a license to distribute getmail under other 
+    (only). If you wish to obtain a license to distribute getmail under other
     terms, please contact me directly.
 </p>
 
 <h1 id="toc">Table of Contents</h1>
 <ul>
-    <li><a href="documentation.html#title">getmail documentation</a></li>
+    <li><a href="documentation.html">getmail documentation</a></li>
     <li>
         <ul>
-        <li><a href="documentation.html#features">Features</a></li>
-        <li><a href="documentation.html#v4differences">Differences from previous versions</a></li>
-        <li><a href="documentation.html#requirements">Requirements</a></li>
-        <li><a href="documentation.html#obtaining">Obtaining getmail</a></li>
-        <li><a href="documentation.html#installing">Installing getmail</a></li>
-        <li><a href="documentation.html#mailing-lists">getmail mailing lists</a></li>
-        </ul>
-    </li>
-    <li><a href="configuration.html#configuring">Configuring getmail</a></li>
-    <li>
-        <ul>
-        <li><a href="configuration.html#rcfile">Creating a getmail rc file</a></li>
+        <li><a href="documentation.html#title">getmail documentation</a></li>
         <li>
             <ul>
-            <li><a href="configuration.html#parametertypes">Parameter types and formats</a></li>
-            <li>
-                <ul>
-                <li><a href="configuration.html#parameter-string">string</a></li>
-                <li><a href="configuration.html#parameter-integer">integer</a></li>
-                <li><a href="configuration.html#parameter-boolean">boolean</a></li>
-                <li><a href="configuration.html#parameter-tuplestrings">tuple of quoted strings</a></li>
-                <li><a href="configuration.html#parameter-tupleintegers">tuple of integers</a></li>
-                <li><a href="configuration.html#parameter-tuple2tuples">tuple of 2-tuples</a></li>
-                </ul>
-            </li>
-            <li><a href="configuration.html#conf-retriever">Creating the <span class="file">[retriever]</span> section</a></li>
-            <li>
-                <ul>
-                <li><a href="configuration.html#retriever-parameters">Common retriever parameters</a></li>
-                <li><a href="configuration.html#retriever-simplepop3">SimplePOP3Retriever</a></li>
-                <li><a href="configuration.html#retriever-simpleimap">SimpleIMAPRetriever</a></li>
-                <li><a href="configuration.html#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a></li>
-                <li><a href="configuration.html#retriever-simpleimapssl">SimpleIMAPSSLRetriever</a></li>
-                <li><a href="configuration.html#retriever-multidroppop3">MultidropPOP3Retriever</a></li>
-                <li><a href="configuration.html#retriever-multidroppop3ssl">MultidropPOP3SSLRetriever</a></li>
-                <li><a href="configuration.html#retriever-multidropsdps">MultidropSDPSRetriever</a></li>
-                <li><a href="configuration.html#retriever-multidropimap">MultidropIMAPRetriever</a></li>
-                <li><a href="configuration.html#retriever-multidropimapssl">MultidropIMAPSSLRetriever</a></li>
-                </ul>
-            </li>
-            <li><a href="configuration.html#retriever-examples">Retriever examples</a></li>
-            <li><a href="configuration.html#conf-destination">Creating the <span class="file">[destination]</span> section</a></li>
-            <li>
-                <ul>
-                <li><a href="configuration.html#destination-maildir">Maildir</a></li>
-                <li><a href="configuration.html#destination-mboxrd">Mboxrd</a></li>
-                <li><a href="configuration.html#destination-mdaexternal">MDA_external</a></li>
-                <li><a href="configuration.html#destination-multidestination">MultiDestination</a></li>
-                <li><a href="configuration.html#destination-multisorter">MultiSorter</a></li>
-                <li><a href="configuration.html#destination-multiguesser">MultiGuesser</a></li>
-                <li><a href="configuration.html#destination-mdaqmaillocal">MDA_qmaillocal</a></li>
-                </ul>
-            </li>
-            <li><a href="configuration.html#conf-options">Creating the <span class="file">[options]</span> section</a></li>
-            <li>
-                <ul>
-                <li><a href="configuration.html#options-example"><span class="file">[options]</span> example</a></li>
-                </ul>
-            </li>
-            <li><a href="configuration.html#conf-filters">Creating the <span class="file">[filter-<span class="meta">something</span>]</span> sections</a></li>
-            <li>
-                <ul>
-                <li><a href="configuration.html#conf-filters-classifier">Filter_classifier</a></li>
-                <li><a href="configuration.html#conf-filters-external">Filter_external</a></li>
-                <li><a href="configuration.html#conf-filters-tmda">Filter_TMDA</a></li>
-                <li><a href="configuration.html#filter-examples"><span class="file">[filter-<span class="meta">something</span>]</span> examples</a></li>
-                </ul>
-            </li>
-            <li><a href="configuration.html#examplerc">getmail rc file examples</a></li>
+            <li><a href="documentation.html#features">Features</a></li>
+            <li><a href="documentation.html#v4differences">Differences from previous versions</a></li>
+            <li><a href="documentation.html#requirements">Requirements</a></li>
+            <li><a href="documentation.html#obtaining">Obtaining getmail</a></li>
+            <li><a href="documentation.html#installing">Installing getmail</a></li>
+            <li><a href="documentation.html#mailing-lists">getmail mailing lists</a></li>
             </ul>
         </li>
         </ul>
     </li>
-    <li><a href="configuration.html#running">Running getmail</a></li>
+    <li><a href="configuration.html">getmail configuration</a></li>
     <li>
         <ul>
-        <li><a href="configuration.html#running-commandline-options">Commandline options</a></li>
-        <li><a href="configuration.html#running-mda">Using getmail as an MDA</a></li>
+        <li><a href="configuration.html#configuring">Configuring getmail</a></li>
         <li>
             <ul>
-            <li><a href="configuration.html#running-mda-maildir">Using the <span class="file">getmail_maildir</span> MDA</a></li>
+            <li><a href="configuration.html#rcfile">Creating a getmail rc file</a></li>
             <li>
                 <ul>
-                <li><a href="configuration.html#running-mda-maildir-example">Example</a></li>
+                <li><a href="configuration.html#parametertypes">Parameter types and formats</a></li>
+                <li>
+                    <ul>
+                    <li><a href="configuration.html#parameter-string">string</a></li>
+                    <li><a href="configuration.html#parameter-integer">integer</a></li>
+                    <li><a href="configuration.html#parameter-boolean">boolean</a></li>
+                    <li><a href="configuration.html#parameter-tuplestrings">tuple of quoted strings</a></li>
+                    <li><a href="configuration.html#parameter-tupleintegers">tuple of integers</a></li>
+                    <li><a href="configuration.html#parameter-tuple2tuples">tuple of 2-tuples</a></li>
+                    </ul>
+                </li>
+                <li><a href="configuration.html#conf-retriever">Creating the <span class="file">[retriever]</span> section</a></li>
+                <li>
+                    <ul>
+                    <li><a href="configuration.html#retriever-parameters">Common retriever parameters</a></li>
+                    <li><a href="configuration.html#retriever-simplepop3">SimplePOP3Retriever</a></li>
+                    <li><a href="configuration.html#retriever-simpleimap">SimpleIMAPRetriever</a></li>
+                    <li><a href="configuration.html#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a></li>
+                    <li><a href="configuration.html#retriever-simpleimapssl">SimpleIMAPSSLRetriever</a></li>
+                    <li><a href="configuration.html#retriever-multidroppop3">MultidropPOP3Retriever</a></li>
+                    <li><a href="configuration.html#retriever-multidroppop3ssl">MultidropPOP3SSLRetriever</a></li>
+                    <li><a href="configuration.html#retriever-multidropsdps">MultidropSDPSRetriever</a></li>
+                    <li><a href="configuration.html#retriever-multidropimap">MultidropIMAPRetriever</a></li>
+                    <li><a href="configuration.html#retriever-multidropimapssl">MultidropIMAPSSLRetriever</a></li>
+                    </ul>
+                </li>
+                <li><a href="configuration.html#retriever-examples">Retriever examples</a></li>
+                <li><a href="configuration.html#conf-destination">Creating the <span class="file">[destination]</span> section</a></li>
+                <li>
+                    <ul>
+                    <li><a href="configuration.html#destination-maildir">Maildir</a></li>
+                    <li><a href="configuration.html#destination-mboxrd">Mboxrd</a></li>
+                    <li><a href="configuration.html#destination-mdaexternal">MDA_external</a></li>
+                    <li><a href="configuration.html#destination-multidestination">MultiDestination</a></li>
+                    <li><a href="configuration.html#destination-multisorter">MultiSorter</a></li>
+                    <li><a href="configuration.html#destination-multiguesser">MultiGuesser</a></li>
+                    <li><a href="configuration.html#destination-mdaqmaillocal">MDA_qmaillocal</a></li>
+                    </ul>
+                </li>
+                <li><a href="configuration.html#conf-options">Creating the <span class="file">[options]</span> section</a></li>
+                <li>
+                    <ul>
+                    <li><a href="configuration.html#options-example"><span class="file">[options]</span> example</a></li>
+                    </ul>
+                </li>
+                <li><a href="configuration.html#conf-filters">Creating the <span class="file">[filter-<span class="meta">something</span>]</span> sections</a></li>
+                <li>
+                    <ul>
+                    <li><a href="configuration.html#conf-filters-classifier">Filter_classifier</a></li>
+                    <li><a href="configuration.html#conf-filters-external">Filter_external</a></li>
+                    <li><a href="configuration.html#conf-filters-tmda">Filter_TMDA</a></li>
+                    <li><a href="configuration.html#filter-examples"><span class="file">[filter-<span class="meta">something</span>]</span> examples</a></li>
+                    </ul>
+                </li>
+                <li><a href="configuration.html#examplerc">getmail rc file examples</a></li>
                 </ul>
             </li>
-            <li><a href="configuration.html#running-mda-mbox">Using the <span class="file">getmail_mbox</span> MDA</a></li>
+            </ul>
+        </li>
+        <li><a href="configuration.html#running">Running getmail</a></li>
+        <li>
+            <ul>
+            <li><a href="configuration.html#running-commandline-options">Commandline options</a></li>
+            <li><a href="configuration.html#running-mda">Using getmail as an MDA</a></li>
             <li>
                 <ul>
-                <li><a href="configuration.html#running-mda-mbox-example">Example</a></li>
+                <li><a href="configuration.html#running-mda-maildir">Using the <span class="file">getmail_maildir</span> MDA</a></li>
+                <li>
+                    <ul>
+                    <li><a href="configuration.html#running-mda-maildir-example">Example</a></li>
+                    </ul>
+                </li>
+                <li><a href="configuration.html#running-mda-mbox">Using the <span class="file">getmail_mbox</span> MDA</a></li>
+                <li>
+                    <ul>
+                    <li><a href="configuration.html#running-mda-mbox-example">Example</a></li>
+                    </ul>
+                </li>
                 </ul>
             </li>
             </ul>
         </li>
         </ul>
     </li>
-    <li><a href="troubleshooting.html#troubleshooting">Troubleshooting</a></li>
+    <li><a href="troubleshooting.html">getmail troubleshooting</a></li>
     <li>
         <ul>
-        <li><a href="troubleshooting.html#error-messages">Error messages</a></li>
-        <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
+        <li><a href="troubleshooting.html#troubleshooting">Troubleshooting problems</a></li>
+        <li>
+            <ul>
+            <li><a href="troubleshooting.html#error-messages">Error messages</a></li>
+            <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
+            </ul>
+        </li>
         </ul>
     </li>
-    <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
+    <li><a href="faq.html">getmail frequently-asked questions (FAQs)</a></li>
     <li>
         <ul>
-        <li><a href="faq.html#faq-about">About getmail</a></li>
-        <li><a href="faq.html#faq-configuring">Configuring getmail</a></li>
-        <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
-        <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
+        <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
+        <li>
+            <ul>
+            <li><a href="faq.html#faq-about">About getmail</a></li>
+            <li><a href="faq.html#faq-configuring">Configuring getmail</a></li>
+            <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
+            <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
+            </ul>
+        </li>
         </ul>
     </li>
 </ul>
@@ -222,9 +242,9 @@ second_parameter = value
     second is
     <span class="file">destination</span>,
     which tells getmail what to do with the retrieved messages.  There is also
-    an 
+    an
     <a href="#conf-options">optional section named
-    	<span class="file">options</span>
+        <span class="file">options</span>
     </a>,
     which gives getmail general configuration information (such as whether to
     log its actions to a file), and other sections can be used to tell getmail
@@ -1038,8 +1058,8 @@ path = ~/inbox
                 &mdash; envelope return-path address
             </li>
         </ul>
-        If the message is retrieved with a multidrop retriever class, the 
-        message recipient (and parts of it) are also available with the 
+        If the message is retrieved with a multidrop retriever class, the
+        message recipient (and parts of it) are also available with the
         following replacement substrings:
         <ul>
             <li>
@@ -1055,7 +1075,7 @@ path = ~/inbox
                 &mdash; domain-part of the envelope recipient address
             </li>
         </ul>
-        The default value of the 
+        The default value of the
         <span class="file">arguments</span>
         parameter is
         <span class="sample">()</span>,
@@ -1675,15 +1695,17 @@ localpart_translate = ('mailhostaccount-', '')
 <p>
     The optional
     <span class="file">options</span>
-    section of the rc file can be used to alter getmail's default behaviour.  
+    section of the rc file can be used to alter getmail's default behaviour.
     The parameters supported in this section are as follows:
 </p>
 <ul>
     <li>
         verbose
-        (<a href="#parameter-boolean">boolean</a>)
-        &mdash; if set, getmail prints messages about each of its actions.  If
-        unset, getmail will only print warnings and errors. Default: True.
+        (<a href="#parameter-integer">integer</a>)
+        &mdash; controls getmail's verbosity.  If set to 2, getmail prints
+        messages about each of its actions.  If set to 1, it prints messages
+        about retrieving and deleting messages (only).  If set to 0, getmail
+        will only print warnings and errors. Default: 1.
     </li>
     <li>
         read_all
@@ -1763,11 +1785,11 @@ localpart_translate = ('mailhostaccount-', '')
     </li>
 </ul>
 <p>
-	Most users will want to either enable the
-	<span class="file">delete</span>
-	option (to delete mail after retrieving it), or disable the
-	<span class="file">read_all</span>
-	option (to only retrieve previously-unread mail).
+    Most users will want to either enable the
+    <span class="file">delete</span>
+    option (to delete mail after retrieving it), or disable the
+    <span class="file">read_all</span>
+    option (to only retrieve previously-unread mail).
 </p>
 <p>
     The verbose, read_all, and delete parameters can be overridden at run time
@@ -1784,7 +1806,7 @@ localpart_translate = ('mailhostaccount-', '')
 </p>
 <pre class="example">
 [options]
-verbose = false
+verbose = 0
 read_all = false
 delete = true
 message_log = ~/.getmail/log
@@ -1905,8 +1927,8 @@ message_log = ~/.getmail/log
                 &mdash; envelope return-path address
             </li>
         </ul>
-        If the message is retrieved with a multidrop retriever class, the 
-        message recipient (and parts of it) are also available with the 
+        If the message is retrieved with a multidrop retriever class, the
+        message recipient (and parts of it) are also available with the
         following replacement substrings:
         <ul>
             <li>
@@ -1922,7 +1944,7 @@ message_log = ~/.getmail/log
                 &mdash; domain-part of the envelope recipient address
             </li>
         </ul>
-        The default value of the 
+        The default value of the
         <span class="file">arguments</span>
         parameter is
         <span class="sample">()</span>,
@@ -2247,7 +2269,10 @@ type = Filter_TMDA
     section of the getmail rc files:
 </p>
 <ul>
-    <li>--verbose or -v &mdash; print informational messages while running</li>
+    <li>
+        --verbose or -v &mdash; operate more verbosely.  Can be given multiple
+        times.
+    </li>
     <li>--quiet or -q &mdash; print only warnings or errors while running</li>
     <li>--delete or -d &mdash; delete messages after retrieving</li>
     <li>--dont-delete or -l &mdash; do not delete messages after retrieving</li>

@@ -1,3 +1,16 @@
+Version 4.1.0
+24 August 2004
+
+  -biggest change is multiple verbosity levels.  To support this from rc file,
+  the verbose parameter had to change from a boolean to an integer.  Update
+  your getmail rc files:  for quiet, set verbose to 0.  For more output,
+  set it to 1 or 2.  2 includes info about messages not retrieved, etc.
+  -add rc filename to error messages
+  -change fix from 4.0.11 for email module raising exception during .flatten().
+  Thanks:  Jürgen Nagel.
+  -some types of SSL error could cause getmail to exit instead of
+  continuing to the next mail account; fixed.  Thanks:  Matthias Andree.
+
 Version 4.0.13
 19 August 2004
 
