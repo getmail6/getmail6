@@ -1,6 +1,13 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.1.9
+27 December 2001
+
+  -add max_message_size option to prevent downloading larger messages.
+  Default value is 0, which means no limit.  Thanks to Mark Levene for the
+  feature request.
+
 Version 2.1.8
 21 November 2001
 

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.1.8'
+__version__ = '2.1.9'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -130,6 +130,7 @@ defs = {
     'no_delivered_to' : 0,                  # Don't add Delivered-To: header
     'no_received' :     0,                  # Don't add Received: header
     'eliminate_duplicates' :    0,          # Eliminate duplicate messages
+    'max_message_size' :        0,          # Maximum message size to retrieve
     'dump' :            0,                  # Leave this alone.
     'help' :            0,                  # Leave this alone.
     }
@@ -147,7 +148,7 @@ me = None
 
 # Options recognized in configuration getmailrc file
 intoptions = ('verbose', 'readall', 'delete', 'timeout', 'use_apop',
-    'no_delivered_to', 'no_received', 'eliminate_duplicates')
+    'no_delivered_to', 'no_received', 'eliminate_duplicates', 'max_message_size')
 stringoptions = ('message_log', 'recipient_header')
 
 # Exit codes
@@ -586,7 +587,12 @@ class getmail:
                 self.logfunc (ERROR, 'Error:  POP3 server violates RFC1939 '
                     + '("%s"), skipping line...\n' % s, self.opts)
                 continue
-            msglist.append ( (msgnum, msginfo) )
+            # Keep track of length of message
+            try:
+                msglen = int (string.split (msginfo)[0])
+            except:
+                msglen = 0
+            msglist.append ( (msgnum, msglen) )
         msglist.append ( (None, None) )
         return msglist
 
@@ -1076,18 +1082,25 @@ class getmail:
                 self.opts)
             self.abort (txt)
             return
-    
+
+        max_message_size = self.opts['max_message_size']    
         # Process messages in list
         try:
             inbox = []
-            for (msgnum, msginfo) in msglist:
-                if msgnum == msginfo == None:
+            for (msgnum, msglen) in msglist:
+                if msgnum == msglen == None:
                     # No more messages; POP3.list() returns a final int
                     self.logfunc (INFO, '%(server)s:  finished retrieving messages\n'
                         % self.account, self.opts)
                     break
                 self.logfunc (INFO, '  msg #%i : len %s ... '
-                    % (msgnum, msginfo), self.opts)
+                    % (msgnum, msglen), self.opts)
+                if msglen and max_message_size and msglen > max_message_size:
+                    self.logfunc (INFO, 'over max message size of %i, skipping ...\n'
+                        % max_message_size, self.opts)
+                    msglog ('message #%i over max message size of %i, skipping ...\n'
+                        % (msgnum, max_message_size), self.opts)
+                    continue
 
                 try:
                     rc = self.session.uidl (msgnum)

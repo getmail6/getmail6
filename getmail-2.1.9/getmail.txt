@@ -95,5 +95,8 @@ getmail Mailing List
    list.
    Similarly, to unsubscribe, send mail from the same address you
    subscribed with to <getmail-unsubscribe @ discworld.dnsalias.org>.
+   There is a browsable archive of the list at
+   http://marc.theaimsgroup.com/?l=getmail&r=1&w=2.
    Note: you are expected to have read the documentation and Frequently
-   Asked Questions before posting a question to the mailing list.
+   Asked Questions, and browsed/searched the mailing list archives,
+   before posting a question to the mailing list.

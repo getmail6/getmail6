@@ -511,6 +511,28 @@ getmailrc Directives
           delete = 1
      _________________________________________________________________
    
+      Maximum Message Size
+      
+   This directive controls the maximum size of a message which getmail
+   will retrieve. Use this to prevent getmail from taking a long time on
+   slow connections when someone sends you a very large message.
+   
+   Directive
+          max_message_size = <max_length>
+          
+   Optional
+          Yes
+          
+   Default
+          0 -- no limit.
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          max_message_size = 1048576
+     _________________________________________________________________
+   
       Message Logging
       
    This directive controls whether getmail will log information about
