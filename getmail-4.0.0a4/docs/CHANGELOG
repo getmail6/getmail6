@@ -1,3 +1,13 @@
+Version 4.0.0a4
+?? June 2004
+
+  -fix default values in three classes' parameters which previously relied
+  on type conversion.  Thanks: Andrew Raines.
+  -fix default port for POP3-over-SSL and "username" parameter in documentation.
+  Thanks: Frankye.
+  -enable delete and read_all in [options] of rc file.  Change handling of
+  verbose.
+
 Version 4.0.0a3
 15 June 2004
 

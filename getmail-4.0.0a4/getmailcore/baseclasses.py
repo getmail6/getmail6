@@ -5,6 +5,7 @@
 
 from exceptions import *
 from logging import logger
+from utilities import eval_bool
 
 #
 # Base classes
@@ -32,6 +33,7 @@ class ConfigurableBase(object):
             self.log.trace('setting %s to %s (%s)\n' % (name, value, type(value)))
             self.conf[name] = value
         self.__confchecked = False
+        self.checkconf()
 
     def checkconf(self):
         self.log.trace()
@@ -52,13 +54,8 @@ class ConfigurableBase(object):
                 try:
                     val = self.conf[name]
                     self.log.debug('converting %s (%s) to type %s\n' % (name, val, dtype))
-                    # Handle boolean values intelligently
                     if dtype == bool:
-                        if val.lower() in ('0', 'false', 'no', 'off'):
-                            self.conf[name] = False
-                        elif val.lower() in ('1', 'true', 'yes', 'on'):
-                            self.conf[name] = True
-                        self.conf[name] = bool(eval(val))
+                        self.conf[name] = eval_bool(val)
                     else:
                         self.conf[name] = dtype(eval(val))
                 except (ValueError, SyntaxError), o:

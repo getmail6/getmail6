@@ -109,7 +109,7 @@ class Filter_external(FilterSkeleton):
     _confitems = (
         {'name' : 'path', 'type' : str},
         {'name' : 'unixfrom', 'type' : bool, 'default' : False},
-        {'name' : 'arguments', 'type' : tuple, 'default' : '()'},
+        {'name' : 'arguments', 'type' : tuple, 'default' : ()},
     )
 
     def initialize(self):

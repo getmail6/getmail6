@@ -8,7 +8,7 @@ from poplib import *
 
 from exceptions import *
 
-POP3_ssl_port = 443
+POP3_ssl_port = 995
 
 class POP3SSL(POP3):
     '''Thin subclass to add SSL functionality to the built-in POP3 class.

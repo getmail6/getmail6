@@ -8,6 +8,7 @@ from optparse import OptionParser, OptionGroup
 
 from getmailcore import __version__, retrievers, destinations, filters, logging
 from getmailcore.exceptions import *
+from getmailcore.utilities import eval_bool
 
 log = logging.logger()
 log.addhandler(sys.stdout, logging.INFO, maxlevel=logging.INFO)
@@ -136,8 +137,9 @@ def main():
             configparser.readfp(f, path)
 
             try:
-                if configparser.has_option('options', 'verbose'):
-                    config['verbose'] = bool(eval(configparser.get('options', 'verbose')))
+                for option in ('verbose', 'read_all', 'delete'):
+                    if configparser.has_option('options', option):
+                        config[option] = eval_bool(configparser.get('options', option))
 
                 retriever_type = configparser.get('retriever', 'type')
                 retriever_func = getattr(retrievers, retriever_type)

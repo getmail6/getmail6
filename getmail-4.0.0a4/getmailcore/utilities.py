@@ -187,3 +187,14 @@ def unlock_file(file):
 def address_no_brackets(addr):
     '''Strip surrounding <> on an email address, if present.'''
     return (addr.startswith('<') and addr.endswith('>')) and addr[1:-1] or addr
+
+#######################################
+def eval_bool(s):
+    '''Handle boolean values intelligently.
+    '''
+    val = str(s).lower()
+    if val in ('0', 'false', 'no', 'off'):
+        return False
+    elif val in ('1', 'true', 'yes', 'on'):
+        return True
+    return bool(eval(val))

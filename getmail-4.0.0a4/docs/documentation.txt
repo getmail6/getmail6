@@ -166,7 +166,7 @@ SimplePOP3Retriever takes the following configuration parameters:
         [retriever]
         type = SimplePOP3Retriever
         server = pop.example.net
-        user = jeff.plotzky
+        username = jeff.plotzky
         password = mailpassword
 
 SimplePOP3SSLRetriever takes the same configuration parameters as
@@ -194,7 +194,7 @@ SimplePOP3Retriever, plus one additional parameter:
         [retriever]
         type = MultidropPOP3Retriever
         server = pop.example.net
-        user = exampledotorg
+        username = exampledotorg
         password = mailpassword
         envelope_recipient = delivered-to:2
         
@@ -216,7 +216,7 @@ SimplePOP3Retriever, except that it does not take the use_apop parameter.
         [retriever]
         type = MultidropSPDSRetriever
         server = pop.demon.co.uk
-        user = exampledotcom
+        username = exampledotcom
         password = mailpassword
 
 Destinations
@@ -370,7 +370,7 @@ look like this:
         [retriever]
         type = SimplePOP3Retriever
         server = pop.example.net
-        user = jeff.plotzky
+        username = jeff.plotzky
         password = mailpassword
 
         [destination]
@@ -385,7 +385,7 @@ look like this:
         [retriever]
         type = MultidropPOP3Retriever
         server = pop.example.net
-        user = exampledotorg
+        username = exampledotorg
         password = mailpassword
         envelope_recipient = delivered-to:2
 

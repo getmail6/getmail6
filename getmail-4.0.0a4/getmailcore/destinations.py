@@ -249,7 +249,7 @@ class MDA_qmaillocal(DeliverySkeleton):
         {'name' : 'localdomain', 'type' : str, 'default' : socket.gethostname()},
         {'name' : 'defaultdelivery', 'type' : str, 'default' : './Maildir/'},
         {'name' : 'conf-break', 'type' : str, 'default' : '-'},
-        {'name' : 'localparttranslate', 'type' : tuple, 'default' : '()'},
+        {'name' : 'localparttranslate', 'type' : tuple, 'default' : ('', '')},
     )
 
     def initialize(self):
@@ -393,7 +393,7 @@ class MDA_external(DeliverySkeleton):
     '''
     _confitems = (
         {'name' : 'path', 'type' : str},
-        {'name' : 'arguments', 'type' : tuple, 'default' : '()'},
+        {'name' : 'arguments', 'type' : tuple, 'default' : ()},
         {'name' : 'unixfrom', 'type' : bool, 'default' : False},
     )
 
