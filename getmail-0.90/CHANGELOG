@@ -1,0 +1,29 @@
+Changes for getmail:
+====================
+
+v.0.90 2 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Implemented retrieval of only unread mail, with tracking via POP3 UIDL
+	  ID's.
+	-Changed some arguments to fit above.
+	-Now uses a configuration/data directory instead of just a .getmailrc file.
+	  Default config directory is taken from environment variable 'GETMAIL'
+	  if it exists.  Can be overridden by commandline option for multiple
+	  configurations.
+	-Default .getmailrc file is '.getmailrc' in the configuration directory
+	  taken from the environment variable 'GETMAIL' or supplied on commandline.
+	  Can be overridden by commandline option for multiple setups.
+
+v.0.71 - v.0.80
+	-Private testing releases.
+
+v.0.71 2 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Fixed minor bug with POP3-escaped period handling.
+	-Minor cleanups.
+	-Made Freshmeat announcement.
+
+v.0.70 1 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-First public release.
+	-Main features all verified working.  Does not keep track of new/old mail yet.
+
+v.0.10 - v.0.65 Development testing.
+	-Private testing releases.

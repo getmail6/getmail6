@@ -3,8 +3,5 @@ Yet to be done:
 
 -Write some more documentation.
 
--Keep track of unread/read messages (via POP3 UIDL command) to allow retrieval
-  of new mail only.
-  
 -Possibly allow delivery to various maildirs based on headers in received
   messages, to allow the use of mailbox-per-domain.

@@ -1,0 +1,101 @@
+Usage:
+======
+
+getmail is intended as a simple replacement for 'fetchmail', for those people
+who don't need its various and sundry configuration options, complexities, and
+bugs.  It retrieves mail from one or more POP3 servers for one or more email
+accounts, and reliably delivers into a Maildir specified on a per-account
+basis.
+
+Bugs, questions, feature requests, and comments should be directed to me
+(Charles Cazabon) at <getmail@discworld.dyndns.org>.
+
+In a nutshell:
+--------------
+
+Ensure Python is installed.  See http://www.python.org/ for details.
+
+Install the script 'getmail.py' somewhere with executable permissions (0755).
+
+Optionally set up a symbolic link named 'getmail' pointing to the script.
+
+Create a .getmail/ directory in your home directory.
+
+Create the environment variable GETMAIL, containing the path to the above
+directory.  You can automate this in your logon by putting
+  export GETMAIL=$HOME/.getmail
+in your .bash_profile or .bashrc file if you use the bash shell.
+
+Create a file .getmailrc in the above directory.  In it, place one line for each
+mail account you wish to retrieve mail for.  The line is in this format:
+	username@popmailhost[:port],maildir[,password]
+For example, to retrieve mail for account 'joe' on mailhost 'popmail.isp.com'
+on the default POP3 port (110), and deliver the mail into a maildir in joe's
+home directory named 'Maildir', with password 'poppass', enter the following:
+	joe@popmail.isp.com,/home/joe/Maildir,poppass
+
+Run getmail with no options to retrieve all mail for joe.
+Use option -n or --new for only unread mail.  Use option -v or --verbose to
+see what's going on.
+
+
+Basic usage for getmail.py:
+---------------------------
+
+Run without arguments for help.
+
+To retrieve mail for accounts, run with arguments as follows:
+getmail.py [options] user1@mailhost1[:port],maildir1[,password1] \
+  user2@mailhost2[:port],maildir2[,password2]
+
+For example, to retrieve mail for account 'joe' on mailhost 'mail.isp.com',
+running on port 8110, and deliver that mail into the maildir 'Maildir' in
+your home directory, run as follows:
+
+getmail.py [options] joe@mail.isp.com:8110,$HOME/Maildir,password
+
+If you omit the final ',password', getmail will prompt you for your password.
+You may omit the :port portion if the server runs on the standard POP3 port
+(110).
+
+You can retrieve mail for multiple accounts at once, delivering to different
+maildirs, by specifying multiple arguments:
+
+getmail.py [options] user1@mailhost1.net:8110,$HOME/Maildir,password \
+  user2@mailhost2.com,$HOME/Mail/user2Maildir
+
+Note in this case, mailhost2 is on the standard POP3 port and the user
+will be prompted only for user2's password.
+
+These arguments can also be placed in a configfile (suggested:
+$HOME/.getmail/.getmailrc), one per line, with '#' indicating the start of
+comments. This file can be specified on the commandline with the -r or --rcfile
+options.  It defaults to '.getmailrc' in a directory taken from the environment
+variable 'GETMAIL', if it exists.  Specifying a config file on the commandline
+overrides the environment variable.  An alternate configuration directory can
+also be specified on the commandline.
+
+Options that getmail currently recognizes are:
+
+  -a or --all                retrieve all messages.
+    This is the default.
+
+  -u or --new                retrieve only unread messages.
+
+  -d or --delete             delete mail after retrieving.
+
+  -l or --dont-delete        leave mail on server after retrieving.
+    This is the default.
+
+  -v or --verbose            output more information.
+    Without this, getmail will be fairly quiet.
+
+  -h or --help               basic usage information.
+
+  -r or --rcfile <file>      read account information from <file>
+    This overrides the default configfile.  The default is '.getmailrc' in
+    the directory specified below.
+
+  -c or --configdir <dir>    Store data in <dir> instead of the default, which
+    is taken from the environment variable 'GETMAIL' if it exists.
+

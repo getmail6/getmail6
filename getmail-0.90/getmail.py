@@ -37,7 +37,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.71'
+VERSION = '0.90'
 
 #
 # Imports
@@ -56,8 +56,9 @@ from types import *
 DEF_PORT =				110				# Normal POP3 port
 DEF_DELETE =			0				# Delete mail after retrieving (0, 1)
 DEF_READ_ALL =			1				# Retrieve all mail (1) or just new (0)
-ENV_RCFILE =			'GETMAILRC'		# Environment variable to get config
-										#  filename from, if it exists.
+ENV_GETMAIL =			'GETMAIL'		# Env. variable to get configuration/
+										#  data directory name from
+DEF_RCFILE =			'.getmailrc'	# Default.getmailrc filename
 
 
 #
@@ -72,7 +73,9 @@ opt_delete_retrieved =	DEF_DELETE
 opt_retrieve_read =		DEF_READ_ALL
 opt_maildir =			[]
 opt_verbose =			0
-opt_configfile =		None
+opt_rcfile =			None
+opt_configdir =			None
+
 
 #
 # Data
@@ -102,7 +105,7 @@ def main ():
 
 	for i in range (len (opt_account)):
 		mail = get_mail (opt_host[i], opt_port[i], opt_account[i],
-						 opt_password[i], opt_delete_retrieved)
+						 opt_password[i], opt_delete_retrieved, opt_retrieve_read)
 
 		for msg in mail:
 			maildirdeliver (opt_maildir[i], pop3_unescape (msg))
@@ -111,11 +114,21 @@ def main ():
 
 
 #######################################
-def get_mail (host, port, account, password, delete = 0):
+def get_mail (host, port, account, password, delete, getall):
 	'Retrieve messages from a POP3 server for one account.'
 
 	messages, retrieved = [], 0
 	shorthost = string.split (host, '.') [0]
+	oldmailfile = os.path.join (opt_configdir, 'oldmail:%s:%s' % (host, account))
+	oldmail = []
+
+	try:
+		f = open (oldmailfile, 'r')
+		for line in f.readlines ():
+			oldmail.append (line)
+		f.close ()
+	except IOError:
+		pass
 
 	try:
 		session = poplib.POP3 (host, port)
@@ -151,6 +164,10 @@ def get_mail (host, port, account, password, delete = 0):
 		if opt_verbose:
 			print '%s:  POP3 list response:  %s' % (shorthost, rc)
 
+	except poplib.error_proto, response:
+		stderr ('Error retrieving message list, skipping ...\n')
+
+	try:
 		for item in msglist:
 			if type (item) == IntType:
 				# No more messages; POP3.list() returns a final int
@@ -161,22 +178,46 @@ def get_mail (host, port, account, password, delete = 0):
 			if opt_verbose:
 				print '  msg %i : len %i ...' % (int (msgnum), int (msglen)),
 				sys.stdout.flush ()
-			result = session.retr (int (msgnum))
-			rc = result[0]
-			msg = result[1]
 
-			messages.append (msg)
-			retrieved = retrieved + 1
+			rc = session.uidl (msgnum)
+			uidl = rc [ string.find (rc, '<') : string.find (rc, '>') + 1 ]
 
-			if opt_verbose:
-				print 'retrieved',
-				sys.stdout.flush ()
+			if getall or ('%s\n' % uidl) not in oldmail:
+				result = session.retr (int (msgnum))
+				rc = result[0]
+				msg = result[1]
 
-			if delete:
-				rc = session.dele (int (msgnum))
+				messages.append (msg)
+				retrieved = retrieved + 1
+
 				if opt_verbose:
-					print '... deleted',
+					print 'retrieved',
 					sys.stdout.flush ()
+
+				if delete:
+					rc = session.dele (int (msgnum))
+					if opt_verbose:
+						print '... deleted',
+						sys.stdout.flush ()
+					try:
+						# Deleting mail, no need to remember uidl's now
+						os.remove (oldmailfile)
+					except:
+						pass
+				else:
+					try:
+						f = open (oldmailfile, 'a')
+						f.seek (0, 2) # Append to end.
+						f.write ('%s\n' % uidl)
+						f.close ()
+						if opt_verbose:
+							print '... wrote to oldmail file',
+							sys.stdout.flush ()
+					except IOError:
+						stderr ('\nError:  failed writing oldmail file\n')
+
+			else:
+				print 'previously retrieved, skipping ...',
 
 			if opt_verbose:
 				print ''
@@ -285,39 +326,40 @@ def usage ():
 	'Usage:  %s [options] [user@mailhost[:port],maildir[,password]] [...]\n'
 	'Options:\n'
 	'  -a or --all                retrieve all messages                %s\n'
-	'  -u or --new           (NI) retrieve unread messages             %s\n'
+	'  -n or --new                retrieve unread messages             %s\n'
 	'  -d or --delete             delete mail after retrieving         %s\n'
 	'  -l or --dont-delete        leave mail on server                 %s\n'
 	'  -v or --verbose            output more information\n'
 	'  -h or --help               this screen\n'
-	'  -c or --config <file>      accounts from <file> in format above\n'
-	'           This overrides configfile from %s environment variable\n'
-	'\n  NI : option not yet implemented\n\n'
+	'  -r or --rcfile <file>      use <file> instead of default .getmailrc\n'
+	'  -c or --configdir <dir>    use <dir> as config/data directory,\n'
+	'                   instead of contents of "%s" environment variable\n'
+	'\n'
 	'For multiple account retrieval, multiple user@mailhost[:port],maildir[,password]\n'
 	'options can be used.  If not supplied, port defaults to %i.  Passwords not\n'
 	'supplied will be prompted for.\n\n'
-		% (me, def_readall, def_readnew, def_del, def_dontdel, ENV_RCFILE, DEF_PORT))
+		% (me, def_readall, def_readnew, def_del, def_dontdel, ENV_GETMAIL, DEF_PORT))
 	return
 
 #######################################
 def parse_options (argv):
 	'''Parse commandline options.  Options handled:
-	--delete -d, --dont-delete -l, --all -a, --new -u, --verbose -v,
-	--help -h, --config -c <configfile>
+	--delete -d, --dont-delete -l, --all -a, --new -n, --verbose -v,
+	--help -h, --rcfile -r <configfile>, --configdir -c <configdir>
 	'''
 	#
 	global opt_delete_retrieved, opt_retrieve_read, \
 		opt_port, opt_host, opt_account, opt_password, opt_maildir, \
-		opt_verbose, opt_configfile
+		opt_verbose, opt_rcfile, opt_configdir
 
 	error = 0
 
-	if os.environ.has_key (ENV_RCFILE):
-		opt_configfile = os.environ[ENV_RCFILE]
+	if os.environ.has_key (ENV_GETMAIL):
+		opt_configdir = os.environ[ENV_GETMAIL]
 
 	optslist, args = [], []
 
-	opts = 'c:dlauvh'
+	opts = 'c:dlanvh'
 	longopts = ['delete', 'dont-delete', 'all', 'new', 'verbose', 'config=',
 		'help']
 
@@ -326,7 +368,7 @@ def parse_options (argv):
 		optslist, args = getopt.getopt (argv[1:], opts, longopts)
 
 	except getopt.error, cause:
-		stderr ('Error:  "%s"\n' % cause)
+		stderr ('Error:  %s\n' % cause)
 		usage ()
 		sys.exit (ERROR)
 
@@ -344,30 +386,51 @@ def parse_options (argv):
 		elif option == '--all' or option == '-a':
 			opt_retrieve_read = 1
 
-		elif option == '--new' or option == '-u':
-			# Not implemented
+		elif option == '--new' or option == '-n':
 			opt_retrieve_read = 0
 
 		elif option == '--verbose' or option == '-v':
 			opt_verbose = 1
 
-		elif option == '--config' or option == '-c':
+		elif option == '--rcfile' or option == '-r':
 			if not value:
-				stderr ('Error:  option --config supplied without value\n')
+				stderr ('Error:  option --rcfile supplied without value\n')
 				error = 1
 			else:
-				opt_configfile = value
+				opt_rcfile = value
+
+		elif option == '--configdir' or option == '-c':
+			if not value:
+				stderr ('Error:  option --configdir supplied without value\n')
+				error = 1
+			else:
+				opt_configdir = value
+
+	# Check for data directory
+	if not opt_configdir:
+		stderr ('Warning:  configuration/data directory not supplied, and "%s" environment\n'
+				'  variable not set.  getmail will not be able to retreive only unread mail.\n'
+				% ENV_GETMAIL)
+		opt_configdir = ''
+		opt_retrieve_read = 1
+
+	# Set default rcfile if not supplied
+	if not opt_rcfile:
+		opt_rcfile = os.path.join (opt_configdir, DEF_RCFILE)
+		if opt_verbose:
+			print 'Using default .getmailrc file "%s"' % opt_rcfile
+	elif opt_verbose:
+		print 'Using .getmailrc file "%s"' % opt_rcfile
 
 	# Read in configfile, if any
-	if opt_configfile:
-		try:
-			f = open (opt_configfile)
-			for line in f.readlines ():
-				line = string.strip (line [ : string.find (line, '#') ])
-				if line and line != '#':
-					args.append (line)
-		except IOError:
-			stderr ('Error:  exception reading file "%s"\n' % opt_configfile)
+	try:
+		f = open (opt_rcfile)
+		for line in f.readlines ():
+			line = string.strip (line [ : string.find (line, '#') ])
+			if line and line != '#':
+				args.append (line)
+	except IOError:
+		stderr ('Warning:  failed to open .getmailrc file "%s"\n' % opt_rcfile)
 
 	# Parse arguments given in user@mailhost[:port],maildir[,password] format
 	for arg in args:
