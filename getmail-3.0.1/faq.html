@@ -150,6 +150,12 @@
 		to address any bugs I find out about this way.
 	</p>
 
+	<h4 id="about-getmail-virus"><a href="#about-getmail">Does getmail support virus scanning of retrieved messages?</a></h4>
+	<p>
+		Yes, getmail can use external MDAs which do absolutely any type of message scanning, filtering,
+		etc.  Also see <a href="#how-virus">this question about how to do this</a>.
+	</p>
+
 	<h4 id="about-getmail-newfields"><a href="#about-getmail">Does getmail rewrite mail headers when it retrieves mail?</a></h4>
 	<p>
 		No&mdash;rewriting message header fields is bad.  getmail will add a new 
@@ -212,18 +218,18 @@
 		Change the permissions on that file.
 	</p>
 
-	<!--h4 id="error-message-python-warning">
-		<a href="#error-messages">When I start getmail, I get the error &quot;<span class="error">SyntaxWarning: name
-		'timeoutsocket' is assigned to before global declaration</span>&quot;.  What's wrong?</a>
+	<h4 id="error-message-locals">
+		<a href="#error-messages">getmail complains about &quot;<span class="error">Configuration error (local directives require use_*env or recipient_header to identify envelope recipient)</span>&quot;.
+		What's wrong?</a>
 	</h4>
 	<p>
-		Nothing&mdash;it's a warning, not an error.  This is a check for certain 
-		possible problems by the Python interpreter in Python version 2.0 and above. In 
-		this case, the test is wrong.  To skip the test, add <span class="sample">-W ignore</span>
-		to the invocation of Python.  Change the wrapper script 
-		included with getmail to do this.  Thanks to Errol Casey for the tip on this.
-	</p-->
-
+		The account configuration in question contains <a href="docs.html#directive-local"><span class="sample">local</span></a>
+		directives, but you haven't told getmail how to determine the original envelope recipient address of the message.
+		To use multidrop mode, you must either enable <a href="docs.html#directive-use-*env"><span class="sample">use_*env</span></a>
+		(if your mailhost supports it) or tell getmail which header field the envelope recipient address is recorded in by the
+		mailhost's MTA using the <a href="docs.html#directive-recipient-header"><span class="sample">recipient_header</span></a>
+		directive.
+	</p>
 
 	<h3 id="config"><a href="#faq">getmail configuration</a></h3>
 
@@ -327,9 +333,8 @@
 	<p>
 		You don't.  getmail doesn't do this, to prevent lost mail, mail loops, and 
 		bounces if getmail or your Mail Transfer Agent is misconfigured. getmail has 
-		native support for delivering to qmail-style Maildirs and mboxrd-format mbox 
-		files, as well as to commands (pipe delivery). Therefore you shouldn't need to 
-		re-inject retrieved messages.
+		native support for delivering to qmail-style Maildirs and commands (pipe 
+		delivery). Therefore you shouldn't need to re-inject retrieved messages.
 	</p>
 	<p>
 		If you absolutely must inject retrieved messages into an MTA, it is possible to 
@@ -393,6 +398,29 @@
 		If anyone has concrete experience using getmail and TMDA together, please feel 
 		free to send instructions or your wrapper script to me; I personally do not use 
 		a filtering MDA and therefore have no experience making TMDA work with getmail.
+	</p>
+
+	<h4 id="how-virus"><a href="#how">How do I do virus scanning of retrieved messages with getmail?</a></h4>
+	<p>
+		You can do this in hundreds of different ways.  There are many threads in the mailing
+		list archive dealing specifically with this topic; please read at least all of
+		February 2003, including <a href="http://marc.theaimsgroup.com/?l=getmail&m=104467583728416&w=2">this
+		thread</a>, before posting to the mailing list.
+	</p>
+
+	<h4 id="how-filter"><a href="#how">How do I do message filtering with getmail?</a></h4>
+	<p>
+		The best way is to use a program designed specifically to do message filtering, like a filtering
+		MDA.  The best-known example of a filtering MDA is procmail, but I don't recommend using it.
+		maildrop is much easier to use.
+	</p>
+	<p>
+		getmail can invoke arbitrary programs as external MDAs, so you can also write your
+		own filters as you choose.  A simple example, changing all occurrences of the
+		string &quot;stupid&quot; to &quot;XXXXXX&quot; and using safecat to deliver the
+		resulting filtered message to a Maildir might be to specify a delivery
+		target of <pre class="sample">|/bin/sed 's/stupid/XXXXXX/g' | safecat ./Maildir/tmp ./Maildir/new</pre>
+		.
 	</p>
 </div>
 

@@ -1,6 +1,14 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.0.1
+13 February 2003
+
+  -Have getmail report an error if local directives are specified but getmail
+  is not operating in multidrop mode (through either of the "use_*env" or 
+  "recipient_header" directives).  Thanks to Gerwin Krist for reporting that 
+  this was not obvious.
+
 Version 3.0.0
 10 February 2003
 

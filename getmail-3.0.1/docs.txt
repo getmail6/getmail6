@@ -1,0 +1,733 @@
+
+   #Charles Cazabon's Pages
+   
+getmail Documentation
+
+   This is the formal documentation for getmail. If your question is not
+   answered here or in the Frequently Asked Questions, please subscribe
+   to the mailing list.
+   
+About this document
+
+   The official location of this document is
+   http://www.qcc.ca/~charlesc/software/getmail-3.0/docs.html. For easy
+   navigation, all headings in the HTML version of this document are
+   links to their parent heading.
+   
+Table of Contents
+
+    1. Installing getmail
+    2. Configuring getmail
+          + Configuration file
+          + POP3 account types
+               o Regular POP3 mailboxes
+               o POP3 domain mailboxes
+          + Message delivery targets
+    3. getmailrc directives
+    4. Running getmail
+    5. Commandline options
+       
+Installing getmail
+
+   Follow these steps to install getmail:
+    1. Download getmail.
+    2. Unpack the tarball.
+tar xzf getmail-version.tar.gz
+    3. Copy the contents to a suitable location:
+mkdir /usr/lib/getmail
+cp -a getmail-version/* /usr/lib/getmail/
+                               You can install getmail in your home
+       directory or elsewhere if you prefer.
+    4. Copy the getmail helper script to a location in your PATH, and
+       ensure it is executable:
+cp -a getmail-version/getmail /usr/bin/
+chmod 755 /usr/bin/getmail
+       If you used an installation path other than that in step 3 above,
+       edit the value of GETMAILDIR in this file.
+       
+Configuring getmail
+
+    1. Create a getmail configuration/data directory in your home
+       directory:
+mkdir ~/.getmail
+       You can use another path or directory name, but getmail assumes
+       this name by default. If you choose something different, you will
+       need to specify its name on the getmail command line with the
+       --getmaildir option.
+    2. Create a configuration file named getmailrc in the directory you
+       created in step 1 above (see the section Configuration file below
+       for details). You can use another file name or path, but getmail
+       assumes this name by default. If you choose something different,
+       you will need to specify its name on the getmail command line with
+       the --rcfile option.
+       
+Configuration file
+
+   A getmail configuration file (typically named getmailrc, and located
+   in $HOME/.getmail/) looks similar to an MS-Windows .INI file. For
+   security reasons, your getmailrc file must not be group- or
+   world-writable. getmail will refuse to run if it finds your getmailrc
+   file is writable by others.
+   
+   The file is broken into sections. Each section starts with an
+   arbitrary label surrounded by square brackets:
+[section name]
+
+   A section then contains one or more lines in name = value format.
+   Values containing whitespace must be surrounded with single- or
+   double-quotes. The pound sign (#) introduces a comment, which
+   continues until the end of the line.
+foo = 42
+bar = "string value containing spaces"
+baz = ""           # This is a comment; baz is an empty value
+
+   To include a pound sign in an option value, quote it. Percent signs
+   (%) must be doubled; for example, if you want to specify a password of
+   foo%bar, use the following:
+password = foo%%bar
+
+   The special section [default] must be the first section in the file;
+   it supplies default values for options in other sections. For example,
+   to set the option verbose to 1 for all following sections, you could
+   put it in the [default] section:
+[default]
+verbose = 1
+
+[my home account]
+username = foobar
+password = "my password"
+...
+
+[my work account]
+username = foobar
+password = "my password"
+...
+
+   getmail ignores whitespace surrounding the = sign. The following lines
+   are equivalent:
+account = joe.bloggs
+account=joe.bloggs
+account=   joe.bloggs
+
+   Option values containing single or double quote characters can be
+   quoted with the other character:
+password = "this is a more 'secure' password"
+
+   To un-set an option taking a string value, set it to the empty string:
+message_log = ""         # Previously set to /var/log/getmail; turn it off for
+this account
+
+   Other sections in a getmail configuration file represent POP3 accounts
+   to retrieve mail from, one per account. The section name is
+   unimportant, but must be unique. An example account section might look
+   like this:
+[Home ISP account]
+server = mailhost.isp.tld
+username = brenda.bjorn
+password = "my mail password"
+postmaster = ~brendab/Maildir/  # Deliver all mail to the Maildir in my home di
+rectory
+
+   When getmail tries to determine the value of an option, it looks at
+   the following, in order, until it finds a match:
+    1. Options specified on the command line
+    2. Options specified in an account section of the getmail
+       configuration file
+    3. Options specified in the [default] section of the getmail
+       configuration file
+    4. getmail's built-in default value
+       
+POP3 Account types
+
+   There are two different types of POP3 email accounts:
+     * regular mailboxes
+     * domain mailboxes
+       
+Regular mailbox
+
+   This is a typical POP3 mailbox provided by an ISP for a single user.
+   It receives mail addressed to a single user (say,
+   shannon.fotheringham@aqua.myisp.tld). For this type of account, the
+   minimum configuration would be something like this:
+[My Aqua Account]
+server = mailhost.aqua.myisp.tld
+username = shannon.fotheringham
+postmaster = ~shannonf/Maildir/
+
+   This postmaster directive tells getmail to deliver all mail to
+   Shannon's Maildir. Since a password was not configured, getmail will
+   prompt the user for it when run.
+   
+Domain mailbox
+
+   This type of POP3 account is typically provided by an ISP to a small
+   company or organization. It receives mail addressed to any user in a
+   given domain. For example, mail to info@smallcompany.tld,
+   tgrieg@smallcompany.tld, and sales@smallcompany.tld all ends up in the
+   same POP3 domain mailbox.
+   
+   getmail includes features to enable retrieval of mail from this type
+   of account, filter it according to who the mail was addressed to, and
+   deliver it to different destinations. A minimal configuration with
+   this type of setup would be something like this:
+[Company domain mailbox]
+server = mailhost.largeisp.tld
+username = small.company
+password = RRt49slP32m
+recipient_header = delivered-to:1
+postmaster = ~tgrieg/Mail/postmaster-maildir/
+local = tgrieg@smallcompany.tld,~tgrieg/Mail/personal-maildir/
+local = info@smallcompany.tld,~bobf/Maildir/
+local = sales@smallcompany.tld,~darlab/Maildir/
+
+   The local directives tell getmail to deliver mail for those users to
+   their various mail spools on the system, and the postmaster directive
+   tells getmail to deliver any mail which doesn't match any of the local
+   directives somewhere else.
+   
+   To make getmail sort mail (with local directives like the above) based
+   on the envelope recipient address, you must either enable the use_*env
+   option (if your mailhost supports it) or use the recipient_header
+   directive.
+   
+Message Delivery Targets
+
+   In a getmailrc file, postmaster and local directives contain message
+   delivery targets, which instruct getmail to delivery messages in a
+   particular manner. A message delivery target may be a qmail-style
+   Maildir or an arbitrary command (such as an external Message Delivery
+   Agent or MDA).
+   Target Type Syntax Notes
+   Maildir /path/to/Maildir/ Maildir targets must have a trailing slash
+   Command |/path/to/command [arguments] Command deliveries must start
+   with a pipe (|). Remember to quote values containing whitespace.
+   
+   For command deliveries, getmail provides the following environment
+   variables.
+     * SENDER contains the envelope sender address as extracted from the
+       Return-Path: header field or *ENV results.
+     * RECIPIENT contains the envelope recipient address as extracted
+       from the user-configured recipient_header header field or *ENV
+       results.
+     * EXT contains the extension portion of RECIPIENT calculated with
+       the user-supplied values of extension_sep and extension_depth
+       directives. This is primarily useful for external MDAs such as
+       TMDA.
+       
+   Note the following restrictions:
+     * getmail refuses to run external commands when running as root.
+     * If an external command writes to stderr, getmail will consider the
+       delivery a failure. If you know your MDA can write to stderr on a
+       successful delivery, either supply a --quiet option to the MDA (if
+       it supports such), or throw away or redirect stderr in one of the
+       following manners:
+postmaster = "|/path/to/mda [options] 2>/dev/null"
+postmaster = "|/path/to/mda [options] 2>&1"
+       This will, of course, also work with delivery targets in local
+       directives.
+     * getmail will not create Maildirs if they do not exist. You must
+       create them prior to having getmail deliver mail to them. Use
+       maildirmake to create empty Maildirs.
+     * getmail requires write access to any Maildir you wish to deliver
+       mail to. This can be done my making the Maildirs group-writable by
+       the group you run getmail under, for example. There are other ways
+       as well.
+       
+   Leading tilde characters (~) on paths will be expanded -- i.e.
+   ~jason/Maildir/ likely becomes /home/jason/Maildir/ on most systems.
+   
+getmailrc Directives
+
+   getmail understands the following getmailrc directives:
+   Directive Optional? Default Summary
+   POP3 Server Configuration
+   server No None POP3 server hostname
+   port Yes 110 POP3 server TCP port number
+   timeout Yes 180 seconds POP3 server TCP timeout
+   Account Configuration
+   username No None POP3 account username
+   password Yes Prompt for password POP3 account password
+   use_apop Yes 0 (No) Use POP3 APOP authentication if available
+   Message Formatting
+   no_delivered_to Yes 0 (No) Suppress addition of Delivered-To: header
+   field
+   no_received Yes 0 (No) Suppress addition of Received: header field
+   Message Delivery Targets
+   postmaster No None Default message delivery target
+   local Yes None Header field pattern-matching delivery target for
+   domain mailboxes
+   recipient_header Yes None Specify a header field the POP3 server
+   records the envelope recipient address in.
+   use_*env Yes 0 (No) Use Demon's SPDS *ENV POP3 extension to retrieve
+   message envelopes. Overrides recipient_header above.
+   extension_sep Yes - User extension address separator character
+   extension_depth Yes 1 User extension address base length
+   Message Retrieval
+   readall Yes 1 (Yes) Retrieve all messages, or only previously unseen
+   messages
+   max_message_size Yes 0 (No limit) Do not retrieve messages larger than
+   this setting
+   max_messages_per_session Yes 0 (No limit) Do not retrieve more than X
+   messages
+   delete Yes 0 (No) Delete messages after retrieval
+   delete_after Yes 0 (No) Delete messages X days after retrieval
+   getmail Behaviour
+   verbose Yes 1 (Yes) Show status messages while running
+   message_log Yes None Log message retrieval and delivery to file
+   
+POP3 Server Configuration
+
+   The following directives are used to configure which POP3 servers
+   getmail will retrieve mail from.
+   
+POP3 Server Hostname
+
+   Function               Specify POP3 server to connect to.
+   Syntax                 server = hostname.domain.tld
+   Optional               No
+   Default                None
+   Commandline equivalent None
+   Examples               server = pop3.isp.com
+   
+POP3 TCP Port
+
+   Function               Specify TCP port on POP3 server to connect to.
+   Syntax                 port = portnumber
+   Optional               Yes
+   Default                110 (Default POP3 port)
+   Commandline equivalent None
+   Examples               port = 8110
+   
+POP3 TCP timeout
+
+   Function Specify the TCP timeout to use with an account.
+   Syntax timeout = value (seconds)
+   Optional Yes
+   Default 180
+   Commandline equivalent --timeout = value (seconds)
+   Examples timeout = 360
+   Note The TCP timeout capabilities are enabled by the timeoutsocket.py
+   module by Timothy O'Malley. A copy of timeoutsocket.py is included
+   with getmail; however, getmail will continue to function (without this
+   capability) if the timeoutsocket module is not present.
+timeoutsocket.py Copyright 2000,2001 by Timothy O'Malley <timo@alum.mit.edu>
+
+All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software
+and its documentation for any purpose and without fee is hereby
+granted, provided that the above copyright notice appear in all
+copies and that both that copyright notice and this permission
+notice appear in supporting documentation, and that the name of
+Timothy O'Malley  not be used in advertising or publicity
+pertaining to distribution of the software without specific, written
+prior permission.
+
+Timothy O'Malley DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS, IN NO EVENT SHALL Timothy O'Malley BE LIABLE FOR
+ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+
+POP3 Account Configuration
+
+   The following directives are used to configure which POP3 accounts
+   getmail will retrieve mail from.
+   
+POP3 account username
+
+   Function Specify the account name for the POP3 server.
+   Syntax username = user
+   Optional No
+   Default None
+   Commandline equivalent None
+   Examples username = joe.bloggs
+   username = joe.bloggs:vhost.example.net
+   
+POP3 account password
+
+   Function Specify password to use with POP3 account
+   Syntax password = password
+   Optional Yes
+   Default Prompt for password
+   Commandline equivalent None
+   Examples password = "long password containing whitespace"
+   password = foo_bar
+   
+POP3 APOP authentication
+
+   Function Use POP3 APOP authentication if available. Falls back to
+   USER/PASS authentication if not supported.
+   Syntax use_apop = bool
+   Optional Yes
+   Default 0 (USER/PASS authentication)
+   Commandline equivalent None
+   Examples use_apop = 1
+   use_apop = 0
+   
+Message Formatting
+
+   The following directives are specified in any getmailrc section, and
+   are used to configure how getmail will format messages that it
+   retrieves.
+   
+Delivered-To: header field suppression
+
+   Function Suppress the addition of a Delivered-To: header field to
+   messages that getmail retrieves.
+   Syntax no_delivered_to = bool
+   Optional Yes
+   Default 0 (No)
+   Commandline equivalent None
+   Examples no_delivered_to = 1
+   no_delivered_to = 0
+   
+Received: header field suppression
+
+   Function Suppress the addition of a Received: header field to messages
+   that getmail retrieves.
+   Syntax no_received = bool
+   Optional Yes
+   Default 0 (No)
+   Commandline equivalent None
+   Examples no_received = 1
+   no_received = 0
+   
+Message Delivery Targets
+
+   The following directives are specified in any getmailrc section, and
+   are used to configure where getmail will deliver retrieved messages.
+   Also see the section on message delivery targets.
+   
+Default delivery target
+
+   Function In non-domain mailbox operation, specifies the delivery
+   target for all retrieved mail.
+   In domain mailbox operation, this specifies the default delivery
+   target for all retrieved messages which are not handled by a matching
+   local directive.
+   Syntax postmaster = target
+   Optional No
+   Default None
+   Commandline equivalent None
+   Examples postmaster = /home/joe/Maildir/
+   postmaster = "|/usr/local/bin/my_mda -f foo -a all -b gone
+   /home/postmaster/.mdarc"
+   
+Header field pattern matching delivery target
+
+   Function Specify the destination for retrieved messages which have an
+   envelope recipient address which matches a given pattern. getmail will
+   match the specified Perl- compatible extended regular expression
+   against the envelope recipient address (retrieved using *ENV support
+   or found in the header field specified with the recipient_header
+   directive). If a match is found, the message will be delivered to the
+   specified target. If multiple local directives contain matching
+   patterns, each matching target will receive a copy of the message. If
+   there are no local directives, or no match is found, the message will
+   be delivered according to the default delivery target.
+   If you do not understand Perl-compatible regular expressions, just use
+   email addresses here. They will work in virtually all cases.
+   Use multiple local directives to filter mail retrieved from a domain
+   mailbox to multiple local user accounts.
+   Note that local directives can only be used in multidrop mode.
+   Syntax local = pattern,target
+   Optional Yes
+   Default None
+   Commandline equivalent None
+   Examples local = joe@isp.tld,~joe/Maildir/
+   local = brenda@homeisp.tld,/home/brenda/Mail/personal/
+   local = brenda@workisp.tld,/home/brenda/Mail/work/
+   local = "^(joe|fred)@company\.(tld|dom.tld)$,|/path/to/mda -opts"
+   
+Recipient header field specification
+
+   Function Extract envelope recipient address from listed header field.
+   This directive enables domain mailbox operation and is useful only if
+   the POP3 server records envelope recipient addresses in a specific
+   header field (i.e. Delivered-To: or X-Envelope-To:).
+   Use it if wish to process mail from a domain mailbox, sorting and
+   delivering it to multiple local user accounts using local directives.
+   Syntax recipient_header = fieldname:fieldnum
+   fieldnum refers to the occurrence of that header field; the value 2 is
+   the second occurrence of fieldname.
+   Optional Yes
+   Default None
+   Commandline equivalent None
+   Examples recipient_header = Delivered-To:2
+   recipient_header = X-Envelope-To:1
+   
+SPDS *ENV POP3 Extension
+
+   Function Retrieve envelope sender and recipient addresses from the
+   server using Demon's SPDS *ENV POP3 extension (described at
+   http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml).
+   This directive enables domain mailbox operation and overrides the
+   recipient_header directive.
+   Syntax use_*env = bool
+   Optional Yes
+   Default 0 (No)
+   Commandline equivalent None
+   Examples use_*env = 1
+   use_*env = 0
+   
+User address extension separator character
+
+   Function Determine which part of a recipient address is the extension
+   to the base address.
+   This directive is mostly useful if the POP3 server records envelope
+   recipient addresses in a specific header field (i.e. Delivered-To: or
+   X-Envelope-To:), and you wish to deliver mail using TMDA or another
+   filtering MDA.
+   getmail will export the detected envelope recipient address in the
+   environment variable RECIPIENT. It will then split the local-part of
+   the address at the first occurrence of this character (default: -),
+   and export anything after it as the environment variable EXT.
+   Note that you will still need a wrapper script around your filtering
+   MDA; getmail will consider a delivery failed if the MDA returns
+   non-zero. This is left as an excercise for the reader/user of TMDA.
+   Syntax extension_sep = character
+   Optional Yes
+   Default -
+   Commandline equivalent None
+   Examples extension_sep = +
+   extension_sep = -
+   
+User address extension base length/depth
+
+   Function Determine which part of a recipient address is the extension
+   to the base address.
+   This directive is mostly useful if the POP3 server records envelope
+   recipient addresses in a specific header field (i.e. Delivered-To: or
+   X-Envelope-To:), and you wish to deliver mail using TMDA or another
+   filtering MDA.
+   If you are using a local directive to configure delivery of mail
+   per-recipient, getmail will export the detected envelope recipient
+   address in the environment variable RECIPIENT. It will then remove the
+   base part of the address at the extension_depth occurrence of the
+   extension separator character.
+   Syntax extension_depth = count
+   Optional Yes
+   Default 1
+   Commandline equivalent None
+   Examples extension_depth = 2
+   
+Message Retrieval
+
+   The following directives are specified in any getmailrc section, and
+   are used to configure how getmail will retrieve messages.
+   
+Retrieve new messages / retrieve all messages
+
+   Function Select whether to retrieve all messages, or only messages
+   which have previously not been seen by getmail.
+   Syntax readall = bool
+   Optional Yes
+   Default 1 (Retrieve all messages)
+   Commandline equivalent --all (readall = 1)
+   --new (readall = 0)
+   Examples readall = 1
+   readall = 0
+   
+Maximum message size to retrieve
+
+   Function Specify a maximum message size to retrieve. Messages larger
+   than this will be left on the server and not retrieved.
+   Syntax max_message_size = value (bytes)
+   Optional Yes
+   Default 0 (No limit)
+   Commandline equivalent None
+   Examples max_message_size = 2000000
+   max_message_size = 150000
+   
+Maximum message size to retrieve
+
+   Function Specify a maximum message size to retrieve. Messages larger
+   than this will be left on the server and not retrieved.
+   Syntax max_message_size = value (bytes)
+   Optional Yes
+   Default 0 (No limit)
+   Commandline equivalent None
+   Examples max_message_size = 2000000
+   max_message_size = 150000
+   
+Delete messages from server after retrieval
+
+   Function Delete messages from the POP3 server after retrieval.
+   Syntax delete = bool
+   Optional Yes
+   Default 0 (Do not delete)
+   Commandline equivalent --dont-delete (delete = 0)
+   --delete (delete = 1)
+   Examples delete = 1
+   delete = 0
+   
+Delete messages X days after retrieval
+
+   Function Delete messages a specified number of days after they are
+   first retrieved.
+   Note: delete overrides delete_after.
+   Syntax delete_after = value (days)
+   Optional Yes
+   Default 0 (Do not use delete_after)
+   Commandline equivalent None
+   Examples delete_after = 3
+   delete_after = 180
+   
+getmail Behaviour
+
+   The following directives are specified in any getmailrc section, and
+   are used to control other aspects of getmail's behaviour.
+   
+Verbosity
+
+   Function Specify whether getmail writes status and informational
+   messages to stdout while running.
+   Syntax verbose = bool
+   Optional Yes
+   Default 1 (Verbose)
+   Commandline equivalent --verbose (verbose = 1)
+   --quiet (verbose = 0)
+   Examples verbose = 1
+   verbose = 0
+   
+Message Logging
+
+   Function Specify whether getmail writes message retrieval and delivery
+   information to a log file. Set to the empty string to disable logging.
+   This value is expanded for leading "~" or "~user".
+   Syntax message_log = file
+   Optional Yes
+   Default None
+   Commandline equivalent None
+   Examples message_log = /var/log/getmail
+   message_log = ""
+   
+Running getmail
+
+   Run the getmail helper script you installed earlier:
+getmail
+
+   By default, getmail will read in the default getmailrc file
+   ($HOME/.getmail/getmailrc) and begin retrieving mail.
+   
+   You can also supply commandline options. For a brief summary of usage
+   and commandline options, run:
+getmail --help
+
+getmail Commandline Options
+
+   getmail understands the following commandline options:
+   Long Form Short Form Summary
+   --help -h Display usage and default option values and exit
+   --getmaildir path -g path Use path as getmail configuration/data
+   directory
+   --rcfile file -r file Use file as getmailrc configuration file
+   --quiet -q No status output
+   --verbose -v Verbose status output
+   --message-log file -m file Log getmail operations to file
+   --all -a Retrieve all messages
+   --new -n Retrieve only new messages
+   --delete -d Delete messages after retrieval
+   --dont-delete -l Do not delete messages after retrieval
+   --timeout val -t val Set socket timeout to val seconds
+   --trace Enable debugging output
+   --dump Dump configuration and exit
+   
+--help or -h
+
+   Long Option          --help
+   Short Option         -h
+   getmailrc equivalent None
+   Function             Display usage information, then exit.
+   
+--getmaildir or -g
+
+   Long Option --getmaildir path
+   Short Option -g path
+   getmailrc equivalent None
+   Function Use path as getmail configuration/data directory. Defaults to
+   $HOME/.getmail/
+   
+--rcfile or -r
+
+   Long Option --rcfile filename
+   Short Option -r filename
+   getmailrc equivalent None
+   Function Use filename as getmailrc file. Defaults to getmailrc in the
+   getmaildir directory.
+   
+--quiet or -q
+
+   Long Option          --quiet
+   Short Option         -q
+   getmailrc equivalent verbose = 0
+   Function             Produce output only on error.
+   
+--verbose or -v
+
+   Long Option          --verbose
+   Short Option         -v
+   getmailrc equivalent verbose = 1
+   Function             Write status and progress messages to stdout.
+   
+--message-log
+
+   Long Option          --message-log file
+   Short Option         None
+   getmailrc equivalent message_log = file
+   Function             Log message retrieval and delivery information to file.
+   
+--all or -a
+
+   Long Option          --all
+   Short Option         -a
+   getmailrc equivalent readall = 1
+   Function             Retrieve all messages.
+   
+--new or -n
+
+   Long Option          --new
+   Short Option         -n
+   getmailrc equivalent readall = 0
+   Function             Retrieve only previously unseen messages.
+   
+--delete or -d
+
+   Long Option          --delete
+   Short Option         -d
+   getmailrc equivalent delete = 1
+   Function             Delete messages from server after retrieval.
+   
+--dont-delete or -l
+
+   Long Option          --dont-delete
+   Short Option         -l
+   getmailrc equivalent delete = 0
+   Function             Leave messages on server after retrieval.
+   
+--timeout or -t
+
+   Long Option          --timeout value (seconds)
+   Short Option         -t value (seconds)
+   getmailrc equivalent timeout = value (seconds)
+   Function             Set TCP timeout to value seconds.
+   
+--trace
+
+   Long Option          --trace
+   Short Option         None
+   getmailrc equivalent None
+   Function             Write verbose debugging information to stdout.
+   
+--dump
+
+   Long Option --dump
+   Short Option None
+   getmailrc equivalent None
+   Function Do not retrieve mail; read getmailrc file and commandline
+   options, then print configuration on stdout. This information should
+   be included in all bug reports or support requests.

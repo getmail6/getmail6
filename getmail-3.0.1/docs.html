@@ -263,13 +263,20 @@ recipient_header = delivered-to:1
 postmaster = ~tgrieg/Mail/postmaster-maildir/
 local = tgrieg@smallcompany.tld,~tgrieg/Mail/personal-maildir/
 local = info@smallcompany.tld,~bobf/Maildir/
-local = sales@smallcompany.tld,~darlab/mbox
+local = sales@smallcompany.tld,~darlab/Maildir/
 </pre>
 	<p>
 		The <span class="sample">local</span> directives tell getmail to deliver
 		mail for those users to their various mail spools on the system, and the
 		<span class="sample">postmaster</span> directive tells getmail to deliver any
 		mail which doesn't match any of the local directives somewhere else.
+	</p>
+	<p>
+		To make getmail sort mail (with <span class="sample">local</span> directives 
+		like the above) based on the envelope recipient address, you 
+		<strong>must</strong> either enable the <span class="sample">use_*env</span> 
+		option (if your mailhost supports it) or use the <span 
+		class="sample">recipient_header</span> directive.
 	</p>
 
 	<h4 id="delivery-targets"><a href="#configure">Message Delivery Targets</a></h4>
@@ -393,7 +400,7 @@ postmaster = "|/path/to/mda [options] 2>&amp;1"
 			<td class="listitem"><a href="#directive-postmaster">postmaster</a></td><td>No</td><td>None</td><td>Default message delivery target</td>
 		</tr>
 		<tr>
-			<td class="listitem"><a href="#directive-local">local</a></td><td>Yes</td><td>None</td><td>Header field pattern-matching delivery target</td>
+			<td class="listitem"><a href="#directive-local">local</a></td><td>Yes</td><td>None</td><td>Header field pattern-matching delivery target for domain mailboxes</td>
 		</tr>
 		<tr>
 			<td class="listitem"><a href="#directive-recipient-header">recipient_header</a></td><td>Yes</td><td>None</td><td>Specify a header field the POP3 server records the envelope recipient address in.</td>
@@ -925,8 +932,13 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				Function
 			</td>
 			<td class="rowdata">
-				Specify the default delivery target for all retrieved messages which
-				are not handled by a matching <a href="#directive-local">local</a> directive.
+				In non-domain mailbox operation, specifies the delivery target
+				for all retrieved mail.
+				<br />
+				<br />
+				In domain mailbox operation, this specifies the default delivery 
+				target for all retrieved messages which are not handled by a 
+				matching <a href="#directive-local">local</a> directive.
 			</td>
 		</tr>
 		<tr>
@@ -967,7 +979,6 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 			</td>
 			<td class="sample">
 				postmaster = /home/joe/Maildir/<br />
-				postmaster = ~brenda/mbox<br />
 				postmaster = &quot;|/usr/local/bin/my_mda -f foo -a all -b gone /home/postmaster/.mdarc&quot;
 			</td>
 		</tr>
@@ -980,24 +991,28 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				Function
 			</td>
 			<td class="rowdata">
-				Specify the destination for retrieved messages which appear to
-				be addressed to a given user.  getmail will match the specified
-				Perl-compatible extended regular expression against the
-				envelope recipient address found in the header field specified
-				with the <a href="#directive-recipient-header">recipient_header</a>
-				directive.  If a match is found, the message will be delivered
-				to the specified <a href="#delivery-targets">target</a>.
-				If multiple local directives contain matching patterns, each
-				matching target will receive a copy of the message.
-				If there are no local directives, or no match is found, the
-				message will be delivered according to the <a href="#directive-postmaster">default delivery target</a>.<br />
+				Specify the destination for retrieved messages which have an envelope recipient 
+				address which matches a given pattern. getmail will match the specified Perl- 
+				compatible extended regular expression against the envelope recipient address 
+				(retrieved using <a href="#directive-use-*env"><span 
+				class="sample">*ENV</span></a> support or found in the header field specified 
+				with the <a href="#directive-recipient- header">recipient_header</a> directive).  
+				If a match is found, the message will be delivered to the specified <a 
+				href="#delivery-targets">target</a>. If multiple local directives contain 
+				matching patterns, each matching target will receive a copy of the message. If 
+				there are no local directives, or no match is found, the message will be 
+				delivered according to the <a href="#directive- postmaster">default delivery 
+				target</a>.<br />
 				<br />
 				If you do not understand Perl-compatible regular expressions,
 				just use email addresses here.  They will work in virtually all
 				cases.<br />
 				<br />
 				Use multiple local directives to filter mail retrieved from a
-				domain mailbox to multiple local user accounts.
+				domain mailbox to multiple local user accounts.<br />
+				<br />
+				<strong class="warning">Note that <span class="sample">local</span>
+				directives can only be used in multidrop mode.</strong>
 			</td>
 		</tr>
 		<tr>
@@ -1054,12 +1069,14 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 			<td class="rowdata">
 				Extract envelope recipient address from listed header field.<br />
 				<br />
-				This directive is mostly useful if the POP3 server records
-				envelope recipient addresses in a specific header field
-				(i.e. Delivered-To: or X-Envelope-To:), and you wish to process
-				mail from a domain mailbox, sorting and delivering it to
-				multiple local user accounts using <a href="#directive-local">local</a>
-				directives.
+				This directive enables domain mailbox operation and is useful 
+				only if the POP3 server records envelope recipient addresses in 
+				a specific header field
+				(i.e. Delivered-To: or X-Envelope-To:).
+				<br />
+				Use it if wish to process mail from a domain mailbox, sorting 
+				and delivering it to multiple local user accounts using <a 
+				href="#directive-local">local</a> directives.
 			</td>
 		</tr>
 		<tr>
@@ -1118,7 +1135,7 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				Demon's SPDS *ENV POP3 extension (described at
 				<a href="http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml">http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml</a>).<br />
 				<br />
-				This directive overrides the <span class="sample">recipient_header</span>
+				This directive enables domain mailbox operation and overrides the <span class="sample">recipient_header</span>
 				directive.
 			</td>
 		</tr>
