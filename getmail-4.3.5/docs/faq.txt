@@ -1,6 +1,6 @@
 
-                             getmail documentation
-                                       
+getmail documentation
+
    This is the documentation for getmail version 4. Version 4 includes
    numerous changes from version 3.x; if you are using getmail version 3,
    please refer to the documentation included with that version of the
@@ -12,24 +12,24 @@
    (only). If you wish to obtain a license to distribute getmail under
    other terms, please contact me directly.
    
-                       Frequently-Asked Questions (FAQs)
-                                       
+Frequently-Asked Questions (FAQs)
+
    The following questions about getmail are answered more-or-less
    frequently. Please also read the unexpected behaviour section of the
    troubleshooting document.
    
 About getmail
 
-  What is getmail?
-  
+What is getmail?
+
    getmail is a mail retriever with support for POP3, POP3-over-SSL,
    IMAP4, IMAP4-over-SSL, and SDPS mail accounts. It supports normal
    single-user mail accounts and multidrop (domain) mailboxes. getmail is
    written in Python, and licensed under the GNU General Public License
    version 2.
    
-  What platforms/machines does getmail run on?
-  
+What platforms/machines does getmail run on?
+
    getmail runs on basically any platform. It's designed to, and written
    in a language that helps to maintain cross-platform compatibility.
    getmail is known to run on the following platforms:
@@ -48,7 +48,6 @@ About getmail
      * BeOS
      * Amiga OS
      * OS/2
-     * MS Windows
      * Cygwin on Windows
      * Macintosh OS X
      * Macintosh OS 9
@@ -57,20 +56,23 @@ About getmail
    real requirement is that Python run on that platform, and porting
    Python is generally very easy.
    
-    Does getmail run on MS Windows?
-    
+Does getmail run on MS Windows?
+
+   Yes, under the free Cygwin package. Running recent versions of Python
+   under Cygwin requires a process known as "rebasing" your Cygwin
+   installation; you can find details in this Python developers' mailing
+   list message.
+   
+Does getmail run on Macintosh systems?
+
    Yes.
    
-    Does getmail run on Macintosh systems?
-    
-   Yes.
-   
-    Does getmail require Unix/Linux?
-    
+Does getmail require Unix/Linux?
+
    No.
    
-  How can I get support for getmail?
-  
+How can I get support for getmail?
+
    getmail is Free Software. As such, it comes with no warranty. However,
    I will do my best to support getmail on a voluntary basis through the
    getmail mailing list.
@@ -90,12 +92,12 @@ About getmail
    question there, I will see it. As an additional bonus, your question
    may be answered by another member of the list.
    
-  I think I found a bug! How do I report it?
-  
+I think I found a bug! How do I report it?
+
    First, make sure that you are running the latest version. You can
    always find what is the latest version by checking this page at the
    original web site:
-   http://www.qcc.ca/~charlesc/software/getmail-4/.
+   http://pyropus.ca/software/getmail/.
    If you running an older version of the software, chances are whatever
    bug you may have found has already been fixed.
    
@@ -116,16 +118,16 @@ About getmail
    able to respond to all reports privately, but I will try to address
    any bugs I find out about this way.
    
-  I have a neat idea for random feature "foo" ... how do I get you to implement
-  it?
-  
+I have a neat idea for random feature "foo" ... how do I get you to
+implement it?
+
    Follow the same instructions as for reporting bugs above -- yes, that
    means I would prefer you submit your idea to the getmail users'
    mailing list. That will lead to a useful discussion if your feature
    has not been proposed before.
    
-  Why won't you implement random feature "foo"?
-  
+Why won't you implement random feature "foo"?
+
    Every line of code added to getmail has a certain cost. Every feature
    added requires code, documentation, and support. Adding features
    increases the complexity of the software, confuses users, and leads to
@@ -141,29 +143,29 @@ About getmail
    be the reason. Other possibilities include me simply not having had
    sufficient time to implement it yet.
    
-  Does getmail support virus scanning of retrieved messages?
-  
+Does getmail support virus scanning of retrieved messages?
+
    Yes. You can use getmail message filtering options to do this with an
    external virus scanning program, or invoke your virus scanning program
    during delivery with getmail's support for external MDAs.
    
    Also see the FAQ about using getmail with the ClamAV program.
    
-  Does getmail support spam filtering of retrieved messages?
-  
+Does getmail support spam filtering of retrieved messages?
+
    Yes. You can use getmail message filtering options to do this with an
    external spam filtering program, or invoke your spam filtering program
    during delivery with getmail's support for external MDAs.
    
    Also see the FAQ about using getmail with the SpamAssassin program.
    
-  Does getmail support SSL?
-  
+Does getmail support SSL?
+
    Yes. getmail has built in support for POP3-over-SSL and
    IMAP4-over-SSL.
    
-  Does getmail rewrite mail headers when it retrieves mail?
-  
+Does getmail rewrite mail headers when it retrieves mail?
+
    No. Rewriting message header fields is bad for many reasons; the
    biggest problem is that it causes a loss of critical technical
    information necessary to track down many mail problems. getmail will
@@ -171,8 +173,8 @@ About getmail
    but does not rewrite existing headers. You can disable the creation of
    these header fields.
    
-  Can I upgrade from getmail 3 to getmail 4? What about my "oldmail" files?
-  
+Can I upgrade from getmail 3 to getmail 4? What about my "oldmail" files?
+
    Yes. getmail version 4 uses exactly the same
    oldmail-server-port-username naming convention for its oldmail files.
    The only difference is that version 4 escapes a couple of additional
@@ -198,8 +200,8 @@ About getmail
        
    That's it.
    
-  Why did you write getmail? Why not just use fetchmail?
-  
+Why did you write getmail? Why not just use fetchmail?
+
    Short answer: ... well, the short answer is mostly unprintable. The
    long answer is ... well, long:
    
@@ -288,8 +290,8 @@ About getmail
    
 Configuring getmail
 
-  What is a "domain mailbox"?
-  
+What is a "domain mailbox"?
+
    A domain (or multidrop) mailbox is a POP3 mailbox which receives mail
    for all users in a given domain. Normal mailboxes contain mail for a
    single user (like jason@myisp.co.uk); some Internet Service Providers
@@ -308,14 +310,14 @@ Configuring getmail
    the requirements for a multidrop mailbox are. getmail user Matthias
    Andree also has a web page about multidrop mailboxes.
    
-  Do I have to run sendmail or another MTA to use getmail?
-  
+Do I have to run sendmail or another MTA to use getmail?
+
    No. getmail delivers directly to maildirs, mboxrd files, or via
    arbitrary MDAs, and never injects mail via SMTP, so no MTA is
    necessary.
    
-  Will getmail deliver mail as root?
-  
+Will getmail deliver mail as root?
+
    No. When run as the root user on a Unix-like system, getmail drops
    privileges (switches to an unprivileged group and user id) before
    delivering to maildirs or mboxrd files. You can specify the user
@@ -325,8 +327,8 @@ Configuring getmail
    If getmail attempts to deliver mail and finds it has UID 0 or GID 0,
    it will refuse the delivery and print an error message.
    
-  What's a maildir?
-  
+What's a maildir?
+
    A maildir is a mail storage format invented by D. J. Bernstein (author
    of qmail) that requires no file locking to deliver to safely and
    reliably, even over NFS. getmail natively supports delivery to
@@ -335,8 +337,8 @@ Configuring getmail
    See http://qmail.org/man/man5/maildir.html and
    http://cr.yp.to/proto/maildir.html for details.
    
-  What's "mboxrd" format?
-  
+What's "mboxrd" format?
+
    There are various sub-types of the mbox mail storage format. mboxrd is
    the most reliable of them, though (like all mbox types) it still
    relies on file locking and is therefore more easily corrupted than
@@ -346,8 +348,8 @@ Configuring getmail
    For details on the differences between the various mbox sub-types, see
    http://qmail.org/man/man5/mbox.html.
    
-  What's this "envelope sender" and "envelope recipient" stuff?
-  
+What's this "envelope sender" and "envelope recipient" stuff?
+
    The "envelope" of an email message is "message metadata"; that is, the
    message is information, and the envelope is information about the
    message (information about other information). Knowing this is
@@ -358,8 +360,8 @@ Configuring getmail
    I'll use the standard analogy of normal postal (i.e. non-electronic)
    mail:
    
-    Message header vs. message envelope
-    
+Message header vs. message envelope
+
    When you receive a letter (a reply from the customer-disservice
    department of your telephone company, say) it arrives in an envelope.
    You tear it open, remove the letter, and read it. At the top of the
@@ -388,8 +390,8 @@ Configuring getmail
    of the intended recipients of the message, but they too are not used
    in the delivery of the message.
    
-    Receiving messages without your address in the message header
-    
+Receiving messages without your address in the message header
+
    You might open an envelope addressed to you and find that the letter
    inside makes no mention of your name. Your name and address don't
    appear anywhere in the letter, but it was still successfully delivered
@@ -422,8 +424,8 @@ Configuring getmail
    envelope recipient addresses. While these are sensible as default
    values, more powerful MUAs allow the user to override this choice.
    
-    Responsibility for recording the message envelope
-    
+Responsibility for recording the message envelope
+
    The last MTA to receive a message (usually the one running on the POP
    or IMAP server where you retrieve your mail from) essentially acts as
    your correspondence secretary, accepting your mail from the postman,
@@ -461,8 +463,8 @@ Configuring getmail
    header field; sometimes this header field is named Delivered-To:, but
    it can also be Envelope-To: or one of a few other names.
    
-    How this relates to domain or multidrop mailboxes
-    
+How this relates to domain or multidrop mailboxes
+
    A domain or multidrop mailbox is one which receives mail for multiple
    email addresses (commonly all addresses in a given domain). If you do
    not want all of this mail to go to one person, you need to know who
@@ -484,8 +486,8 @@ Configuring getmail
    be fixed so that the envelope is properly recorded for every message
    it receives.
    
-  This rc stuff seems complicated. Does it have to be?
-  
+This rc stuff seems complicated. Does it have to be?
+
    The configuration file format is actually very simple; you don't need
    to worry about most of it if you're not interested in using those
    features. The simplest and most common getmail rc file configuration
@@ -521,29 +523,29 @@ path = ~/inbox
 
 How do I ...
 
-  How do I retrieve mail from multiple accounts?
-  
+How do I retrieve mail from multiple accounts?
+
    Create a separate getmail rc file for each account, and run getmail
    with multiple --rcfile options.
    
-  How do I stop getmail adding a Delivered-To: header to messages?
-  
+How do I stop getmail adding a Delivered-To: header to messages?
+
    Use the delivered_to [options] parameter.
    
-  How do I stop getmail adding a Received: header to messages?
-  
+How do I stop getmail adding a Received: header to messages?
+
    Use the received [options] parameter.
    
-  How do I make getmail deliver messages by re-injecting with SMTP?
-  
+How do I make getmail deliver messages by re-injecting with SMTP?
+
    You don't need to. getmail can deliver to maildirs, mboxrd files, or
    through arbitrary external MDAs.
    
    If you still think you need to, you can use getmail's external MDA
    support to do so.
    
-  How do I make getmail deliver messages to an mh folder?
-  
+How do I make getmail deliver messages to an mh folder?
+
    mh clients (and nmh, or "new mh" clients) include a command for
    delivering a message into your mh folder. In nmh, this command is
    called rcvstore. You use it as an external message delivery agent
@@ -563,8 +565,8 @@ arguments = ("+inbox", )
 
    Thanks to Frankye Fattarelli for contributing this answer.
    
-  How do I run getmail in "daemon" mode?
-  
+How do I run getmail in "daemon" mode?
+
    Use your system's cron utility to run getmail periodically if you wish
    to have mail retrieved automatically at intervals. This is precisely
    what cron is designed to do; there's no need to add special code to
@@ -574,31 +576,31 @@ arguments = ("+inbox", )
    like the following will make getmail retrieve mail every hour:
 0 * * * * /usr/local/bin/getmail --quiet
 
-  How do I make getmail stop after retrieving X messages so that the server
-  actually flushes deleted messages?
-  
+How do I make getmail stop after retrieving X messages so that the server
+actually flushes deleted messages?
+
    Use the max_messages_per_session option to limit the number of
    messages getmail will process in a single session. Some users with
    flaky servers use this option to reduce the chances of seeing messages
    more than once if the server dies in mid-session.
    
-  How do I make getmail retrieve mail from Hotmail?
-  
+How do I make getmail retrieve mail from Hotmail?
+
    Well, you could write a retriever that speaks Hotmail's proprietary,
    undocumented, and unsupported access protocol (or pay me to write
    one), or simply set up the POP3 proxy from the httpmail package, and
    have getmail retrieve mail from that POP3 proxy.
    
-  I'm using getmail. How do I make it ...
-  
+I'm using getmail. How do I make it ...
+
    These are supplementary questions I occasionally see about doing
    various things to enhance a getmail setup. The solution to many of
    them is to use a standard Unix technique of some sort to make the
    system behave in a certain manner, or otherwise change the behaviour
    of something that's actually outside of getmail proper.
    
-    I'm running getmail from cron. How do I temporarily stop it?
-    
+I'm running getmail from cron. How do I temporarily stop it?
+
    Some people ask about temporarily stopping getmail from running from a
    cron job, possibly because the mail server is down and they don't want
    to see the warnings cron mails them.
@@ -632,8 +634,8 @@ $ crontab -e
    This is even safe for scripting, as creating and removing the file are
    atomic operations under Unix.
    
-    How do I stop multiple instances of getmail from running at the same time?
-    
+How do I stop multiple instances of getmail from running at the same time?
+
    getmail has no problems running multiple instances in parallel, though
    you shouldn't attempt to use the same getmail rc file from two
    different instances at the same time. If you need to prevent two
@@ -652,8 +654,8 @@ Using getmail with other software
    getmail user Frankye Fattarelli contributed to the following questions
    about integrating getmail with SpamAssassin and ClamAV.
    
-  How do I use SpamAssassin with getmail?
-  
+How do I use SpamAssassin with getmail?
+
    SpamAssassin can be run in standalone mode or in a client/server
    configuration. In both configurations, SpamAssassin accepts a wide
    variety of arguments; please refer to SpamAssassin's manual pages or
@@ -688,8 +690,8 @@ arguments = ("--report", )
    SpamAssassin configuration:
 bayes_ignore_header X-getmail-filter-classifier
 
-  How do I use ClamAV with getmail?
-  
+How do I use ClamAV with getmail?
+
    You should also read this message in the getmail users' mailing list
    archives and the ClamAV documentation if you want to use ClamAV with
    getmail.
@@ -756,8 +758,8 @@ ScanMail
    additional notes on using ClamAV with getmail:
    http://marc.theaimsgroup.com/?l=getmail&m=109128345509273&w=2
    
-    Getting prettier output from ClamAV
-    
+Getting prettier output from ClamAV
+
    Using getmail's Filter_classifier, the output of your filtering
    program (in this case ClamAV) is placed into a
    X-getmail-filter-classifier: header field in the message. This can
@@ -779,8 +781,20 @@ arguments = ("-R", "X-getmail-filter-classifier:",
    invoked as the second filter (or immediately after the ClamAV filter,
    if it is the second, third, etc. filter).
    
-  How do I use procmail with getmail?
-  
+How do I use F-Prot with getmail?
+
+   getmail user Kai Raven reports that getmail and F-Prot work fine
+   together with the following getmailrc filter configuration:
+[filter]
+type = Filter_external
+
+path = /usr/local/bin/f-prot-wrapper.sh
+
+   The wrapper script f-prot-wrapper.sh is a small shellscript by Ali
+   Onur Cinar, and can be downloaded from his website.
+   
+How do I use procmail with getmail?
+
    Simply invoke procmail as an external MDA. procmail requires that one
    of the following be true:
      * that the message begin with a Unix "From " line (the mbox message
@@ -801,8 +815,8 @@ type = MDA_external
 path = /path/to/procmail
 arguments = ("-f", "%(sender)")
 
-  How do I use maildrop with getmail?
-  
+How do I use maildrop with getmail?
+
    Simply invoke maildrop as an external MDA. maildrop requires that the
    message begin with a Unix "From " line (the mbox message delimiter),
    so you'll need to either set the MDA_external parameter unixfrom to
@@ -826,8 +840,8 @@ type = MDA_external
 path = /path/to/maildrop
 arguments = ("-f", "%(sender)", "~/.maildroprc")
 
-  How do I use TMDA with getmail?
-  
+How do I use TMDA with getmail?
+
    Simply use the Filter_TMDA module as a message filter:
 [filter-X]
 type = Filter_TMDA
@@ -840,9 +854,9 @@ I think I found this bug in getmail ...
    I get frequent reports like the following, which aren't bugs in
    getmail. Please read them before reporting them to me.
    
-  FutureWarning: %u/%o/%x/%X of negative int will return a signed string in
-  Python 2.4 and up
-  
+FutureWarning: %u/%o/%x/%X of negative int will return a signed string in
+Python 2.4 and up
+
    Various people have reported this "bug" in getmail, where they see the
    following warning when getmail is run:
 /usr/lib/python2.3/optparse.py:668: FutureWarning: %u/%o/%x/%X of negative int
@@ -853,8 +867,8 @@ will return a signed string in Python 2.4 and up
    getmail. Feel free to report it to the Python team if the most recent
    release of Python hasn't fixed it. I reported it in June, 2004.
    
-  DeprecationWarning: 'strict' argument is deprecated (and ignored)
-  
+DeprecationWarning: 'strict' argument is deprecated (and ignored)
+
    Various people have reported this "bug" in getmail, where they see the
    following warning when getmail is run with Python version 2.4:
 /usr/local/lib/python2.4/email/__init__.py:43: DeprecationWarning: 'strict' arg
@@ -872,8 +886,8 @@ ument is deprecated (and ignored)
    first line of the getmail script to be:
  #!/path/to/python2.4 -Wignore:.:DeprecationWarning:.:0
 
-  AttributeError: 'module' object has no attribute 'fsync'
-  
+AttributeError: 'module' object has no attribute 'fsync'
+
    Various people have reported this "bug" in getmail -- it's actually a
    bug in some versions of Python 2.3.X. It was fixed in Python version
    2.3.3. getmail 4 detects problematic versions of Python and refuses to

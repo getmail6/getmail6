@@ -69,8 +69,8 @@ setup(
     author='Charles Cazabon',
     author_email='getmail@discworld.dyndns.org',
     license='GNU GPL version 2',
-    url='http://www.qcc.ca/~charlesc/software/getmail-4/',
-    download_url='http://www.qcc.ca/~charlesc/software/getmail-4/#download',
+    url='http://pyropus.ca/software/getmail/',
+    download_url='http://pyropus.ca/software/getmail/#download',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',

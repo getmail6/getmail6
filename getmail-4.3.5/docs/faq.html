@@ -7,10 +7,12 @@
     <meta name="author" content="Charles Cazabon" />
     <meta name="description" content="Frequently-asked questions about getmail version 4" />
     <meta name="keywords" content="getmail FAQ, getmail 4 FAQ, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
-    <!--link rel="Contents Up Index" title="Charles Cazabon's Software" href="../" />-->
+    <link rel="Contents Up Index" title="Charles Cazabon's Software" href="../" />
     <style type="text/css" media="all">@import "getmaildocs.css";</style>
+    <style type="text/css" media="all">@import "/style/styles.css";</style>
 </head>
 <body id="top">
+    <div class="content">
 
 <!----><h1 id="title">getmail documentation</h1>
 <p class="introduction">
@@ -158,6 +160,7 @@
                     <li><a href="faq.html#faq-integrating-clamav-prettier">Getting prettier output from ClamAV</a></li>
                     </ul>
                 </li>
+                <li><a href="faq.html#faq-integrating-fprot">How do I use F-Prot with getmail?</a></li>
                 <li><a href="faq.html#faq-integrating-procmail">How do I use procmail with getmail?</a></li>
                 <li><a href="faq.html#faq-integrating-maildrop">How do I use maildrop with getmail?</a></li>
                 <li><a href="faq.html#faq-integrating-tmda">How do I use TMDA with getmail?</a></li>
@@ -222,7 +225,6 @@
     <li>BeOS</li>
     <li>Amiga OS</li>
     <li>OS/2</li>
-    <li>MS Windows</li>
     <li>Cygwin on Windows</li>
     <li>Macintosh OS X</li>
     <li>Macintosh OS 9</li>
@@ -235,7 +237,11 @@
 
 <h4 id="faq-about-platforms-windows">Does getmail run on MS Windows?</h4>
 <p>
-    <a href="#faq-about-platforms">Yes.</a>
+    Yes, under the free <a href="http://cygwin.com/">Cygwin</a> package.
+    Running recent versions of Python under Cygwin requires a process known
+    as &quot;rebasing&quot; your Cygwin installation; you can find details
+    in
+    <a href="http://mail.python.org/pipermail/python-dev/2003-July/036932.html">this Python developers' mailing list message</a>.
 </p>
 
 <h4 id="faq-about-platforms-mac">Does getmail run on Macintosh systems?</h4>
@@ -284,7 +290,7 @@
     find what is the latest version by checking this page at the original
     web site:
     <br />
-    <a href="http://www.qcc.ca/~charlesc/software/getmail-4/">http://www.qcc.ca/~charlesc/software/getmail-4/</a>.
+    <a href="http://pyropus.ca/software/getmail/">http://pyropus.ca/software/getmail/</a>.
     <br />
     If you running an older version of the software, chances are whatever bug
     you may have found has already been fixed.
@@ -1324,6 +1330,23 @@ arguments = (&quot;-R&quot;, &quot;X-getmail-filter-classifier:&quot;,
     the second, third, etc. filter).
 </p>
 
+<h3 id="faq-integrating-fprot">How do I use F-Prot with getmail?</h3>
+<p>
+    getmail user Kai Raven reports that getmail and F-Prot work fine together
+    with the following getmailrc filter configuration:
+</p>
+<pre class="example">
+[filter]
+type = Filter_external                                                          
+path = /usr/local/bin/f-prot-wrapper.sh
+</pre>
+<p>
+    The wrapper script
+    <span class="file">f-prot-wrapper.sh</span></file>
+    is a small shellscript by Ali Onur Cinar, and 
+    <a href="http://www.zdo.com/articles/res/f-prot-wrapper.sh">can be downloaded from his website</a>.
+</p>
+
 <h3 id="faq-integrating-procmail">How do I use procmail with getmail?</h3>
 <p>
     Simply invoke
@@ -1478,8 +1501,9 @@ type = Filter_TMDA
     to run, but you can still encounter this problem with getmail version 3
     if you try to run it with a broken Python version.
 </p>
-
-<!--#include virtual="footer.html"-->
-
+        <!--#include virtual="/include/footer-xhtml11.html"-->
+    </div>
+    <!--#include virtual="/include/menu-top.html"-->
+    <!--#include virtual="/include/header.html"-->
 </body>
 </html>

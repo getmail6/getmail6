@@ -29,11 +29,7 @@ import re
 import types
 import email.Utils
 
-# Only on Unix
-try:
-    import pwd
-except ImportError:
-    pass
+import pwd
 
 from exceptions import *
 from utilities import *

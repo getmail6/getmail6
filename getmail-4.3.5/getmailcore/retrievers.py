@@ -106,7 +106,7 @@ class BrokenUIDLPOP3Retriever(POP3RetrieverBase, POP3initMixIn):
         duplicated IDs are always treated as new messages.'''
         self.log.trace()
 
-    def _write_oldmailfile(self):
+    def write_oldmailfile(self):
         '''Short-circuit writing the oldmail file.'''
         self.log.trace()
 

@@ -7,10 +7,12 @@
     <meta name="author" content="Charles Cazabon" />
     <meta name="description" content="Official documentation for getmail version 4, an extensible mail-retrieval program with support for POP3, IMAP, SDPS, SSL, domain mailboxes, message filtering, and other features." />
     <meta name="keywords" content="getmail, getmail 4, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
-    <!--link rel="Contents Up Index" title="Charles Cazabon's Software" href="../" />-->
+    <link rel="Contents Up Index" title="Charles Cazabon's Software" href="../" />
     <style type="text/css" media="all">@import "getmaildocs.css";</style>
+    <style type="text/css" media="all">@import "/style/styles.css";</style>
 </head>
 <body id="top">
+    <div class="content">
 
 <h1 id="title">getmail documentation</h1>
 <p class="introduction">
@@ -48,7 +50,6 @@
                 <li><a href="documentation.html#installing-impatient">For the impatient</a></li>
                 <li><a href="documentation.html#installing-full">Full installation instructions</a></li>
                 <li><a href="documentation.html#installing-rpm">Installing from the RPM</a></li>
-                <li><a href="documentation.html#installing-win32inst">Installing from the MS Windows installer</a></li>
                 <li><a href="documentation.html#installing-source">Installing directly from the source</a></li>
                 <li>
                     <ul>
@@ -214,7 +215,8 @@
             </li>
             <li>
                 cross-platform operation; getmail 4 should work on Unix/Linux,
-                Macintosh, Windows, and other platforms
+                Macintosh, and other platforms.  Windows support available
+                under the free <a href="http://cygwin.com/">Cygwin</a> package.
             </li>
         </ul>
     </li>
@@ -279,7 +281,7 @@
     At the time of this writing, the current stable version of Python is
     2.3.4.  You can download that version from the page at
     <a href="http://www.python.org/2.3.4/">http://www.python.org/2.3.4/</a>
-    .  Binary packages are typically available for Windows and RPM-based
+    .  Binary packages are available for RPM-based
     Linux systems, or building Python from source is typically as easy
     as unpacking the source tarball, and running the following commands:
 </p>
@@ -312,7 +314,7 @@ make install
 <h2 id="obtaining">Obtaining getmail</h2>
 <p>
     Download getmail 4 from the official website main page at
-    <a href="http://www.qcc.ca/~charlesc/software/getmail-4/#download">http://www.qcc.ca/~charlesc/software/getmail-4/</a>
+    <a href="http://pyropus.ca/software/getmail/#download">http://pyropus.ca/software/getmail/</a>
     .
 </p>
 
@@ -322,8 +324,7 @@ make install
 
 <h3 id="installing-impatient">For the impatient</h3>
 <p>
-    Installing getmail is very easy; MS Windows users can download and run
-    the self-installer, and everyone else can just download the tarball
+    Installing getmail is very easy; just download the tarball
     distribution, unpack it, change into the directory
     it unpacks into, and run this command:
 </p>
@@ -332,7 +333,7 @@ $ python setup.py install
 </pre>
 <p>
     That's all there is to it.  99.9% of users don't need a special
-    package/port/etc (even MS Windows users can use the tarball, if they want).
+    package/port/etc.
     If you'd like more details on install options, keep reading.
 </p>
 
@@ -345,7 +346,7 @@ $ python setup.py install
 $ tar xzf getmail-<span class="meta">version</span>.tar.gz
 </pre>
 <p>
-    On Windows or Macintosh systems, use a Zip-type archiver program to unpack 
+    On Macintosh systems, use a Zip-type archiver program to unpack 
     the tarball.
 </p>
 <p>
@@ -377,12 +378,6 @@ $ tar xf getmail-<span class="meta">version</span>.tar
 <pre class="example">
 $ rpm -ihv getmail-<span class="meta">version</span>-<span class="meta">release</span>.noarch.rpm
 </pre>
-
-<h3 id="installing-win32inst">Installing from the MS Windows installer</h3>
-<p>
-    If you downloaded the MS Windows self-executing installer, just run it
-    to install getmail.
-</p>
 
 <h3 id="installing-source">Installing directly from the source</h3>
 <p>
@@ -647,10 +642,6 @@ $ python setup.py bdist --format=<span class="meta">package-format</span>
         <span class="file">swinstall</span>
         software installer.
     </li>
-    <li>
-        <span class="file">wininst</span>
-        &mdash; build a self-extracting Zip file for MS Windows systems.
-    </li>
 </ul>
 <p>
     Ideally, if you use this method, it will result in a &quot;built
@@ -779,8 +770,9 @@ $ python setup.py bdist --format=<span class="meta">package-format</span>
 </p>
 
 <!-- ********************************************************************** -->
-
-<!--#include virtual="footer.html"-->
-
+        <!--#include virtual="/include/footer-xhtml11.html"-->
+    </div>
+    <!--#include virtual="/include/menu-top.html"-->
+    <!--#include virtual="/include/header.html"-->
 </body>
 </html>

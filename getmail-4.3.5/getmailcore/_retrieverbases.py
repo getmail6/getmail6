@@ -268,7 +268,7 @@ class RetrieverSkeleton(ConfigurableBase):
 
     def __del__(self):
         self.log.trace()
-        self._write_oldmailfile()
+        self.write_oldmailfile()
 
     def __str__(self):
         self.log.trace()
@@ -297,7 +297,7 @@ class RetrieverSkeleton(ConfigurableBase):
         except IOError:
             self.log.moreinfo('no oldmail file for %s' % self + os.linesep)
 
-    def _write_oldmailfile(self):
+    def write_oldmailfile(self, forget_deleted=True):
         '''Write oldmail info to oldmail file.'''
         self.log.trace()
         if (self.__oldmail_written
@@ -311,7 +311,7 @@ class RetrieverSkeleton(ConfigurableBase):
                     sets.ImmutableSet(self.oldmail.keys()))
             for msgid in msgids:
                 self.log.debug('msgid %s ...' % msgid)
-                if msgid in self.deleted:
+                if forget_deleted and msgid in self.deleted:
                     # Already deleted, don't remember this one
                     self.log.debug(' was deleted, skipping' + os.linesep)
                     continue
@@ -479,7 +479,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
 
     def quit(self):
         self.log.trace()
-        self._write_oldmailfile()
+        self.write_oldmailfile()
         if not hasattr(self, 'conn'):
             return
         try:
@@ -745,7 +745,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def quit(self):
         self.log.trace()
-        self._write_oldmailfile()
+        self.write_oldmailfile()
         if not hasattr(self, 'conn'):
             return
         try:

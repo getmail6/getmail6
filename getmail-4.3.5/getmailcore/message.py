@@ -135,7 +135,7 @@ class Message(object):
             f.write('From %s %s' % (mbox_from_escape(self.sender),
                 time.asctime()) + os.linesep)
         # Write the Return-Path: header
-        f.write(format_header('Return-Path', self.sender))
+        f.write(format_header('Return-Path', '<%s>' % self.sender))
         # Remove previous Return-Path: header fields.
         del self.__msg['Return-Path']
         if delivered_to:

@@ -65,7 +65,7 @@ defaults = {
 #######################################
 def blurb():
     log.info('getmail version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2004 Charles Cazabon.  Licensed under the'
+    log.info('Copyright (C) 1998-2005 Charles Cazabon.  Licensed under the'
         ' GNU GPL version 2.\n')
 
 #######################################
@@ -207,21 +207,25 @@ def go(configs):
             pass
 
         except socket.timeout, o:
+            retriever.write_oldmailfile(forget_deleted=True)
             if type(o) == tuple and len(o) > 1:
                 o = o[1]
             log.error('%s: timeout (%s)\n' % (configfile, o))
 
         except socket.gaierror, o:
+            retriever.write_oldmailfile(forget_deleted=True)
             if type(o) == tuple and len(o) > 1:
                 o = o[1]
             log.error('%s: error resolving name (%s)\n' % (configfile, o))
 
         except socket.error, o:
+            retriever.write_oldmailfile(forget_deleted=True)
             if type(o) == tuple and len(o) > 1:
                 o = o[1]
             log.error('%s: socket error (%s)\n' % (configfile, o))
 
         except getmailOperationError, o:
+            retriever.write_oldmailfile(forget_deleted=True)
             log.error('%s: operation error (%s)\n' % (configfile, o))
 
         summary.append( (retriever, msgs_retrieved, msgs_skipped) )
@@ -509,7 +513,7 @@ def main():
                 log.clearhandlers()
                 log.addhandler(sys.stderr, logging.WARNING)
 
-            configs.append( (filename, retriever,
+            configs.append( (os.path.basename(filename), retriever,
                 _filters, destination, config.copy()) )
 
         if options.dump_config:

@@ -1,3 +1,31 @@
+Version 4.3.5
+3 April 2005
+
+  -make getmail less conservative about remembering messages as already-seen
+  when unrelated errors occur after successfully delivering them.
+  Thanks: Thomas Schwinge.
+
+Version 4.3.4
+14 March 2005
+
+  -documentation changes; getmail v4 cannot run natively on Windows.  Use
+  Cygwin if you must run on a Windows platform; this works.
+  -remove some Windows-specific code.
+
+Version 4.3.3
+19 February 2005
+
+  -previously, for safety, getmail would re-retrieve messages after a session
+  that encountered errors.  However, getmail had enough information to safely
+  remember those messages that had been successfully delivered.  This behaviour
+  has been changed, to avoid delivering duplicate messages where it isn't 
+  necessary.  Thanks: Thomas Schwinge.
+  -in output/log files, getmailrc files are now specified only by filename, 
+  instead of by complete paths.  This will prevent some overly-long output 
+  lines.
+  -add Windows versions of functions to lock/unlock files, so mbox delivery
+  can be used on Windows.  Thanks: Felix Schwarz.
+  
 Version 4.3.2
 5 February 2005
 

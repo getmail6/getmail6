@@ -29,14 +29,10 @@ import signal
 import stat
 import time
 import glob
-import fcntl
 
-# Only on Unix
-try:
-    import pwd
-    import grp
-except ImportError:
-    pass
+import fcntl
+import pwd
+import grp
 
 from exceptions import *
 
@@ -51,6 +47,16 @@ _bool_values = {
     'off'   : False,
     '0'     : False
 }
+
+#######################################
+def lock_file(file):
+    '''Do fcntl file locking.'''
+    fcntl.flock(file.fileno(), fcntl.LOCK_EX)
+
+#######################################
+def unlock_file(file):
+    '''Do fcntl file unlocking.'''
+    fcntl.flock(file.fileno(), fcntl.LOCK_UN)
 
 #######################################
 def safe_open(path, mode):
@@ -94,9 +100,9 @@ class updatefile(object):
             if hasattr(self, 'file'):
                 self.file.close()
         except IOError:
-            pass            
+            pass
         self.closed = True
-        
+
     def close(self):
         if self.closed or not hasattr(self, 'file'):
             return
@@ -265,7 +271,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
 
     except IOError, o:
         signal.alarm(0)
-        raise getmailDeliveryError('failure writing file %s (%s)' 
+        raise getmailDeliveryError('failure writing file %s (%s)'
             % (fname_tmp, o))
 
     # Move message file from Maildir/tmp to Maildir/new
@@ -296,16 +302,6 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
 def mbox_from_escape(s):
     '''Escape spaces, tabs, and newlines in the envelope sender address.'''
     return ''.join([(c in (' ', '\t', '\n')) and '-' or c for c in s])
-
-#######################################
-def lock_file(file):
-    '''Do fcntl file locking.'''
-    fcntl.flock(file.fileno(), fcntl.LOCK_EX)
-
-#######################################
-def unlock_file(file):
-    '''Do fcntl file unlocking.'''
-    fcntl.flock(file.fileno(), fcntl.LOCK_UN)
 
 #######################################
 def address_no_brackets(addr):
