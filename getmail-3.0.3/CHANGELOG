@@ -1,6 +1,13 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.0.3
+14 February 2003
+
+  -Missing import in getmail_utilities.py affected those who let getmail
+  prompt them for a password.  Thanks to Francisco Stefano Wechsler for the
+  report.
+
 Version 3.0.2
 14 February 2003
 

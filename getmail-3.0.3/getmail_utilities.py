@@ -8,6 +8,7 @@ import stat
 import glob
 import traceback
 import getopt
+import getpass
 from types import *
 
 from getmail_constants import *
