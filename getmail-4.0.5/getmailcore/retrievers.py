@@ -8,7 +8,7 @@ Currently implemented:
   SimplePOP3SSLRetriever
   MultidropPOP3Retriever
   MultidropPOP3SSLRetriever
-  MultidropSPDSRetriever
+  MultidropSDPSRetriever
   SimpleIMAPRetriever -- IMAP, as a protocol, is a FPOS, and it shows.
     The Python standard library module imaplib leaves much up to
     the user because of this.
@@ -22,7 +22,7 @@ __all__ = [
     'SimplePOP3SSLRetriever',
     'MultidropPOP3Retriever',
     'MultidropPOP3SSLRetriever',
-    'MultidropSPDSRetriever',
+    'MultidropSDPSRetriever',
     'SimpleIMAPRetriever',
     'SimpleIMAPSSLRetriever',
     'MultidropIMAPRetriever',
@@ -170,11 +170,11 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
         self.log.info('MultidropPOP3SSLRetriever(%s)\n' % self._confstring())
 
 #######################################
-class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
-    '''Retriever class for multi-drop SPDS (demon.co.uk) mailboxes.
+class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
+    '''Retriever class for multi-drop SDPS (demon.co.uk) mailboxes.
 
     Extend POP3 class to include support for Demon's protocol extensions, known
-    as SPDS.  A non-standard command (*ENV) is used to retrieve the message
+    as SDPS.  A non-standard command (*ENV) is used to retrieve the message
     envelope.  See http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml
     for details.
 
@@ -193,12 +193,12 @@ class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
     )
 
     received_from = None
-    received_with = 'SPDS'
+    received_with = 'SDPS'
     received_by = socket.getfqdn()
 
     def __str__(self):
         self.log.trace()
-        return 'MultidropSPDSRetriever:%s@%s:%s' % (
+        return 'MultidropSDPSRetriever:%s@%s:%s' % (
             self.conf.get('username', 'username'),
             self.conf.get('server', 'server'),
             self.conf.get('port', 'port')
@@ -206,13 +206,13 @@ class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('MultidropSPDSRetriever(%s)\n' % self._confstring())
+        self.log.info('MultidropSDPSRetriever(%s)\n' % self._confstring())
 
     def _getmsgbyid(self, msgid):
         self.log.trace()
         msg = SimplePOP3Retriever._getmsgbyid(self, msgid)
 
-        # The magic of SPDS is the "*ENV" command.  Implement it:
+        # The magic of SDPS is the "*ENV" command.  Implement it:
         try:
             msgnum = self._getmsgnumbyid(msgid)
             resp, lines, octets = self.conn._longcmd('*ENV %i' % msgnum)

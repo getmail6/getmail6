@@ -1,3 +1,11 @@
+Version 4.0.5
+3 August 2004
+
+  -add additional error handler for certain network errors with POP3-over-SSL
+  connections.  Thanks: Frank Benkstein.
+  -rename retriever class for Demon UK:  it should have been SDPS; my
+  transposition.  Thanks: Paul Howarth.
+
 Version 4.0.4
 2 August 2004
 
@@ -493,7 +501,7 @@ Changes since getmail version 3
 -make more platform-agnostic (transparently support system EOL convention,
   etc)
 -support for multiple retriever/account types:
-  -POP (single-user, multidrop, SPDS)
+  -POP (single-user, multidrop, SDPS)
   -IMAPv4 (single-user, multidrop)
 -full native support for POP3-over-SSL and IMAP-over-SSL.
 -configuration (rc) file format changes:

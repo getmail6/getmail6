@@ -43,7 +43,7 @@
                     # SimpleIMAPSSLRetriever
                     # MultidropPOP3Retriever
                     # MultidropPOP3SSLRetriever
-                    # MultidropSPDSRetriever
+                    # MultidropSDPSRetriever
                     # MultidropIMAPRetriever
                     # MultidropIMAPSSLRetriever
                o Retriever examples
@@ -242,7 +242,7 @@ parameter = (
      * MultidropPOP3Retriever -- for domain mailbox POP3 mail accounts.
      * MultidropPOP3SSLRetriever -- same as MultidropPOP3Retriever, but
        uses SSL encryption.
-     * MultidropSPDSRetriever -- for domain mailbox SPDS mail accounts,
+     * MultidropSDPSRetriever -- for domain mailbox SDPS mail accounts,
        as provided by the UK ISP Demon.
      * MultidropIMAPRetriever -- for domain mailbox IMAP mail accounts.
      * MultidropIMAPSSLRetriever -- same as MultidropIMAPRetriever, but
@@ -358,9 +358,9 @@ envelope_recipient = delivered-to:1
      * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
      * certfile (string) -- see SimplePOP3SSLRetriever for definition.
        
-    MultidropSPDSRetriever
+    MultidropSDPSRetriever
     
-   The MultidropSPDSRetriever class takes the common retriever parameters
+   The MultidropSDPSRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
      * timeout (integer) -- see SimplePOP3Retriever for definition.
        

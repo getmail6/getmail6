@@ -10,7 +10,7 @@ __all__ = [
 ]
 
 import socket
-from poplib import POP3, CR, LF, CRLF
+from poplib import POP3, CR, LF, CRLF, error_proto
 
 from exceptions import *
 from logging import logger
@@ -73,30 +73,35 @@ class sslsocket(object):
         '''
         log.trace()
         line = ''
-        if not self.buf:
-            self._fillbuf()
-        log.trace('checking self.buf\n')
-        if self.buf:
-            log.trace('self.buf = "%r", len %i\n' % (self.buf, len(self.buf)))
-            while True:
-                log.trace('looking for EOL\n')
-                i = self.buf.find('\n')
-                if i != -1:
-                    log.trace('EOL found at %d\n' % i)
-                    line += self.buf[:i + 1]
-                    self.buf = self.buf[i + 1:]
-                    break
-                # else
-                log.trace('EOL not found, trying to fill self.buf\n')
-                line += self.buf
-                self.buf = ''
+        try:
+            if not self.buf:
                 self._fillbuf()
-                if not self.buf:
-                    log.trace('nothing read, exiting\n')
-                    break
-                log.trace('end of loop\n')
-        log.trace('returning line "%r"\n' % line)
-        return line
+            log.trace('checking self.buf\n')
+            if self.buf:
+                log.trace('self.buf = "%r", len %i\n' 
+                    % (self.buf, len(self.buf)))
+                while True:
+                    log.trace('looking for EOL\n')
+                    i = self.buf.find('\n')
+                    if i != -1:
+                        log.trace('EOL found at %d\n' % i)
+                        line += self.buf[:i + 1]
+                        self.buf = self.buf[i + 1:]
+                        break
+                    # else
+                    log.trace('EOL not found, trying to fill self.buf\n')
+                    line += self.buf
+                    self.buf = ''
+                    self._fillbuf()
+                    if not self.buf:
+                        log.trace('nothing read, exiting\n')
+                        break
+                    log.trace('end of loop\n')
+            log.trace('returning line "%r"\n' % line)
+            return line
+        except (socket.sslerror, socket.error), o:
+            raise getmailOperationError(
+                'socket/ssl error while reading from server (%s)' % o)
 
 class POP3SSL(POP3):
     '''Thin subclass to add SSL functionality to the built-in POP3 class.
@@ -155,7 +160,7 @@ class POP3SSL(POP3):
         """Signoff: commit changes on server, unlock mailbox, close connection."""
         try:
             resp = self._shortcmd('QUIT')
-        except error_proto, val:
+        except (error_proto, socket.error), val:
             resp = val
         self.sock.close()
         del self.sock
