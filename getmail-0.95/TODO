@@ -8,7 +8,7 @@ Yet to be done:
 -Possibly allow delivery to mh folders.
 
 -Possibly allow delivery to various maildirs based on headers in received
-  messages, to allow the use of mailbox-per-domain.  I believe 'fetchmail'
+  messages, to allow the use of domain mailboxes.  I believe 'fetchmail'
   calls this 'multidrop'.
 
 -Distribute a Makefile with an 'install' target with the program.  This will

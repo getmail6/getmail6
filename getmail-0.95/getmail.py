@@ -48,13 +48,14 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.94'
+VERSION = '0.95'
 
 #
 # Imports
 #
 
-import sys, os, string, time, socket, poplib, getopt, termios, TERMIOS, fcntl
+import sys, os, string, time, socket, poplib, getopt, termios, TERMIOS, fcntl, \
+	rfc822, cStringIO, ConfigParser
 from types import *
 
 
@@ -72,6 +73,9 @@ ENV_GETMAIL =			'GETMAIL'		# Env. variable to get configuration/
 										#  data directory name from
 ENV_GETMAILOPTS =		'GETMAILOPTS'	# Default options can be put in this
 										#  environment variable
+DEF_ADDREXT =			'-'				# Default character used for matching
+										#  qmail-style extension addresses
+
 
 #
 # Options
@@ -88,6 +92,8 @@ opt_verbose =			0
 opt_rcfile =			None
 opt_configdir =			None
 opt_dump =				0
+opt_ignoreconfig =		0
+opt_addrext =			DEF_ADDREXT
 
 
 #
@@ -433,27 +439,116 @@ def usage ():
 	'  -r or --rcfile <file>      use <file> instead of default .getmailrc\n'
 	'  -c or --configdir <dir>    use <dir> as config/data directory,\n'
 	'      Default configdir is directory set in "%s" environment variable\n'
+	'  -i or --ignoreconfig       don\'t read default config file\n'
 	'  --dump                     dump configuration for debugging\n'
 	'\n'
 	'\'destination\' can be a Maildir or an mbox file.  Do not attempt to deliver\n'
-	'to an mbox file over NFS.\n'
-	'Supply multiple user@mailhost[:port],destination[,password] options for\n'
-	'multiple account retrieval.  If not supplied, port defaults to %i.  Passwords\n'
-	'not supplied will be prompted for.\n\n'
+	'to an mbox file over NFS.  To retrieve mail for multiple accounts, use a\n'
+	'.getmailrc configuration file, or supply multiple arguments on the commandline.\n'
+	'If not supplied, port defaults to %i.  Passwords not supplied will be prompted\n'
+	'for.\n\n'
 		% (me, def_readall, def_readnew, def_del, def_dontdel, ENV_GETMAIL, DEF_PORT))
 	return
+
+
+		#try:
+		#	f = open (opt_rcfile)
+		#	for line in f.readlines ():
+		#		line = string.strip (line [ : string.find (line, '#') ])
+		#		if line and line != '#':
+		#			args.append (line)
+		#except IOError:
+		#	stderr ('Warning:  failed to open .getmailrc file "%s"\n' % opt_rcfile)
+
+
+#######################################
+def read_configfile (file):
+	'''Read in configuration file.
+	'''
+	#
+	global opt_delete_retrieved, opt_retrieve_read, \
+		opt_port, opt_host, opt_account, opt_password, opt_dest, \
+		opt_verbose
+
+	defaults = { 'port'    : '%s' % DEF_PORT,
+				 'delete'  : '%s' % DEF_DELETE,
+				 'readall' : '%s' % DEF_READ_ALL,
+				 'password': ''
+			   }
+
+	conf = ConfigParser.ConfigParser (defaults)
+
+	try:
+		conf.read (file)
+		sections = conf.sections ()
+		for section in sections:
+			account = conf.get (section, 'account')
+			host = conf.get (section, 'host')
+			port = int (conf.get (section, 'port'))
+			pw = conf.get (section, 'password')
+			dest = conf.get (section, 'destination')
+			# dele = conf.get (section, 'delete')
+			# rall = conf.get (section, 'readall')
+
+			# Strip 'poison NUL' bytes just in case
+			account = string.replace (account, '\0', '')
+			host = string.replace (host, '\0', '')
+			pw = string.replace (pw, '\0', '')
+			dest = string.replace (dest, '\0', '')
+
+			opt_account.append (string.strip (account))
+			opt_host.append (string.strip (host))
+			opt_port.append (port)
+			opt_password.append (string.strip (pw))
+			opt_dest.append (string.strip (dest))
+
+	# User configuration errors
+	except ConfigParser.NoOptionError, cause:
+		stderr ('Error:  required option missing in configuration file "%s"\n'
+				'  (%s)\n' % (file, cause))
+		sys.exit (ERROR)
+
+	except ConfigParser.MissingSectionHeaderError, cause:
+		stderr ('Error:  file "%s" does not appear to be a getmail configuration'
+				' file\n  (%s)\n' % (file, cause))
+		sys.exit (ERROR)
+
+	except ConfigParser.DuplicateSectionError, cause:
+		stderr ('Error:  duplicated section name in configuration file "%s"\n'
+				'  (%s)\n' % (file, cause))
+		sys.exit (ERROR)
+
+	except ConfigParser.ParsingError, cause:
+		stderr ('Error:  failure reading configuration file "%s"\n'
+				'  (%s)\n' % (file, cause))
+		# Maybe no config file, just skip it.
+		return
+
+	# Bugs in getmail
+	except ConfigParser.NoSectionError, cause:
+		stderr ('Error:  internal error parsing file "%s"\n  (%s)\n'
+				% (file, cause))
+		sys.exit (ERROR)
+
+	except ConfigParser.InterpolationError, cause:
+		stderr ('Error:  internal error parsing file "%s"\n  (%s)\n'
+				% (file, cause))
+		sys.exit (ERROR)
+
+	return
+
 
 #######################################
 def parse_options (argv):
 	'''Parse commandline options.  Options handled:
 	--delete -d, --dont-delete -l, --all -a, --new -n, --verbose -v,
 	--help -h, --rcfile -r <configfile>, --configdir -c <configdir>
-	--dump
+	--ignoreconfig -i, --dump
 	'''
 	#
 	global opt_delete_retrieved, opt_retrieve_read, \
 		opt_port, opt_host, opt_account, opt_password, opt_dest, \
-		opt_verbose, opt_rcfile, opt_configdir, opt_dump
+		opt_verbose, opt_rcfile, opt_configdir, opt_dump, opt_ignoreconfig
 
 	error = 0
 
@@ -477,9 +572,9 @@ def parse_options (argv):
 
 	optslist, args = [], []
 
-	opts = 'c:dlanvh'
+	opts = 'c:dlanvhi'
 	longopts = ['delete', 'dont-delete', 'all', 'new', 'verbose', 'configdir=',
-		'help', 'dump']
+		'help', 'dump', 'ignoreconfig']
 
 	try:
 		global optslist, args
@@ -509,6 +604,9 @@ def parse_options (argv):
 
 		elif option == '--verbose' or option == '-v':
 			opt_verbose = 1
+
+		elif option == '--ignoreconfig' or option == '-i':
+			opt_ignoreconfig = 1
 
 		elif option == '--rcfile' or option == '-r':
 			if not value:
@@ -540,38 +638,36 @@ def parse_options (argv):
 		opt_configdir = ''
 		opt_retrieve_read = 1
 
-	# Set default rcfile if not supplied
-	if not opt_rcfile:
-		opt_rcfile = os.path.join (opt_configdir, DEF_RCFILE)
-		if opt_verbose:
-			print 'Using default .getmailrc file "%s"' % opt_rcfile
-	elif opt_verbose:
-		print 'Using .getmailrc file "%s"' % opt_rcfile
+	# Read config file, setting default if necessary
+	if not opt_ignoreconfig:
+		if not opt_rcfile:
+			opt_rcfile = os.path.join (opt_configdir, DEF_RCFILE)
+			if opt_verbose:
+				print 'Using default .getmailrc file "%s"' % opt_rcfile
+		elif opt_verbose:
+			print 'Using .getmailrc file "%s"' % opt_rcfile
 
-	# Read in configfile, if any
-	try:
-		f = open (opt_rcfile)
-		for line in f.readlines ():
-			line = string.strip (line [ : string.find (line, '#') ])
-			if line and line != '#':
-				args.append (line)
-	except IOError:
-		stderr ('Warning:  failed to open .getmailrc file "%s"\n' % opt_rcfile)
+		read_configfile (opt_rcfile)
+
+	else:
+		if opt_verbose:
+			print 'Skipping configuration file...'
 
 	# Parse arguments given in user@mailhost[:port],dest[,password] format
 	for arg in args:
+		arg = string.replace (arg, '\0', '')	# Strip 'poison NUL' bytes
 		try:
-			userhost, mdir, pw = string.split (arg, ',')
+			userhost, dest, pw = string.split (arg, ',')
 			opt_password.append (pw)
 		except ValueError:
 			try:
-				userhost, mdir = string.split (arg, ',')
+				userhost, dest = string.split (arg, ',')
 				opt_password.append (None)
 			except ValueError:
 				stderr ('Error:  argument "%s" not in format \''
 						'user@mailhost[:port],dest[,password]\'\n' % arg)
 
-		opt_dest.append (mdir)
+		opt_dest.append (dest)
 		opt_account.append (userhost [ : string.rfind (userhost, '@')])
 
 		try:
@@ -601,15 +697,14 @@ def parse_options (argv):
 		stderr ('Error:  different numbers of hosts/names/destinations/passwords supplied\n')
 		error = 1
 
-	# Put in default port if not specified
+	# Put in default port if not specified -- this should be scrapped
 	for i in range (len (opt_account) - len (opt_port)):
 		opt_port.append (int (DEF_PORT))
 
 	# Read password(s) from stdin if not supplied
 	if not error:
 		for i in range (len (opt_password)):
-			if opt_password[i] != None:
-				continue
+			if opt_password[i]:  continue
 			fd = sys.stdin.fileno ()
 			oldattr = termios.tcgetattr(fd)
 			newattr = termios.tcgetattr(fd)
@@ -650,7 +745,7 @@ def parse_options (argv):
 			   opt_rcfile, opt_configdir)
 		print 'Accounts:'
 		for i in range (len (opt_account)):
-			print '  %s,%s,%s,%s' % (opt_account[i], opt_host[i], opt_port[i],
+			print '  %s,%s:%s,%s' % (opt_account[i], opt_host[i], opt_port[i],
 									 opt_dest[i])
 		sys.exit (OK)
 

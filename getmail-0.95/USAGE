@@ -14,7 +14,8 @@ Bugs, questions, feature requests, and comments should be directed to me
 In a nutshell:
 --------------
 
-1.  Ensure Python is installed.  See http://www.python.org/ for details.
+1.  Ensure Python v.1.5.2 is installed.  See http://www.python.org/ for details.
+	Note that RedHat GNU/Linux 6.0 ships with v.1.5.1, which will fail.
 
 2.  Install the script 'getmail.py' somewhere with executable permissions (0755).
 
@@ -29,21 +30,24 @@ directory.  You can automate this in your logon by putting
 
 in your .bash_profile or .bashrc file if you use the bash shell.
 
-6.  Create a file .getmailrc in the above directory.  In it, place one line for
-each mail account you wish to retrieve mail for.  The line is in this format:
+6.  Create a file .getmailrc in the above directory.  This file has a simple
+syntax, similar to a standard MS-Windows .ini file.  In it, place one section
+for each mail account you wish to retrieve mail for.  The section is in this
+format:
 
-	username@popmailhost[:port],destination[,password]
-
-For example, to retrieve mail for account 'joe' on mailhost 'popmail.isp.com'
-on the default POP3 port (110), and deliver the mail into a maildir in joe's
-home directory named 'Maildir', with password 'poppass', enter the following:
-
-	joe@popmail.isp.com,/home/joe/Maildir,poppass
+	[identifier]				# Whatever you like, just make them unique
+	account=username			# Required, your POP3 account name
+	host=popmailhost			# Required, the POP3 mailhost
+	port=portnum				# Optional, defaults to standard POP3 port (110)
+	password=poppass			# Optional, getmail will prompt for passwords
+	destination=path			# Required, path to destination Maildir or mbox
 
 'destination' can be either a Maildir or an mbox file.  getmail auto-detects
 Maildirs, and assumes regular files are mboxes.
 
-7.  Run getmail with no options to retrieve all mail for joe.
+See the example.getmailrc file for more details.
+
+7.  Run getmail with no options to retrieve all mail for accounts in .getmailrc.
 Use option -n or --new for only unread mail.  Use option -v or --verbose to
 see what's going on.
 
@@ -53,7 +57,8 @@ Basic usage for getmail.py:
 
 Run without arguments for help.
 
-To retrieve mail for accounts, run with arguments as follows:
+To retrieve mail for accounts on a one-time basis, you can specify the
+accounts as arguments on the commandline as follows:
 getmail.py [options] user1@mailhost1[:port],destination1[,password1] \
   user2@mailhost2[:port],destination2[,password2]
 
@@ -77,12 +82,14 @@ Note in this case, mailhost2 is on the standard POP3 port and the user
 will be prompted only for user2's password.
 
 These arguments can also be placed in a configfile (suggested:
-$HOME/.getmail/.getmailrc), one per line, with '#' indicating the start of
-comments. This file can be specified on the commandline with the -r or --rcfile
-options.  It defaults to '.getmailrc' in a directory taken from the environment
-variable 'GETMAIL', if it exists.  Specifying a config file on the commandline
-overrides the environment variable.  An alternate configuration directory can
-also be specified on the commandline.
+$HOME/.getmail/.getmailrc).  See above (or the example.getmailrc file included)
+for its format.  This file can be specified on the commandline with
+the -r or --rcfile options.  It defaults to '.getmailrc' in a directory taken
+from the environment variable 'GETMAIL', if it exists.  Specifying a config file
+on the commandline overrides the environment variable.  An alternate
+configuration directory can also be specified on the commandline.
+The default .getmailrc file can be skipped by supplying the --ignoreconfig
+or -i option.
 
 You can specify your own defaults by setting the environment variable
 'GETMAILOPTS' with the options you like.  For instance, setting it to
@@ -105,6 +112,8 @@ Options that getmail currently recognizes are:
     Without this, getmail will be fairly quiet.
 
   -h or --help               basic usage information.
+
+  -i or --ignoreconfig       Don't read the default .getmailrc file.
 
   -r or --rcfile <file>      read account information from <file>
     This overrides the default configfile.  The default is '.getmailrc' in

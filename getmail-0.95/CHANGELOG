@@ -1,6 +1,15 @@
 Changes for getmail:
 ====================
 
+v.0.95 5 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Changed the .getmailrc configuration file format to a sectioned
+	  'option=value' format.  It is now much easier to read and write,
+	   although its a little lengthier to create.  This allows the use of
+	   colons and equal signs in the variables as well, which may have
+	   caused problems with the old format.  The old format is used for
+	   accounts specified on the commandline.
+	-Happy 29th birthday to Shannon.
+
 v.0.94 4 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 	-Added mbox delivery.
 	-Added autodetection of delivery destination type; getmail will auto-

@@ -63,25 +63,39 @@
    To use getmail to retrieve from the same accounts on a regular basis,
    and to be able to retrieve only mail messages which getmail has not
    previously retrieved, set up getmail as follows:
-     * Create a .getmail/ directory in your home directory.
-     * Create the environment variable GETMAIL, containing the path to
+    1. Create a .getmail/ directory in your home directory.
+    2. Create the environment variable GETMAIL, containing the path to
        the above directory. You can automate this in your logon by
        putting
        export GETMAIL=$HOME/.getmail
        in your .bash_profile or .bashrc file if you use the bash shell.
-     * Create a file .getmailrc in the above directory. In it, place one
-       line for each mail account you wish to retrieve mail for. The line
-       is in this format:
-       username@popmailhost[:port],destination[,password]
-       For example, to retrieve mail for account 'joe' on mailhost
-       'popmail.isp.com' on the default POP3 port (110), and deliver the
-       mail into a maildir in joe's home directory named 'Maildir', with
-       password 'poppass', enter the following:
-       joe@popmail.isp.com,/home/joe/Maildir,poppass
-     * Run getmail with no options to retrieve all mail for joe. Use
-       option -n or --new for only unread mail. Use option -v or
-       --verbose to see what's going on.
-     * You can specify personal default options in the environment
+    3. Create a file .getmailrc in the above directory. This file is
+       similar in format to an MS-Windows .ini file. In it, place one
+       section for each mail account you wish to retrieve mail for. The
+       section is in this format:
+       [identifier]
+       account=username
+       host=popmailhost
+       port=port
+       password=password
+       destination=destinationpath
+       The options can be specified in any order. Blank lines are
+       ignored, as is anything after a '#' symbol.
+       identifier is not currently used by getmail. They must be unique,
+       and should be meaningful to you.
+       account is your POP3 account name.
+       host is the fully-qualified domain name of the POP3 server (e.g.
+       mailhost.isp.com)
+       port is optional and defaults to the standard POP3 port (110).
+       password is optional. If not supplied, getmail will prompt for
+       passwords.
+       destination is the path to the destination Maildir or mbox file.
+       See the included example.getmailrc file for more details.
+    4. Run getmail with no options to retrieve all mail for accounts
+       specified in the .getmailrc file.
+       Use option -n or --new for only unread mail.
+       Use option -v or --verbose to see what's going on.
+    5. You can specify personal default options in the environment
        variable 'GETMAILOPTS'. To make getmail always be verbose, and
        always delete retrieved mail from the server, set it to something
        like "--verbose --delete". Again, you can set this every time you
@@ -95,17 +109,17 @@
    The current version of getmail should be available at
    http://www.qcc.sk.ca/~charlesc/software/getmail/ 
    
-   The current version is v.0.94, dated 04-Jan-2000.
+   The current version is v.0.95, dated 05-Jan-2000.
    Questions, comments, bug reports, and feature requests should be
    directed to me at <getmail@discworld.dyndns.org>.
    
   Download
   
                                Download now:
-                            getmail-0.94.tar.gz
-    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.94.tar.gz
-                            getmail-0.94.tar.bz2
-    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.94.tar.bz2
+                            getmail-0.95.tar.gz
+    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.95.tar.gz
+                            getmail-0.95.tar.bz2
+    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.95.tar.bz2
                                       
    Older versions may be found in
    http://www.qcc.sk.ca/~charlesc/software/getmail/old-versions/
