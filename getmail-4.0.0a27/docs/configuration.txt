@@ -3,7 +3,8 @@
                                        
    This is the documentation for getmail version 4. Version 4 includes
    numerous changes from version 3.x; if you are using getmail version 3,
-   please refer to the documentation for that version.
+   please refer to the documentation included with that version of the
+   software.
    
    getmail is Copyright © 1998-2004 Charles Cazabon.
    
@@ -11,94 +12,67 @@
    (only). If you wish to obtain a license to use getmail under other
    terms, please contact me directly.
    
-Table of contents
-
-   Table of contents goes here
-   
-Features
-
-   getmail is a mail retriever designed to allow you to get your mail
-   from one or more mail accounts on various mail servers to your local
-   machine for reading with a minimum of fuss. getmail is designed to be
-   secure, flexible, reliable, and easy-to-use. getmail is designed to
-   replace other mail retrievers such as fetchmail.
-   
-   getmail version 4 includes the following features:
-     * simple to install, configure, and use
-     * retrieve virtually any mail
-          + support for accessing mailboxes with the following protocols:
-               o POP3
-               o POP3-over-SSL
-               o IMAP4
-               o IMAP4-over-SSL
-               o SPDS (Demon UK's extensions to POP3)
-          + support for single-user and domain mailboxes
-          + retrieve mail from an unlimited number of mailboxes and
-            servers
-          + can remember which mail it has already retrieved, and can be
-            set to only download new messages
-     * support for message filtering, classification, and annotation by
-       external programs like spam filters and anti-virus programs
-     * support for delivering messages to different destinations based on
-       the message recipient
-     * reliability
-          + native safe and reliable delivery support for maildirs and
-            mboxrd files, in addition to delivery through arbitrary
-            external message delivery agents (MDAs)
-          + does not destroy information by rewriting mail headers
-          + does not cause mail loops by doing SMTP injection, and
-            therefore does not require that you run an MTA (like qmail or
-            sendmail) on your host
-     * written in Python, and therefore easy to extend or customize
-          + a flexible, extensible architecture so that support for new
-            mail access protocols, message filtering operations, or
-            destination types can be easily added
-          + cross-platform operation; getmail 4 should work on
-            Unix/Linux, Macintosh, Windows, and other platforms
-     * winner of various software awards, including DaveCentral's "Best
-       of Linux"
+                               Table of Contents
+                                       
+     * getmail documentation
+     *
+          + Features
+          + Differences from previous versions
+          + Requirements
+          + Obtaining getmail
+          + Installing getmail
+     * getmail documentation
+     * Configuring getmail
+     *
+          + Creating a getmail rc file
+          +
+               o Parameter types and formats
+               o
+                    # string
+                    # integer
+                    # boolean
+                    # tuple of quoted strings
+                    # tuple of integers
+               o Creating the [retriever] section
+               o
+                    # Common retriever parameters
+                    # SimplePOP3Retriever
+                    # SimpleIMAPRetriever
+                    # SimplePOP3SSLRetriever
+                    # SimpleIMAPSSLRetriever
+                    # MultidropPOP3Retriever
+                    # MultidropPOP3SSLRetriever
+                    # MultidropSPDSRetriever
+                    # MultidropIMAPRetriever
+                    # MultidropIMAPSSLRetriever
+               o Retriever examples
+               o Creating the [destination] section
+               o
+                    # Maildir
+                    # Mboxrd
+                    # MDA_external
+                    # MultiSorter
+                    # MDA_qmaillocal
+               o Creating the [options] section
+               o
+                    # [options] example
+               o Creating the [filter-something] sections
+               o
+                    # [filter-something] examples
+     * Running getmail
+     * getmail documentation
+     * Troubleshooting
+     *
+          + Error messages
+          + Unexpected Behaviour
+     * getmail documentation
+     * Frequently-Asked Questions (FAQs)
+     *
+          + About getmail
+          + Using getmail with other software
        
-Differences from previous versions
-
-   getmail version 4 has been completely rewritten. It is designed to
-   closely mimic the interface and user experience of getmail version 3,
-   but the new architecture necessitates some differences you will
-   notice:
-     * the getmail rc file (configuration file) format has changed. If
-       you are upgrading from version 3, you will need to write a new
-       configuration file based on the contents of your old one. The new
-       file format closely resembles the old in many ways. Each account
-       you retrieve mail from will require a separate rc file, but
-       getmail can operate with several rc files simultaneously.
-     * support for protocols other than POP3/SPDS. IMAP support is now
-       included, and other protocols can be added with relative ease.
-     * support for SSL-encrypted protocols. Both POP3 and IMAP feature
-       SSL support.
-     * messages can be filtered or annotated by external programs like
-       spam filters and anti-Microsoft-worm programs. Filters can cause
-       messages to be dropped completely.
-     * a flexible, extensible architecture. Additional classes for
-       handling new mail protocols, filter types, or destination
-       mailstores can be added without needing to modify the main script
-       at all.
-       
-Requirements
-
-   getmail version 4 requires Python version 2.3.3 or later. If you have
-   only an earlier version of Python available, you can install the
-   latest version without disturbing your current version, or use getmail
-   version 3, which requires only Python version 1.5.2 or later.
-   
-Obtaining getmail
-
-   Download here ...
-   
-Installing getmail
-
-   Installation instructions here ...
-   
-Configuring getmail
-
+                              Configuring getmail
+                                       
    Once getmail is installed, you need to configure it before you can
    retrieve mail with it. Follow these steps:
     1. Create a data/configuration directory. The default is
@@ -116,8 +90,8 @@ foobar
        need to create a separate rc file for each account getmail should
        retrieve mail from.
        
-  Creating a getmail rc file
-  
+Creating a getmail rc file
+
    The configuration file format is designed to be easy to understand
    (both for getmail, and for the user). It is broken down into small
    sections of related parameters by section headers which appear on
@@ -150,8 +124,8 @@ second_parameter = value
    programs, or to deliver messages for particular users in a particular
    way.
    
-    Parameter types and formats
-    
+  Parameter types and formats
+  
    Several different types of parameters are used in getmail rc files:
      * string
      * integer
@@ -163,18 +137,18 @@ second_parameter = value
    represent it in the getmail rc file. They are explained below. Each
    parameter documented later specifies its type explicitly.
    
-      string
-      
+    string
+    
    Specify a string parameter value with no special syntax:
     parameter = my value
 
-      integer
-      
+    integer
+    
    Specify an integer parameter value with no special syntax:
     parameter = 4150
 
-      boolean
-      
+    boolean
+    
    A boolean parameter is true or false; you can specify its value with
    the (case-insensitive) words "true" and "false". The values "yes",
    "on" and 1 are accepted as equivalent to "true", while values "no",
@@ -184,8 +158,8 @@ second_parameter = value
     parameter = NO
     parameter = 1
 
-      tuple of quoted strings
-      
+    tuple of quoted strings
+    
    A tuple of quoted strings is essentially a list of strings, with each
    string surrounded by matching double- or single-quote characters to
    indicate where it begins and ends. The list must be surrounded by
@@ -209,16 +183,16 @@ second_parameter = value
    it is a tuple:
     parameter = ("single string", )
 
-      tuple of integers
-      
+    tuple of integers
+    
    This is very similar to a tuple of quoted strings, above, minus the
    quotes. Some examples:
     parameter = (1, 2, 3, 4, 5)
     parameter = (37, )
     parameter = ()
 
-    Creating the [retriever] section
-    
+  Creating the [retriever] section
+  
    The retriever section of the rc file tells getmail what mail account
    to retrieve mail from, and how to access that account. Begin with the
    section header line as follows:
@@ -253,8 +227,8 @@ type = typename
    required by the retriever. The parameters and their types are
    documented below.
    
-      Common retriever parameters
-      
+    Common retriever parameters
+    
    All retriever types take several common required parameters:
      * server (string) -- the name or IP address of the server to
        retrieve mail from
@@ -269,8 +243,8 @@ type = typename
        server. If not provided, getmail will prompt you to enter the
        password when run.
        
-      SimplePOP3Retriever
-      
+    SimplePOP3Retriever
+    
    The SimplePOP3Retriever class takes the common retriever parameters
    above, plus the following optional parameter:
      * use_apop (boolean) -- if set to True, getmail will use APOP-style
@@ -282,8 +256,8 @@ type = typename
        specified, the default is 180 seconds. You may need to increase
        this value in particularly poor networking conditions.
        
-      SimpleIMAPRetriever
-      
+    SimpleIMAPRetriever
+    
    The SimpleIMAPRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
      * timeout (integer) -- see SimplePOP3Retriever for definition.
@@ -300,8 +274,8 @@ mailboxes = ("INBOX", "INBOX.spam",
        Note that if you configure getmail not to delete retrieved
        messages (the default behaviour), they will not be moved at all.
        
-      SimplePOP3SSLRetriever
-      
+    SimplePOP3SSLRetriever
+    
    The SimplePOP3SSLRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
      * use_apop (boolean) -- see SimplePOP3Retriever for definition.
@@ -312,8 +286,8 @@ mailboxes = ("INBOX", "INBOX.spam",
        file in the SSL negotiation. Note that no certificate or key
        validation is done.
        
-      SimpleIMAPSSLRetriever
-      
+    SimpleIMAPSSLRetriever
+    
    The SimpleIMAPSSLRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
      * mailboxes (tuple of quoted strings) -- see SimpleIMAPRetriever for
@@ -322,8 +296,8 @@ mailboxes = ("INBOX", "INBOX.spam",
      * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
      * certfile (string) -- see SimplePOP3SSLRetriever for definition.
        
-      MultidropPOP3Retriever
-      
+    MultidropPOP3Retriever
+    
    The MultidropPOP3Retriever class takes the common retriever parameters
    above, plus the following required parameter:
      * envelope_recipient (string) -- the name and position of the header
@@ -337,8 +311,8 @@ envelope_recipient = delivered-to:1
      * use_apop (boolean) -- see SimplePOP3Retriever for definition.
      * timeout (integer) -- see SimplePOP3Retriever for definition.
        
-      MultidropPOP3SSLRetriever
-      
+    MultidropPOP3SSLRetriever
+    
    The MultidropPOP3SSLRetriever class takes the common retriever
    parameters above, plus the following required parameter:
      * envelope_recipient (string) -- see MultidropPOP3Retriever for
@@ -350,14 +324,14 @@ envelope_recipient = delivered-to:1
      * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
      * certfile (string) -- see SimplePOP3SSLRetriever for definition.
        
-      MultidropSPDSRetriever
-      
+    MultidropSPDSRetriever
+    
    The MultidropSPDSRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
      * timeout (integer) -- see SimplePOP3Retriever for definition.
        
-      MultidropIMAPRetriever
-      
+    MultidropIMAPRetriever
+    
    The MultidropIMAPRetriever class takes the common retriever parameters
    above, plus the following required parameter:
      * envelope_recipient (string) -- see MultidropPOP3Retriever for
@@ -370,8 +344,8 @@ envelope_recipient = delivered-to:1
        definition.
      * move_on_delete (string) -- see SimpleIMAPRetriever for definition.
        
-      MultidropIMAPSSLRetriever
-      
+    MultidropIMAPSSLRetriever
+    
    The MultidropIMAPSSLRetriever class takes the common retriever
    parameters above, plus the following required parameter:
      * envelope_recipient (string) -- see MultidropPOP3Retriever for
@@ -385,8 +359,8 @@ envelope_recipient = delivered-to:1
      * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
      * certfile (string) -- see SimplePOP3SSLRetriever for definition.
        
-    Retriever examples
-    
+  Retriever examples
+  
    A typical POP3 mail account (the basic kind of mailbox provided by
    most internet service providers (ISPs)) would use a retriever
    configuration like this:
@@ -435,8 +409,8 @@ username = account_name
 password = company_maildrop_password
 envelope_recipient = delivered-to:1
 
-    Creating the [destination] section
-    
+  Creating the [destination] section
+  
    The destination section of the rc file tells getmail what to do with
    retrieved messages. Begin with the section header line as follows:
 [destination]
@@ -458,8 +432,8 @@ envelope_recipient = delivered-to:1
      * MDA_qmaillocal -- use qmail-local to deliver messages according to
        instructions in a .qmail file.
        
-      Maildir
-      
+    Maildir
+    
    The Maildir destination delivers to a qmail-style maildir. If getmail
    has sufficient permission, it will ensure that the files it creates in
    the maildir are owned by the owner of the maildir.
@@ -473,8 +447,8 @@ envelope_recipient = delivered-to:1
 type = Maildir
 path = ~/Maildir/
 
-      Mboxrd
-      
+    Mboxrd
+    
    The Mboxrd destination delivers to an mboxrd-format mbox file with
    fcntl-type file locking. If the file already exists, getmail will
    ensure that it appears to be a valid mboxrd file before trying to
@@ -497,8 +471,8 @@ path = ~/Maildir/
 type = Mboxrd
 path = ~/inbox
 
-      MDA_external
-      
+    MDA_external
+    
    MDA_external delivers messages by running an external program (known
    as a message delivery agent, or MDA). Some typical MDAs include
    maildrop and procmail.
@@ -548,8 +522,8 @@ user = fred
 group = mail
 arguments = ("--strip-forbidden-attachments", "--recipient=%(recipient)")
 
-      MultiSorter
-      
+    MultiSorter
+    
    MultiSorter compares the envelope recipient address of messages
    against a list of user-supplied regular expressions and delivers the
    message to the destination (maildir, mboxrd file, or other) associated
@@ -661,8 +635,8 @@ arguments = ('--log=/var/log/mail/info', '--sender=%(sender)', '--recipient=%(r
 ecipient))
 user = log
        
-      MDA_qmaillocal
-      
+    MDA_qmaillocal
+    
    MDA_qmaillocal delivers messages by running the qmail-local program as
    an external MDA. qmail-local uses .qmail files to tell it what to do
    with messages. If you're not already familiar with qmail, you don't
@@ -725,8 +699,8 @@ localdomain = host.example.net
 # sending it to qmail-local
 localpart_translate = ('mailhostaccount-', '')
 
-    Creating the [options] section
-    
+  Creating the [options] section
+  
    The options section of the rc file (which is not required) can be used
    to alter getmail's default behaviour. The parameters supported in this
    section are as follows:
@@ -771,8 +745,8 @@ localpart_translate = ('mailhostaccount-', '')
    The verbose, read_all, and delete parameters can be overridden at run
    time with commandline options.
    
-      [options] example
-      
+    [options] example
+    
    To configure getmail to operate quietly, to retrieve only new mail, to
    delete messages after retrieving them, and to log its actions to a
    file, you could provide the following in your getmail rc file(s):
@@ -782,8 +756,8 @@ read_all = false
 delete = true
 message_log = ~/.getmail/log
 
-    Creating the [filter-something] sections
-    
+  Creating the [filter-something] sections
+  
    The filter-something section(s) of the rc file (which are not
    required) tell getmail to process messages in some way after
    retrieving them, but before delivering them to your destinations.
@@ -856,8 +830,8 @@ message_log = ~/.getmail/log
        not proceed, so that the message is not lost. The default is (0,
        ).
        
-      [filter-something] examples
-      
+    [filter-something] examples
+    
    You might filter spam messages in your MUA based on information added
    to the message header by a spam-classification program. You could have
    that information added to the message header with a filter
@@ -879,8 +853,8 @@ arguments = ('--message-from-stdin', '--remove-all-but-attachment-types=text/pl
 ain,text/rfc822')
 user = nobody
 
-Running getmail
-
+                                Running getmail
+                                       
    To use getmail, simply run the script getmail, which is typically
    installed in /usr/local/bin/ by default. getmail will read the default
    getmail rc file (getmailrc) from the default configuration/data
@@ -920,372 +894,3 @@ $ getmail --rcfile getmailrc-account1 --rcfile getmailrc-account2
    you could run getmail as follows:
 $ getmail --getmaildir /path/to/otherdir --rcfile getmailrc-account1 --rcfile g
 etmailrc-account2
-
-Troubleshooting
-
-   This section of the documentation is to be added to as getmail version
-   4 progresses through beta testing to release state.
-   
-  Error messages
-  
-   getmail may output various diagnostic messages. The common ones and
-   their meanings are given below.
-   
-    ImportError: getmail version 4 requires Python version 2.3.3 or later
-    
-   You tried to run getmail 4 with a version of Python prior to Python
-   2.3.3. This is unsupported. If you cannot install a newer Python
-   alongside your current version, please use getmail version 3, which
-   supports Python 1.5.2 and later.
-   
-    Configuration error: ...
-    
-   getmail detected an error in your configuration. Check your getmail rc
-   file(s). getmail will do its best to point out the exact cause of the
-   error. Some of the specific errors it may find include the following.
-   
-      Configuration error: missing required configuration parameter name
-      
-   A class object in your getmail rc file requires the parameter name,
-   but it was not found in the appropriate section of the file.
-   
-      Configuration error: configuration value name (value) not of required
-      type type (why)
-      
-   The configuration parameter name must be of type type, but the
-   supplied value value does not appear to be of that type. Further
-   information may be present in why.
-   
-      Configuration error: maildir path missing trailing /
-      
-   Maildir paths must start with dot or slash and end with a slash.
-   
-      Configuration error: not a maildir (path)
-      
-   The specified maildir path path does not appear to be a valid maildir.
-   
-      Configuration error: not a mboxrd file (path)
-      
-   The specified mboxrd path path does not appear to be a valid mboxrd
-   file.
-   
-      Configuration error: the fieldname header field does not record the
-      envelope recipient address
-      
-   In a multidrop retriever configuration, you specified that the
-   envelope recipient was recorded in a header field that getmail knows
-   does not actually record that information.
-   
-      Configuration error: refuse to invoke external commands as root by
-      default
-      
-   By default, getmail will not invoke external commands (in destinations
-   or filters) when it is running with root privileges, for security
-   reasons. See the documenation for possible solutions.
-   
-      Configuration error: no such command path
-      
-   An external command was specified as being located at path path, but
-   the command executable was not found at that location.
-   
-      Configuration error: path not executable
-      
-   A specified external command at path path was found to not be an
-   executable file.
-   
-      Configuration error: destination specifies section name section which
-      does not exist
-      
-   A destination in the getmail rc file refers to another rc file section
-   named section, but that section was not found in the file.
-   
-      Configuration error:
-      
-    Error: ...
-    
-   getmail detected an operational error. getmail will do its best to
-   point out the exact cause of the error. Common causes are failures to
-   connect to a remote mail server, timeouts during network operations,
-   and other transient failures.
-   
-  Unexpected Behaviour
-  
-   If getmail is behaving in a manner other that you expected, see the
-   following sections.
-   
-    getmail uses the wrong hostname for my machine
-    
-   If getmail records a hostname other than the "right" one for your host
-   (in its Received: trace header fields), check your /etc/hosts file and
-   make sure the "right" name is the first hostname listed for any of the
-   addresses of the machine.
-   
-Frequently-Asked Questions (FAQs)
-
-   The following questions about getmail come up more-or-less frequently.
-   
-  About getmail
-  
-    What is getmail?
-    
-   getmail is a mail retriever with support for POP3, POP3-over-SSL,
-   IMAP4, IMAP4-over-SSL, and SPDS mail accounts. It supports normal
-   single-user mail accounts and multidrop (domain) mailboxes. getmail is
-   written in Python, and licensed under the GNU General Public License
-   version 2.
-   
-    Why did you write getmail? Why not just use fetchmail?
-    
-   I do not like some of the design choices which were made with
-   fetchmail. getmail does things a little differently, and for my
-   purposes, better. In addition, most people find getmail easier to
-   configure and use than fetchmail. Perhaps most importantly, getmail
-   goes to great lengths to ensure that mail is never lost, while
-   fetchmail (in its default configuration) frequently loses mail, causes
-   mail loops, bounces legitimate messages, and causes many other
-   problems.
-   
-   fetchmail's default configuration values frequently cause lost or
-   misdirected mail, and seem to be chosen to cause maximum pain and
-   inconvenience. From fetchmail's to-do file (emphasis mine):
-   
-     Maybe refuse multidrop configuration unless "envelope" is
-     _explicitly_ configured ... This would prevent a significant class
-     of shoot-self-in-foot problems.
-     
-     perhaps treat a delivery as "temporarily failed" ... This is so you
-     don't lose mail if you configure the wrong envelope header.
-     
-   fetchmail is famous for mangling messages it retrieves, rather than
-   leaving them alone as a mail-handling program should. getmail will add
-   trace information to messages (so you can see what happened, and
-   when), but will otherwise leave message content alone.
-   
-   In addition, fetchmail has a long history of security problems:
-     * versions released before 20 June 2001 contain a buffer overflow,
-       which can be remotely exploited (see
-       www.securityfocus.com/bid/2877 for details). getmail is not
-       vulnerable to buffer overflows, because buffers in Python are
-       dynamically sized.
-     * Another remotely-exploitable security hole discovered in fetchmail
-       in June 2002; versions prior to 5.9.10 (released in June 2002) are
-       exploitable .
-     * Reading fetchmail's UPDATES file, it appears that another security
-       problem was fixed in 5.9.12, where a server could crash fetchmail
-       on 64-bit platforms. Also worrying is a mention that it includes a
-       fix for "password shrouding".
-     * Another remotely-exploitable security hole in fetchmail discovered
-       in September 2002; this hole lets an attacker run arbitrary code
-       on the victim's computer.
-     * Another remotely-exploitable security hole in fetchmail discovered
-       in December 2002; once again, a remote attacker can run arbitrary
-       code on the machine running fetchmail in its default
-       configuration. See this advisory for details.
-     * January 2003: More buffer overflows in fetchmail let attackers run
-       arbitrary code .
-     * October 2003: Anyone can cause fetchmail to crash by sending you a
-       message . Other problems are here , and I might have missed some .
-       
-   I've given up even trying to stay abreast of the various security
-   holes in fetchmail.
-   
-   But don't just take my word for it; see
-   http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724 .
-   
-   getmail users have not had to worry about any of these security holes.
-   
-    How can I get support for getmail?
-    
-   getmail is Free Software. As such, it comes with no warranty. However,
-   I will do my best to support getmail on a voluntary basis through the
-   getmail mailing list.
-   
-   If you are using getmail in a commercial or other environment where
-   problems cost money, consider contacting me privately for commercial
-   support.
-   
-   If you have questions about getmail, the first step is to read the
-   documentation, and the remainder of the Frequently Asked Questions. If
-   your question isn't answered there, search the getmail mailing list
-   archives at http://marc.theaimsgroup.com/?l=getmail&r=1&w=2 .
-   
-   If you still haven't found an answer to your question, please
-   subscribe to the mailing list by sending a blank email to
-   <getmail-subscribe @ discworld.dnsalias.org> . If you post your
-   question there, I will see it. As an additional bonus, your question
-   may be answered by another member of the list.
-   
-    I think I found a bug! How do I report it?
-    
-   Ideally, you should join the mailing list. Send your bug report there.
-   You should include the following information:
-     * getmail version
-     * Python version
-     * any error message which getmail displayed
-     * the output from running getmail with your normal options plus
-       --dump
-     * if your problem is getmail not determining the proper local
-       recipient, please include the output of running getmail with your
-       normal options plus --trace, showing the retrieval of one
-       problematic message.
-       
-   If you absolutely cannot sign up for the mailing list, send the report
-   to me directly. I may not be able to respond to all reports privately,
-   but I will try to address any bugs I find out about this way.
-   
-    Does getmail support virus scanning of retrieved messages?
-    
-   Yes. You can use getmail message filtering options to do this with an
-   external virus scanning program, or invoke your virus scanning program
-   during delivery with getmail's support for external MDAs.
-   
-    Does getmail support spam filtering of retrieved messages?
-    
-   Yes. You can use getmail message filtering options to do this with an
-   external spam filtering program, or invoke your spam filtering program
-   during delivery with getmail's support for external MDAs.
-   
-    Does getmail support SSL?
-    
-   Yes. getmail has built in support for POP3-over-SSL and
-   IMAP4-over-SSL.
-   
-    Does getmail rewrite mail headers when it retrieves mail?
-    
-   No. Rewriting message header fields is bad. getmail will add a new
-   Received: header field and a new Delivered-To: header field, but does
-   not rewrite existing headers. You can disable the creation of these
-   header fields.
-   
-  Using getmail with other software
-  
-   getmail user Frankye Fatarelli contributed to the following questions
-   about integrating getmail with SpamAssassin and ClamAV.
-   
-    How do I use getmail with spamassassin?
-    
-   SpamAssassin can be run in standalone mode or in a client/server
-   configuration. In both configurations, SpamAssassin accepts a wide
-   variety of arguments; please refer to SpamAssassin's manual pages or
-   online documentation for details.
-   
-   To filter messages through SpamAssassin in a client/server
-   configuration (i.e. with the spamd daemon), use a configuration like
-   this:
-[filter]
-type = Filter_external
-path = /usr/local/bin/spamc
-arguments = ("-s 10000", )
-
-   The value supplied to the -s option is the maximum message size
-   accepted (in bytes). The default is 250k.
-   
-   A similar configuration without the spamd daemon would be:
-[filter]
-type = Filter_external
-path = /usr/local/bin/spamassassin
-arguments = ("--report", )
-
-   The --report option sends the message to the various spam-blocker
-   databases and tags it as spam in your bayesian database.
-   
-   Note that if you are using Bayesian (learning) filtering, and you've
-   put your SpamAssassin filter after any getmail Filter_classifier, you
-   may have a problem with your learning filter learning getmail's header
-   fields. That is, the headers added by the other filters may get
-   learned, and affect your database. To prevent this, ensure that
-   SpamAssassin ignores these fields by adding the following to your
-   SpamAssassin configuration:
-bayes_ignore_header X-getmail-filter-classifier
-
-    How do I use getmail with ClamAV?
-    
-   ClamAV, like SpamAssassin, can by used in standalone or client/server
-   configurations.
-   
-   To use ClamAV without the clamd daemon, use a filter configuration
-   like this:
-[filter]
-type = Filter_classifier
-path = /usr/local/bin/clamscan
-arguments = ("--stdout", "--no-summary",
-    "--mbox", "--infected", "-")
-exitcodes_drop = (1,)
-
-   The above assumes you do not want the infected emails to be delivered.
-   If you do want them delivered, you would use a slightly different
-   configuration:
-[filter]
-type = Filter_classifier
-path = /usr/local/bin/clamscan
-arguments = ("--stdout", "--no-summary",
-    "--mbox", "--infected", "-")
-exitcodes_keep = (0,1)
-
-   To use ClamAV with the clamd daemon, use a filter configuration like
-   this:
-[filter]
-type = Filter_classifier
-path = /usr/local/bin/clamdscan
-arguments = ("--stdout", "--disable-summary", "-")
-exitcodes_drop = (1, )
-
-   As with Clamscan (above), if you do want the infected messages
-   delivered instead of dropped, you should modify your configuration as
-   follows:
-[filter]
-type = Filter_classifier
-path = /usr/local/bin/clamdscan
-arguments = ("--stdout", "--disable-summary", "-")
-exitcodes_keep = (0,1)
-
-   You may find it necessary to specify the paths of some decompression
-   utilities used by ClamAV with additional arguments like:
-arguments = ( ...,
-    "--unzip=/usr/local/bin/unzip",
-    "--unrar=/usr/local/bin/unrar",
-    "--unarj=/usr/local/bin/unarj",
-    "--lha=/usr/local/bin/lha",
-    "--jar=/usr/local/bin/unzip",
-    "--tar=/usr/bin/tar",
-    "--tgz=/usr/bin/tar"
-
-   Note: if you want to use the daemonized (client/server) version of
-   ClamAV, ensure that your clamav.conf file contains:
-ScanMail
-
-   The paths to the various decompression utilities must be specified in
-   this file as well.
-   
-      Getting prettier output from ClamAV
-      
-   Using getmail's Filter_classifier, the output of your filtering
-   program (in this case ClamAV) is placed into a
-   X-getmail-filter-classifier: header field in the message. This can
-   make auditing the actions of filters difficult if you use multiple
-   filters and cannot tell which filter added which line.
-   
-   To correct this, you can use an additional filter to change the name
-   of the added filter header lines immediately after each filter is run.
-   For example, reformail, from the maildrop package (which is in turn
-   part of the Courier MTA ) can be used in this fashion to rename the
-   added header fields (say, to "X-mypersonalmailscan") with a filter
-   configuration like this:
-type = Filter_external
-path = /usr/local/bin/reformail
-arguments = ("-R", "X-getmail-filter-classifier:",
-    "X-mypersonalmailscan:")
-
-   Simply ensure ClamAV is invoked as the first filter, and this is
-   invoked as the second filter (or immediately after the ClamAV filter,
-   if it is the second, third, etc. filter).
-     _________________________________________________________________
-   
-   © 2004 Charles Cazabon; all rights reserved. May not be reproduced in
-   any form without the prior written consent of the author.
-   
-   [up to Charles Cazabon's Writings]
-   
-   [up to Charles Cazabon's Pages]
-   
-   Valid XHTML 1.1 

@@ -1,0 +1,230 @@
+
+                             getmail documentation
+                                       
+   This is the documentation for getmail version 4. Version 4 includes
+   numerous changes from version 3.x; if you are using getmail version 3,
+   please refer to the documentation included with that version of the
+   software.
+   
+   getmail is Copyright © 1998-2004 Charles Cazabon.
+   
+   getmail is licensed under the GNU General Public License version 2
+   (only). If you wish to obtain a license to use getmail under other
+   terms, please contact me directly.
+   
+                               Table of Contents
+                                       
+     * getmail documentation
+     *
+          + Features
+          + Differences from previous versions
+          + Requirements
+          + Obtaining getmail
+          + Installing getmail
+          +
+               o Installing directly from the source
+               o Installing in a non-standard location
+               o Building a binary package from the source
+     * getmail documentation
+     * Configuring getmail
+     *
+          + Creating a getmail rc file
+     * Running getmail
+     * getmail documentation
+     * Troubleshooting
+     *
+          + Error messages
+          + Unexpected Behaviour
+     * getmail documentation
+     * Frequently-Asked Questions (FAQs)
+     *
+          + About getmail
+          + Using getmail with other software
+       
+Features
+
+   getmail is a mail retriever designed to allow you to get your mail
+   from one or more mail accounts on various mail servers to your local
+   machine for reading with a minimum of fuss. getmail is designed to be
+   secure, flexible, reliable, and easy-to-use. getmail is designed to
+   replace other mail retrievers such as fetchmail.
+   
+   getmail version 4 includes the following features:
+     * simple to install, configure, and use
+     * retrieve virtually any mail
+          + support for accessing mailboxes with the following protocols:
+               o POP3
+               o POP3-over-SSL
+               o IMAP4
+               o IMAP4-over-SSL
+               o SPDS (Demon UK's extensions to POP3)
+          + support for single-user and domain mailboxes
+          + retrieve mail from an unlimited number of mailboxes and
+            servers
+          + can remember which mail it has already retrieved, and can be
+            set to only download new messages
+     * support for message filtering, classification, and annotation by
+       external programs like spam filters and anti-virus programs
+     * support for delivering messages to different destinations based on
+       the message recipient
+     * reliability
+          + native safe and reliable delivery support for maildirs and
+            mboxrd files, in addition to delivery through arbitrary
+            external message delivery agents (MDAs)
+          + does not destroy information by rewriting mail headers
+          + does not cause mail loops by doing SMTP injection, and
+            therefore does not require that you run an MTA (like qmail or
+            sendmail) on your host
+     * written in Python, and therefore easy to extend or customize
+          + a flexible, extensible architecture so that support for new
+            mail access protocols, message filtering operations, or
+            destination types can be easily added
+          + cross-platform operation; getmail 4 should work on
+            Unix/Linux, Macintosh, Windows, and other platforms
+     * winner of various software awards, including DaveCentral's "Best
+       of Linux"
+       
+Differences from previous versions
+
+   getmail version 4 has been completely rewritten. It is designed to
+   closely mimic the interface and user experience of getmail version 3,
+   but the new architecture necessitates some differences you will
+   notice:
+     * the getmail rc file (configuration file) format has changed. If
+       you are upgrading from version 3, you will need to write a new
+       configuration file based on the contents of your old one. The new
+       file format closely resembles the old in many ways. Each account
+       you retrieve mail from will require a separate rc file, but
+       getmail can operate with several rc files simultaneously.
+     * support for protocols other than POP3/SPDS. IMAP support is now
+       included, and other protocols can be added with relative ease.
+     * support for SSL-encrypted protocols. Both POP3 and IMAP feature
+       SSL support.
+     * messages can be filtered or annotated by external programs like
+       spam filters and anti-Microsoft-worm programs. Filters can cause
+       messages to be dropped completely.
+     * a flexible, extensible architecture. Additional classes for
+       handling new mail protocols, filter types, or destination
+       mailstores can be added without needing to modify the main script
+       at all.
+       
+Requirements
+
+   getmail version 4 requires Python version 2.3.3 or later. If you have
+   only an earlier version of Python available, you can install the
+   latest version without disturbing your current version, or use getmail
+   version 3, which requires only Python version 1.5.2 or later.
+   
+Obtaining getmail
+
+   Download getmail 4 from the official website main page at
+   http://www.qcc.ca/~charlesc/software/getmail-4/ .
+   
+Installing getmail
+
+   Once you have downloaded or otherwise obtained getmail, unpack it. On
+   GNU-ish Unix-like systems, this means:
+$ tar xzf getmail-version.tar.gz
+
+   On SystemV-like Unix systems, you may instead need to break this down
+   into two steps:
+$ gunzip getmail-version.tar.gz
+$ tar xf getmail-version.tar
+
+   Then, change into the extracted getmail directory and start the build
+   process. The easiest installation method is to use the included
+   setup.py Python distutils script to build and install getmail
+   directly. Alternatively, you can build a binary package (i.e., an RPM
+   or similar managed software package) for your system from the source
+   package and install the resulting package, but the Python distutils
+   support for this is spotty at present.
+   
+  Installing directly from the source
+  
+   To build and install directly from the included source, follow these
+   steps.
+$ cd getmail-version
+$ python setup.py build
+
+   When that completes in a few seconds, become root and then install the
+   software:
+$ su
+enter root password
+# python setup.py install
+
+   By default, getmail version 4 will install three scripts into
+   /usr/local/bin/:
+     * getmail
+     * getmail_maildir
+     * getmail_mbox
+       
+   The documentation will be installed into
+   /usr/local/doc/getmail-version, and the getmailcore Python files will
+   be installed into the site-packages subdirectory of your Python
+   library directory (typically /usr/local/lib/python-version or
+   /usr/lib/python-version depending on whether Python was installed as a
+   part of your operating system or independently).
+   
+   You can specify an alternate directory to install getmail in using the
+   --prefix=path or --home=path options when running the install portion
+   of the above commands:
+# python setup.py install --prefix=/package/misc/host/localhost/getmail-version
+/
+$ python setup.py install --home=~/
+
+   These alternate installations allow you to install the software
+   without root privileges (say, by installing under $HOME/ ).
+   
+  Installing in a non-standard location
+  
+   Note: if you use one of the above methods to install into a directory
+   other than the default, the three scripts ( getmail, getmail_maildir,
+   and getmail_mbox ) will almost certainly be unable to locate the
+   required files from the getmailcore package, because they will not be
+   in a directory in the standard Python module search path. You will
+   need to do one of the following to make those files available to the
+   scripts:
+     * set the environment variable PYTHONPATH to tell Python where to
+       find the appropriate modules. See the documentation at the
+       Python.org website for details.
+     * modify the scripts to explicitly tell Python where you've
+       installed them. Insert a line like this:
+sys.path.insert('/path/to/installation-directory')
+       containing the path to the directory you installed the getmailcore
+       directory in, somewhere below the line which reads
+import sys
+       and before the first line which references getmailcore .
+       
+  Building a binary package from the source
+  
+   To build a binary package from the included source, run the following
+   command from inside the unpacked getmail source.
+$ cd getmail-version
+$ python setup.py bdist --format=package-format
+
+   The useful allowed values for package-format are:
+     * rpm -- build a .noarch.rpm file which can then be installed with
+       the rpm package manager.
+     * pkgtool -- build a package for the Sun Solaris pkgtool package
+       manager.
+     * sdux -- build a package for the HP/UX swinstall software
+       installer.
+     * wininst -- build a self-extracting Zip file for MS Windows
+       systems.
+       
+   Ideally, if you use this method, it will result in a "built
+   distribution" binary package in a subdirectory named dist which can
+   then be installed using the appropriate system-specific tool. If you
+   have problems with this process, please do not ask me for assistance;
+   ask your OS vendor. The install-directory-from-source process above is
+   the only one I can support, and it should work on all platforms.
+     _________________________________________________________________
+   
+   © 2004 Charles Cazabon; all rights reserved. May not be reproduced in
+   any form without the prior written consent of the author.
+   
+   [up to Charles Cazabon's Writings]
+   
+   [up to Charles Cazabon's Pages]
+   
+   Valid XHTML 1.1 

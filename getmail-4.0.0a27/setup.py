@@ -78,13 +78,20 @@ setup(
         (GETMAILDOCDIR, [
             './README',
             'docs/BUGS',
-            'docs/documentation.html',
             'docs/COPYING',
             'docs/CHANGELOG',
+            'docs/TODO',
+            'docs/THANKS',
+            'docs/documentation.html',
+            'docs/faq.html',
+            'docs/configuration.html',
+            'docs/troubleshooting.html',
             'docs/documentation.txt',
+            'docs/faq.txt',
+            'docs/configuration.txt',
+            'docs/troubleshooting.txt',
             'docs/getmaildocs.css',
             'docs/getmailrc-example',
-            'docs/TODO'
         ]),
         #('/etc/', [])
     ],

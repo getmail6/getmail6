@@ -1,3 +1,13 @@
+Version 4.0.0a27
+4 July 2004
+
+  -documentation fixes and additions.  Split documentation into
+  reasonably-sized files.  I need to add inter- and intra-document links
+  to most of the documentation yet.
+  -add auto-generated tables of contents to each doc file.
+  -start flushing out the website with copies of the docs, download directories,
+  etc.
+
 Version 4.0.0a26
 4 July 2004
 

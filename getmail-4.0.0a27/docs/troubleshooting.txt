@@ -1,0 +1,161 @@
+
+                             getmail documentation
+                                       
+   This is the documentation for getmail version 4. Version 4 includes
+   numerous changes from version 3.x; if you are using getmail version 3,
+   please refer to the documentation included with that version of the
+   software.
+   
+   getmail is Copyright © 1998-2004 Charles Cazabon.
+   
+   getmail is licensed under the GNU General Public License version 2
+   (only). If you wish to obtain a license to use getmail under other
+   terms, please contact me directly.
+   
+                               Table of Contents
+                                       
+     * getmail documentation
+     *
+          + Features
+          + Differences from previous versions
+          + Requirements
+          + Obtaining getmail
+          + Installing getmail
+     * getmail documentation
+     * Configuring getmail
+     *
+          + Creating a getmail rc file
+     * Running getmail
+     * getmail documentation
+     * Troubleshooting
+     *
+          + Error messages
+          +
+               o ImportError: getmail version 4 requires Python version
+                 2.3.3 or later
+               o Configuration error: ...
+               o
+                    # Configuration error: missing required configuration
+                      parameter name
+                    # Configuration error: configuration value name
+                      (value) not of required type type (why)
+                    # Configuration error: maildir path missing trailing
+                      /
+                    # Configuration error: not a maildir (path)
+                    # Configuration error: not a mboxrd file (path)
+                    # Configuration error: the fieldname header field
+                      does not record the envelope recipient address
+                    # Configuration error: refuse to invoke external
+                      commands as root by default
+                    # Configuration error: no such command path
+                    # Configuration error: path not executable
+                    # Configuration error: destination specifies section
+                      name section which does not exist
+                    # Configuration error: 
+               o Error: ...
+          + Unexpected Behaviour
+          +
+               o getmail uses the wrong hostname for my machine
+     * getmail documentation
+     * Frequently-Asked Questions (FAQs)
+     *
+          + About getmail
+          + Using getmail with other software
+       
+                                Troubleshooting
+                                       
+   This section of the documentation is to be added to as getmail version
+   4 progresses through beta testing to release state.
+   
+Error messages
+
+   getmail may output various diagnostic messages. The common ones and
+   their meanings are given below.
+   
+  ImportError: getmail version 4 requires Python version 2.3.3 or later
+  
+   You tried to run getmail 4 with a version of Python prior to Python
+   2.3.3. This is unsupported. If you cannot install a newer Python
+   alongside your current version, please use getmail version 3, which
+   supports Python 1.5.2 and later.
+   
+  Configuration error: ...
+  
+   getmail detected an error in your configuration. Check your getmail rc
+   file(s). getmail will do its best to point out the exact cause of the
+   error. Some of the specific errors it may find include the following.
+   
+    Configuration error: missing required configuration parameter name
+    
+   A class object in your getmail rc file requires the parameter name,
+   but it was not found in the appropriate section of the file.
+   
+    Configuration error: configuration value name (value) not of required type
+    type (why)
+    
+   The configuration parameter name must be of type type, but the
+   supplied value value does not appear to be of that type. Further
+   information may be present in why.
+   
+    Configuration error: maildir path missing trailing /
+    
+   Maildir paths must start with dot or slash and end with a slash.
+   
+    Configuration error: not a maildir (path)
+    
+   The specified maildir path path does not appear to be a valid maildir.
+   
+    Configuration error: not a mboxrd file (path)
+    
+   The specified mboxrd path path does not appear to be a valid mboxrd
+   file.
+   
+    Configuration error: the fieldname header field does not record the
+    envelope recipient address
+    
+   In a multidrop retriever configuration, you specified that the
+   envelope recipient was recorded in a header field that getmail knows
+   does not actually record that information.
+   
+    Configuration error: refuse to invoke external commands as root by default
+    
+   By default, getmail will not invoke external commands (in destinations
+   or filters) when it is running with root privileges, for security
+   reasons. See the documenation for possible solutions.
+   
+    Configuration error: no such command path
+    
+   An external command was specified as being located at path path, but
+   the command executable was not found at that location.
+   
+    Configuration error: path not executable
+    
+   A specified external command at path path was found to not be an
+   executable file.
+   
+    Configuration error: destination specifies section name section which does
+    not exist
+    
+   A destination in the getmail rc file refers to another rc file section
+   named section, but that section was not found in the file.
+   
+    Configuration error:
+    
+  Error: ...
+  
+   getmail detected an operational error. getmail will do its best to
+   point out the exact cause of the error. Common causes are failures to
+   connect to a remote mail server, timeouts during network operations,
+   and other transient failures.
+   
+Unexpected Behaviour
+
+   If getmail is behaving in a manner other that you expected, see the
+   following sections.
+   
+  getmail uses the wrong hostname for my machine
+  
+   If getmail records a hostname other than the "right" one for your host
+   (in its Received: trace header fields), check your /etc/hosts file and
+   make sure the "right" name is the first hostname listed for any of the
+   addresses of the machine.

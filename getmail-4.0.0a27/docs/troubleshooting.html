@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=iso-8859-1" />
+    <title>getmail troubleshooting (version 4)</title>
+    <meta name="author" content="Charles Cazabon" />
+    <meta name="description" content="Troubleshooting instructions for getmail version 4" />
+    <meta name="keywords" content="getmail troubleshooting, getmail 4 troubleshooting, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
+    <!--link rel="Contents Up Index" title="Charles Cazabon's Software" href="../" />-->
+    <style type="text/css" media="all">@import "getmaildocs.css";</style>
+</head>
+<body id="top">
+
+<h1 id="title">getmail documentation</h1>
+<p class="introduction">
+    This is the documentation for getmail version 4.  Version 4 includes
+    numerous changes from version 3.x; if you are using getmail version 3,
+    please refer to the documentation included with that version of the
+    software.
+</p>
+<p class="about">
+    getmail is Copyright &copy; 1998-2004 Charles Cazabon.
+</p>
+<p class="about">
+    getmail is licensed under the
+    <a href="COPYING">GNU General Public License version 2</a>
+    (only). If you wish to obtain a license to use getmail under other terms,
+    please contact me directly.
+</p>
+
+<h1 id="toc">Table of Contents</h1>
+<ul>
+    <li><a href="documentation.html#title">getmail documentation</a></li>
+    <li>
+        <ul>
+        <li><a href="documentation.html#features">Features</a></li>
+        <li><a href="documentation.html#v4differences">Differences from previous versions</a></li>
+        <li><a href="documentation.html#requirements">Requirements</a></li>
+        <li><a href="documentation.html#obtaining">Obtaining getmail</a></li>
+        <li><a href="documentation.html#installing">Installing getmail</a></li>
+        </ul>
+    </li>
+    <li><a href="configuration.html#title">getmail documentation</a></li>
+    <li><a href="configuration.html#configuring">Configuring getmail</a></li>
+    <li>
+        <ul>
+        <li><a href="configuration.html#rcfile">Creating a getmail rc file</a></li>
+        </ul>
+    </li>
+    <li><a href="configuration.html#running">Running getmail</a></li>
+    <li><a href="troubleshooting.html#title">getmail documentation</a></li>
+    <li><a href="troubleshooting.html#troubleshooting">Troubleshooting</a></li>
+    <li>
+        <ul>
+        <li><a href="troubleshooting.html#error-messages">Error messages</a></li>
+        <li>
+            <ul>
+            <li><a href="troubleshooting.html#errmsg-pyversion">ImportError: getmail version 4 requires Python version 2.3.3 or later</a></li>
+            <li><a href="troubleshooting.html#errmsg-config">Configuration error: &hellip;</a></li>
+            <li>
+                <ul>
+                <li><a href="troubleshooting.html#errmsg-config-missing-parameter">Configuration error: missing required configuration parameter <span class="meta">name</span></a></li>
+                <li><a href="troubleshooting.html#errmsg-config-parameter-wrong-type">Configuration error: configuration value <span class="meta">name</span> (<span class="meta">value</span>) not of required type <span class="meta">type</span> (<span class="meta">why</span>)</a></li>
+                <li><a href="troubleshooting.html#errmsg-config-maildir-slash">Configuration error: maildir path missing trailing /</a></li>
+                <li><a href="troubleshooting.html#errmsg-config-maildir-not">Configuration error: not a maildir (<span class="meta">path</span>)</a></li>
+                <li><a href="troubleshooting.html#errmsg-config-mboxrd-not">Configuration error: not a mboxrd file (<span class="meta">path</span>)</a></li>
+                <li><a href="troubleshooting.html#errmsg-config-envelope-recipient">Configuration error: the <span class="meta">fieldname</span> header field does not record the envelope recipient address</a></li>
+                <li><a href="troubleshooting.html#errmsg-config-root-commands">Configuration error: refuse to invoke external commands as root by default</a></li>
+                <li><a href="troubleshooting.html#errmsg-config-no-command">Configuration error: no such command <span class="meta">path</span></a></li>
+                <li><a href="troubleshooting.html#errmsg-config-command-not-executable">Configuration error: <span class="meta">path</span> not executable</a></li>
+                <li><a href="troubleshooting.html#errmsg-config-missing-section">Configuration error: destination specifies section name <span class="meta">section</span> which does not exist</a></li>
+                <li><a href="troubleshooting.html#errmsg-config-">Configuration error: </a></li>
+                </ul>
+            </li>
+            <li><a href="troubleshooting.html#errmsg-operation-">Error: &hellip;</a></li>
+            </ul>
+        </li>
+        <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
+        <li>
+            <ul>
+            <li><a href="troubleshooting.html#unexpected-hostname">getmail uses the wrong hostname for my machine</a></li>
+            </ul>
+        </li>
+        </ul>
+    </li>
+    <li><a href="faq.html#title">getmail documentation</a></li>
+    <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
+    <li>
+        <ul>
+        <li><a href="faq.html#faq-about">About getmail</a></li>
+        <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
+        </ul>
+    </li>
+</ul>
+
+<!--
+********************************************************************************
+-->
+
+<h1 id="troubleshooting">Troubleshooting</h1>
+<p>
+    This section of the documentation is to be added to as getmail version 4
+    progresses through beta testing to release state.
+</p>
+
+<h2 id="error-messages">Error messages</h2>
+<p>
+    getmail may output various diagnostic messages.  The common ones and
+    their meanings are given below.
+</p>
+
+<h3 id="errmsg-pyversion" class="errmsg">ImportError: getmail version 4 requires Python version 2.3.3 or later</h3>
+<p>
+    You tried to run getmail 4 with a version of Python prior to Python 2.3.3.
+    This is unsupported.  If you cannot install a newer Python alongside your
+    current version, please use getmail version 3, which supports Python 1.5.2
+    and later.
+</p>
+
+<h3 id="errmsg-config" class="errmsg">Configuration error: &hellip;</h3>
+<p>
+    getmail detected an error in your configuration.  Check your getmail rc
+    file(s).  getmail will do its best to point out the exact cause of the
+    error.  Some of the specific errors it may find include the following.
+</p>
+
+<h4 id="errmsg-config-missing-parameter" class="errmsg">Configuration error: missing required configuration parameter <span class="meta">name</span></h4>
+<p>
+    A class object in your getmail rc file requires the parameter
+    <span class="meta">name</span>, but it was not found in the
+    appropriate section of the file.
+</p>
+
+<h4 id="errmsg-config-parameter-wrong-type" class="errmsg">Configuration error: configuration value <span class="meta">name</span> (<span class="meta">value</span>) not of required type <span class="meta">type</span> (<span class="meta">why</span>)</h4>
+<p>
+    The configuration parameter <span class="meta">name</span> must be of
+    type <span class="meta">type</span>, but the supplied value
+    <span class="meta">value</span> does not appear to be of that type.
+    Further information may be present in <span class="meta">why</span>.
+</p>
+
+<h4 id="errmsg-config-maildir-slash" class="errmsg">Configuration error: maildir path missing trailing /</h4>
+<p>
+    Maildir paths must start with dot or slash and end with a slash.
+</p>
+
+<h4 id="errmsg-config-maildir-not" class="errmsg">Configuration error: not a maildir (<span class="meta">path</span>)</h4>
+<p>
+    The specified maildir path <span class="meta">path</span> does not appear
+    to be a valid maildir.
+</p>
+
+<h4 id="errmsg-config-mboxrd-not" class="errmsg">Configuration error: not a mboxrd file (<span class="meta">path</span>)</h4>
+<p>
+    The specified mboxrd path <span class="meta">path</span> does not appear
+    to be a valid mboxrd file.
+</p>
+
+<h4 id="errmsg-config-envelope-recipient" class="errmsg">Configuration error: the <span class="meta">fieldname</span> header field does not record the envelope recipient address</h4>
+<p>
+    In a multidrop retriever configuration, you specified that the envelope
+    recipient was recorded in a header field that getmail knows does not
+    actually record that information.
+</p>
+
+<h4 id="errmsg-config-root-commands" class="errmsg">Configuration error: refuse to invoke external commands as root by default</h4>
+<p>
+    By default, getmail will not invoke external commands (in destinations or
+    filters) when it is running with root privileges, for security reasons.  See
+    the documenation for possible solutions.
+</p>
+
+<h4 id="errmsg-config-no-command" class="errmsg">Configuration error: no such command <span class="meta">path</span></h4>
+<p>
+    An external command was specified as being located at path
+    <span class="meta">path</span>,
+    but the command executable was not found at that location.
+</p>
+
+<h4 id="errmsg-config-command-not-executable" class="errmsg">Configuration error: <span class="meta">path</span> not executable</h4>
+<p>
+    A specified external command at path
+    <span class="meta">path</span>
+    was found to not be an executable file.
+</p>
+
+<h4 id="errmsg-config-missing-section" class="errmsg">Configuration error: destination specifies section name <span class="meta">section</span> which does not exist</h4>
+<p>
+    A destination in the getmail rc file refers to another rc file section named
+    <span class="meta">section</span>,
+    but that section was not found in the file.
+</p>
+
+<h4 id="errmsg-config-" class="errmsg">Configuration error: </h4>
+<p>
+</p>
+
+<h3 id="errmsg-operation-" class="errmsg">Error: &hellip;</h3>
+<p>
+    getmail detected an operational error.  getmail will do its best to point
+    out the exact cause of the error.  Common causes are failures to connect
+    to a remote mail server, timeouts during network operations, and other
+    transient failures.
+</p>
+
+<h2 id="unexpected-behaviour">Unexpected Behaviour</h2>
+<p>
+    If getmail is behaving in a manner other that you expected, see the 
+    following sections.
+</p>
+
+<h3 id="unexpected-hostname">getmail uses the wrong hostname for my machine</h3>
+<p>
+    If getmail records a hostname other than the &quot;right&quot; one for
+    your host (in its Received: trace header fields), check your 
+    <span class="file">/etc/hosts</span>
+    file and make sure the &quot;right&quot; name is the first hostname 
+    listed for any of the addresses of the machine.
+</p>
+
+
+</body>
+</html>
