@@ -1,6 +1,13 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.11
+21 January 2003
+
+  -Change two logging strings in do_deliveries to correct an error encountered
+  by "Joel" and Mike Fields.  Thanks to Mike Fields for testing the fix prior
+  to release.
+
 Version 2.3.10
 28 December 2002
 
