@@ -37,7 +37,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.70'
+VERSION = '0.71'
 
 #
 # Imports
@@ -82,7 +82,6 @@ OK, ERROR = (0, -1)
 
 CR =			'\r'
 LF =			'\n'
-POP3_TERM =		'.'						# POP3 termination octect
 deliverycount = 0
 argv = sys.argv
 stderr = sys.stderr.write
@@ -94,20 +93,20 @@ stderr = sys.stderr.write
 #######################################
 def main ():
 	'''getmail.py, a POP3 mail retriever.
-	Copyright (C) 1999 Charles Cazabon
+	Copyright (C) 2000 Charles Cazabon
 	Licensed under the GNU General Public License version 2.
 	Run without arguments for help.
 	'''
 	about ()
 	parse_options (sys.argv)
 
-	for i in range (len (opt_account)):	
+	for i in range (len (opt_account)):
 		mail = get_mail (opt_host[i], opt_port[i], opt_account[i],
 						 opt_password[i], opt_delete_retrieved)
-		
+
 		for msg in mail:
 			maildirdeliver (opt_maildir[i], pop3_unescape (msg))
-		
+
 	sys.exit (deliverycount)
 
 
@@ -117,7 +116,7 @@ def get_mail (host, port, account, password, delete = 0):
 
 	messages, retrieved = [], 0
 	shorthost = string.split (host, '.') [0]
-	
+
 	try:
 		session = poplib.POP3 (host, port)
 		if opt_verbose:
@@ -190,7 +189,7 @@ def get_mail (host, port, account, password, delete = 0):
 
 	if opt_verbose:
 		print '%s:  POP3 session completed for "%s"' % (shorthost, account)
-	
+
 	session.quit ()
 
 	if opt_verbose:
@@ -211,7 +210,7 @@ def maildirdeliver (maildir, message):
 	unique = '%s_%s' % (pid, deliverycount)
 	hostname = string.split (socket.gethostname (), '.')[0]
 	filename = '%s.%s.%s' % (_time, unique, hostname)
-	
+
 	fname_tmp = os.path.join (maildir, 'tmp', filename)
 	fname_new = os.path.join (maildir, 'new', filename)
 
@@ -224,7 +223,7 @@ def maildirdeliver (maildir, message):
 	except IOError:
 		# Good, file doesn't exist.
 		pass
-		
+
 	# Open it to write
 	try:
 		f = open (fname_tmp, 'wb')
@@ -233,7 +232,7 @@ def maildirdeliver (maildir, message):
 
 	except IOError:
 		raise 'error: failure writing file "%s"' % fname_tmp
-		
+
 	# Move from tmp to new
 	try:
 		os.rename (fname_tmp, fname_new)
@@ -242,7 +241,7 @@ def maildirdeliver (maildir, message):
 		raise 'error: failure moving file "%s" to "%s"' \
 			   % (fname_tmp, fname_new)
 
-	# Delivery done		
+	# Delivery done
 	deliverycount = deliverycount + 1
 	return
 
@@ -254,12 +253,10 @@ def pop3_unescape (raw_lines):
 	leading doubled periods as required by the POP3 standard.
 	'''
 	lines = []
-	for raw_line in raw_lines:
-		line = string.replace (string.replace (raw_line, CR, ''), LF, '')
-		if line == POP3_TERM:
-			continue
-		elif len (line) >= 2 and line[0:1] == '..':
-			line = line[1:]
+	for line in raw_lines:
+		line = string.replace (string.replace (line, CR, ''), LF, '')
+		if len (line) >= 2 and line[0 : 2] == '..':
+			line =  line [1 : ]
 		lines.append ('%s\n' % line)
 	return lines
 
@@ -272,7 +269,7 @@ def about ():
 		  'COPYING for details.\n' \
 		  % VERSION
 	return
-	
+
 
 #######################################
 def usage ():
@@ -283,7 +280,7 @@ def usage ():
 	else:					def_dontdel =	'(default)'
 	if DEF_READ_ALL:		def_readall =	'(default)'
 	else:					def_readnew =	'(default)'
-	
+
 	stderr ('\n'
 	'Usage:  %s [options] [user@mailhost[:port],maildir[,password]] [...]\n'
 	'Options:\n'
@@ -301,7 +298,7 @@ def usage ():
 	'supplied will be prompted for.\n\n'
 		% (me, def_readall, def_readnew, def_del, def_dontdel, ENV_RCFILE, DEF_PORT))
 	return
-	
+
 #######################################
 def parse_options (argv):
 	'''Parse commandline options.  Options handled:
@@ -317,16 +314,16 @@ def parse_options (argv):
 
 	if os.environ.has_key (ENV_RCFILE):
 		opt_configfile = os.environ[ENV_RCFILE]
-		
+
 	optslist, args = [], []
 
 	opts = 'c:dlauvh'
 	longopts = ['delete', 'dont-delete', 'all', 'new', 'verbose', 'config=',
 		'help']
-	
+
 	try:
 		global optslist, args
-		optslist, args = getopt.getopt (argv[1:], opts, longopts)			
+		optslist, args = getopt.getopt (argv[1:], opts, longopts)
 
 	except getopt.error, cause:
 		stderr ('Error:  "%s"\n' % cause)
@@ -371,7 +368,7 @@ def parse_options (argv):
 					args.append (line)
 		except IOError:
 			stderr ('Error:  exception reading file "%s"\n' % opt_configfile)
-	
+
 	# Parse arguments given in user@mailhost[:port],maildir[,password] format
 	for arg in args:
 		try:
@@ -384,7 +381,7 @@ def parse_options (argv):
 			except ValueError:
 				stderr ('Error:  argument "%s" not in format \''
 						'user@mailhost[:port],maildir[,password]\'\n' % arg)
-				
+
 		opt_maildir.append (mdir)
 		opt_account.append (userhost [ : string.rfind (userhost, '@')])
 
@@ -397,7 +394,7 @@ def parse_options (argv):
 			opt_port.append (int (userhost [string.rindex (userhost, ':') : ]))
 		except ValueError:
 			opt_port.append (DEF_PORT)
-	
+
 	# Check mandatory options
 	if not opt_host:
 		stderr ('Error:  no host(s) supplied\n')
@@ -418,7 +415,7 @@ def parse_options (argv):
 	# Put in default port if not specified
 	for i in range (len (opt_account) - len (opt_port)):
 		opt_port.append (int (DEF_PORT))
-	
+
 	# Read password(s) from stdin if not supplied
 	if not error:
 		for i in range (len (opt_password)):
@@ -432,7 +429,7 @@ def parse_options (argv):
 				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, newattr)
 				opt_password[i] = raw_input ('Enter password for %s@%s:  '
 								% (opt_account[i], opt_host[i]))
-	
+
 			finally:
 				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, oldattr)
 			print
