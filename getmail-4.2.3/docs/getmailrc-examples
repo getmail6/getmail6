@@ -95,7 +95,7 @@ path = ~jeffp/Maildir/
 
 #
 # Example 6:  same as (1), but deliver the messages to an mboxrd-format mbox
-# file.
+# file as user "jeffp".
 #
 
 [retriever]
@@ -107,6 +107,7 @@ password = mailpassword
 [destination]
 type = Mboxrd
 path = ~jeffp/Mail/inbox
+user = jeffp
 
 #
 # Example 7:  same as (1), but deliver the messages through an external MDA
@@ -144,17 +145,40 @@ envelope_recipient = delivered-to:1
 
 [destination]
 type = MultiSorter
-default = ~joe/Mail/postmaster/
+default = [postmaster]
 locals = (
-  ("jeffk@company.example.net",      "~jeffp/Maildir/"),
-  ("martinh@company.example.net",    "~martinh/Maildir/"),
-  ("sam@company.example.net",        "~sam/Mail/inbox"),
+  ("jeffk@company.example.net",      "[jeff]"),
+  ("martinh@company.example.net",    "[martin]"),
+  ("sam@company.example.net",        "[sam]"),
   ("c.fellowes@company.example.net", "[christina-procmail]")
   )
+
+[postmaster]
+type = Maildir
+path = ~joe/Mail/postmaster/
+user = joe
+
+[jeff]
+type = Maildir
+path = ~jeffp/Maildir/
+user = jeffp
+
+[martin]
+type = Maildir
+path = ~martinh/Maildir/
+user = martinh
+
+[sam]
+type = Mboxrd
+path = ~sam/Mail/inbox
+user = sam
 
 [christina-procmail]
 type = MDA_external
 path = /usr/local/bin/procmail
+# procmail requires either that the message starts with an mboxrd-style
+# "From " line (which getmail can generate by setting "unixfrom" to True), or
+# that the -f option is provided as below.
 arguments = ("-f", "%(sender)", "-m", "/home/christina/.procmailrc")
 user = christina
 

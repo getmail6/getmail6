@@ -81,7 +81,8 @@ Error messages
    envelope recipient was recorded in a header field that getmail knows
    does not actually record that information.
    
-    Configuration error: refuse to invoke external commands as root by default
+    Configuration error: refuse to invoke external commands as root or GID 0 by
+    default
     
    By default, getmail will not invoke external commands (in destinations
    or filters) when it is running with root privileges, for security

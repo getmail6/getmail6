@@ -611,25 +611,28 @@ destinations = ('[other-destination-1]', '[other-destination-2]')
 [other-destination-1]
 type = Mboxrd
 path = /var/spool/mail/alice
+user = alice
 
 [other-destination-2]
 type = Maildir
 path = /home/joe/Maildir/
-       Because Maildir and Mboxrd destinations are common and take only a
-       path parameter, you can specify them directly as a shortcut. If
-       the string (after expansion; see below) starts with a dot or slash
-       and ends with a slash, it specifies the path of a Maildir
-       destination, while if it starts with a dot or a slash and does not
-       end with a slash, it specifies the path of a Mboxrd destination.
-       The following is shorter than, but exactly equivalent to, the
-       previous example:
-destinations = ('/var/spool/mail/alice', '/home/joe/Maildir/')
+user = joe
+       Because Maildir and Mboxrd destinations are common, you can
+       specify them directly as a shortcut if they do not require a user
+       parameter. If the string (after expansion; see below) starts with
+       a dot or slash and ends with a slash, it specifies the path of a
+       Maildir destination, while if it starts with a dot or a slash and
+       does not end with a slash, it specifies the path of a Mboxrd
+       destination.
+       For instance, you can deliver mail to two maildirs with the
+       following:
+destinations = ('~/Mail/inbox/', '~/Mail/archive/current/')
        Each destination string is first expanded for leading ~ or ~USER
        and environment variables in the form $VARNAME or ${VARNAME}.
        
    Some examples:
      * To deliver to a maildir named Maildir in the home directory of
-       user jeff:
+       user jeff, when getmail is run as that user:
 [destination]
 type = MultiDestination
 destinations = ("~jeff/Maildir/", )
@@ -645,7 +648,7 @@ destinations = ("[procmail-as-bob]", )
 [procmail-as-bob]
 type = MDA_external
 path = /path/to/procmail
-arguments = ('~bob/.procmailrc', )
+arguments = ('~bob/.procmailrc', '-f', '%(sender)')
 user = bob
        
    Of course, the whole point of MultiDestination is to allow you to
@@ -661,7 +664,7 @@ destinations = (
 [procmail-as-jeff]
 type = MDA_external
 path = /path/to/procmail
-arguments = ('~jeff/.procmailrc', )
+arguments = ('~jeff/.procmailrc', '-f', '%(sender)')
 user = jeff
 
     MultiSorter
@@ -724,11 +727,26 @@ user = jeff
           + Deliver all other mail to ~bob/Maildir/
 [destination]
 type = MultiSorter
-default = ~bob/Maildir/
+default = [bob-default]
 locals = (
-    ('jeff@example.net', '~jeff/Maildir/'),
-    ('alice@', '~alice/inbox')
+    ('jeff@example.net', '[jeff]'),
+    ('alice@', '[alice]')
     )
+
+[jeff]
+type = Maildir
+path = ~jeff/Maildir/
+user = jeff
+
+[alice]
+type = Mboxrd
+path = ~alice/inbox
+user = alice
+
+[bob-default]
+type = Maildir
+path = ~bob/Maildir/
+user = bob
      *
           + Deliver mail for jeff, bob, and alice to maildirs in their
             home directories
@@ -741,12 +759,32 @@ locals = (
 type = MultiSorter
 default = doesn't matter, this won't be used, as locals will always match
 locals = (
-    ('^jeff@'), '~jeff/Maildir/'),
-    ('^bob@'), '~bob/Maildir/'),
-    ('^alice@'), '~alice/Maildir/'),
-    ('.'), '~samantha/Mail/archive/copies/'),
+    ('^jeff@'), '[jeff]'),
+    ('^bob@'), '[bob]'),
+    ('^alice@'), '[alice]'),
+    ('.'), '[copies]'),
     ('.'), '[info]')
     )
+
+[alice]
+type = Maildir
+path = ~alice/Maildir/
+user = alice
+
+[bob]
+type = Maildir
+path = ~bob/Maildir/
+user = bob
+
+[jeff]
+type = Maildir
+path = ~jeff/Maildir/
+user = jeff
+
+[copies]
+type = Maildir
+path = ~samantha/Mail/archive/copies/
+user = samantha
 
 [info]
 type = MDA_external
@@ -797,14 +835,7 @@ user = log
      * default (string) -- see MultiSorter for definition.
        
    The MultiGuesser destination also takes one optional parameter:
-     * locals (tuple of 2-tuples) -- zero or more regular expression -
-       destination pairs. Messages will be delivered to each destination
-       for which any address found in the message header (see above)
-       matches the given regular expression. The regular expression and
-       destination are supplied as two quoted strings in a tuple; locals
-       is then a tuple of such pairs of strings. Destinations are
-       specified in the same manner as with the "default" parameter,
-       above.
+     * locals (tuple of 2-tuples) -- see MultiSorter for definition.
        
    Examples:
    

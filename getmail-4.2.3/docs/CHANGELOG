@@ -1,3 +1,10 @@
+Version 4.2.3
+18 November 2004
+
+  -documentation updates.
+  -getmailrc examples file updated.  Thanks: Scott Robbins.
+  -clarify error message when user insecurely tries to deliver mail as GID 0.
+
 Version 4.2.2
 11 October 2004
 

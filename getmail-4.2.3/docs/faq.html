@@ -588,6 +588,10 @@
     to maildirs or mboxrd files.  You can specify the user explicitly, or
     let getmail use the owner of the maildir or mboxrd file.
 </p>
+<p>
+    If getmail attempts to deliver mail and finds it has UID 0 or GID 0, it
+    will refuse the delivery and print an error message.
+</p>
 
 <h3 id="faq-configuring-maildir">What's a maildir?</h3>
 <p>
@@ -1014,6 +1018,11 @@ bayes_ignore_header X-getmail-filter-classifier
 
 <h3 id="faq-integrating-clamav">How do I use ClamAV with getmail?</h3>
 <p>
+	You should also read <a href="http://article.gmane.org/gmane.mail.getmail.user/1486">this message</a>
+	in the getmail users' mailing list archives and the ClamAV documentation if
+	you want to use ClamAV with getmail.
+</p>
+<p>
     <a href="http://www.clamav.net/">ClamAV</a>,
     like SpamAssassin, can by used in standalone or client/server 
     configurations.  In either case, you need to add the 
@@ -1141,27 +1150,50 @@ arguments = (&quot;-R&quot;, &quot;X-getmail-filter-classifier:&quot;,
 
 <h3 id="faq-integrating-procmail">How do I use procmail with getmail?</h3>
 <p>
-    Simply invoke procmail as an
+    Simply invoke 
+    <span class="file">procmail</span>
+    as an
     <a href="configuration.html#destination-mdaexternal">external MDA</a>.
-    procmail requires that the message begin with a Unix &quot;From &quot; line
-    (the mbox message delimiter), so you'll need to either set the MDA_external
-    parameter unixfrom to True, or supply arguments that tell procmail to
-    recreate this line. One of the following would be fine:
+    <span class="file">procmail</span>
+    requires that one of the following be true:
 </p>
-<pre class="example">
-[destination]
-type = MDA_external
-path = /path/to/procmail
-arguments = (&quot;-f&quot;, &quot;%(sender)&quot;)
-</pre>
+<ul>
+	<li>
+		that the message begin with a Unix &quot;From &quot; line
+    	(the mbox message delimiter)
+	</li>
+	<li>
+		that
+	    <span class="file">procmail</span>
+		is invoked with the 
+	    <span class="file">-f</span>
+	    option supplying the envelope sender, so that it may generate the
+	    &quot;From &quot; line
+	</li>
+</ul>
 <p>
-    Or:
+    To have getmail generate and prepend the &quot;From &quot; line to the
+    start of the message, set the MDA_external
+    parameter 
+    <span class="file">unixfrom</span>
+    to True:
 </p>
 <pre class="example">
 [destination]
 type = MDA_external
 path = /path/to/procmail
 unixfrom = True
+</pre>
+<p>
+	To supply the 
+   	<span class="file">-f</span>
+   	option to procmail, do something like this:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/procmail
+arguments = (&quot;-f&quot;, &quot;%(sender)&quot;)
 </pre>
 
 <h3 id="faq-integrating-maildrop">How do I use maildrop with getmail?</h3>

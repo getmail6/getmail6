@@ -137,9 +137,13 @@ class Maildir(DeliverySkeleton, ForkingBase):
             if os.name == 'posix':
                 if uid:
                     change_uidgid(None, uid, gid)
-                if os.geteuid() == 0 or os.getegid() == 0:
+                if os.geteuid() == 0:
                     raise getmailConfigurationError(
                         'refuse to deliver mail as root'
+                    )
+                if os.getegid() == 0:
+                    raise getmailConfigurationError(
+                        'refuse to deliver mail as GID 0'
                     )
             f = deliver_maildir(self.conf['path'], msg.flatten(delivered_to,
                 received), self.hostname, self.dcount)
@@ -165,9 +169,14 @@ class Maildir(DeliverySkeleton, ForkingBase):
                 # Config specifies delivery as user other than current UID
                 uid = uid_of_user(user)
                 gid = gid_of_uid(uid)
-            if uid == 0 or gid == 0:
-                raise getmailConfigurationError(
-                    'refuse to deliver mail as root')
+                if uid == 0:
+                    raise getmailConfigurationError(
+                        'refuse to deliver mail as root'
+                    )
+                if gid == 0:
+                    raise getmailConfigurationError(
+                        'refuse to deliver mail as GID 0'
+                    )
         self._prepare_child()
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -237,9 +246,13 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             if os.name == 'posix':
                 if uid:
                     change_uidgid(None, uid, gid)
-                if os.geteuid() == 0 or os.getegid() == 0:
+                if os.geteuid() == 0:
                     raise getmailConfigurationError(
                         'refuse to deliver mail as root'
+                    )
+                if os.getegid() == 0:
+                    raise getmailConfigurationError(
+                        'refuse to deliver mail as GID 0'
                     )
 
             if not os.path.exists(self.conf['path']):
@@ -329,9 +342,14 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                 # Config specifies delivery as user other than current UID
                 uid = uid_of_user(user)
                 gid = gid_of_uid(uid)
-            if uid == 0 or gid == 0:
+            if uid == 0:
                 raise getmailConfigurationError(
-                    'refuse to deliver mail as root')
+                    'refuse to deliver mail as root'
+                )
+            if gid == 0:
+                raise getmailConfigurationError(
+                    'refuse to deliver mail as GID 0'
+                )
         self._prepare_child()
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -482,7 +500,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
             if ((os.geteuid() == 0 or os.getegid() == 0)
                     and not self.conf['allow_root_commands']):
                 raise getmailConfigurationError(
-                    'refuse to invoke external commands as root by default')
+                    'refuse to invoke external commands as root or GID 0 by default')
 
             os.execl(*args)
         except StandardError, o:
@@ -653,7 +671,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             if ((os.geteuid() == 0 or os.getegid() == 0)
                     and not self.conf['allow_root_commands']):
                 raise getmailConfigurationError(
-                    'refuse to invoke external commands as root by default')
+                    'refuse to invoke external commands as root or GID 0 by default')
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)

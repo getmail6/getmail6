@@ -85,7 +85,7 @@
                     <li><a href="troubleshooting.html#errmsg-config-mboxrd-not">Configuration error: not an mboxrd file (<span class="meta">path</span>)</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-mboxrd-missing">Configuration error: mboxrd does not exist</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-envelope-recipient">Configuration error: the <span class="meta">fieldname</span> header field does not record the envelope recipient address</a></li>
-                    <li><a href="troubleshooting.html#errmsg-config-root-commands">Configuration error: refuse to invoke external commands as root by default</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-root-commands">Configuration error: refuse to invoke external commands as root or GID 0 by default</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-no-command">Configuration error: no such command <span class="meta">path</span></a></li>
                     <li><a href="troubleshooting.html#errmsg-config-command-not-executable">Configuration error: <span class="meta">path</span> not executable</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-missing-section">Configuration error: destination specifies section name <span class="meta">section</span> which does not exist</a></li>
@@ -233,11 +233,11 @@
     actually record that information.
 </p>
 
-<h4 id="errmsg-config-root-commands" class="errmsg">Configuration error: refuse to invoke external commands as root by default</h4>
+<h4 id="errmsg-config-root-commands" class="errmsg">Configuration error: refuse to invoke external commands as root or GID 0 by default</h4>
 <p>
     By default, getmail will not invoke external commands (in destinations or
-    filters) when it is running with root privileges, for security reasons.  See
-    the documenation for possible solutions.
+    filters) when it is running with root privileges, for security reasons.  
+    See the documenation for possible solutions.
 </p>
 
 <h4 id="errmsg-config-no-command" class="errmsg">Configuration error: no such command <span class="meta">path</span></h4>
