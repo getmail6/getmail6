@@ -1,6 +1,16 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.2.0
+22 September 2003
+
+  -Add workaround for differences in Python poplib; an incompatible change
+  was introduced (apparently in 1.6) to Python's library, where session.retr()
+  previous returned raw lines, but now it returns the un-stuffed lines.
+  getmail now has to conditionally un-stuff lines depending on the version
+  of the Python interpreter in use.  Reported to me by Fredrik Steen, 
+  maintainer of the Debian package of getmail.
+
 Version 3.1.8
 22 July 2003
 

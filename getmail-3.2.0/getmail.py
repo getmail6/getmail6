@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.1.8'
+__version__ = '3.2.0'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -48,6 +48,15 @@ from getmail_constants import *
 # Count of deliveries for getmail; used in Maildir delivery
 deliverycount = 0
 
+# Incompatible change in Python standard library in Python version 1.6;
+# session.retr() used to return the raw message lines, now it returns
+# the cooked (unstuffed) lines.  So we only unstuff for older versions of
+# Python now.
+if sys.hexversion < 0x01060000:
+    NEED_REMOVE_LEADING_DOTS = 1
+else:
+    NEED_REMOVE_LEADING_DOTS = 0
+  
 #
 # Classes
 #
@@ -577,7 +586,8 @@ class getmail:
                     rc, msglines, octets = self.session.retr (msgnum)
                     msg = string.join (msglines + [''], line_end['pop3'])
                     self.logfunc (INFO, 'retrieved')
-                    msg = pop3_unescape (msg)
+                    if NEED_REMOVE_LEADING_DOTS:
+                        msg = pop3_unescape (msg)
 
                     try:
                         # Find recipients for this message and deliver to them.
