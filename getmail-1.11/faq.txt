@@ -3,7 +3,7 @@
                                        
 Frequently Asked Questions about getmail
 
-30 March 2000
+4 April 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -259,5 +259,5 @@ password = ' a password with leading whitespace'
    http://www.qcc.sk.ca/~charlesc/software/.
      _________________________________________________________________
    
-   This document was generated on 30 March 2000 using the texi2html
+   This document was generated on 4 April 2000 using the texi2html
    translator version 1.51a.

@@ -1,6 +1,11 @@
 Changes for getmail:
 ====================
 
+v.1.11 4 April 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-about a dozen minor syntax corrections which Python 1.6 will require.
+	Ironically enough, these are mostly the reverse of changes I made in
+	1.09-1.10 for code length.  No functionality change.
+
 v.1.10 30 March 2000 Charles Cazabon <getmail@discworld.dyndns.org>
     -Maildir delivery now supports post-delivery changing of file ownership
     for all destinations, not just non-default domain mailbox destinations.

@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.10'
+VERSION = '1.11'
 
 #
 # Imports
@@ -637,18 +637,18 @@ def read_configfile (file):
                 dest, user = string.split (dest, ':')
                 pwd_item = pwd.getpwnam (user)
                 uid, gid = pwd_item[2], pwd_item[3]
-                opt_dest.append (dest, uid, gid)
+                opt_dest.append ( (dest, uid, gid) )
 
             except ValueError:
                 # Wrong number of items in option value
-                opt_dest.append (dest, None, None)
+                opt_dest.append ( (dest, None, None) )
 
             except KeyError:
                 stderr ('Error:  no such user in /etc/passwd ("%s")\n'
                         '  for destination "%s"\n'
                         '  POP3 account "%s@%s:%d"\n'
                     % (user, dest, opt_account[-1], opt_host[-1], opt_port[-1]))
-                opt_dest.append (dest, None, None)
+                opt_dest.append ( (dest, None, None) )
 
             if mtype == 'domainbox':
                 opt_accounttype.append (domainbox)
@@ -663,11 +663,11 @@ def read_configfile (file):
                         dest, user = string.split (val, ':')
                         pwd_item = pwd.getpwnam (user)
                         uid, gid = pwd_item[2], pwd_item[3]
-                        recips.append (dest, uid, gid, string.lower (option))
+                        recips.append ( (dest, uid, gid, string.lower (option)) )
 
                     except ValueError:
                         # Wrong number of items in option value
-                        recips.append (val, None, None, string.lower (option))
+                        recips.append ( (val, None, None, string.lower (option)) )
 
                     except KeyError:
                         stderr ('Error:  no such user in /etc/passwd ("%s")\n'
@@ -675,7 +675,7 @@ def read_configfile (file):
                                 '  POP3 account "%s@%s:%d"\n'
                             % (user, dest, opt_account[-1], opt_host[-1],
                                opt_port[-1]))
-                        recips.append (dest, None, None, string.lower (option))
+                        recips.append ( (dest, None, None, string.lower (option)) )
 
                 opt_reciplist.append (recips)
             else:
@@ -870,7 +870,7 @@ def parse_options (argv):
                 stderr ('Error:  argument "%s" not in format \''
                         'user@mailhost[:port],dest[,password]\'\n' % arg)
 
-        opt_dest.append (dest, None, None)
+        opt_dest.append ( (dest, None, None) )
         opt_account.append (userhost [ : string.rfind (userhost, '@')])
 
         try:
@@ -997,7 +997,7 @@ class ConfParser:
                 pass
             line = string.strip (line)
             if line:
-                self.__data.append (n, line)
+                self.__data.append ( (n, line) )
             n = n + 1
 
         self.__parse ()
