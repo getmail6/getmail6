@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.1.6'
+__version__ = '2.1.7'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -717,6 +717,7 @@ class getmail:
         # recipient address matches a given user's re, deliver at most one copy 
         # to the target associated with that re.
         for user in self.users:
+            do_delivery = 0
             self.logfunc (TRACE, 'do_deliveries():  checking user re "%s"'
                 % user['re'].pattern + ', target "%s"\n' % user['target'],
                 self.opts)
@@ -726,39 +727,45 @@ class getmail:
                         'do_deliveries():  user re matched recipient "%s"\n'
                         % recipient, self.opts)
                     do_delivery = 1
-                    if self.opts['eliminate_duplicates']:
-                        if self.msgs_delivered.has_key (digest):
-                            if user['target'] in self.msgs_delivered[digest]:
-                                # Never deliver multiple copies of a message to same destination
-                                self.logfunc (TRACE,
-                                    'do_deliveries():  already delivered to target "%(target)s", skipping...\n'
-                                    % user, self.opts)
-                                do_delivery = 0
-                                # Add a delivery, so it doesn't go to postmaster
-                                delivered = delivered + 1
+                    # Stop as soon as we match a recipient address
+                    break
 
-                            else:
-                                # Deliver to this recipient and keep track
-                                self.msgs_delivered[digest].append (user['target'])
-                                
+            if do_delivery:
+                if self.opts['eliminate_duplicates']:
+                    if self.msgs_delivered.has_key (digest):
+                        if user['target'] in self.msgs_delivered[digest]:
+                            # Never deliver multiple copies of a message to same destination
+                            self.logfunc (TRACE,
+                                'do_deliveries():  already delivered to target "%(target)s", skipping...\n'
+                                % user, self.opts)
+                            do_delivery = 0
+                            # Add a delivery, so it doesn't go to postmaster
+                            delivered = delivered + 1
+                            # Skip to next local user 
+                            continue
+
                         else:
-                            # First recipient of this message, keep track
-                            self.msgs_delivered[digest] = [user['target']]
+                            # Deliver to this recipient and keep track
+                            self.msgs_delivered[digest].append (user['target'])
                             
-                    if do_delivery:
-                        dt = self.deliver_msg (user['target'],
-                            self.message_add_info (msg, recipient), env_sender)
-                        msglog ('delivered to %s for <%s>' % (dt, recipient),
-                            self.opts)
-                        self.logfunc (TRACE,
-                            'do_deliveries():  delivered to "%(target)s"\n'
-                            % user, self.opts)
-                        delivered = delivered + 1
+                    else:
+                        # First recipient of this message, keep track
+                        self.msgs_delivered[digest] = [user['target']]
+
+                # Deliver the message to this user                            
+                dt = self.deliver_msg (user['target'],
+                    self.message_add_info (msg, recipient), env_sender)
+                msglog ('delivered to %s for <%s>' % (dt, recipient),
+                    self.opts)
+                self.logfunc (TRACE,
+                    'do_deliveries():  delivered to "%(target)s"\n'
+                    % user, self.opts)
+                delivered = delivered + 1
                         
-                else:
-                    self.logfunc (TRACE,
-                        'do_deliveries():  user re did not match recipient "%s"\n'
-                        % recipient, self.opts)
+            else:
+                self.logfunc (TRACE,
+                    'do_deliveries():  user re did not match recipient "%s"\n'
+                    % recipient, self.opts)
                             
         return delivered
 

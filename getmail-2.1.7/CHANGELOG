@@ -1,6 +1,15 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.1.7
+20 November 2001
+
+  -Fix the message delivery logic to prevent multiple deliveries of the
+  same message in certain domain mailbox configurations.  Note this is not
+  the same as duplicate-message suppression.  Thanks to Jay ? for the 
+  initial report which reminded me I wasn't happy with the way it was
+  currently working.
+
 Version 2.1.6
 20 October 2001
 
