@@ -40,7 +40,6 @@ import getpass
 import email
 import poplib
 import imaplib
-import _imap4fix
 
 from exceptions import *
 from constants import *
@@ -132,7 +131,7 @@ class IMAPinitMixIn(object):
     def _connect(self):
         self.log.trace()
         try:
-            self.conn = _imap4fix.getmail_IMAP4(self.conf['server'], self.conf['port'])
+            self.conn = imaplib.IMAP4(self.conf['server'], self.conf['port'])
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
@@ -169,13 +168,13 @@ class IMAPSSLinitMixIn(object):
                     ' with keyfile %s, certfile %s\n'
                     % (self.conf['server'], self.conf['port'],
                         self.conf['keyfile'], self.conf['certfile']))
-                self.conn = _imap4fix.IMAP4_SSL(self.conf['server'],
+                self.conn = imaplib.IMAP4_SSL(self.conf['server'],
                     self.conf['port'], self.conf['keyfile'],
                     self.conf['certfile'])
             else:
                 self.log.trace('establishing IMAP SSL connection to %s:%d\n'
                     % (self.conf['server'], self.conf['port']))
-                self.conn = _imap4fix.getmail_IMAP4_SSL(self.conf['server'],
+                self.conn = imaplib.IMAP4_SSL(self.conf['server'],
                     self.conf['port'])
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
@@ -321,6 +320,12 @@ class RetrieverSkeleton(ConfigurableBase):
     def initialize(self):
         self.log.trace()
         self.checkconf()
+        # socket.ssl() and socket timeouts are incompatible in Python 2.3
+        if 'timeout' in self.conf:
+            socket.setdefaulttimeout(self.conf['timeout'])
+        else:            
+            # Explicitly set to None in case it was previously set
+            socket.setdefaulttimeout(None)
         self.oldmail_filename = os.path.join(
             expand_user_vars(self.conf['getmaildir']),
             ('oldmail-%(server)s-%(port)i-%(username)s' % self.conf).replace(
@@ -427,7 +432,6 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self.conf['password'] = getpass.getpass('Enter password for %s:  '
                 % self)
         RetrieverSkeleton.initialize(self)
-        socket.setdefaulttimeout(self.conf['timeout'])
         try:
             self._connect()
             if self.conf['use_apop']:
@@ -593,7 +597,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         response = self._parse_imapcmdresponse('SELECT', mailbox)
         try:
             count = int(response[0])
-            uidvalidity = int(response[1])
+            uidvalidity = self.conn.response('UIDVALIDITY')[1][0]
         except (IndexError, ValueError), o:
             raise getmailOperationError('IMAP server failed to return correct'
                 'SELECT response (%s)' % response)
@@ -612,15 +616,17 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             try:
                 # Get number of messages in mailbox
                 msgcount = self._selectmailbox(mailbox)
-                # Get UIDs and sizes for all messages in mailbox
-                response = self._parse_imapcmdresponse('FETCH', 
-                    '1:%d' % msgcount, '(UID RFC822.SIZE)')
-                for line in response:
-                    r = self._parse_imapattrresponse(line)
-                    msgid = '%s/%s/%s' % (self.uidvalidity, mailbox, r['uid'])
-                    self._mboxuids[msgid] = (mailbox, r['uid'])
-                    self.msgids.append(msgid)
-                    self.msgsizes[msgid] = int(r['rfc822.size'])
+                if msgcount:
+                    # Get UIDs and sizes for all messages in mailbox
+                    response = self._parse_imapcmdresponse('FETCH', 
+                        '1:%d' % msgcount, '(UID RFC822.SIZE)')
+                    for line in response:
+                        r = self._parse_imapattrresponse(line)
+                        msgid = ('%s/%s/%s' 
+                            % (self.uidvalidity, mailbox, r['uid']))
+                        self._mboxuids[msgid] = (mailbox, r['uid'])
+                        self.msgids.append(msgid)
+                        self.msgsizes[msgid] = int(r['rfc822.size'])
             except imaplib.IMAP4.error, o:
                 raise getmailOperationError('IMAP error (%s)' % o)
         self.gotmsglist = True
@@ -681,9 +687,6 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.conf['password'] = getpass.getpass('Enter password for %s:  '
                 % self)
         RetrieverSkeleton.initialize(self)
-        # socket.ssl() and socket timeouts are incompatible in Python 2.3
-        if 'timeout' in self.conf:
-            socket.setdefaulttimeout(self.conf['timeout'])
         try:
             self.log.trace('trying self._connect()\n')
             self._connect()
@@ -718,7 +721,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.conn.logout()
             self.conn = None
         except imaplib.IMAP4.error, o:
-            raise getmailOperationError('IMAP error (%s)' % o)
+            #raise getmailOperationError('IMAP error (%s)' % o)
+            self.log.warning('IMAP error during logout (%s)' % o)
 
 #######################################
 class MultidropIMAPRetrieverBase(IMAPRetrieverBase):

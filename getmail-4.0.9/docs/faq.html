@@ -690,6 +690,13 @@ arguments = (&quot;+inbox&quot;, )
     for details.
 </p>
 <p>
+    First, ensure you have the following in your SpamAssassin configuration
+    file(s):
+</p>
+<pre class="example">
+report_safe 0	
+</pre>
+<p>
     To filter messages through SpamAssassin in a client/server configuration
     (i.e. with the
     <span class="file">spamd</span>

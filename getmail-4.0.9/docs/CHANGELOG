@@ -1,3 +1,14 @@
+Version 4.0.9
+9 August 2004
+
+  -fix cosmetic error for IMAP mailboxes with 0 messages in them.
+  -change method of obtaining uidvalidity from IMAP server and remove wrapper.
+  -previously, connecting to an IMAP-SSL server could fail if a non-SSL
+  IMAP connection were attempted immediately before.  This was due to
+  the Python bug discussed here:  
+  http://sourceforge.net/tracker/index.php?func=detail&aid=945642&group_id=5470&atid=305470
+  Implemented a workaround for getmail.  Thanks: Payal Rathod.
+
 Version 4.0.8
 6 August 2004
 
