@@ -1,10 +1,6 @@
 Yet to be done:
 ===============
 
--Write some more documentation.  A real man page, and some better user
-  documentation.  Possibly a good, solid overview document for first timers
-  and technophiles who don't like long documentation.
-
 -Possibly allow delivery to mh folders.
 
 -Distribute a Makefile with an 'install' target with the program.  This will
