@@ -73,6 +73,7 @@
                     <li><a href="configuration.html#conf-retriever-multidrop">What is a &quot;multidrop&quot; mailbox?  How do I know if I have one?</a></li>
                     <li><a href="configuration.html#retriever-parameters">Common retriever parameters</a></li>
                     <li><a href="configuration.html#retriever-simplepop3">SimplePOP3Retriever</a></li>
+                    <li><a href="configuration.html#retriever-brokenpop3">BrokenUIDLPOP3Retriever</a></li>
                     <li><a href="configuration.html#retriever-simpleimap">SimpleIMAPRetriever</a></li>
                     <li><a href="configuration.html#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a></li>
                     <li><a href="configuration.html#retriever-simpleimapssl">SimpleIMAPSSLRetriever</a></li>
@@ -391,6 +392,13 @@ parameter = (
         &mdash; for single-user POP3 mail accounts.
     </li>
     <li>
+        <a href="#retriever-brokenpop3">BrokenUIDLPOP3Retriever</a>
+        &mdash; for broken POP3 servers that do not support the
+        <span class="file">UIDL</span>
+        command, or which do not uniquely identify messages; this provides basic
+        support for single-user POP3 mail accounts on such servers.
+    </li>
+    <li>
         <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
         &mdash; for single-user IMAP mail accounts.
     </li>
@@ -538,7 +546,7 @@ type = <span class="meta">typename</span>
 <p>
     The SimplePOP3Retriever class takes the
     <a href="#retriever-parameters">common retriever parameters</a>
-    above, plus the following optional parameter:
+    above, plus the following optional parameters:
 </p>
 <ul>
     <li>
@@ -556,6 +564,42 @@ type = <span class="meta">typename</span>
         before considering them failed.  If not specified, the default is 180
         seconds.  You may need to increase this value in particularly poor
         networking conditions.
+    </li>
+</ul>
+
+<h4 id="retriever-brokenpop3">BrokenUIDLPOP3Retriever</h4>
+<p class="note">
+    This retriever class is intended only for use with broken POP3 servers
+    that either do not implement the
+    <span class="file">UIDL</span>
+    command, or which do not properly assign unique identifiers to messages
+    (preventing getmail from determining which messages it has seen before).
+    It will identify every message in the mailbox as a new message, and
+    therefore if you use this retriever class and opt not to delete messages
+    after retrieval, it will retrieve those messages again the next time
+    getmail is run.  Use this retriever class only if your mailbox is hosted
+    on such a broken POP3 server, and the server does not provide another
+    means of getmail accessing it (i.e., IMAP).
+</p>
+<p>
+    The BrokenUIDLPOP3Retriever class takes the
+    <a href="#retriever-parameters">common retriever parameters</a>
+    above, plus the following optional parameters:
+</p>
+<ul>
+    <li>
+        use_apop
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; see
+        <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
+        for definition.
+    </li>
+    <li>
+        timeout
+        (<a href="#parameter-integer">integer</a>)
+        &mdash; see
+        <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
+        for definition.
     </li>
 </ul>
 

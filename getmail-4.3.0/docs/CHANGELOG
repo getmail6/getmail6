@@ -1,3 +1,9 @@
+Version 4.3.0
+10 January 2005
+
+  -add BrokenUIDLPOP3Retriever class to support servers that do not implement 
+  the UIDL command, or which fail to uniquely identify messages using it.
+
 Version 4.2.6
 2 January 2005
 

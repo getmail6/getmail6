@@ -44,6 +44,7 @@
                            if I have one?
                          @ Common retriever parameters
                          @ SimplePOP3Retriever
+                         @ BrokenUIDLPOP3Retriever
                          @ SimpleIMAPRetriever
                          @ SimplePOP3SSLRetriever
                          @ SimpleIMAPSSLRetriever
@@ -246,6 +247,10 @@ parameter = (
    mail retriever to use to retrieve mail from this account. The possible
    values are:
      * SimplePOP3Retriever -- for single-user POP3 mail accounts.
+     * BrokenUIDLPOP3Retriever -- for broken POP3 servers that do not
+       support the UIDL command, or which do not uniquely identify
+       messages; this provides basic support for single-user POP3 mail
+       accounts on such servers.
      * SimpleIMAPRetriever -- for single-user IMAP mail accounts.
      * SimplePOP3SSLRetriever -- same as SimplePOP3Retriever, but uses
        SSL encryption.
@@ -332,7 +337,7 @@ type = typename
     SimplePOP3Retriever
     
    The SimplePOP3Retriever class takes the common retriever parameters
-   above, plus the following optional parameter:
+   above, plus the following optional parameters:
      * use_apop (boolean) -- if set to True, getmail will use APOP-style
        authentication to log in to the server instead of normal USER/PASS
        authentication. This is not supported by many POP3 servers. The
@@ -341,6 +346,24 @@ type = typename
        operations to complete before considering them failed. If not
        specified, the default is 180 seconds. You may need to increase
        this value in particularly poor networking conditions.
+       
+    BrokenUIDLPOP3Retriever
+    
+   This retriever class is intended only for use with broken POP3 servers
+   that either do not implement the UIDL command, or which do not
+   properly assign unique identifiers to messages (preventing getmail
+   from determining which messages it has seen before). It will identify
+   every message in the mailbox as a new message, and therefore if you
+   use this retriever class and opt not to delete messages after
+   retrieval, it will retrieve those messages again the next time getmail
+   is run. Use this retriever class only if your mailbox is hosted on
+   such a broken POP3 server, and the server does not provide another
+   means of getmail accessing it (i.e., IMAP).
+   
+   The BrokenUIDLPOP3Retriever class takes the common retriever
+   parameters above, plus the following optional parameters:
+     * use_apop (boolean) -- see SimplePOP3Retriever for definition.
+     * timeout (integer) -- see SimplePOP3Retriever for definition.
        
     SimpleIMAPRetriever
     

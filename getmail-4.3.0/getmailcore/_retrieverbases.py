@@ -396,8 +396,9 @@ class POP3RetrieverBase(RetrieverSkeleton):
             for msgid in [line.split(None, 1)[1] for line in msglist]:
                 if msgid in self.msgids:
                     raise getmailOperationError(
-                        '%s does not uniquely identify messages; '
-                        'got %s twice' % (self, msgid)
+                        '%s does not uniquely identify messages '
+                        '(got %s twice) -- use BrokenUIDLPOP3Retriever instead'
+                        % (self, msgid)
                     )
                 else:
                     self.msgids.append(msgid)
@@ -408,7 +409,10 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 msgsize = int(line.split()[1])
                 self.msgsizes[self.msgids[msgnum - 1]] = msgsize
         except poplib.error_proto, o:
-            raise getmailOperationError('POP error (%s)' % o)
+            raise getmailOperationError(
+                'POP error (%s) - if your server does not support the UIDL '
+                'command, use BrokenUIDLPOP3Retriever instead'
+                 % o)
         self.gotmsglist = True
 
     def _delmsgbyid(self, msgid):

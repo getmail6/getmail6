@@ -309,9 +309,10 @@
 <h4 id="errmsg-operation-notunique" class="errmsg">Error: <span class="meta">server-info</span> does not uniquely identify messages &hellip;</h4>
 <p>
     The POP3 server for this particular account was not able to uniquely identify
-    the messages in the mailstore.  getmail 4 cannot use such a server.  If the
-    server provides IMAP access, try that instead.  Otherwise, use getmail version
-    3.
+    the messages in the mailstore.  You can use the 
+    <span class="file">BrokenUIDLPOP3Retriever</span> class with this server instead,
+    but functionality is limited because of the inability to identify messages
+    properly.
 </p>
 
 <!-- ********************************************************************** -->

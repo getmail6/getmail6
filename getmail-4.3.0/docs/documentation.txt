@@ -170,10 +170,13 @@ make install
    will work with that version of Python as well.
    
    getmail 4 also requires that servers uniquely identify the messages
-   they provide to getmail; certain very old or broken POP3 servers may
-   not be capable of this, but I have had only one report of such
-   problems from among the tens of thousands of people who have
-   downloaded getmail 4 from my website and from other archives.
+   they provide (via the UIDL command) to getmail for full functionality.
+   Certain very old or broken POP3 servers may not be capable of this (I
+   have had only one report of such problems from among the tens of
+   thousands of people who have downloaded getmail 4 from my website and
+   from other archives), or may not implement the UIDL command at all,
+   and limited support is available for such servers via the
+   BrokenUIDLPOP3Retriever retriever class.
    
 Obtaining getmail
 

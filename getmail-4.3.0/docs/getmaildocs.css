@@ -26,6 +26,7 @@ li pre.example {
 .meta:before { content: "<"; }
 .meta:after { content: ">"; }
 .sample { font-family: monospace; font-size: 130%; color: #000070; background-color: transparent; }
+.note { font-style: italic; }
 .warning { color: red; background-color: transparent; }
 .important { font-weight: bold; color: black; background-color: #e0e0ff; }
 .errmsg,.warnmsg { font-family: monospace; font-size: 150%; }
