@@ -4,6 +4,7 @@ import sys
 import os.path
 import time
 import ConfigParser
+import pprint
 from optparse import OptionParser, OptionGroup
 
 from getmailcore import __version__, retrievers, destinations, filters, logging
@@ -114,8 +115,19 @@ def main():
         (options, args) = parser.parse_args(sys.argv[1:])
         if args:
             raise getmailOperationError('unknown argument(s) %s ; try --help' % args)
+
+        if options.trace:
+            log.clearhandlers()
+
         if not options.rcfile:
             options.rcfile.append(defaults['rcfile'])
+
+        s = ''
+        for attr in dir(options):
+            if attr.startswith('_'):  continue
+            if s:  s += ','
+            s += '%s="%s"' % (attr, pprint.pformat(getattr(options, attr)))
+        log.debug('parsed options:  %s\n' % s)
 
         configs = []
         for filename in options.rcfile:
@@ -133,51 +145,84 @@ def main():
                 'max_message_size' : None,
                 'delete_after' : None,
             }
-            configparser = ConfigParser.RawConfigParser(config)
+            # Python's ConfigParser .getboolean() can't handle booleans in the defaults.
+            # Submitted a patch; we'll see if they take it.  In the meantime, ugly hack....
+            parserdefaults = config.copy()
+            for (key, value) in parserdefaults.items():
+                if type(value) == bool:
+                    parserdefaults[key] = str(value)
+
+            configparser = ConfigParser.RawConfigParser(parserdefaults)
             configparser.readfp(f, path)
 
             try:
                 for option in ('verbose', 'read_all', 'delete'):
+                    log.debug('  looking for option %s ... ' % option)
                     if configparser.has_option('options', option):
-                        config[option] = eval_bool(configparser.get('options', option))
-                # Add handling for delete_after, ...
+                        log.debug('got "%s"' % configparser.get('options', option))
+                        try:
+                            config[option] = configparser.getboolean('options', option)
+                            log.debug('-> %s' % config[option])
+                        except ValueError:
+                            raise getmailConfigurationError('configuration file %s incorrect (option %s must be boolean, not %s)' % (path, option, configparser.get('options', option)))
+                    else:
+                        log.debug('not found')
+                    log.debug('\n')
+                # FIXME:  Add handling for delete_after, ...
 
+                # Clear out the ConfigParser defaults before processing further sections
+                configparser._defaults = {}
+                
+                # Retriever
+                log.debug('  getting retriever\n')
                 retriever_type = configparser.get('retriever', 'type')
+                log.debug('    type="%s"\n' % retriever_type)
                 retriever_func = getattr(retrievers, retriever_type)
                 if not callable(retriever_func):
                     raise getmailConfigurationError('configuration file %s specifies incorrect retriever type (%s)' % (path, retriever_type))
                 retriever_args = {'getmaildir' : options.getmaildir}
                 for (name, value) in configparser.items('retriever'):
+                    if name == 'type' : continue
+                    log.debug('    parameter %s="%s"\n' % (name, value))
                     retriever_args[name] = value
-                log.debug('instantiating retriever %s with args %s\n' % (retriever_type, retriever_args))
+                log.debug('    instantiating retriever %s with args %s\n' % (retriever_type, retriever_args))
                 retriever = retriever_func(**retriever_args)
-                log.debug('checking retriever configuration for %s\n' % retriever)
+                log.debug('    checking retriever configuration for %s\n' % retriever)
                 retriever.checkconf()
 
+                # Destination
+                log.debug('  getting destination\n')
                 destination_type = configparser.get('destination', 'type')
+                log.debug('    type="%s"\n' % destination_type)
                 destination_func = getattr(destinations, destination_type)
                 if not callable(destination_func):
                     raise getmailConfigurationError('configuration file %s specifies incorrect destination type (%s)' % (path, destination_type))
                 destination_args = {}
                 for (name, value) in configparser.items('destination'):
+                    if name == 'type' : continue
+                    log.debug('    parameter %s="%s"\n' % (name, value))
                     destination_args[name] = value
-                log.debug('instantiating destination %s with args %s\n' % (destination_type, destination_args))
+                log.debug('    instantiating destination %s with args %s\n' % (destination_type, destination_args))
                 destination = destination_func(**destination_args)
 
                 # Filters
+                log.debug('  getting filters\n')
                 _filters = []
                 filtersections =  [section.lower() for section in configparser.sections() if section.lower().startswith('filter')]
                 filtersections.sort()
                 for section in filtersections:
-                    log.debug('processing filter section %s\n' % section)
+                    log.debug('    processing filter section %s\n' % section)
                     filter_type = configparser.get(section, 'type')
+                    log.debug('      type="%s"\n' % filter_type)
                     filter_func = getattr(filters, filter_type)
                     if not callable(filter_func):
                         raise getmailConfigurationError('configuration file %s specifies incorrect filter type (%s)' % (path, filter_type))
                     filter_args = {}
                     for (name, value) in configparser.items(section):
+                        if name == 'type' : continue
+                        log.debug('      parameter %s="%s"\n' % (name, value))
                         filter_args[name] = value
-                    log.debug('instantiating filter %s with args %s\n' % (filter_type, filter_args))
+                    log.debug('      instantiating filter %s with args %s\n' % (filter_type, filter_args))
                     mail_filter = filter_func(**filter_args)
                     _filters.append(mail_filter)
 
@@ -185,7 +230,8 @@ def main():
                 raise getmailConfigurationError('configuration file %s missing section (%s)' % (path, o))
             except ConfigParser.NoOptionError, o:
                 raise getmailConfigurationError('configuration file %s missing option (%s)' % (path, o))
-            except (AttributeError, ConfigParser.DuplicateSectionError, ConfigParser.InterpolationError, ConfigParser.MissingSectionHeaderError, ConfigParser.ParsingError), o:
+            #except (AttributeError, ConfigParser.DuplicateSectionError, ConfigParser.InterpolationError, ConfigParser.MissingSectionHeaderError, ConfigParser.ParsingError), o:
+            except (ConfigParser.DuplicateSectionError, ConfigParser.InterpolationError, ConfigParser.MissingSectionHeaderError, ConfigParser.ParsingError), o:
                 raise getmailConfigurationError('configuration file %s incorrect (%s)' % (path, o))
 
             # Apply overrides from commandline
@@ -195,10 +241,7 @@ def main():
                     log.debug('overriding option %s from commandline %s\n' % (option, val))
                     config[option] = val
 
-            if options.trace:
-                log.clearhandlers()
-
-            if not config['verbose']:
+            if not options.trace and not config['verbose']:
                 log.clearhandlers()
                 log.addhandler(sys.stderr, logging.WARNING)
             
@@ -215,14 +258,18 @@ def main():
                     log.info('    %s : %s\n' % (name, config[name]))
                 log.info('\n')
             else:
-                configs.append( (retriever, _filters, destination, config) )
+                configs.append( (retriever, _filters, destination, config.copy()) )
 
         go(configs)
 
     except getmailConfigurationError, o:
+        # DEBUG
+        raise
         log.error('Configuration error: %s\n' % o)
         sys.exit(2)
     except getmailOperationError, o:
+        # DEBUG
+        raise
         log.error('Error: %s\n' % o)
         sys.exit(3)
 

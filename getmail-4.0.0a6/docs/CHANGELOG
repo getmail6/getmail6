@@ -1,3 +1,23 @@
+Version 4.0.0a6
+16 June 2004
+
+  -add pseudofile class to implement readline() and sslwrapper to implement
+  sendall() on ssl objects.  
+  ssl objects in Python don't behave like a file, or like a socket; they're just 
+  ... broken. It's a deficiency in the Python standard library.
+  This might make POP3-over-SSL work, or it might need more work yet.  I've
+  got it talking some SSL, but it hangs at the moment.  Might be blocking
+  in read().
+  -move Mboxrd file locking to _deliver_message().  Thanks:  Frankye.
+  -make --trace more useful and add extra debug info to main script.
+  -eliminate noise from defaults in non-[options] section processing
+  -found Python's ConfigParser .getboolean() method failed when the passed-in
+  default was a non-string.  Maybe I should have stayed with my own
+  replacement configuration parser, as it properly handled this case ...
+  submitted a patch to the Python bug tracker and added a workaround to
+  getmail for the moment.
+  -/really/ enable delete and read_all in [options] of rc file.
+
 Version 4.0.0a5
 16 June 2004
 

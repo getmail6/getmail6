@@ -275,7 +275,11 @@ Maildir takes the following configuration parameters:
         [destination]
         type = Maildir
         path = ~tracyk/Maildir/
-        
+
+	Note that a maildir must exist before trying to deliver to it!  getmail will 
+	/not/ create a specified maildir if it does not exist.  If you don't know 
+	what a maildir is, see http://qmail.org/man/man5/maildir.html and 
+	http://cr.yp.to/proto/maildir.html .       
 
 Mboxrd takes the following configuration parameters:
 

@@ -147,6 +147,7 @@ class Mboxrd(DeliverySkeleton):
             lock_file(self.f)
             self.f.seek(0, 0)
             first_line = self.f.readline()
+            unlock_file(self.f)
             if first_line and first_line[:5] != 'From ':
                 # Not an mbox file; abort here
                 raise getmailConfigurationError('destination "%s" is not an mbox file' % self.conf['path'])
@@ -168,6 +169,7 @@ class Mboxrd(DeliverySkeleton):
     def _deliver_message(self, msg):
         self.log.trace()
         status_old = os.fstat(self.f.fileno())
+        lock_file(self.f)
         # Seek to end
         self.f.seek(0, 2)
         try:
@@ -187,6 +189,8 @@ class Mboxrd(DeliverySkeleton):
                 # detect new mail.  But you shouldn't be delivering to
                 # other peoples' mboxes unless you're root, anyways.
                 self.log.warn('failed to update atime/mtime of mbox file %s (%s)' % (self.conf['path'], o))
+
+            unlock_file(self.f)
 
         except IOError, o:
             try:
