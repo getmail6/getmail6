@@ -1,8 +1,7 @@
 Known bugs in getmail:
 ======================
 
--getmail mail be printing a linefeed in quiet mode.  I haven't tracked this
-down yet.
+  -No known bugs.
 
 If you find a bug in getmail, please email a description of the bug, any error 
 message which getmail printed, and the result of running getmail with your 

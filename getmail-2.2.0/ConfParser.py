@@ -29,8 +29,7 @@ This module is similar, except:
     o Option values can be quoted with single or double quotes, to preserve
         leading or trailing whitespace, or if they contain a whitespace or the 
         "#" symbol which would otherwise mark the start of a comment.
-    o If an option is supplied without a value, the empty string ('') is
-        assumed.
+    o Empty option values must be quoted; use the empty string ("" or '')
     o Option values are returned as either:
         o a string, if the option name occurs once in the section
         o a list of strings, if the option name occurs multiple times
@@ -42,7 +41,7 @@ This module is similar, except:
 I welcome questions and comments at <software @ discworld.dyndns.org>.
 '''
 
-__version__ = '3.0'
+__version__ = '3.1'
 __author__ = 'Charles Cazabon <software @ discworld.dyndns.org>'
 
 #
@@ -197,9 +196,8 @@ class ConfParser:
                 self.__rawdata = self.__rawdata + f.readlines ()
                 f.close ()
     
-        except IOError:
-            raise ParsingError, 'error reading configuration file (%s)' \
-                % filename
+        except IOError, txt:
+            raise ParsingError, 'error reading configuration file (%s)' % txt
 
         self.__parse ()
         return self
@@ -214,7 +212,7 @@ class ConfParser:
         lex.wordchars = lex.wordchars + '|/.,$^\\():;@-+?<>!%&*`~'
         section_name = ''
         option_name = ''
-        value = ''
+        option_value = ''
         
         while 1:
             token = lex.get_token ()
@@ -427,8 +425,6 @@ class ConfParser:
     def dump (self):
         '''Dump the parsed contents of the configuration file.
         '''
-        import sys
-        from types import *
         sys.stderr.write ('ConfParser dump:\n\n')
         sections = self.__sectionlist[:]
         sections.sort ()

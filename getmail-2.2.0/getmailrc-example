@@ -1,7 +1,7 @@
 [default]                                       # This section provides default arguments and values,
                                                 #    and variables which can be used in other sections
 verbose = 1                                     # Be verbose by default
-readall = 0                                     # Retrieve all messages by default
+readall = 0                                     # Retrieve only new messages by default
 delete = 1                                      # Delete mail after retrieval by default
 message_log = /var/log/getmail.log              # Log message retrieval and delivery to this file by default
 timeout = 240                                   # TCP timeout value; increase if on a poor connection or
@@ -12,16 +12,15 @@ max_message_size = 1048576                      # Don't retrieve messages over 1
 [Joe's Mail]                                    # Simple configuration for a single-user POP3 mailbox
 server = mail.isp.com
 port = 8110
-readall = 0
 username = joeuser
                                                 # no password specified; prompt for it when getmail is run
+use_apop = 1                                    # Use APOP authentication for this account instead of
+                                                #   cleartext PASS
 postmaster = ~joeuser/Mail/default/             # Default delivery to this Maildir
 message_log = ""                                # Don't log for this account
                                                 # No "local" directives necessary.
 recipient_header = received                     # For this account, only look for recipient headers
 recipient_header = x-envelope-to                #   in "Received:" and "X-Envelope-To:" headers
-use_apop = 1                                    # Use APOP authentication for this account instead of
-                                                #   cleartext PASS
 no_delivered_to = 1                             # Don't add a Delivered-To: header for this mailbox
 no_received = 1                                 # Don't add a Received: header for this mailbox
 
@@ -29,15 +28,13 @@ no_received = 1                                 # Don't add a Received: header f
 server = mail.isp.net
 username = getmailinc
 password = "password with trailing spaces   "
+delete = 0                                      # Don't delete messages immediately after retrieval
+delete_after = 10                               # Instead, delete them 10 days after first retrieving them
 postmaster = /var/spool/mail/postmaster         # mbox default destination if none of the "local" directives
                                                 #    match
                                                 # Use regular expression matching on the following addresses
 local = ^user1@isp.net$,~user1/Maildir/         # Mail for "user1@isp.net" is delivered to ~user1/Maildir/
 local = ^user2@isp.net$,~user2/mbox             # Mail for "user2@isp.net" is delivered to ~user1/mbox
-local = ^user3-list@isp.net$,~user3/Mail/list   # handle this qmail-style extension address separately.
-local = ^user3@isp.net$,|/usr/bin/maildrop      # Deliver mail for "user3@isp.net" to /usr/bin/maildrop for
+local = ^user3-list@isp.net$,~user3/Mail/list   # Handle this qmail-style extension address separately.
+local = "^user3@isp.net$,|/usr/bin/maildrop -a" # Deliver mail for "user3@isp.net" to /usr/bin/maildrop for
                                                 #    further processing
-
-
-local = olduser@isp.net,/dev/null               # Throw away mail for this user, who no longer exists here,
-                                                #     to prevent the postmaster from receiving it.

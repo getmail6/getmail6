@@ -1,0 +1,94 @@
+Summary of Features
+
+     * Retrieve mail from an unlimited number of POP3 mailboxes and servers.
+     * Support for multidrop or domain mailboxes.
+     * Safe and reliable delivery to qmail-style Maildirs and mboxrd-format
+       mboxes, as well as program (pipe) delivery.
+     * Does not destroy information by rewriting mail headers.
+     * Does not cause mail loops by doing SMTP injection, and therefore does
+       not require that you run an MTA (like qmail or sendmail) on your host.
+     * Can remember which mail it has already retrieved, and can be set to
+       only download new messages.
+     * Written in Python, and therefore easy to extend.
+     * Simple to install, configure, and use.
+     * Won DaveCentral's "Best of Linux" award on 13 January 2000.
+   back to top
+
+getmail Requirements
+
+     * Python version 1.5.2 or higher.
+     * A configuration/data directory. By default, getmail looks for a
+       directory named ".getmail" in your home directory. You can specify an
+       alternative location with the --getmaildir or -g option.
+     * getmail must have write permission to the Maildirs and mbox files you
+       are delivering to. This can be done by making the various destinations
+       group writable, by only delivering to destinations owned by the user
+       getmail is running as, or by running getmail as root. When delivering
+       to Maildirs, getmail will attempt to chown any files it creates to the
+       owner of the Maildir.
+   back to top
+
+Changes From Version 1.x to Version 2
+
+   This is a list of major changes between version 1.x and version 2 of
+   getmail. For a list of incremental changes since the relase of version
+   2.0, please see the changelog.
+     * Completely rewritten for better modularity, configurability, and
+       reliability.
+     * Uses version 2.0 of my ConfParser module, which has also been
+       completely rewritten. It now provides virtually 100% of the
+       functionality of Python's standard ConfigParser module, but without
+       any of the limitations. This removes the limitation of configuration
+       values not being able to contain "#" characters.
+     * Will not deliver the same message to any destination more than once,
+       even if it matches recipient addresses multiple times.
+     * getmail now attempts to deliver a message immediately after retrieving
+       it, instead of retrieving all messages from a given POP3 mailbox and
+       delivering in batches.
+     * No more "tmpmail.*" files to prevent lost mail in the event of a
+       delivery failure. If a delivery fails for any reason, getmail will
+       issue an RSET command to the POP3 server and gracefully continue with
+       the next configured POP3 account
+     * getmail adds a "Received:" header and a "Delivered-To:" header to each
+       message it retrieves.
+     * Local addresses to search for are now specified with Perl-style
+       extended regular expressions. If you don't know regular expressions,
+       don't worry -- plain text addresses will mostly work fine.
+     * Uses Timothy O'Malley's timeoutsocket module, if available, to
+       gracefully handle poor ISP connections and unreliable mail servers.
+       The timeout value is configurable on a per-mailbox basis.
+     * getmail can be configured to log message retrieval and delivery to a
+       separate file for system logging purposes.
+     * POP3 accounts and delivery destinations can no longer be specified on
+       the commandline; they must be placed in a getmailrc file.
+     * Commandline options can also be placed in the getmailrc file for
+       persistent use. The GETMAILOPTS environment variable is no longer
+       used.
+     * getmail defaults to using "~/.getmail/" as its configuration and data
+       directory, and "~/.getmail/getmailrc" as its configuration file. This
+       can be overridden from the commandline. If overridden, tilde expansion
+       is performed on these arguments.
+     * getmail will now work properly with POP3 servers which do not
+       implement the UIDL command, although it will not be able to determine
+       which messages it has already retrieved.
+     * getmail now properly handles POP3 servers which return additional
+       information after a LIST command.
+     * All exceptions are now classes, and will therefore continue to work
+       with future versions of Python which remove string exceptions.
+     * Destination Maildir and mbox paths have tilde expansion performed on
+       them, for easier configuration.
+     * getmailrc file format is simpler and yet more flexible.
+   back to top
+
+getmail Mailing List
+
+   A mailing list has been set up to discuss getmail. Send a blank email to
+   <getmail-subscribe @ discworld.dnsalias.org> to subscribe to the list.
+   Similarly, to unsubscribe, send mail from the same address you subscribed
+   with to <getmail-unsubscribe @ discworld.dnsalias.org>.
+   There is a browsable archive of the list at
+   http://marc.theaimsgroup.com/?l=getmail&r=1&w=2.
+
+   Note: you are expected to have read the documentation and Frequently Asked
+   Questions, and browsed/searched the mailing list archives, before posting
+   a question to the mailing list.

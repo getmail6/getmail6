@@ -1,6 +1,48 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.2.0
+27 January 2002
+
+  -fix bug in deliver_command() that would cause getmail to consider the
+  delivery failed if it took a significant amount of time to complete.
+  -add delete_after directive to remove mail from the server X days after
+  first retrieving it.  Thanks to Mark Levene for the feature request that
+  finally got me to implement this option.  Thanks also to Mark Levene and
+  Jody Hietpas for alpha-testing this feature.  The oldmail file format and
+  naming convention (see below) has changed; getmail will ignore previous
+  oldmail files.  This means that previously-seen messages on the POP3 server
+  will be downloaded the first time you run this new version of getmail.
+  -add extension_sep and extension_depth directives and environment variables 
+  SENDER, RECIPIENT, and EXT for command deliveries.  This will allow the 
+  creation of a wrapper script for use with TMDA.  Caveat emptor: this is only 
+  reliable if the MTA on the POP3 server records the envelope recipient address 
+  in a header field, and you configure getmail to only look at that header 
+  field.  Users retrieving mail from a qmail server have nothing to worry about 
+  :).
+  -update to version 3.1 of ConfParser module -- small code cleanups.
+  -update to version 1.21 of timeoutsocket.py module by Timothy O'Malley.
+  -rewrite and finish user documentation.  Ensure HTML versions pass the
+  W3C's HTML4 transitional validation engine without warnings.
+  -ship HTML versions of docs and faq in tarball and RPM in addition to text
+  versions.
+  -change --trace output to hide passwords in the same way that --dump output
+  does.  Thanks to ??? for the request.
+  -log anything an MDA prints to stdout as a result of a command delivery.
+  -change reporting of exit code of command deliveries.
+  -change wrapper script to exit with getmail's exit code.  Thanks to
+  Alexander Kuprin for the patch.
+  -remove dead code.
+  -update example getmailrc file.
+  -change oldmail file naming scheme; include port number and use '-' instead
+  of ':' for separator, for those people using getmail under Cygwin.  Thanks to 
+  Jody Hietpas for the report.  You can delete any remaining 'oldmail:*' files 
+  in your .getmail directory.
+  -report message count and mailbox size prior to retrieving messages.  Thanks
+  to Prahlad Vaidyanathan for the request and a patch.  I implemented the code
+  differently, but the idea is the same.
+  -remove long-fixed bug from the known bugs list in BUGS.
+  
 Version 2.1.9
 27 December 2001
 
