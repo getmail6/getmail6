@@ -32,6 +32,7 @@ def go(configs):
         retriever.initialize()
         for msgid in retriever:
             retrieve = False
+            delete = False
             timestamp = retriever.oldmail.get(msgid, None)
             if options['read_all'] or timestamp is None:
                 retrieve = True
@@ -56,8 +57,7 @@ def go(configs):
                         r = destination.deliver_message(msg)
                         log.info('delivered to %s ... ' % r)
                     if options['delete']:
-                        retriever.delmsg(msgid)
-                        log.info('deleted')
+                        delete = True
                 else:
                     log.info('not retrieving (timestamp %s)' % timestamp)
             except getmailDeliveryError, o:
@@ -65,6 +65,9 @@ def go(configs):
                 continue
 
             if options['delete_after'] and timestamp and (now - timestamp)/86400 >= int(options['delete_after']):
+                delete = True
+
+            if delete:
                 retriever.delmsg(msgid)
                 log.info('deleted')
 

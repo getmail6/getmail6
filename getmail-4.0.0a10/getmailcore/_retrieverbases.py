@@ -1,31 +1,25 @@
 #!/usr/bin/env python2.3
-'''Classes implementing retrievers (message sources getmail can retrieve mail from).
+'''Base classes implementing retrievers (message sources getmail can retrieve mail from).
 
-Currently implemented:
-
-  RetrieverSkeleton (base class; not to be instantiated directly)
+In this module:
 
   POP3initMixIn (mix-in initialization class for non-SSL POP3 classes; not to be instantiated directly)
   POP3SSLinitMixIn (mix-in initialization class for POP3-over-SSL classes; not to be instantiated directly)
+  IMAPinitMixIn (mix-in initialization class for non-SSL IMAP classes; not to be instantiated directly)
+  IMAPSSLinitMixIn (mix-in initialization class for IMAP-over-SSL classes; not to be instantiated directly)
+
+  RetrieverSkeleton (base class; not to be instantiated directly)
+
   POP3RetrieverBase (base class; not to be instantiated directly)
   MultidropPOP3RetrieverBase (base class; not to be instantiated directly)
 
-  SimplePOP3Retriever
-  SimplePOP3SSLRetriever
-  MultidropPOP3Retriever
-  MultidropPOP3SSLRetriever
-  MultidropSPDSRetriever
-
-  IMAPinitMixIn (mix-in initialization class for non-SSL IMAP classes; not to be instantiated directly)
-  IMAPSSLinitMixIn (mix-in initialization class for IMAP-over-SSL classes; not to be instantiated directly)
   IMAPRetrieverBase  (base class; not to be instantiated directly)
-
-  SimpleIMAPRetriever (very alpha) -- IMAP, as a protocol, is a FPOS, and
-    it shows.  The Python standard library module imaplib leaves much up to
-    the user because of this.
-  SimpleIMAPSSLRetriever - the above, for IMAP-over-SSL.
-  
 '''
+
+__all__ = ['POP3initMixIn', 'POP3SSLinitMixIn', 'IMAPinitMixIn', 'IMAPSSLinitMixIn',
+    'RetrieverSkeleton', 'POP3RetrieverBase', 'MultidropPOP3RetrieverBase',
+    'IMAPRetrieverBase',
+]
 
 import os
 import socket
@@ -42,162 +36,8 @@ from pop3ssl import POP3SSL, POP3_ssl_port
 from baseclasses import ConfigurableBase
 
 #
-# Functional classes
+# Mix-in classes
 #
-
-#######################################
-class RetrieverSkeleton(ConfigurableBase):
-    '''Base class for implementing message-retrieval classes.
-
-    Sub-classes should provide the following data attributes and methods:
-
-      _confitems - a tuple of dictionaries representing the parameters the class
-                   takes.  Each dictionary should contain the following key, value
-                   pairs:
-                     - name - parameter name
-                     - type - a type function to compare the parameter value against (i.e. str, int, bool)
-                     - default - optional default value.  If not preseent, the parameter is required.
-
-      __str__(self) - return a simple string representing the class instance.
-
-      _getmsglist(self) - retieve a list of all available messages, and store
-                          unique message identifiers in the list self.msgids.
-                          Message identifiers must be unique and persistent across
-                          instantiations.  Also store message sizes (in octets)
-                          in a dictionary self.msgsizes, using the message identifiers
-                          as keys.
-
-      _delmsgbyid(self, msgid) - delete a message from the message store based
-                                 on its message identifier.
-
-      _getmsgbyid(self, msgid) - retreive and return a message from the message
-                                 store based on its message identifier.  The message
-                                 is returned as an email.Message() class object.
-                                 The message should have additional data attributes
-                                 "sender" and "recipient" if (and only if) the
-                                 protocol/method of message retrieval preserves the
-                                 original message envelope.
-
-      _getheaderbyid(self, msgid) - similar to _getmsgbyid() above, but only the message
-                                    header should be retrieved, if possible.  It should
-                                    be returned in the same format.
-
-      showconf(self) - should invoke self.log.info() to display the configuration of
-                       the class instance.
-
-    Sub-classes may also wish to extend or over-ride the following base class
-    methods:
-
-      __init__(self, **args)
-      __del__(self)
-      initialize(self)
-      checkconf(self)
-    '''
-
-    def __init__(self, **args):
-        ConfigurableBase.__init__(self, **args)
-        self.msgids = []
-        self.msgsizes = {}
-        self.headercache = {}
-        self.oldmail = {}
-        self.timestamp = int(time.time())
-        self.__initialized = False
-
-    def __del__(self):
-        self.log.trace()
-        self._write_oldmailfile()
-
-    def __str__(self):
-        self.log.trace()
-        return str(self.conf)
-
-    def __len__(self):
-        self.log.trace()
-        return len(self.msgids)
-
-    def __getitem__(self, i):
-        self.log.trace()
-        if not self.__initialized:
-            raise getmailOperationError('not initialized')
-        return self.msgids[i]
-
-    def _read_oldmailfile(self):
-        '''Read contents of oldmail file.'''
-        self.log.trace()
-        try:
-            for (msgid, timestamp) in [line.strip().split('\0', 1) for line in open(self.oldmail_filename, 'rb').xreadlines() if line.strip()!='']:
-                self.oldmail[msgid] = int(timestamp)
-            self.log.info('read %i uids for %s\n' % (len(self.oldmail), self))
-        except IOError:
-            self.log.info('no oldmail file for %s\n' % self)
-
-    def _write_oldmailfile(self):
-        '''Write oldmail info to oldmail file.'''
-        self.log.trace()
-        if not self.__initialized:
-            return
-        try:
-            f = updatefile(self.oldmail_filename)
-            for msgid, timestamp in self.oldmail.items():
-                if msgid in self.msgids:
-                    # This message still in inbox; remember it for next time.
-                    f.write('%s\0%i%s' % (msgid, timestamp, os.linesep))
-                #else:
-                # Message doesn't exist in inbox, no sense remembering it.
-            f.close()
-            self.log.info('wrote %i uids for %s\n' % (len(self.oldmail), self))
-        except IOError, o:
-            self.log.error('failed writing oldmail file for %s (%s)\n' % (self, o))
-
-    def _confstring(self):
-        self.log.trace()
-        confstring = ''
-        names = self.conf.keys()
-        names.sort()
-        for name in names:
-            if confstring:  confstring += ', '
-            if name.lower() == 'password':
-                confstring += '%s="*"' % name
-            else:
-                confstring += '%s="%s"' % (name, self.conf[name])
-        return confstring
-
-    def initialize(self):
-        self.log.trace()
-        self.checkconf()
-        self.oldmail_filename = os.path.join(
-            os.path.expanduser(self.conf['getmaildir']),
-            ('oldmail-%(server)s-%(port)i-%(username)s' % self.conf).replace('/', '-').replace(':', '-')
-        )
-        self._read_oldmailfile()
-        self.__initialized = True
-
-    def getheader(self, msgid):
-        if not self.__initialized:
-            raise getmailOperationError('not initialized')
-        if not self.headercache.has_key(msgid):
-            self.headercache[msgid] = self._getheaderbyid(msgid)
-        return self.headercache[msgid]
-
-    def getmsg(self, msgid):
-        if not self.__initialized:
-            raise getmailOperationError('not initialized')
-        return self._getmsgbyid(msgid)
-
-    def getmsgsize(self, msgid):
-        if not self.__initialized:
-            raise getmailOperationError('not initialized')
-        try:
-            return self.msgsizes[msgid]
-        except KeyError:
-            raise getmailOperationError('no such message ID %s' % msgid)
-
-    def delmsg(self, msgid):
-        if not self.__initialized:
-            raise getmailOperationError('not initialized')
-        self._delmsgbyid(msgid)
-        i = self.msgids.index(msgid)
-        del self.msgids[i]
 
 #######################################
 class POP3initMixIn(object):
@@ -256,6 +96,164 @@ class IMAPSSLinitMixIn(object):
             self.conn = imaplib.IMAP4_SSL(self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile'])
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
+
+#
+# Base classes
+#
+
+#######################################
+class RetrieverSkeleton(ConfigurableBase):
+    '''Base class for implementing message-retrieval classes.
+
+    Sub-classes should provide the following data attributes and methods:
+
+      _confitems - a tuple of dictionaries representing the parameters the class
+                   takes.  Each dictionary should contain the following key, value
+                   pairs:
+                     - name - parameter name
+                     - type - a type function to compare the parameter value against (i.e. str, int, bool)
+                     - default - optional default value.  If not preseent, the parameter is required.
+
+      __str__(self) - return a simple string representing the class instance.
+
+      _getmsglist(self) - retieve a list of all available messages, and store
+                          unique message identifiers in the list self.msgids.
+                          Message identifiers must be unique and persistent across
+                          instantiations.  Also store message sizes (in octets)
+                          in a dictionary self.msgsizes, using the message identifiers
+                          as keys.
+
+      _delmsgbyid(self, msgid) - delete a message from the message store based
+                                 on its message identifier.
+
+      _getmsgbyid(self, msgid) - retreive and return a message from the message
+                                 store based on its message identifier.  The message
+                                 is returned as an email.Message() class object.
+                                 The message should have additional data attributes
+                                 "sender" and "recipient" if (and only if) the
+                                 protocol/method of message retrieval preserves the
+                                 original message envelope.
+
+      _getheaderbyid(self, msgid) - similar to _getmsgbyid() above, but only the message
+                                    header should be retrieved, if possible.  It should
+                                    be returned in the same format.
+
+      showconf(self) - should invoke self.log.info() to display the configuration of
+                       the class instance.
+
+    Sub-classes may also wish to extend or over-ride the following base class
+    methods:
+
+      __init__(self, **args)
+      __del__(self)
+      initialize(self)
+      checkconf(self)
+    '''
+
+    def __init__(self, **args):
+        ConfigurableBase.__init__(self, **args)
+        self.msgids = []
+        self.msgsizes = {}
+        self.headercache = {}
+        self.oldmail = {}
+        self.deleted = {}
+        self.timestamp = int(time.time())
+        self.__initialized = False
+
+    def __del__(self):
+        self.log.trace()
+        self._write_oldmailfile()
+
+    def __str__(self):
+        self.log.trace()
+        return str(self.conf)
+
+    def __len__(self):
+        self.log.trace()
+        return len(self.msgids)
+
+    def __getitem__(self, i):
+        self.log.trace('i == %d' % i)
+        if not self.__initialized:
+            raise getmailOperationError('not initialized')
+        return self.msgids[i]
+
+    def _read_oldmailfile(self):
+        '''Read contents of oldmail file.'''
+        self.log.trace()
+        try:
+            for (msgid, timestamp) in [line.strip().split('\0', 1) for line in open(self.oldmail_filename, 'rb').xreadlines() if line.strip()!='']:
+                self.oldmail[msgid] = int(timestamp)
+            self.log.info('read %i uids for %s\n' % (len(self.oldmail), self))
+        except IOError:
+            self.log.info('no oldmail file for %s\n' % self)
+
+    def _write_oldmailfile(self):
+        '''Write oldmail info to oldmail file.'''
+        self.log.trace()
+        if not self.__initialized:
+            return
+        try:
+            f = updatefile(self.oldmail_filename)
+            for msgid, timestamp in self.oldmail.items():
+                if msgid in self.msgids and not msgid in self.deleted:
+                    # This message still in inbox; remember it for next time.
+                    f.write('%s\0%i%s' % (msgid, timestamp, os.linesep))
+                #else:
+                # Message doesn't exist in inbox, no sense remembering it.
+            f.close()
+            self.log.info('wrote %i uids for %s\n' % (len(self.oldmail), self))
+        except IOError, o:
+            self.log.error('failed writing oldmail file for %s (%s)\n' % (self, o))
+
+    def _confstring(self):
+        self.log.trace()
+        confstring = ''
+        names = self.conf.keys()
+        names.sort()
+        for name in names:
+            if confstring:  confstring += ', '
+            if name.lower() == 'password':
+                confstring += '%s="*"' % name
+            else:
+                confstring += '%s="%s"' % (name, self.conf[name])
+        return confstring
+
+    def initialize(self):
+        self.log.trace()
+        self.checkconf()
+        self.oldmail_filename = os.path.join(
+            os.path.expanduser(self.conf['getmaildir']),
+            ('oldmail-%(server)s-%(port)i-%(username)s' % self.conf).replace('/', '-').replace(':', '-')
+        )
+        self._read_oldmailfile()
+        self.__initialized = True
+
+    def getheader(self, msgid):
+        if not self.__initialized:
+            raise getmailOperationError('not initialized')
+        if not self.headercache.has_key(msgid):
+            self.headercache[msgid] = self._getheaderbyid(msgid)
+        return self.headercache[msgid]
+
+    def getmsg(self, msgid):
+        if not self.__initialized:
+            raise getmailOperationError('not initialized')
+        return self._getmsgbyid(msgid)
+
+    def getmsgsize(self, msgid):
+        if not self.__initialized:
+            raise getmailOperationError('not initialized')
+        try:
+            return self.msgsizes[msgid]
+        except KeyError:
+            raise getmailOperationError('no such message ID %s' % msgid)
+
+    def delmsg(self, msgid):
+        if not self.__initialized:
+            raise getmailOperationError('not initialized')
+        self._delmsgbyid(msgid)
+        self.deleted[msgid] = True
 
 #######################################
 class POP3RetrieverBase(RetrieverSkeleton):
@@ -362,64 +360,6 @@ class POP3RetrieverBase(RetrieverSkeleton):
         except AttributeError:
             pass
 
-
-#######################################
-class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
-    '''Retriever class for single-user POP3 mailboxes.
-    '''
-    _confitems = (
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
-
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-    )
-
-    def __str__(self):
-        self.log.trace()
-        return 'SimplePOP3Retriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('SimplePOP3Retriever(%s)\n' % self._confstring())
-
-#######################################
-class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
-    '''Retriever class for single-user POP3-over-SSL mailboxes.
-    '''
-    _confitems = (
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
-
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : POP3_ssl_port},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-        {'name' : 'keyfile', 'type' : str, 'default' : None},
-        {'name' : 'certfile', 'type' : str, 'default' : None},
-    )
-
-    def __str__(self):
-        self.log.trace()
-        return 'SimplePOP3SSLRetriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('SimplePOP3SSLRetriever(%s)\n' % self._confstring())
-
-
 #######################################
 class MultidropPOP3RetrieverBase(POP3RetrieverBase):
     '''Base retriever class for multi-drop POP3 mailboxes.
@@ -466,124 +406,6 @@ class MultidropPOP3RetrieverBase(POP3RetrieverBase):
         if len(msg.recipient) != 1:
             raise getmailConfigurationError('extracted <> 1 envelope recipient address (%s)' % msg.recipient)
         msg.recipient = msg.recipient[0]
-        return msg
-
-#######################################
-class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
-    '''Retriever class for multi-drop POP3 mailboxes.
-    '''
-    _confitems = (
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
-
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-        {'name' : 'envelope_recipient', 'type' : str},
-    )
-
-    def __init__(self, **args):
-        MultidropPOP3RetrieverBase.__init__(self, **args)
-
-    def __str__(self):
-        self.log.trace()
-        return 'MultidropPOP3Retriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('MultidropPOP3Retriever(%s)\n' % self._confstring())
-
-#######################################
-class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
-    '''Retriever class for multi-drop POP3-over-SSL mailboxes.
-    '''
-    _confitems = (
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
-
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : POP3_ssl_port},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-        {'name' : 'envelope_recipient', 'type' : str},
-        {'name' : 'keyfile', 'type' : str, 'default' : None},
-        {'name' : 'certfile', 'type' : str, 'default' : None},
-    )
-
-    def __init__(self, **args):
-        MultidropPOP3RetrieverBase.__init__(self, **args)
-
-    def __str__(self):
-        self.log.trace()
-        return 'MultidropPOP3SSLRetriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('MultidropPOP3SSLRetriever(%s)\n' % self._confstring())
-
-#######################################
-class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
-    '''Retriever class for multi-drop SPDS (demon.co.uk) mailboxes.
-
-    Extend POP3 class to include support for Demon's protocol extensions,
-    known as SPDS.  A non-standard command (*ENV) is used to retrieve the
-    message envelope.  See http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml
-    for details.
-
-    Support originally requested by Paul Clifford for getmail v.2/3.
-    '''
-    _confitems = (
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
-
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        # Demon apparently doesn't support APOP
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-    )
-
-    def __init__(self, **args):
-        SimplePOP3Retriever.__init__(self, **args)
-
-    def __str__(self):
-        self.log.trace()
-        return 'MultidropSPDSRetriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('MultidropSPDSRetriever(%s)\n' % self._confstring())
-
-    def _getmsgbyid(self, msgid):
-        self.log.trace()
-        msg = SimplePOP3Retriever._getmsgbyid(self, msgid)
-
-        # The magic of SPDS is the "*ENV" command.  Implement it:
-        try:
-            msgnum = self._getmsgnumbyid(msgid)
-            resp, lines, octets = self.conn._longcmd('*ENV %i' % msgnum)
-        except poplib.error_proto, o:
-            raise getmailConfigurationError('server does not support *ENV (%s)' % o)
-        if len(lines) < 4:
-            raise getmailOperationError('short *ENV response (%s)' % lines)
-        msg.sender = lines[2]
-        msg.recipient = lines[3]
         return msg
 
 #######################################
@@ -662,6 +484,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 # Get UIDs for messages in mailbox
                 response = self._parse_imapuidcmdresponse('SEARCH', 'ALL')
                 uids = response[0].split()
+                if not uids:
+                    return
                 self.log.debug('uid("SEARCH", "ALL") returned %d UIDs (%s)\n' % (len(uids), uids))
                 # Get message sizes
                 response = self._parse_imapuidcmdresponse('FETCH', ','.join(uids), 'RFC822.SIZE')
@@ -758,69 +582,3 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
 
-#######################################
-class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
-    '''Retriever class for single-user IMAPv4 mailboxes.
-    '''
-    _confitems = (
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
-
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_PORT},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-
-        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
-
-        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
-        # so we can't do this yet.
-        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
-    )
-
-    def __str__(self):
-        self.log.trace()
-        return 'SimpleIMAPRetriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('SimpleIMAPRetriever(%s)\n' % self._confstring())
-
-#######################################
-class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
-    '''Retriever class for single-user IMAPv4-over-SSL mailboxes.
-    '''
-    _confitems = (
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
-
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_SSL_PORT},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-
-        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
-
-        {'name' : 'keyfile', 'type' : str, 'default' : None},
-        {'name' : 'certfile', 'type' : str, 'default' : None},
-
-        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
-        # so we can't do this yet.
-        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
-    )
-
-    def __str__(self):
-        self.log.trace()
-        return 'SimpleIMAPSSLRetriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('SimpleIMAPSSLRetriever(%s)\n' % self._confstring())
