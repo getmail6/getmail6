@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.7'
+__version__ = '2.0.8'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -549,10 +549,18 @@ class getmail:
 				for header in header_group:
 					addrlist = mess.getaddrlist (header)
 					for (comment, address) in addrlist:
-						recipients.append (address)
-						self.logfunc (TRACE,
-							'process_msg():  found address "%s" in header "%s"\n'
-							% (address, header), self.opts)
+						# mess822 can sometimes return None instead of an
+						# address here, at least in Python 2.0.  Double-check
+						# it before adding it to the list.
+						if address:
+							recipients.append (address)
+							self.logfunc (TRACE, 'process_msg():  found address'
+								+ ' "%s" in header "%s"\n' % (address, header),
+								self.opts)
+						else:
+							self.logfunc (TRACE, 'process_msg():  getaddrlist()'
+								+ ' returned None as address, skipping...',
+								self.opts)
 
 		# Force lowercase
 		recipients = map (string.lower, recipients)

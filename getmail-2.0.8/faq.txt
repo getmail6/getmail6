@@ -52,6 +52,19 @@ getmail FAQ
    is incorrect. The correct method is:
    postmaster = /home/adam/Maildir/
    
+  getmail says it can't find my default config file (getmailrc) file, but I've
+  checked everything and it's fine. What's wrong?
+  
+   What version of Python are you running? Versions earlier than 1.5.2
+   can cause this problem. Upgrade to Python 1.5.2 or later.
+   
+  I've got a simple POP3 account. Do I need "local=..." configuration
+  variables?
+  
+   No, you don't need them. They might be useful to you if the MTA on the
+   POP3 server supports extension addresses (i.e. qmail). But in general,
+   you will only need a "postmaster=..." configuration.
+   
   I've configured getmail to deliver to my mbox file, but it won't do it. Why?
   
    The problem is one or more of the following:
@@ -76,6 +89,11 @@ getmail FAQ
    procmail, search freshmeat.net for "procbox"; it was written by
    getmail user Jeff Clement for this purpose.
    
+  My 'net connection is via PPP/SLIP/modem, and when it's down, my cron'd
+  getmail throws a "error: host not found" exception.
+  
+   Upgrade to the latest version of getmail to solve this problem.
+   
   Does getmail rewrite mail headers when it retrieves mail?
   
    No. getmail will add a new Received: header and a new Delivered-To:
@@ -94,3 +112,12 @@ getmail FAQ
    Use cron to run getmail periodically if you wish. I may add native
    support for a daemon mode to getmail in the future; the complete
    rewrite for version 2.0 made allowances for this.
+   
+  Why did you write getmail? Why not just use fetchmail?
+  
+   I do not like some of the design choices which were made with
+   fetchmail. getmail does things a little differently, and for my
+   purposes, better. In addition, most people find getmail easier to
+   configure and use than fetchmail. Perhaps most importantly, getmail
+   cannot lose retrieved mail, while fetchmail (in its default
+   configuration) can.

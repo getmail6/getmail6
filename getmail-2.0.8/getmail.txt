@@ -20,8 +20,7 @@ Summary of Features
    
 getmail Requirements
 
-     * Python version 1.5 or higher. Version 1.5.2 or higher is strongly
-       recommended.
+     * Python version 1.5.2 or higher.
      * A configuration/data directory. By default, getmail looks for a
        directory named ".getmail" in your home directory. You can specify
        an alternative location with the --getmaildir or -g option.
