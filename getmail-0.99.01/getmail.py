@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.99'
+VERSION = '0.99.01'
 
 #
 # Imports
@@ -74,7 +74,7 @@ ENV_GETMAIL =           'GETMAIL'       # Env. variable to get configuration/
                                         #  data directory name from
 ENV_GETMAILOPTS =       'GETMAILOPTS'   # Default options can be put in this
                                         #  environment variable
-DEF_ADDRSEP =           '_'             # For domain mailbox recipients in the
+#DEF_ADDRSEP =           '_'             # For domain mailbox recipients in the
                                         #  configuration file, replace the final
                                         #  matching character with '@' (which
                                         #  is not allowed in the config file).
@@ -98,7 +98,7 @@ opt_rcfile =            None
 opt_configdir =         None
 opt_dump =              0
 opt_ignoreconfig =      0
-opt_addrsep =           DEF_ADDRSEP
+#opt_addrsep =           DEF_ADDRSEP
 opt_showhelp =          0
 
 
@@ -106,7 +106,7 @@ opt_showhelp =          0
 # Data
 #
 
-true, false = ['true', 'yes', '1'], ['false', 'no', '0']
+true, false = ['true', 'yes', '1', 't', 'y'], ['false', 'no', '0', 'f', 'n']
 mailbox, domainbox = 0, 1
 ADDR, DEST = 0, 1
 
@@ -609,7 +609,7 @@ def read_configfile (file):
     #
     global opt_delete_retrieved, opt_retrieve_read, \
         opt_port, opt_host, opt_account, opt_password, opt_dest, \
-        opt_verbose, opt_accounttype, opt_reciplist, opt_addrsep
+        opt_verbose, opt_accounttype, opt_reciplist #, opt_addrsep
 
     recips = []
     defaults = { 'port'         : '%s' % DEF_PORT,
@@ -940,20 +940,17 @@ class GetmailParser:
     '''Class to parse a configuration file without all the limitations in
     ConfigParser.py, but without the dictionary formatting options either.
     '''
-    rawdata = []
-    data = []
-    sects = []
-    opts = []
-    defs = {}
-
     #######################################
     def __init__ (self, defaults = {}):
-        'Constructor..'
+        'Constructor.'
+        self.__rawdata = []
+        self.__data = []
+        self.__sects = []
+        self.__opts = []
+        self.__defs = {}
         try:
             for key in defaults.keys ():
-                self.defs[key] = defaults[key]
-                # DEBUG
-                #stderr ('DEBUG:  set default key "%s", value "%s"\n' % (key, defaults[key]))
+                self.__defs[key] = defaults[key]
 
         except AttributeError:
             raise DefaultsError, 'defaults "%s" not a dictionary' % defaults
@@ -964,16 +961,15 @@ class GetmailParser:
         'Read configuration file.'
         try:
             f = open (filename, 'r')
-            self.rawdata = f.readlines ()
+            self.__rawdata = f.readlines ()
             f.close ()
-            # DEBUG
-            #stderr ('DEBUG:  read data:\n%s\n' % rawdata)
 
         except IOError:
-            raise FileIOError, 'error reading configuration file "%s"' % filename
+            raise FileIOError, 'error reading configuration file "%s"' \
+            	% filename
 
         l = 0
-        for line in self.rawdata:
+        for line in self.__rawdata:
             line = string.replace (string.replace (line, '\n', ''), '\r', '')
             try:
                 line = line [ : string.index (line, '#')]
@@ -981,43 +977,42 @@ class GetmailParser:
                 pass
             line = string.strip (line)
             if line:
-                self.data.append ((l, line))
-                # DEBUG
-                #stderr ('DEBUG:  parsed line == "%s"\n' % line)
+                self.__data.append ((l, line))
             l = l + 1
 
-        self._parse ()
+        self.__parse ()
         return self
 
 
     #######################################
-    def _parse (self):
+    def __parse (self):
         'Parse the read-in configuration file.'
         in_section = 0
         s = -1
-        for (lineno, line) in self.data:
+        for (lineno, line) in self.__data:
             if line[0] == '[':
                 in_section = 1
                 s = s + 1
                 try:
-                    sect_name = string.lower (line [1 : string.index (line, ']') ] )
+                    sect_name = string.lower (line[1:string.index (line, ']')])
 
                 except:
-                    raise BadConfigFileError, 'malformed section title in line %i:  "%s"' % (lineno, line)
+                    raise BadConfigFileError, \
+                    	'malformed section title in line %i:  "%s"' \
+                    	% (lineno, line)
 
-                if self.sects.count (sect_name):
-                    raise DuplicateSectionError, 'duplicate section "%s" found at line %i' % (sect_name, lineno)
+                if sect_name in self.__sects:
+                    raise DuplicateSectionError, \
+                    	'duplicate section "%s" found at line %i' \
+                    	% (sect_name, lineno)
 
-                self.sects.append (sect_name)
+                self.__sects.append (sect_name)
 
-                self.opts.append ({'__section__' : sect_name})
-
-                # DEBUG
-                #stderr ('DEBUG:  found section "%s"\n' % sect_name)
+                self.__opts.append ({'__section__' : sect_name})
 
                 # Insert defaults
-                for key in self.defs.keys ():
-                    self.opts[s][key] = self.defs[key]
+                for key in self.__defs.keys ():
+                    self.__opts[s][key] = self.__defs[key]
 
                 continue
 
@@ -1028,43 +1023,41 @@ class GetmailParser:
                     optval = string.strip (optval [ 1 : ])
                 except ValueError:
                     optval = ''
-                self.opts [s][optname] = optval
-
-                # DEBUG
-                #stderr ('DEBUG:  option "%s" == "%s"\n' % (optname, optval))
+                self.__opts [s][optname] = optval
 
         return
 
 
     #######################################
     def sections (self):
-        return self.sects
+        return self.__sects
 
 
     #######################################
     def options (self, section):
         'Return list of options in section.'
         try:
-            s = self.sects.index (string.lower (section))
+            s = self.__sects.index (string.lower (section))
 
         except ValueError:
             raise NoSectionError, 'file has no section "%s"' % section
 
-        return self.opts[s].keys ()
+        return self.__opts[s].keys ()
 
 
     #######################################
     def get (self, section, option):
         'Return an option value.'
         try:
-            s = self.sects.index (string.lower (section))
+            s = self.__sects.index (string.lower (section))
         except ValueError:
             raise NoSectionError, 'file has no section "%s"' % section
 
-        if not self.opts[s].has_key (option):
-            raise NoOptionError, 'section "%s" has no option "%s"' % (section, option)
+        if not self.__opts[s].has_key (option):
+            raise NoOptionError, 'section "%s" has no option "%s"' \
+            	% (section, option)
 
-        return self.opts[s][option]
+        return self.__opts[s][option]
 
 
 #######################################

@@ -19,12 +19,17 @@ About getmail
    Maildir specified on a per-account basis. It can now also deliver into
    'mbox' files, although this should not be attempted over NFS.
    
+The getmail FAQ
+
+   There is now a FAQ available about getmail. Read it here.
+   
 Installing getmail
 
    getmail is a Python script. Ensure the Python interpreter is installed
-   on your machine (see www.python.org for details). Put the script
-   somewhere with executable permissions (probably 0755). If you like,
-   make a symbolic link named 'getmail' to the actual script
+   (version 1.5.1 or higher is recommended; at the time of this writing,
+   the current version was 1.5.2. See www.python.org for details). Put
+   the script somewhere with executable permissions (probably 0755). If
+   you like, make a symbolic link named 'getmail' to the actual script
    'getmail.py'.
    
 Using getmail
@@ -170,17 +175,19 @@ Current Version
    The current version of getmail should be available at
    http://www.qcc.sk.ca/~charlesc/software/getmail/ 
    
-   The current version is v.0.99, dated 11-Jan-2000.
+   The current version is v.0.99.01, dated 17-Jan-2000.
    Questions, comments, bug reports, and feature requests should be
    directed to me at <getmail@discworld.dyndns.org>.
    
   Download
   
                                Download now:
-                            getmail-0.99.tar.gz
-    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.99.tar.gz
-                            getmail-0.99.tar.bz2
-    http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.99.tar.bz2
+                           getmail-0.99.01.tar.gz
+   http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.99.01.tar.g
+                                     z
+                          getmail-0.99.01.tar.bz2
+   http://www.qcc.sk.ca/~charlesc/software/getmail/getmail-0.99.01.tar.b
+                                     z2
                                       
    Older versions may be found in
    http://www.qcc.sk.ca/~charlesc/software/getmail/old-versions/
