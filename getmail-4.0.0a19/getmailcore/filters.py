@@ -74,7 +74,7 @@ class FilterSkeleton(ConfigurableBase):
             # having getmail use it as an external MDA), and ended up having getmail
             # deliver 0-byte messages after the MDA had already done it.
             raise getmailOperationError('filter %s returned fewer headers than supplied (%d)\n' % (self, len(newmsg), len(msg)))
-        
+
         # Copy envelope info from original message
         if hasattr(msg, 'sender'):
             newmsg.sender = msg.sender
@@ -116,16 +116,16 @@ class Filter_external(FilterSkeleton):
       exitcodes_keep - if provided, a tuple of integers representing filter exit
                        codes that mean to pass the message to the next filter or
                        destination.  Default is (0, ).
-                       
+
       exitcodes_drop - if provided, a tuple of integers representing filter exit
                        codes that mean to drop the message.  Default is
                        (99, 100).
-                       
+
       user (string, optional) - if provided, the external command will be run as the
                                 specified user.  This requires that the main getmail
                                 process have permission to change the effective user
                                 ID.
-                            
+
       group (string, optional) -  if provided, the external command will be run with the
                                 specified group ID.  This requires that the main getmail
                                 process have permission to change the effective group
@@ -250,3 +250,70 @@ class Filter_external(FilterSkeleton):
         newmsg = email.message_from_file(stdout, strict=False)
 
         return exitcode, newmsg, err
+
+#######################################
+class Filter_classifier(Filter_external):
+    '''Filter which runs the message through an external command, adding the
+    command's output to the message header.  Takes the same parameters as
+    Filter_external.
+    '''
+    def __str__(self):
+        self.log.trace()
+        return 'Filter_classifier %s' % self._confstring()
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('Filter_classifier(%s)\n' % self._confstring())
+
+    def _filter_message(self, msg):
+        self.log.trace()
+        msginfo = {}
+        if hasattr(msg, 'sender'):
+            msginfo['sender'] = msg.sender
+        if hasattr(msg, 'recipient'):
+            msginfo['recipient'] = msg.recipient
+            msginfo['domain'] = msg.recipient.lower().split('@')[-1]
+            msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
+        self.log.debug('msginfo "%s"\n' % msginfo)
+
+        # At least some security...
+        if os.geteuid() == 0 and not self.conf['allow_root_commands'] and self.conf['user'] == None:
+            raise getmailConfigurationError('refuse to invoke external commands as root by default')
+
+        orighandler = signal.getsignal(signal.SIGCHLD)
+        signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+
+        stdout = os.tmpfile()
+        stderr = os.tmpfile()
+        childpid = os.fork()
+
+        if not childpid:
+            # Child
+            self._filter_command(msg, msginfo, stdout, stderr)
+        self.log.debug('spawned child %d\n' % childpid)
+
+        # Parent
+        try:
+            pid, r = os.waitpid(childpid, 0)
+        except OSError, o:
+            raise getmailOperationError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
+
+        signal.signal(signal.SIGCHLD, orighandler)
+        stdout.seek(0)
+        stderr.seek(0)
+        err = stderr.read().strip()
+
+        if os.WIFSTOPPED(r):
+            raise getmailOperationError('command %s %d stopped by signal %d' % (self.conf['command'], pid, os.WSTOPSIG(r)))
+        if os.WIFSIGNALED(r):
+            raise getmailOperationError('command %s %d killed by signal %d' % (self.conf['command'], pid, os.WTERMSIG(r)))
+        if not os.WIFEXITED(r):
+            raise getmailOperationError('command %s %d failed to exit' % (self.conf['command'], pid))
+        exitcode = os.WEXITSTATUS(r)
+
+        self.log.debug('command %s %d exited %d\n' % (self.conf['command'], pid, exitcode))
+
+        for line in [line.strip() in stdout.readlines() if line.strip()]:
+            msg['X-getmail-filter-classifier'] = line
+
+        return exitcode, msg, err

@@ -14,6 +14,8 @@ import signal
 import time
 import glob
 import fcntl
+import email
+import cStringIO
 
 # Only on Unix
 try:
@@ -90,7 +92,6 @@ class logfile(object):
             self.file.seek(0, 2)
             self.file.write(time.strftime(logtimeformat, time.localtime()) + ' ' + s + os.linesep)
             self.file.flush()
-            self.file
         finally:
             unlock_file(self.file)
 
@@ -106,9 +107,10 @@ def alarm_handler(*unused):
 def is_maildir(d):
     '''Verify a path is a maildir.
     '''
-    if os.path.isdir(d) and os.path.isdir(os.path.join(d, 'tmp')) and os.path.isdir(os.path.join(d, 'new')) and os.path.isdir(os.path.join(d, 'cur')):
-        return True
-    return False
+    for sub in ('', 'tmp', 'cur', 'new'):
+        if not os.path.isdir(os.path.join(d, sub)):
+            return False
+    return True            
 
 #######################################
 def deliver_maildir(maildirpath, data, hostname, dcount=None):
@@ -285,6 +287,7 @@ def msg_lines(msg, mangle_from=False, include_from=False, max_linelen=998):
     gen = email.Generator.Generator(f, mangle_from, max_linelen)
     gen.flatten(msg, include_from)
     # email module apparently doesn't always use native EOL, so force it
+    f.seek(0)
     return f.read().splitlines()
 
 #######################################

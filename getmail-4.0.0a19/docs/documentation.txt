@@ -40,9 +40,8 @@ times.
 
 The rc file format is slightly different.  getmail is now modular and
 extensible; each rc file contains an optional [options] section, one [retriever]
-section, zero or more [filterX] sections, and one [destination] section.
-
-The message logging feature of version 3 is not yet re-implemented for v.4.
+section, zero or more [filterX] sections, one required [destination] section,
+and optional extra sections for different destinations.
 
 Invoking getmail
 ================
@@ -379,11 +378,11 @@ The current destinations are:
                    files, extension addressing, etc.
   MDA_external - deliver messages by invoking an arbitrary command.  Use this
                  for delivering through procmail, maildrop, etc.
-  MultiSorter - deliver messages to an assortment of Maildirs and Mboxrd files
-                by matching the recipient address against regular expressions.
-                Requires recipient information.  This is similar to getmail
-                v.3's "postmaster" and "local" directives, with the exception
-                that command deliveries are not yet supported.
+  MultiSorter - deliver messages to an assortment of Maildirs, Mboxrd files,
+  				or other destination types by matching the recipient address 
+  				against regular expressions.  Requires recipient information.  
+  				This is similar to getmail v.3's "postmaster" and "local" 
+  				directives.
 
 Maildir takes the following configuration parameters:
 
@@ -466,8 +465,10 @@ MultiSorter takes the following configuration parameters:
              it will be delivered to the corresponding destination.
              The destination can be any type specified with another section in
              the rc file by specifying the name of the section
-             (i.e. [sectionname]).  Otherwise, it is assumed to be a maildir
-             if it ends with a slash "/", or an mboxrd if it does not.
+             (i.e. [sectionname]).  Otherwise, it is assumed to be a maildir if 
+             it starts with a dot or slash and ends with a slash "/", or an 
+             mboxrd if it starts with a dot or a slash and does not end with a 
+             slash.
              A given message may match multiple regular expressions
              and be delivered to multiple destinations.
 
@@ -490,21 +491,24 @@ MultiSorter takes the following configuration parameters:
 Filters
 -------
 
-Filters are optional programs which can cause getmail to drop (ignore) certain
-messages, or change the content of messages before delivering them to a
-destination.  Each filter is specified in its own section in the getmail rc file
-(i.e. [filter1], [filter2], etc) and is applied in collating order.  A filter
-can return None instead of the message to cause getmail to drop the message.
+Filters are optional programs which can cause getmail to drop (ignore) certain 
+messages.  Some filter types can also change the content of messages or add 
+extra information to the message header before delivering them to a destination.  
+Each filter is specified in its own section in the getmail rc file (i.e. 
+[filter1], [filter2], etc) and is applied in collating order.  A filter can 
+return None instead of the message to cause getmail to drop the message.
 
-The only currently supported filter type is Filter_external, which passes the
-message through an arbitrary external command.  This command /must/ read the
-message from stdin and write the (possibly modified) message to stdout.  If the
-command exits with one of a specified list of values (default 99 or 100), the
-message will be dropped (i.e. not delivered to any destination).  If the command
-exits with one of another specified list of values (default 0), the (possibly
-modified) message is passed to the next filter or destination.  Otherwise, if
-the command exits with a value other than the two specified lists, or writes to
-stderr, it is considered an error.
+Filter_external
+
+The first filter type is Filter_external, which passes the message through an 
+arbitrary external command.  This command /must/ read the message from stdin and 
+write the (possibly modified) message to stdout.  If the command exits with one 
+of a specified list of values (default 99 or 100), the message will be dropped 
+(i.e. not delivered to any destination).  If the command exits with one of 
+another specified list of values (default 0), the (possibly modified) message is 
+passed to the next filter or destination.  Otherwise, if the command exits with 
+a value other than the two specified lists, or writes to stderr, it is 
+considered an error.
 
 Filter_external takes the following configuration parameters:
 
@@ -551,6 +555,22 @@ Filter_external takes the following configuration parameters:
         type = Filter_external
         path = /usr/local/bin/mailfilter
         arguments = ("--strip-attachment-type=exe,scr",)
+
+Filter_classifier
+
+Filter_classifier works differently; it runs an external program which does
+not modify the message and does not print the original message.  Anything the
+external program prints to stdout is put into a new X-getmail-filter-classifier:
+field in the message header.
+
+Filter_classifier takes exactly the same parameters as Filter_external.
+
+    example:
+
+        [filter1]
+        type = Filter_classifier
+        path = /usr/local/bin/clamdscan
+        arguments = ("--report", )
 
 Example configurations
 ======================

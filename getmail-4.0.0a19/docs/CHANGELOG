@@ -1,3 +1,13 @@
+Version 4.0.0a19
+24 June 2004
+
+  -bring some docstrings, comments, and documentation up to date.
+  -add Filter_classifier filter module, to support adding information
+  to the message header from programs that don't provide the original message
+  back on stdout (like clamscan/clamdscan, apparently).  Thanks: Frankye.
+  -missed seek(0) in msg_flatten().  Add missing imports.
+  Thanks: Andrew Raines.
+
 Version 4.0.0a18
 24 June 2004
 

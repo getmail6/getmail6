@@ -14,6 +14,8 @@ TODO
   and I can't rely on /usr/bin/python2.3 or anything like that being
   present either.  "#!/usr/bin/env python2.3" will have to do for now.
 
+-finish/clean up qmail-local destination
+
 DONE
 ====
 

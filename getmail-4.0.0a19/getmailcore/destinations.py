@@ -535,11 +535,14 @@ class MultiSorter(DeliverySkeleton):
                Each pair is on a separate line; the second and subsequent lines need
                to have leading whitespace to be considered a continuation of the "locals"
                configuration.  If the recipient address matches a given pattern, it will
-               be delivered to the corresponding maildir or mbox file.  Multiple patterns may match
-               a given recipient address; the message will be delivered to /all/ maildirs
-               with matching patterns.  Patterns are matched case-insensitively.
-               If the destination ends with a slash, it is assumed to be a maildir;
-               else, it is an mbox file.
+               be delivered to the corresponding destination.  A destination is assumed to
+               be a maildir if it starts with a dot or slash and ends with a slash.
+               A destination is assumed to be an mboxrd file if it starts with a dot or
+               a slash and does not end with a slash.  A destination may also be specified
+               by section name, i.e. "[othersectionname]".
+               Multiple patterns may match a given recipient address; the 
+               message will be delivered to /all/ maildirs with matching 
+               patterns.  Patterns are matched case-insensitively.
 
                example:
 
@@ -547,16 +550,13 @@ class MultiSorter(DeliverySkeleton):
                  locals = jason@example.org             /home/jasonk/Maildir/
                    sales@example.org                    /home/karlyk/Mail/sales
                    abuse@(example.org|example.net)      /home/kellyw/Mail/abuse/
-                   ^(jeff|jefferey)(\.s(mith)?)?@.*$    /home/jeffs/inbox
+                   ^(jeff|jefferey)(\.s(mith)?)?@.*$    [jeff-mail-delivery]
                    ^.*@(mail.)?rapinder.example.org$    /home/rapinder/Maildir/
 
                In it's simplest form, locals is merely a list of pairs of
                email addresses and corresponding maildir/mbox paths.  Don't worry
                about the details of regular expressions if you aren't familiar
                with them.
-
-    FIXME: handle program delivery?  Ugh, difficult to get program arguments
-    into a single string-type declaration of the destination like v.3.
     '''
     _confitems = (
         {'name' : 'default', 'type' : str},
