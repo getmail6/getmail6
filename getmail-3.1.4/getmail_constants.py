@@ -47,7 +47,6 @@ stringoptions = (
     'postmaster',
 )
 listoptions = (
-    'message_filter',
 )
 
 # Line ending conventions

@@ -62,6 +62,8 @@ Why did you write getmail? Why not just use fetchmail?
        code on the machine running fetchmail in its default
        configuration. See this advisory for details.
        
+   But don't just take my word for it.
+   
    getmail users have not had to worry about any of these security holes.
    
 How can I get support for getmail?

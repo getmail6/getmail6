@@ -1,6 +1,14 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.1.4
+27 May 2003
+
+  -removed the experimental message_filter code; it was unworkable.  If you
+  want to filter messages, use a filtering MDA.  getmail works fine with
+  maildrop, procmail, and other MDAs.  Thanks to Dan Hensley for experimenting
+  with the message_filter functionality.
+
 Version 3.1.3
 23 April 2003
 

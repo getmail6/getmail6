@@ -31,9 +31,6 @@ defs = {
     'max_message_size' :    0,              # Maximum message size to retrieve
     'max_messages_per_session' : 0,         # Stop after X messages; 0 for no
                                             #   limit.
-    'message_filter' :  None,               # Unix-style stdin->stdout filters
-                                            #   to pass messages through after
-                                            #   retrieval and before delivery
     'message_log' :     '',                 # Log info about getmail actions
                                             #   leading ~[user]/ will be expanded
                                             #   Will be prepended with value of

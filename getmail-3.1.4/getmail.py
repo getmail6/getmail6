@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.1.3'
+__version__ = '3.1.4'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -294,20 +294,6 @@ class getmail:
         msgid = mess.get ('message-id', 'None')
         self.msglog ('New msg %i/%i len %s id "%s" from "%s"' % (msgnum, msgcount, msgsize, msgid, env_sender))
 
-        # Filter message if user wants to
-        filters = self.conf['message_filter']
-        if filters:
-            if type (filters) != ListType:
-                filters = [filters]
-            for _filter in filters:
-                rc, newmsg = self.filter_message (msg, _filter)
-                if rc == 99:
-                    self.logfunc (INFO, 'message dropped because filter "%s" exited 99\n' % _filter)
-                    return -1
-                if rc != 0:
-                    raise getmailDeliveryException, 'message filter "%s" exited %s\n' % (_filter, rc)
-                msg = newmsg
-
         count = 0
         if len (self.users):
             count = self.do_deliveries (recipient, msg, msgid, env_sender)
@@ -415,7 +401,8 @@ class getmail:
             import popen2
 
             popen2._cleanup()
-            cmd = popen2.Popen3 (command, 1, bufsize=-1)
+            #cmd = popen2.Popen3 (command, 1, bufsize=-1)
+            cmd = popen2.Popen3 (command, 1, bufsize=512)
             cmdout, cmdin, cmderr = cmd.fromchild, cmd.tochild, cmd.childerr
             cmdin.write (fromline)
             cmdin.write (string.replace (msg, line_end['pop3'], line_end['mbox']))
