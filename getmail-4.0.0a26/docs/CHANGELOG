@@ -1,3 +1,10 @@
+Version 4.0.0a26
+4 July 2004
+
+  -add explicit checks for multidrop classes to prevent users from incorrectly
+  specifying certain header fields as recording the envelope recipient address
+  -documentation fixes and additions
+
 Version 4.0.0a25
 2 July 2004
 
@@ -5,8 +12,8 @@ Version 4.0.0a25
   -change setup script to not error if the specified directory prefix doesn't
   exist.  Thanks: Thomas Schwinge.
   -pass retriever protocol info to filters.  Thanks:  Frankye Fattarelli.
-  -first inclusion of "real" documentation.  See docs/docs.html or its
-  plaintext counterpart docs/docs.txt.
+  -first inclusion of "real" documentation.  See docs/documentation.html or its
+  plaintext counterpart docs/documentation.txt.
 
 Version 4.0.0a24
 1 July 2004

@@ -41,6 +41,16 @@ from utilities import *
 from _pop3ssl import POP3SSL, POP3_ssl_port
 from baseclasses import ConfigurableBase
 
+NOT_ENVELOPE_RECIPIENT_HEADERS = (
+    'to',
+    'cc',
+    'bcc',
+    'received',
+    'resent-to',
+    'resent-cc',
+    'resent-bcc'
+)
+
 #
 # Mix-in classes
 #
@@ -419,6 +429,8 @@ class MultidropPOP3RetrieverBase(POP3RetrieverBase):
         self.log.trace()
         POP3RetrieverBase.initialize(self)
         self.envrecipname = self.conf['envelope_recipient'].split(':')[0].lower()
+        if self.envrecipname in NOT_ENVELOPE_RECIPIENT_HEADERS:
+            raise getmailConfigurationError('the %s header field does not record the envelope recipient address')
         self.envrecipnum = 0
         try:
             self.envrecipnum = int(self.conf['envelope_recipient'].split(':', 1)[1]) - 1
@@ -651,6 +663,8 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         self.log.trace()
         IMAPRetrieverBase.initialize(self)
         self.envrecipname = self.conf['envelope_recipient'].split(':')[0].lower()
+        if self.envrecipname in NOT_ENVELOPE_RECIPIENT_HEADERS:
+            raise getmailConfigurationError('the %s header field does not record the envelope recipient address')
         self.envrecipnum = 0
         try:
             self.envrecipnum = int(self.conf['envelope_recipient'].split(':', 1)[1]) - 1

@@ -75,7 +75,17 @@ setup(
 	'getmail_mbox'
     ],
     data_files=[
-        (GETMAILDOCDIR, ['./README', 'docs/BUGS', 'docs/COPYING', 'docs/CHANGELOG', 'docs/documentation.txt', 'docs/getmailrc-example', 'docs/TODO']),
+        (GETMAILDOCDIR, [
+            './README',
+            'docs/BUGS',
+            'docs/documentation.html',
+            'docs/COPYING',
+            'docs/CHANGELOG',
+            'docs/documentation.txt',
+            'docs/getmaildocs.css',
+            'docs/getmailrc-example',
+            'docs/TODO'
+        ]),
         #('/etc/', [])
     ],
 )
