@@ -1,6 +1,12 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.1.2
+3 April 2003
+
+  -address_no_brackets couldn't handle empty strings.  Fixed; thanks to
+  Fredrik Steen for the report.
+
 Version 3.1.1
 14 March 2003
 

@@ -197,6 +197,7 @@ def deliver_maildir (maildirpath, msg, hostname, deliverycount=None):
 #######################################
 def address_no_brackets (address):
     address = string.strip (address)
+    if not address:  return ''
     if address[0] == '<' and address[-1] == '>':
         return address[1:-1]
     return address
