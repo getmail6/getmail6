@@ -1,6 +1,20 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.2
+18 March 2002
+
+  -some versions of Python were choking on a call to time.localtime().  Added
+  a workaround to getmail for this.  Thanks to Fredrik Steen (who maintains
+  the Debian package of getmail) for reporting this.
+  -fix bug where "verbose = 0" was not handled the same as supplying
+  "--quiet" on the commandline.  Note to <chain@akw.pl>:  I tried several
+  times to reply to you about this, but all messages bounced.  Fix your
+  MTA, MUA, or DNS.
+  -change parsing of Received: headers to only look at "for <address>" clauses.
+  This will eliminate the problem of finding message IDs and thinking they
+  might be recipient addresses.
+
 Version 2.3.1
 16 March 2002
 

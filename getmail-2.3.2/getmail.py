@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.1'
+__version__ = '2.3.2'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -185,7 +185,7 @@ line_end = {
 
 res = {
     # Simple re to determine if a string might be an email address
-    'mailaddr' : re.compile ('.+@.+\..+'),
+    'mailaddr' : re.compile ('.+?@.+?\..+'),
     # Regular expression object to escape "From ", ">From ", ">>From ", ...
     # with ">From ", ">>From ", ... in mbox deliveries.  This is for mboxrd format
     # mboxes.
@@ -194,6 +194,9 @@ res = {
     'eol' : re.compile (r'\r?\n\s*', re.MULTILINE),
     # Regular expression to do POP3 leading-dot unescapes
     'leadingdot' : re.compile (r'^\.\.', re.MULTILINE),
+    # Regular expression to extract addresses from 'for' clauses in 
+    # Received: header fields
+    'received_for' : re.compile (r'\s+for\s+<(?P<addr>.*?(?=>))', re.IGNORECASE),
 }
 
 # For trace output
@@ -237,7 +240,7 @@ def timestamp ():
 #######################################
 def mbox_timestamp ():
     '''Return the current time in the format expected in an mbox From_ line.'''
-    return time.asctime (time.gmtime (time.time ()))
+    return time.asctime (time.gmtime (int (time.time ())))
 
 #######################################
 def format_header (name, line):
@@ -451,7 +454,7 @@ class getmail:
             return
         self.logfile.write ('%s %s\n'
             % (time.strftime ('%d %b %Y %H:%M:%S',
-                              time.localtime (time.time ())),
+                              time.localtime (int (time.time ()))),
             msg % self.conf))
         self.logfile.flush ()
 
@@ -583,53 +586,61 @@ class getmail:
         if type (self.conf['recipient_header']) != type ([]):
             self.conf['recipient_header'] = [self.conf['recipient_header']]
         for header_type in self.conf['recipient_header']:
+            if not mess822.has_key (header_type):
+                continue
             self.logfunc (TRACE, 'parsing header "%s"\n' % header_type)
             # Handle Received: headers specially
             if string.lower (header_type) == 'received':
-                # Construct list of strings, one Received: header per string
-                raw_received = mess822.getallmatchingheaders ('received')
-                received = []
-                current_line = ''
-                for line in raw_received:
-                    if line[0] not in string.whitespace:
-                        if string.strip (current_line):
-                            received.append (current_line)
-                        current_line = line
-                    else:
-                        current_line = current_line + ' ' + string.strip (line)
-                if string.strip (current_line):
-                    received.append (current_line)
-
-                # Process each reconstructed Received: header
-                for line in received:
-                    recips = getmailAddressList (line).addresslist
-                    for (name, address) in recips:
-                        if address and res['mailaddr'].search (address):
-                            # Looks like an email address, keep it
-                            recipients[string.lower (address)] = None
-                            self.logfunc (TRACE, 'found address "%s"\n'
-                                % address)
-
-            elif mess822.has_key (header_type):
-                if string.lower (header_type) in envelope_recipient_headers:
-                    # Handle envelope recipient headers differently; only
-                    # look at first matching header
-                    hdr = mess822.getfirstmatchingheader (header_type)
-                    if not hdr:  continue
-                    recips = rfc822.AddrlistClass(string.join (hdr)).getaddrlist ()
+                recips = extract_recipients_recieved (mess822)
+            elif string.lower (header_type) in envelope_recipient_headers:
+                # Handle envelope recipient headers differently; only
+                # look at first matching header
+                hdr = mess822.getfirstmatchingheader (header_type)
+                if not hdr:  continue
+                recips = rfc822.AddrlistClass(string.join (hdr)).getaddrlist ()
+            else:
+                # Handle all other header fields
+                recips = mess822.getaddrlist (header_type)
+            for (name, address) in recips:
+                if address and res['mailaddr'].search (address):
+                    # Looks like an email address, keep it
+                    recipients[string.lower (address)] = None
+                    self.logfunc (TRACE, 'found address "%s"\n' % address)
                 else:
-                    # Handle all other header fields
-                    recips = mess822.getaddrlist (header_type)
-                for (name, address) in recips:
-                    if address and res['mailaddr'].search (address):
-                        # Looks like an email address, keep it
-                        recipients[string.lower (address)] = None
-                        self.logfunc (TRACE, 'found address "%s"\n'
-                            % address)
-        self.logfunc (TRACE, 'found %i recipients\n'
-            % len (recipients.keys ()))
+                    # Hmmm, bogus
+                    self.logfunc (TRACE, 'not an address: "%s"\n' % address)
+                
+        self.logfunc (TRACE, 'found %i recipients\n' % len (recipients.keys ()))
 
         return recipients.keys ()
+
+    ###################################
+    def extract_recipients_received (self, mess822):
+        # Handle Received: headers specially
+        recipients = []
+        # Construct list of strings, one Received: header per string
+        raw_received = mess822.getallmatchingheaders ('received')
+        received = []
+        current_line = ''
+        for line in raw_received:
+            if line[0] not in string.whitespace:
+                if string.strip (current_line):
+                    received.append (current_line)
+                current_line = line
+            else:
+                current_line = current_line + ' ' + string.strip (line)
+        if string.strip (current_line):
+            received.append (current_line)
+
+        # Process each reconstructed Received: header
+        for line in received:
+            self.logfunc (TRACE, 'checking header "%s"\n' % line)
+            _match = res['received_for'].search (line)
+            if not _match:
+                continue
+            recipients.append ( (None, _match.groupdict()['addr']) )
+
+        return recipients
 
     ###################################
     def process_msg (self, msg):
@@ -1319,10 +1330,10 @@ def read_configfile (filename, default_config):
                 if key in intoptions:
                     options[key] = conf.getint ('default', key)
                     if key == 'verbose':
-                    	if options[key]:
-                    		options['log_level'] = INFO
-                    	else:
-                    		options['log_level'] = WARN
+                        if options[key]:
+                            options['log_level'] = INFO
+                        else:
+                            options['log_level'] = WARN
                 else:
                     options[key] = conf.get ('default', key)
             except ConfParser.NoOptionError:
@@ -1360,10 +1371,10 @@ def read_configfile (filename, default_config):
             for item in intoptions:
                 account[item] = conf.getint (section, item)
                 if item == 'verbose':
-                	if account[item]:
-                		account['log_level'] = INFO
-                	else:
-                		account['log_level'] = WARN
+                    if account[item]:
+                        account['log_level'] = INFO
+                    else:
+                        account['log_level'] = WARN
 
             # Read string options
             for item in stringoptions:
@@ -1398,7 +1409,7 @@ def read_configfile (filename, default_config):
         log (FATAL, '\nError:  error in getmailrc file (%s)\n' % txt, options)
         sys.exit (exitcodes['ERROR'])
 
-    return configs
+    return options, configs
 
 #######################################
 def parse_options (args):
@@ -1447,8 +1458,8 @@ def parse_options (args):
                     defs)
                 help ()
         elif option == '--version' or option == '-V':
-        	version ()
-        	sys.exit (0)
+            version ()
+            sys.exit (0)
         elif option == '--rcfile' or option == '-r':
             o['rcfilename'] = value
         elif option == '--getmaildir' or option == '-g':
@@ -1507,16 +1518,11 @@ def main ():
         os.path.expanduser (config['rcfilename']))
 
     try:
-        mail_configs = read_configfile (filename, config)
+        config, mail_configs = read_configfile (filename, config)
         for (account, _locals) in mail_configs:
             # Apply commandline overrides to options
             account.update (cmdline_opts)
 
-        if mail_configs is None:
-            log (FATAL, '\nError:  no such getmailrc file (%s)\n' % filename,
-                config)
-            help ()
-    
         if not mail_configs:
             log (FATAL,
                 '\nError:  no POP3 account configurations found in getmailrc file (%s)\n'

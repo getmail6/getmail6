@@ -7,7 +7,7 @@
 About this document
 
    The official location of this document is
-   http://www.qcc.sk.ca/~charlesc/software/getmail-2.0/docs.html. For easy
+   http://www.qcc.ca/~charlesc/software/getmail-2.0/docs.html. For easy
    navigation, all headings in the HTML version of this document are links to
    their parent heading.
 
