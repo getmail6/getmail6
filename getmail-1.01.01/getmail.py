@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.01'
+VERSION = '1.01.01'
 
 #
 # Imports
@@ -551,6 +551,7 @@ def usage ():
     '  -d or --delete             delete mail after retrieving         %s\n'
     '  -l or --dont-delete        leave mail on server                 %s\n'
     '  -v or --verbose            output more information\n'
+	'  -q or --quiet              output less information\n'
     '  -h or --help               this screen\n'
     '  -r or --rcfile <file>      use <file> instead of default .getmailrc\n'
     '  -c or --configdir <dir>    use <dir> as config/data directory,\n'
