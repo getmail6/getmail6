@@ -16,6 +16,14 @@ from email.Generator import Generator
 from exceptions import *
 from utilities import mbox_from_escape, format_header, address_no_brackets
 
+message_attributes = (
+    'sender',
+    'received_by',
+    'received_from',
+    'received_with',
+    'recipient'
+)
+
 #######################################
 class Message(object):
     '''Message class for getmail.  Does sanity-checking on attribute accesses
@@ -39,7 +47,8 @@ class Message(object):
         self.received_with = None
 
         if fromlines:
-            self.__msg = email.message_from_string(os.linesep.join(fromlines), strict=False)
+            self.__msg = email.message_from_string(os.linesep.join(fromlines),
+                strict=False)
         elif fromstring:
             self.__msg = email.message_from_string(fromstring, strict=False)
         elif fromfile:
@@ -48,36 +57,43 @@ class Message(object):
             # Can't happen?
             raise SystemExit('Message() called with wrong arguments')
 
-        self.sender = address_no_brackets(self.__msg['return-path'] or 'unknown')
+        self.sender = address_no_brackets(self.__msg['return-path']
+            or 'unknown')
 
     def content(self):
         return self.__msg
 
     def copyattrs(self, othermsg):
-        for attr in ('sender', 'received_by', 'received_from', 'received_with', 'recipient'):
+        for attr in message_attributes:
             setattr(self, attr, getattr(othermsg, attr))
 
-    def flatten(self, delivered_to, received, mangle_from=False, include_from=False):
+    def flatten(self, delivered_to, received, mangle_from=False,
+            include_from=False):
         '''Return a string with native EOL convention.
 
-        The email module apparently doesn't always use native EOL, so we
-        force it by writing out what we need, letting the generator write out the
-        message, splitting it into lines, and joining them with the platform EOL.
+        The email module apparently doesn't always use native EOL, so we force
+        it by writing out what we need, letting the generator write out the
+        message, splitting it into lines, and joining them with the platform
+        EOL.
         '''
         f = cStringIO.StringIO()
         if include_from:
-            # This needs to be written out first, so we can't rely on the generator
-            f.write('From %s %s' % (mbox_from_escape(self.sender), time.asctime()) + os.linesep)
+            # This needs to be written out first, so we can't rely on the
+            # generator
+            f.write('From %s %s' % (mbox_from_escape(self.sender),
+                time.asctime()) + os.linesep)
         # Write the Return-Path: header
         f.write(format_header('Return-Path', self.sender))
         # Maybe remove previous Return-Path: header fields?
         if delivered_to:
             f.write(format_header('Delivered-To', self.recipient or 'unknown'))
         if received:
-            content = 'from %s by %s with %s' % (self.received_from, self.received_by, self.received_with)
+            content = 'from %s by %s with %s' % (self.received_from,
+                self.received_by, self.received_with)
             if self.recipient is not None:
                 content += ' for <%s>' % self.recipient
-            content += '; ' + time.strftime('%d %b %Y %H:%M:%S -0000', time.gmtime())
+            content += '; ' + time.strftime('%d %b %Y %H:%M:%S -0000',
+                time.gmtime())
             f.write(format_header('Received', content))
         gen = Generator(f, mangle_from, 0)
         # From_ handled above, always tell the generator not to include it
@@ -90,3 +106,6 @@ class Message(object):
 
     def headers(self):
         return self.__msg._headers
+
+    def get_all(self, name, failobj=None):
+        return self.__msg.get_all(name, failobj)

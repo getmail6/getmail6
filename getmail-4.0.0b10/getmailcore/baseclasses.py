@@ -44,7 +44,8 @@ class ConfigurableBase(object):
             if name.lower() == 'password':
                 self.log.trace('setting %s to * (%s)\n' % (name, type(value)))
             else:
-                self.log.trace('setting %s to "%s" (%s)\n' % (name, value, type(value)))
+                self.log.trace('setting %s to "%s" (%s)\n'
+                    % (name, value, type(value)))
             self.conf[name] = value
         self.__confchecked = False
         self.checkconf()
@@ -62,21 +63,26 @@ class ConfigurableBase(object):
                 if 'default' in item:
                     self.conf[name] = item['default']
                 else:
-                    raise getmailConfigurationError('missing required configuration parameter %s' % name)
+                    raise getmailConfigurationError('missing required'
+                        ' configuration parameter %s' % name)
             elif type(self.conf[name]) is not dtype:
                 # Value supplied, but not of expected type.  Try to convert.
                 try:
                     val = self.conf[name]
                     if name.lower() == 'password':
-                        self.log.debug('converting password to type %s\n' % dtype)
+                        self.log.debug('converting password to type %s\n'
+                            % dtype)
                     else:
-                        self.log.debug('converting %s (%s) to type %s\n' % (name, val, dtype))
+                        self.log.debug('converting %s (%s) to type %s\n'
+                            % (name, val, dtype))
                     if dtype == bool:
                         self.conf[name] = eval_bool(val)
                     else:
                         self.conf[name] = dtype(eval(val))
                 except (ValueError, SyntaxError, TypeError), o:
-                    raise getmailConfigurationError('configuration value %s (%s) not of required type %s (%s)' % (name, val, dtype, o))
+                    raise getmailConfigurationError('configuration value'
+                        ' %s (%s) not of required type %s (%s)'
+                        % (name, val, dtype, o))
         self.__confchecked = True
         self.log.trace('done\n')
 
@@ -131,17 +137,22 @@ class ForkingBase(object):
             # Could implement a maximum wait time here
             self.log.trace('waiting for child %d' % childpid)
             time.sleep(1.0)
-            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)' % (self.conf['command'], childpid, o))
+            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)'
+            #   % (self.conf['command'], childpid, o))
         if self.__child_pid != childpid:
             #self.log.error('got child pid %d, not %d' % (pid, childpid))
-            raise getmailOperationError('got child pid %d, not %d' % (self.__child_pid, childpid))
+            raise getmailOperationError('got child pid %d, not %d'
+                % (self.__child_pid, childpid))
 
         if os.WIFSTOPPED(self.__child_status):
-            raise getmailOperationError('child pid %d stopped by signal %d' % (self.__child_pid, os.WSTOPSIG(self.__child_status)))
+            raise getmailOperationError('child pid %d stopped by signal %d'
+                % (self.__child_pid, os.WSTOPSIG(self.__child_status)))
         if os.WIFSIGNALED(self.__child_status):
-            raise getmailOperationError('child pid %d killed by signal %d' % (self.__child_pid, os.WTERMSIG(self.__child_status)))
+            raise getmailOperationError('child pid %d killed by signal %d'
+                % (self.__child_pid, os.WTERMSIG(self.__child_status)))
         if not os.WIFEXITED(self.__child_status):
-            raise getmailOperationError('child pid %d failed to exit' % self.__child_pid)
+            raise getmailOperationError('child pid %d failed to exit'
+                % self.__child_pid)
         exitcode = os.WEXITSTATUS(self.__child_status)
 
         return exitcode

@@ -1,3 +1,20 @@
+Version 4.0.0b10
+21 July 2004
+
+  -documentation updates and cleanups
+  -add MultiGuesser destination; it's like MultiSorter, but guesses at the
+  message recipient based on addresses found in the message header, to be
+  used for mail sorting if you don't have a proper domain/multidrop mailbox.
+  -consolidate initialization code from retrievers to RetrieverSkeleton base
+  class.
+  -slight change to main script and retriever base classes to change the
+  way the retriever objects are destroyed and garbage-collected
+  -get rid of unneeded hostname variable in MultiDestinationBase
+  -add "Summary:" header line to main script output in verbose mode
+  -wrap code for 80 columns
+  -fix error message when a filter doesn't return a message properly.
+  Thanks: Shantanu Kulkarni.
+
 Version 4.0.0b9
 19 July 2004
 

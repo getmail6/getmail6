@@ -44,7 +44,10 @@ About getmail
      * Digital/Compaq Tru64 (a.k.a OSF/1) UNIX
      * SGI Irix
      * other commercial Unices
-     * Digital VMS
+     * Digital VMS / OpenVMS
+     * BeOS
+     * Amiga OS
+     * OS/2
      * MS Windows
      * Cygwin on Windows
      * Macintosh OS X
@@ -54,6 +57,18 @@ About getmail
    real requirement is that Python run on that platform, and porting
    Python is generally very easy.
    
+    Does getmail run on MS Windows?
+    
+   Yes.
+   
+    Does getmail run on Macintosh systems?
+    
+   Yes.
+   
+    Does getmail require Unix/Linux?
+    
+   No.
+   
   How can I get support for getmail?
   
    getmail is Free Software. As such, it comes with no warranty. However,
@@ -62,7 +77,7 @@ About getmail
    
    If you are using getmail in a commercial or other environment where
    problems cost money, consider contacting me privately for commercial
-   support.
+   support, by emailing <getmail-support @ discworld.dyndns.org>
    
    If you have questions about getmail, the first step is to read the
    documentation, and the remainder of the Frequently Asked Questions. If
@@ -160,6 +175,22 @@ About getmail
    mail loops, bounces legitimate messages, and causes many other
    problems.
    
+   When people have pointed out problems in fetchmail's design and
+   implementation, it's maintainer has frequently ignored them, or (worse
+   yet) gone in the completely wrong direction in the name of "fixing"
+   the problems. For instance, fetchmail's configuration file syntax has
+   been criticized as being needlessly difficult to write; instead of
+   cleaning up the syntax, the maintainer instead included a GUI
+   configuration-file-writing program, leading to comments like:
+   
+     The punchline is that fetchmail sucks, even if it does have
+     giddily-engineered whizbang configurator apps.
+     
+   The maintainer also ignored dozens of complaints about fetchmail's
+   behaviour, stating (by fiat) that fetchmail was bug-free and had
+   entered "maintenance mode", allowing him to ignore further bug
+   reports.
+   
    fetchmail's default configuration values frequently cause lost or
    misdirected mail, and seem to be chosen to cause maximum pain and
    inconvenience. From fetchmail's to-do file (emphasis mine):
@@ -235,6 +266,26 @@ Configuring getmail
    arbitrary MDAs, and never injects mail via SMTP, so no MTA is
    necessary.
    
+  What's a maildir?
+  
+   A maildir is a mail storage format invented by D. J. Bernstein (author
+   of qmail) that requires no file locking to deliver to safely and
+   reliably, even over NFS. getmail natively supports delivery to
+   maildirs.
+   
+   See http://qmail.org/man/man5/maildir.html and
+   http://cr.yp.to/proto/maildir.html for details.
+   
+  What's "mboxrd" format?
+  
+   There are various sub-types of the mbox mail storage format. mboxrd is
+   the most reliable of them, though (like all mbox types) it still
+   relies of file locking and is therefore more easily corrupted than
+   maildir format.
+   
+   For details on the differences between the various mbox sub-types, see
+   http://qmail.org/man/man5/mbox.html.
+   
 How do I ...
 
   How do I stop getmail adding a Delivered-To: header to messages?
@@ -272,7 +323,7 @@ Using getmail with other software
    getmail user Frankye Fattarelli contributed to the following questions
    about integrating getmail with SpamAssassin and ClamAV.
    
-  How do I use getmail with spamassassin?
+  How do I use SpamAssassin with getmail?
   
    SpamAssassin can be run in standalone mode or in a client/server
    configuration. In both configurations, SpamAssassin accepts a wide
@@ -308,7 +359,7 @@ arguments = ("--report", )
    SpamAssassin configuration:
 bayes_ignore_header X-getmail-filter-classifier
 
-  How do I use getmail with ClamAV?
+  How do I use ClamAV with getmail?
   
    ClamAV, like SpamAssassin, can by used in standalone or client/server
    configurations.
@@ -389,3 +440,48 @@ arguments = ("-R", "X-getmail-filter-classifier:",
    Simply ensure ClamAV is invoked as the first filter, and this is
    invoked as the second filter (or immediately after the ClamAV filter,
    if it is the second, third, etc. filter).
+   
+  How do I use procmail with getmail?
+  
+   Simply invoke procmail as an external MDA. procmail requires that the
+   message begin with a Unix "From " line (the mbox message delimiter),
+   so you'll need to either set the MDA_external parameter unixfrom to
+   True, or supply arguments that tell procmail to recreate this line.
+   One of the following would be fine:
+[destination]
+type = MDA_external
+path = /path/to/procmail
+arguments = ("-f", "%(sender)")
+
+   Or:
+[destination]
+type = MDA_external
+path = /path/to/procmail
+unixfrom = True
+
+  How do I use maildrop with getmail?
+  
+   Simply invoke maildrop as an external MDA. maildrop requires that the
+   message begin with a Unix "From " line (the mbox message delimiter),
+   so you'll need to either set the MDA_external parameter unixfrom to
+   True, or supply arguments that tell maildrop to recreate this line.
+   One of the following would be fine:
+[destination]
+type = MDA_external
+path = /path/to/maildrop
+arguments = ("-f", "%(sender)")
+
+   Or:
+[destination]
+type = MDA_external
+path = /path/to/maildrop
+unixfrom = True
+
+  How do I use TMDA with getmail?
+  
+   Simply use the Filter_TMDA module as a message filter:
+[filter-X]
+type = Filter_TMDA
+
+   See the documentation for details on optional parameters to the
+   Filter_TMDA module.

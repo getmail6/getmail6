@@ -3,15 +3,9 @@ support for POP3, IMAP4, SSL variants of both, maildirs, mboxrd files,
 external MDAs, arbitrary message filtering, single-user and domain-mailboxes,
 and many other useful features.
 
-getmail is Copyright (C) 1998-2004 Charles Cazabon.
-See docs/COPYING for copyright and distribution information.  In short:
-getmail is licensed under the GNU GPL version 2 (only).
-
-See the HTML documentation for details on setting up and using getmail.
-It is included in the docs subdirectory of the distribution tarball, and will
-be installed in /usr/local/doc/getmail-<version>/ (by default).
-
-See docs/BUGS for instructions on reporting bugs in this software.
+getmail is Copyright (C) 1998-2004 Charles Cazabon.  
+getmail is licensed for use under the GNU General Public License version 2
+(only).  See docs/COPYING for specific terms and distribution information.
 
 getmail version 4 requires Python version 2.3.3 or later.  You can have
 several installed versions of Python peacefully co-existing, see
@@ -45,3 +39,9 @@ getmail_mbox) will have their "#!"-interpreter line automatically modified
 to invoke the Python interpreter you run the setup script with.  If you later
 remove this version of Python, and the newer version does not provide a link
 to the interpreter with that name, you may have to modify the scripts.
+
+See the HTML documentation for details on setting up and using getmail.
+It is included in the docs subdirectory of the distribution tarball, and will
+be installed in <PREFIX>/doc/getmail-<version>/ (by default).
+
+See docs/BUGS for instructions on reporting bugs in this software.

@@ -6,8 +6,8 @@ None.
 Reporting bugs
 --------------
 
-IMPORTANT:  Please include the output of `getmail [options] --dump` with any
-bug report.
+IMPORTANT:  Please include the output of `getmail [options] --dump` and a copy 
+of your getmail rc file(s) (with password masked) with any bug report.
 
 If you find a bug in getmail, please either join the getmail users' mailing
 list and report it there (preferred), or send it to me at 

@@ -201,3 +201,34 @@ destinations = (
     "~jeff/Maildir/",
     "/var/log/mail-archive/current",
     )
+
+#
+# Example 11:  retrieve mail from a simple (non-multidrop) POP3 mailbox.
+# Then extract addresses from the message header (see documentation for which
+# fields are examined), and deliver mail containing the address
+# <list1@domain.example.net> to ~/Mail/lists/list1/, mail containing the
+# address <list2@otherdomain.example.com> to ~/Mail/lists/list2/,
+# mail containing the address <othername@example.org> to ~/Mail/other/,
+# and all other mail gets delivered through the external MDA program
+# "my-mda" with some default arguments.
+#
+
+[retriever]
+type = SimplePOP3Retriever
+server = pop.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = MultiGuesser
+default = [my-mda]
+locals = (
+    ("list1@domain.example.net",        "~/Mail/lists/list1/"),
+    ("list2@otherdomain.example.com",   "~/Mail/lists/list2/"),
+    ("othername@example.org",           "~/Mail/other/"),
+    )
+
+[my-mda]
+type = MDA_external
+path = /path/to/my-mda
+arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")

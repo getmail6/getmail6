@@ -2,9 +2,9 @@
 '''Logging support for getmail.
 
 The new standard Python libary module logging didn't cut it for me; it doesn't
-seem capable of handling some very simple requirements like logging messages
-of a certain level to one fd, and other messages of higher levels to a different
-fd (i.e. info to stdout, warnings to stderr).
+seem capable of handling some very simple requirements like logging messages of
+a certain level to one fd, and other messages of higher levels to a different fd
+(i.e. info to stdout, warnings to stderr).
 '''
 
 __all__ = [
@@ -36,9 +36,11 @@ class __Logger(object):
         Logged messages of at least level <minlevel> (and at most level
         <maxlevel>, default CRITICAL) will be output to <stream>.
 
-        If no handlers are specified, messages of all levels will be output to stdout.
+        If no handlers are specified, messages of all levels will be output to
+        stdout.
         '''
-        self.handlers.append({'minlevel' : minlevel, 'stream' : stream, 'newline' : True, 'maxlevel' : maxlevel})
+        self.handlers.append({'minlevel' : minlevel, 'stream' : stream,
+            'newline' : True, 'maxlevel' : maxlevel})
 
     def clearhandlers(self):
         '''Clear the list of handlers.
@@ -74,8 +76,8 @@ class __Logger(object):
     def trace(self, msg='trace\n'):
         '''Log a message with level TRACE.
 
-        The message will be prefixed with filename, line number, and function name
-        of the calling code.
+        The message will be prefixed with filename, line number, and function
+        name of the calling code.
         '''
         trace = traceback.extract_stack()[-2]
         msg = '%s [%s:%i] %s' % (trace[FUNCNAME] + '()',

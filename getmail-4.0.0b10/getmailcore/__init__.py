@@ -9,9 +9,10 @@ filtering, and other features.
 
 import sys
 if sys.hexversion < 0x2030300:
-    raise ImportError('getmail version 4 requires Python version 2.3.3 or later')
+    raise ImportError('getmail version 4 requires Python version 2.3.3'
+        ' or later')
 
-__version__ = '4.0.0b9'
+__version__ = '4.0.0b10'
 
 __all__ = [
     'baseclasses',

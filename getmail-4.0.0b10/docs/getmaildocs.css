@@ -7,6 +7,15 @@ p.introduction { padding: 2em; color: black; background-color: #f0f0f0; }
 pre.example {
 	display : block;
 	margin: 1em;
+	padding: 0 1em 1em 1em;
+	font-family: monospace;
+	white-space: pre;
+	color: black;
+	background-color: #f0f0f0; 
+}
+li pre.example {
+	display : block;
+	margin: 1em;
 	padding: 1em;
 	font-family: monospace;
 	white-space: pre;
@@ -21,7 +30,3 @@ pre.example {
 .errmsg { font-family: monospace; font-size: 150%; }
 
 hr.divider { margin-top: 5em; }
-/* h1 { font-size: 150%; } */
-/* h2 { font-size: 120%; color: #0070a0; background-color: transparent; } */
-/* .reference { display: block; padding: 1em 0; font-size: 80%; font-style: italic; } */
-

@@ -70,6 +70,13 @@
             <ul>
             <li><a href="faq.html#faq-about-what">What is getmail?</a></li>
             <li><a href="faq.html#faq-about-platforms">What platforms/machines does getmail run on?</a></li>
+            <li>
+                <ul>
+                <li><a href="faq.html#faq-about-platforms-windows">Does getmail run on MS Windows?</a></li>
+                <li><a href="faq.html#faq-about-platforms-mac">Does getmail run on Macintosh systems?</a></li>
+                <li><a href="faq.html#faq-about-platforms-unix">Does getmail require Unix/Linux?</a></li>
+                </ul>
+            </li>
             <li><a href="faq.html#faq-about-support">How can I get support for getmail?</a></li>
             <li><a href="faq.html#faq-about-bug">I think I found a bug!  How do I report it?</a></li>
             <li><a href="faq.html#faq-about-virus">Does getmail support virus scanning of retrieved messages?</a></li>
@@ -85,6 +92,8 @@
             <ul>
             <li><a href="faq.html#faq-configuring-domain-mailbox">What is a &quot;domain mailbox&quot;?</a></li>
             <li><a href="faq.html#faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</a></li>
+            <li><a href="faq.html#faq-configuring-maildir">What's a maildir?</a></li>
+            <li><a href="faq.html#faq-configuring-mboxrd">What's &quot;mboxrd&quot; format?</a></li>
             </ul>
         </li>
         <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
@@ -100,13 +109,16 @@
         <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
         <li>
             <ul>
-            <li><a href="faq.html#faq-integrating-spamassassin">How do I use getmail with spamassassin?</a></li>
-            <li><a href="faq.html#faq-integrating-clamav">How do I use getmail with ClamAV?</a></li>
+            <li><a href="faq.html#faq-integrating-spamassassin">How do I use SpamAssassin with getmail?</a></li>
+            <li><a href="faq.html#faq-integrating-clamav">How do I use ClamAV with getmail?</a></li>
             <li>
                 <ul>
                 <li><a href="faq.html#faq-integrating-clamav-prettier">Getting prettier output from ClamAV</a></li>
                 </ul>
             </li>
+            <li><a href="faq.html#faq-integrating-procmail">How do I use procmail with getmail?</a></li>
+            <li><a href="faq.html#faq-integrating-maildrop">How do I use maildrop with getmail?</a></li>
+            <li><a href="faq.html#faq-integrating-tmda">How do I use TMDA with getmail?</a></li>
             </ul>
         </li>
         </ul>
@@ -155,7 +167,10 @@
 	<li>Digital/Compaq Tru64 (a.k.a OSF/1) UNIX</li>
 	<li>SGI Irix</li>
 	<li>other commercial Unices</li>
-	<li>Digital VMS</li>
+	<li>Digital VMS / OpenVMS</li>
+	<li>BeOS</li>
+	<li>Amiga OS</li>
+	<li>OS/2</li>
 	<li>MS Windows</li>
 	<li>Cygwin on Windows</li>
 	<li>Macintosh OS X</li>
@@ -165,6 +180,21 @@
 	But getmail will also run on other, less common platforms.  The only real
 	requirement is that Python run on that platform, and porting Python is
 	generally very easy.
+</p>
+
+<h4 id="faq-about-platforms-windows">Does getmail run on MS Windows?</h4>
+<p>
+	<a href="#faq-about-platforms">Yes.</a>
+</p>
+
+<h4 id="faq-about-platforms-mac">Does getmail run on Macintosh systems?</h4>
+<p>
+	<a href="#faq-about-platforms">Yes.</a>
+</p>
+
+<h4 id="faq-about-platforms-unix">Does getmail require Unix/Linux?</h4>
+<p>
+	<a href="#faq-about-platforms">No.</a>
 </p>
 
 <h3 id="faq-about-support">How can I get support for getmail?</h3>
@@ -177,7 +207,8 @@
 </p>
 <p>
 	If you are using getmail in a commercial or other environment where problems
-	cost money, consider contacting me privately for commercial support.
+	cost money, consider contacting me privately for commercial support, by
+	emailing &lt;getmail-support @ discworld.dyndns.org&gt;
 </p>
 <p>
 	If you have questions about getmail, the first step is to read the
@@ -332,6 +363,28 @@
 	messages, and causes many other problems.
 </p>
 <p>
+	When people have pointed out problems in fetchmail's design and 
+	implementation, it's maintainer has frequently ignored them, or (worse yet) 
+	gone in the completely wrong direction in the name of &quot;fixing&quot; the 
+	problems.  For instance, fetchmail's configuration file syntax has been
+	criticized as being needlessly difficult to write; instead of cleaning up
+	the syntax, the maintainer instead included a GUI configuration-file-writing
+	program, leading to 
+	<a href="http://www.crackmonkey.org/pipermail/crackmonkey/2003q3/037098.html">comments</a>
+	like:
+</p>
+<blockquote cite="http://www.crackmonkey.org/pipermail/crackmonkey/2003q3/037098.html"> 
+	<p>
+		The punchline is that fetchmail sucks, even if it does have 
+		giddily-engineered whizbang configurator apps.
+	</p>
+</blockquote>
+<p>
+	The maintainer also ignored dozens of complaints about fetchmail's 
+	behaviour, stating (by fiat) that fetchmail was bug-free and had entered 
+	&quot;maintenance mode&quot;, allowing him to ignore further bug reports.
+</p>
+<p>
 	fetchmail's default configuration values frequently cause lost or
 	misdirected mail, and seem to be chosen to cause maximum pain and
 	inconvenience.  From fetchmail's to-do file (emphasis mine):
@@ -471,6 +524,31 @@
 	MDAs, and never injects mail via SMTP, so no MTA is necessary.
 </p>
 
+<h3 id="faq-configuring-maildir">What's a maildir?</h3>
+<p>
+	A maildir is a mail storage format invented by D. J. Bernstein (author of 
+	qmail) that requires no file locking to deliver to safely and reliably, even 
+	over NFS.  getmail natively supports delivery to maildirs.
+</p>
+<p>
+	See
+	<a href="http://qmail.org/man/man5/maildir.html">http://qmail.org/man/man5/maildir.html</a>
+	and
+	<a href="http://cr.yp.to/proto/maildir.html">http://cr.yp.to/proto/maildir.html</a>
+	for details.
+</p>
+
+<h3 id="faq-configuring-mboxrd">What's &quot;mboxrd&quot; format?</h3>
+<p>
+	There are various sub-types of the mbox mail storage format.  mboxrd is
+	the most reliable of them, though (like all mbox types) it still relies
+	of file locking and is therefore more easily corrupted than maildir format.
+</p>
+<p>
+	For details on the differences between the various mbox sub-types, see
+	<a href="http://qmail.org/man/man5/mbox.html">http://qmail.org/man/man5/mbox.html</a>.
+</p>
+
 <h2 id="faq-how">How do I &hellip;</h2>
 
 <h3 id="faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</h3>
@@ -522,7 +600,7 @@
     about integrating getmail with SpamAssassin and ClamAV.
 </p>
 
-<h3 id="faq-integrating-spamassassin">How do I use getmail with spamassassin?</h3>
+<h3 id="faq-integrating-spamassassin">How do I use SpamAssassin with getmail?</h3>
 <p>
     <a href="http://useast.spamassassin.org/index.html">SpamAssassin</a>
     can be run in standalone mode or in a client/server configuration.
@@ -582,7 +660,7 @@ arguments = (&quot;--report&quot;, )
 bayes_ignore_header X-getmail-filter-classifier
 </pre>
 
-<h3 id="faq-integrating-clamav">How do I use getmail with ClamAV?</h3>
+<h3 id="faq-integrating-clamav">How do I use ClamAV with getmail?</h3>
 <p>
     <a href="http://www.clamav.net/">ClamAV</a>,
     like SpamAssassin, can by used in standalone or client/server
@@ -698,6 +776,71 @@ arguments = (&quot;-R&quot;, &quot;X-getmail-filter-classifier:&quot;,
     Simply ensure ClamAV is invoked as the first filter, and this is invoked
     as the second filter (or immediately after the ClamAV filter, if it is
     the second, third, etc. filter).
+</p>
+
+<h3 id="faq-integrating-procmail">How do I use procmail with getmail?</h3>
+<p>
+    Simply invoke procmail as an 
+    <a href="configuration.html#destination-mdaexternal">external MDA</a>.  
+    procmail requires that the message begin with a Unix &quot;From &quot; line 
+    (the mbox message delimiter), so you'll need to either set the MDA_external 
+    parameter unixfrom to True, or supply arguments that tell procmail to 
+    recreate this line. One of the following would be fine:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/procmail
+arguments = (&quot;-f&quot;, &quot;%(sender)&quot;)
+</pre>
+<p>
+	Or:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/procmail
+unixfrom = True
+</pre>
+
+<h3 id="faq-integrating-maildrop">How do I use maildrop with getmail?</h3>
+<p>
+    Simply invoke maildrop as an 
+    <a href="configuration.html#destination-mdaexternal">external MDA</a>.  
+    maildrop requires that the message begin with a Unix &quot;From &quot; line 
+    (the mbox message delimiter), so you'll need to either set the MDA_external 
+    parameter unixfrom to True, or supply arguments that tell maildrop to 
+    recreate this line. One of the following would be fine:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/maildrop
+arguments = (&quot;-f&quot;, &quot;%(sender)&quot;)
+</pre>
+<p>
+	Or:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/maildrop
+unixfrom = True
+</pre>
+
+<h3 id="faq-integrating-tmda">How do I use TMDA with getmail?</h3>
+<p>
+    Simply use the 
+    <a href="configuration.html#conf-filters-tmda">Filter_TMDA</a>
+    module as a message filter:
+</p>
+<pre class="example">
+[filter-X]
+type = Filter_TMDA
+</pre>
+<p>
+	See the documentation for details on optional parameters to the Filter_TMDA 
+	module.
 </p>
 
 <!--#include virtual="footer.html"-->

@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.3
-'''Classes implementing retrievers (message sources getmail can retrieve mail from).
+'''Classes implementing retrievers (message sources getmail can retrieve mail
+from).
 
 Currently implemented:
 
@@ -60,10 +61,6 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
     received_with = 'POP3'
     received_by = socket.getfqdn()
 
-    def __init__(self, **args):
-        POP3RetrieverBase.__init__(self, **args)
-        self.received_from = '%s (%s)' % (self.conf['server'], socket.getaddrinfo(self.conf['server'], None)[0][4][0])
-
     def __str__(self):
         self.log.trace()
         return 'SimplePOP3Retriever:%s@%s:%s' % (
@@ -96,10 +93,6 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
     received_with = 'POP3-SSL'
     received_by = socket.getfqdn()
 
-    def __init__(self, **args):
-        POP3RetrieverBase.__init__(self, **args)
-        self.received_from = '%s (%s)' % (self.conf['server'], socket.getaddrinfo(self.conf['server'], None)[0][4][0])
-
     def __str__(self):
         self.log.trace()
         return 'SimplePOP3SSLRetriever:%s@%s:%s' % (
@@ -130,10 +123,6 @@ class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
     received_from = None
     received_with = 'POP3'
     received_by = socket.getfqdn()
-
-    def __init__(self, **args):
-        MultidropPOP3RetrieverBase.__init__(self, **args)
-        self.received_from = '%s (%s)' % (self.conf['server'], socket.getaddrinfo(self.conf['server'], None)[0][4][0])
 
     def __str__(self):
         self.log.trace()
@@ -168,10 +157,6 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
     received_with = 'POP3-SSL'
     received_by = socket.getfqdn()
 
-    def __init__(self, **args):
-        MultidropPOP3RetrieverBase.__init__(self, **args)
-        self.received_from = '%s (%s)' % (self.conf['server'], socket.getaddrinfo(self.conf['server'], None)[0][4][0])
-
     def __str__(self):
         self.log.trace()
         return 'MultidropPOP3SSLRetriever:%s@%s:%s' % (
@@ -188,9 +173,9 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
 class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
     '''Retriever class for multi-drop SPDS (demon.co.uk) mailboxes.
 
-    Extend POP3 class to include support for Demon's protocol extensions,
-    known as SPDS.  A non-standard command (*ENV) is used to retrieve the
-    message envelope.  See http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml
+    Extend POP3 class to include support for Demon's protocol extensions, known
+    as SPDS.  A non-standard command (*ENV) is used to retrieve the message
+    envelope.  See http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml
     for details.
 
     Support originally requested by Paul Clifford for getmail v.2/3.
@@ -210,10 +195,6 @@ class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
     received_from = None
     received_with = 'SPDS'
     received_by = socket.getfqdn()
-
-    def __init__(self, **args):
-        SimplePOP3Retriever.__init__(self, **args)
-        self.received_from = '%s (%s)' % (self.conf['server'], socket.getaddrinfo(self.conf['server'], None)[0][4][0])
 
     def __str__(self):
         self.log.trace()
@@ -236,7 +217,8 @@ class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
             msgnum = self._getmsgnumbyid(msgid)
             resp, lines, octets = self.conn._longcmd('*ENV %i' % msgnum)
         except poplib.error_proto, o:
-            raise getmailConfigurationError('server does not support *ENV (%s)' % o)
+            raise getmailConfigurationError('server does not support *ENV (%s)'
+                % o)
         if len(lines) < 4:
             raise getmailOperationError('short *ENV response (%s)' % lines)
         msg.sender = lines[2]
@@ -259,17 +241,13 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
         {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
         {'name' : 'move_on_delete', 'type' : str, 'default' : None},
 
-        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
-        # so we can't do this yet.
+        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
+        # .authenticate(), so we can't do this yet.
         {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
     )
     received_from = None
     received_with = 'IMAP4'
     received_by = socket.getfqdn()
-
-    def __init__(self, **args):
-        IMAPRetrieverBase.__init__(self, **args)
-        self.received_from = '%s (%s)' % (self.conf['server'], socket.getaddrinfo(self.conf['server'], None)[0][4][0])
 
     def __str__(self):
         self.log.trace()
@@ -303,17 +281,13 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
         {'name' : 'keyfile', 'type' : str, 'default' : None},
         {'name' : 'certfile', 'type' : str, 'default' : None},
 
-        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
-        # so we can't do this yet.
+        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
+        # .authenticate(), so we can't do this yet.
         {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
     )
     received_from = None
     received_with = 'IMAP4-SSL'
     received_by = socket.getfqdn()
-
-    def __init__(self, **args):
-        IMAPRetrieverBase.__init__(self, **args)
-        self.received_from = '%s (%s)' % (self.conf['server'], socket.getaddrinfo(self.conf['server'], None)[0][4][0])
 
     def __str__(self):
         self.log.trace()
@@ -343,8 +317,8 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
         {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
         {'name' : 'move_on_delete', 'type' : str, 'default' : None},
 
-        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
-        # so we can't do this yet.
+        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
+        # .authenticate(), so we can't do this yet.
         {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
 
         {'name' : 'envelope_recipient', 'type' : str},
@@ -352,10 +326,6 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
     received_from = None
     received_with = 'IMAP4'
     received_by = socket.getfqdn()
-
-    def __init__(self, **args):
-        MultidropIMAPRetrieverBase.__init__(self, **args)
-        self.received_from = '%s (%s)' % (self.conf['server'], socket.getaddrinfo(self.conf['server'], None)[0][4][0])
 
     def __str__(self):
         self.log.trace()
@@ -389,8 +359,8 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
         {'name' : 'keyfile', 'type' : str, 'default' : None},
         {'name' : 'certfile', 'type' : str, 'default' : None},
 
-        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
-        # so we can't do this yet.
+        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
+        # .authenticate(), so we can't do this yet.
         {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
 
         {'name' : 'envelope_recipient', 'type' : str},
@@ -398,10 +368,6 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
     received_from = None
     received_with = 'IMAP4-SSL'
     received_by = socket.getfqdn()
-
-    def __init__(self, **args):
-        MultidropIMAPRetrieverBase.__init__(self, **args)
-        self.received_from = '%s (%s)' % (self.conf['server'], socket.getaddrinfo(self.conf['server'], None)[0][4][0])
 
     def __str__(self):
         self.log.trace()

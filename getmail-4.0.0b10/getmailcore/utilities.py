@@ -48,10 +48,10 @@ _bool_values = {
 class updatefile(object):
     '''A class for atomically updating files.
 
-    A new, temporary file is created when this class is instantiated.
-    When the object's close() method is called, the file is synced to disk
-    and atomically renamed to replace the original file.  close() is automatically
-    called when the object is deleted.
+    A new, temporary file is created when this class is instantiated. When the
+    object's close() method is called, the file is synced to disk and atomically
+    renamed to replace the original file.  close() is automatically called when
+    the object is deleted.
     '''
     def __init__(self, filename):
         self.closed = False
@@ -106,7 +106,8 @@ class logfile(object):
             lock_file(self.file)
             # Seek to end
             self.file.seek(0, 2)
-            self.file.write(time.strftime(logtimeformat, time.localtime()) + ' ' + s + os.linesep)
+            self.file.write(time.strftime(logtimeformat, time.localtime())
+                + ' ' + s + os.linesep)
             self.file.flush()
         finally:
             unlock_file(self.file)
@@ -163,7 +164,8 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
 
     info = {
         'deliverycount' : dcount,
-        'hostname' : hostname.split('.')[0].replace('/', '\\057').replace(':', '\\072'),
+        'hostname' : hostname.split('.')[0].replace('/', '\\057').replace(
+            ':', '\\072'),
         'pid' : os.getpid(),
     }
     dir_tmp = os.path.join(maildirpath, 'tmp')
@@ -177,7 +179,8 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
         if info['deliverycount'] is not None:
             info['unique'] += 'Q%(deliverycount)s' % info
         try:
-            info['unique'] += 'R%s' % ''.join(['%02x' % ord(char) for char in open('/dev/urandom', 'rb').read(8)])
+            info['unique'] += 'R%s' % ''.join(['%02x' % ord(char)
+                for char in open('/dev/urandom', 'rb').read(8)])
         except StandardError:
             pass
 
@@ -241,7 +244,8 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
             os.unlink(fname_tmp)
         except:
             pass
-        raise getmailDeliveryError('failure renaming "%s" to "%s"' % (fname_tmp, fname_new))
+        raise getmailDeliveryError('failure renaming "%s" to "%s"'
+            % (fname_tmp, fname_new))
 
     # Delivery done
 
@@ -278,11 +282,14 @@ def eval_bool(s):
     try:
         return _bool_values[str(s).lower()]
     except KeyError:
-        raise getmailConfigurationError('boolean parameter requires value to be one of true or false, not "%s"' % s)
+        raise getmailConfigurationError('boolean parameter requires value'
+            ' to be one of true or false, not "%s"' % s)
 
 #######################################
 def change_uidgid(logger, user=None, _group=None):
-    '''Change the current effective GID and UID to those specified by user and _group.
+    '''
+    Change the current effective GID and UID to those specified by user and
+    _group.
     '''
     try:
         if _group:
@@ -290,7 +297,8 @@ def change_uidgid(logger, user=None, _group=None):
             try:
                 run_gid = grp.getgrnam(_group).gr_gid
             except KeyError, o:
-                raise getmailConfigurationError('no such specified group (%s)' % o)
+                raise getmailConfigurationError('no such specified group (%s)'
+                    % o)
             if os.getegid() != run_gid:
                 logger.debug('Setting egid to %d\n' % run_gid)
                 os.setegid(run_gid)
@@ -299,19 +307,22 @@ def change_uidgid(logger, user=None, _group=None):
             try:
                 run_uid = pwd.getpwnam(user).pw_uid
             except KeyError, o:
-                raise getmailConfigurationError('no such specified user (%s)' % o)
+                raise getmailConfigurationError('no such specified user (%s)'
+                    % o)
             if os.geteuid() != run_uid:
                 logger.debug('Setting euid to %d\n' % run_uid)
                 os.seteuid(run_uid)
     except OSError, o:
-        raise getmailDeliveryError('change UID/GID to %s/%s failed (%s)' % (user, _group, o))
+        raise getmailDeliveryError('change UID/GID to %s/%s failed (%s)'
+            % (user, _group, o))
 
 #######################################
 def format_header(name, line):
     '''Take a long line and return rfc822-style multiline header.
     '''
     header = ''
-    line = name.strip() + ': ' + ' '.join([part.strip() for part in line.splitlines()])
+    line = (name.strip() + ': '
+        + ' '.join([part.strip() for part in line.splitlines()]))
     # Split into lines of maximum 78 characters long plus newline, if
     # possible.  A long line may result if no space characters are present.
     while line and len(line) > 78:
