@@ -1,6 +1,13 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.1.6
+28 May 2003
+
+  -Argh; my change to getmail_mbox was incomplete -- not only would getmail
+  not put duplicate From_ lines in, it would escape the single one that it
+  did.  This fixes it, so don't bother filing a bug report about this one.
+
 Version 3.1.5
 28 May 2003
 

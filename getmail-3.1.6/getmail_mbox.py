@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -88,6 +88,10 @@ def deliver_mbox (mbox, msg, env_sender, quiet=0):
         # Add mboxrd-style 'From_' line if not already present
         if msg[:5] != 'From ':
             f.write ('From %s %s\n' % (env_sender, mbox_timestamp ()))
+        else:
+            first_line, remainder = string.split (msg, '\n', 1)
+            f.write ('%s\n' % first_line)
+            msg = remainder
         # Replace lines beginning with "From ", ">From ", ">>From ", ...
         # with ">From ", ">>From ", ">>>From ", ...
         msg = res['escapefrom'].sub ('>\g<gts>From ', msg)
