@@ -280,12 +280,48 @@ Configuring getmail
   
    There are various sub-types of the mbox mail storage format. mboxrd is
    the most reliable of them, though (like all mbox types) it still
-   relies of file locking and is therefore more easily corrupted than
-   maildir format.
+   relies on file locking and is therefore more easily corrupted than
+   maildir format. In particular, using mbox files with multiple writers
+   over NFS can be problematic.
    
    For details on the differences between the various mbox sub-types, see
    http://qmail.org/man/man5/mbox.html.
    
+  This rc stuff seems complicated. Does it have to be?
+  
+   The configuration file format is actually very simple; you don't need
+   to worry about most of it if you're not interested in using those
+   features. The simplest and most common getmail rc file configuration
+   will be for users who want to retrieve all mail from a single-user
+   POP3 mailbox, deliver those messages to a maildir or mbox file, and
+   delete the mail from the server. For maildir, that configuration is:
+[options]
+delete = True
+
+[retriever]
+type = SimplePOP3Retriever
+server = my-pop3-servername
+username = my-pop3-username
+password = my-pop3-password
+
+[destination]
+type = Maildir
+path = ~/Maildir/
+
+   For an mbox file, that configuration is:
+[options]
+delete = True
+
+[retriever]
+type = SimplePOP3Retriever
+server = my-pop3-servername
+username = my-pop3-username
+password = my-pop3-password
+
+[destination]
+type = Mboxrd
+path = ~/inbox
+
 How do I ...
 
   How do I stop getmail adding a Delivered-To: header to messages?

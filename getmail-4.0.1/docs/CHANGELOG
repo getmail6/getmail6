@@ -1,5 +1,13 @@
+Version 4.0.1
+26 July 2004
+
+  -documentation fixes.  Thanks: Roland Hill.
+  -add handler for badly-misformatted messages as a workaround for
+  Python 2.3.x, where the email module can raise exceptions while parsing
+  messages.  Thanks: Paul.
+
 Version 4.0.0
-22 July 2004
+23 July 2004
 
   -exit beta; final release of version 4.0.0, with approximately four thousand
   lines (~150 kbytes) of Python code and five thousand lines (~180 kbytes) of 

@@ -1,8 +1,10 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="/~charlesc/stylesheets/msie-is-so-very-very-broken.xsl"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-    <meta http-equiv="content-type" content="text/html;charset=iso-8859-1" />
+    <meta http-equiv="content-type" content="application/xhtml+xml;charset=iso-8859-1" />
     <title>getmail configuration (version 4)</title>
     <meta name="author" content="Charles Cazabon" />
     <meta name="description" content="Configuration instructions for getmail version 4" />
@@ -117,13 +119,13 @@
             <li><a href="configuration.html#running-mda-maildir">Using the <span class="file">getmail_maildir</span> MDA</a></li>
             <li>
                 <ul>
-                <li><a href="configuration.html#>Example</h4">Example</a></li>
+                <li><a href="configuration.html#running-mda-maildir-example">Example</a></li>
                 </ul>
             </li>
             <li><a href="configuration.html#running-mda-mbox">Using the <span class="file">getmail_mbox</span> MDA</a></li>
             <li>
                 <ul>
-                <li><a href="configuration.html#>Example</h4">Example</a></li>
+                <li><a href="configuration.html#running-mda-mbox-example">Example</a></li>
                 </ul>
             </li>
             </ul>
@@ -2302,7 +2304,7 @@ $ getmail --getmaildir /path/to/otherdir --rcfile getmailrc-account1 --rcfile ge
     operate silently unless an error occurs.
 </p>
 
-<h4>Example</h4>
+<h4 id="running-mda-maildir-example">Example</h4>
 <p>
     You could deliver a message to a maildir named
     <span class="file">Maildir</span>
@@ -2347,7 +2349,7 @@ $ getmail_maildir $HOME/Maildir/
     operate silently unless an error occurs.
 </p>
 
-<h4>Example</h4>
+<h4 id="running-mda-mbox-example">Example</h4>
 <p>
     You could deliver a message to an mboxrd-format mbox file named
     <span class="file">inbox</span>

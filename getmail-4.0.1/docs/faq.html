@@ -1,8 +1,10 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="/~charlesc/stylesheets/msie-is-so-very-very-broken.xsl"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-    <meta http-equiv="content-type" content="text/html;charset=iso-8859-1" />
+    <meta http-equiv="content-type" content="application/xhtml+xml;charset=iso-8859-1" />
     <title>getmail frequently-asked questions (FAQs) (version 4)</title>
     <meta name="author" content="Charles Cazabon" />
     <meta name="description" content="Frequently-asked questions about getmail version 4" />
@@ -94,6 +96,7 @@
             <li><a href="faq.html#faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</a></li>
             <li><a href="faq.html#faq-configuring-maildir">What's a maildir?</a></li>
             <li><a href="faq.html#faq-configuring-mboxrd">What's &quot;mboxrd&quot; format?</a></li>
+            <li><a href="faq.html#faq-configuring-simple">This rc stuff seems complicated.  Does it have to be?</a></li>
             </ul>
         </li>
         <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
@@ -543,12 +546,55 @@
 <p>
     There are various sub-types of the mbox mail storage format.  mboxrd is
     the most reliable of them, though (like all mbox types) it still relies
-    of file locking and is therefore more easily corrupted than maildir format.
+    on file locking and is therefore more easily corrupted than maildir format.
+    In particular, using mbox files with multiple writers over NFS can be
+    problematic.
 </p>
 <p>
     For details on the differences between the various mbox sub-types, see
     <a href="http://qmail.org/man/man5/mbox.html">http://qmail.org/man/man5/mbox.html</a>.
 </p>
+
+<h3 id="faq-configuring-simple">This rc stuff seems complicated.  Does it have to be?</h3>
+<p>
+    The configuration file format is actually very simple; you don't need
+    to worry about most of it if you're not interested in using those features.
+    The simplest and most common getmail rc file configuration will be for
+    users who want to retrieve all mail from a single-user POP3 mailbox,
+    deliver those messages to a maildir or mbox file, and delete the mail from
+    the server.  For maildir, that configuration is:
+</p>
+<pre class="example">
+[options]
+delete = True
+
+[retriever]
+type = SimplePOP3Retriever
+server = my-pop3-servername
+username = my-pop3-username
+password = my-pop3-password
+
+[destination]
+type = Maildir
+path = ~/Maildir/
+</pre>
+<p>
+    For an mbox file, that configuration is:
+</p>
+<pre class="example">
+[options]
+delete = True
+
+[retriever]
+type = SimplePOP3Retriever
+server = my-pop3-servername
+username = my-pop3-username
+password = my-pop3-password
+
+[destination]
+type = Mboxrd
+path = ~/inbox
+</pre>
 
 <h2 id="faq-how">How do I &hellip;</h2>
 

@@ -11,10 +11,13 @@ import os
 import time
 import cStringIO
 import email
+import email.Errors
+import email.Utils
 from email.Generator import Generator
 
 from exceptions import *
 from utilities import mbox_from_escape, format_header, address_no_brackets
+import logging
 
 message_attributes = (
     'sender',
@@ -23,6 +26,32 @@ message_attributes = (
     'received_with',
     'recipient'
 )
+
+#######################################
+def corrupt_message(why, fromlines=None, fromstring=None):
+    log = logging.logger()
+    log.error('failed to parse retrieved message; constructing container for contents\n')
+    if fromlines == fromstring == None:
+        raise SystemExit('corrupt_message() called with wrong arguments')
+    msg = email.Message()
+    msg['From'] = '"unknown sender" <>'
+    msg['Subject'] = 'Corrupt message received'
+    msg['Date'] = email.Utils.formatdate(localtime=True)
+    body = ['A badly-corrupt message was retrieved and could not be parsed',
+        'for the following reason:',
+        '',
+        '    %s' % why,
+        '',
+        'Below the following line is the original message contents.',
+        '',
+        '--------------------------------------------------------------',
+    ]
+    if fromlines:
+        body.extend([line.rstrip() for line in fromlines])
+    elif fromstring:
+        body.extend([line.rstrip() for line in fromstring.splitlines()])
+    msg.set_payload(os.linesep.join(body))
+    return msg
 
 #######################################
 class Message(object):
@@ -46,13 +75,27 @@ class Message(object):
         self.received_from = None
         self.received_with = None
 
+        # Message is instantiated with fromlines for POP3, fromstring for
+        # IMAP (both of which can be badly-corrupted or invalid, i.e. spam,
+        # MS worms, etc).  It's instantiated with fromfile for the output
+        # of filters, etc, which should be saner.
         if fromlines:
-            self.__msg = email.message_from_string(os.linesep.join(fromlines),
-                strict=False)
+            try:
+                self.__msg = email.message_from_string(os.linesep.join(
+                    fromlines), strict=False)
+            except email.Errors.MessageError, o:
+                self.__msg = corrupt_message(o, fromlines=fromlines)
         elif fromstring:
-            self.__msg = email.message_from_string(fromstring, strict=False)
+            try:
+                self.__msg = email.message_from_string(fromstring, strict=False)
+            except email.Errors.MessageError, o:
+                self.__msg = corrupt_message(o, fromstring=fromstring)
         elif fromfile:
-            self.__msg = email.message_from_file(fromfile, strict=False)
+            try:
+                self.__msg = email.message_from_file(fromfile, strict=False)
+            except email.Errors.MessageError, o:
+                # Shouldn't happen
+                self.__msg = corrupt_message(o, fromstring=fromfile.read())
         else:
             # Can't happen?
             raise SystemExit('Message() called with wrong arguments')
