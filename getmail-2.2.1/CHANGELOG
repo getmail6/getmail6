@@ -1,6 +1,14 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.2.1
+12 February 2002
+
+  -documentation cleanups.  Accidentally had the commandline option
+  "--message-log" listed as "--message_log".  The "--help" output did not
+  list the "--trace" option.  Thanks to Fredrik Steen for catching both of
+  these.
+
 Version 2.2.0
 27 January 2002
 

@@ -213,7 +213,7 @@ Configuring getmail
        however, local directives with patterns are being used to sort mail
        into various sub-folders.
      * The POP3 servers for the two work accounts run on the default POP3
-       port (80). The home account server is running on port 8110.
+       port (110). The home account server is running on port 8110.
    There are other values that differ between the configurations as well. For
    details on the configuration directives that can be used in a getmail
    configuration file, see the section on Configuration Directives.
@@ -753,7 +753,7 @@ getmail Commandline Options
    --rcfile file      -r file    Use file as getmailrc configuration file     
    --quiet            -q         No status output                             
    --verbose          -v         Verbose status output                        
-   --message_log file -m file    Log getmail operations to file               
+   --message-log file -m file    Log getmail operations to file               
    --all              -a         Retrieve all messages                        
    --new              -n         Retrieve only new messages                   
    --delete           -d         Delete messages after retrieval              
@@ -799,9 +799,9 @@ getmail Commandline Options
    getmailrc equivalent verbose = 1                                   
    Function             Write status and progress messages to stdout. 
 
-  --message_log
+  --message-log
 
-   Long Option          --message_log file                                    
+   Long Option          --message-log file                                    
    Short Option         None                                                  
    getmailrc equivalent message_log = file                                    
    Function             Log message retrieval and delivery information to     

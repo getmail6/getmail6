@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.2.0'
+__version__ = '2.2.1'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -1335,6 +1335,7 @@ def help (ec=exitcodes['ERROR']):
     print '                                      (default:  %(timeout)i seconds)' \
         % defs
     print '  --dump                            dump configuration and quit (debugging)'
+    print '  --trace                           debugging output to stdout'
     print
     print 'The following options override those specified in any getmailrc file.'
     print 'If contradictory options are specified (i.e. --delete and --dont-delete),'
