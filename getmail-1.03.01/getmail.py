@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.03'
+VERSION = '1.03.01'
 
 #
 # Imports
@@ -296,8 +296,8 @@ def get_mail (host, port, account, password, datadir, delete, getall, verbose):
                     except IOError:
                         stderr ('\nError:  failed writing oldmail file\n')
 
-            else:
-                print 'previously retrieved, skipping ...',
+            elif verbose:
+                print 'previously retrieved, skipping ...',; sys.stdout.flush ()
 
             if verbose:  print ''; sys.stdout.flush ()
 
@@ -563,7 +563,7 @@ def usage ():
     '  -d or --delete             delete mail after retrieving         %s\n'
     '  -l or --dont-delete        leave mail on server                 %s\n'
     '  -v or --verbose            output more information\n'
-	'  -q or --quiet              output less information\n'
+    '  -q or --quiet              output less information\n'
     '  -h or --help               this screen\n'
     '  -r or --rcfile <file>      use <file> instead of default .getmailrc\n'
     '  -c or --configdir <dir>    use <dir> as config/data directory,\n'
@@ -920,127 +920,127 @@ def parse_options (argv):
 
 #######################################
 class ConfParser:
-	'''Class to parse a configuration file without all the limitations in
-	ConfigParser.py, but without the dictionary formatting options either.
-	'''
-	#######################################
-	def __init__ (self, defaults = {}):
-		'Constructor..'
+    '''Class to parse a configuration file without all the limitations in
+    ConfigParser.py, but without the dictionary formatting options either.
+    '''
+    #######################################
+    def __init__ (self, defaults = {}):
+        'Constructor..'
 
-		self.__rawdata = []
-		self.__data = []
-		self.__sects = []
-		self.__opts = []
-		self.__defs = {}
+        self.__rawdata = []
+        self.__data = []
+        self.__sects = []
+        self.__opts = []
+        self.__defs = {}
 
-		try:
-			for key in defaults.keys ():
-				self.__defs[key] = defaults[key]
+        try:
+            for key in defaults.keys ():
+                self.__defs[key] = defaults[key]
 
-		except AttributeError:
-			raise DefaultsError, 'defaults "%s" not a dictionary' % defaults
-
-
-	#######################################
-	def read (self, filename):
-		'Read configuration file.'
-		try:
-			f = open (filename, 'r')
-			self.__rawdata = f.readlines ()
-			f.close ()
-
-		except IOError:
-			raise FileIOError, 'error reading configuration file "%s"' \
-				% filename
-
-		n = 0
-		for line in self.__rawdata:
-			try:
-				line = line [ : string.index (line, '#')]
-			except ValueError:
-				pass
-			line = string.strip (line)
-			if line:
-				self.__data.append ((n, line))
-			n = n + 1
-
-		self.__parse ()
-		return self
+        except AttributeError:
+            raise DefaultsError, 'defaults "%s" not a dictionary' % defaults
 
 
-	#######################################
-	def __parse (self):
-		'Parse the read-in configuration file.'
-		in_section = 0
-		for (lineno, line) in self.__data:
-			if line[0] == '[':
-				in_section = 1
-				try:
-					sect_name = string.lower (line [1:string.index (line, ']')])
+    #######################################
+    def read (self, filename):
+        'Read configuration file.'
+        try:
+            f = open (filename, 'r')
+            self.__rawdata = f.readlines ()
+            f.close ()
 
-				except ValueError:
-					raise BadConfigFileError, \
-						'malformed section title in line %i:  "%s"' \
-						% (lineno, line)
+        except IOError:
+            raise FileIOError, 'error reading configuration file "%s"' \
+                % filename
 
-				if sect_name in self.__sects:
-					raise DuplicateSectionError, \
-						'duplicate section "%s" found at line %i' \
-						% (sect_name, lineno)
+        n = 0
+        for line in self.__rawdata:
+            try:
+                line = line [ : string.index (line, '#')]
+            except ValueError:
+                pass
+            line = string.strip (line)
+            if line:
+                self.__data.append ((n, line))
+            n = n + 1
 
-				self.__sects.append (sect_name)
-
-				self.__opts.append ({'__section__' : sect_name})
-
-				# Insert defaults
-				for key in self.__defs.keys ():
-					self.__opts[-1][key] = self.__defs[key]
-
-				continue
-
-			if in_section:
-				optname = string.strip (line [ : string.find (line, '=') ])
-				try:
-					optval = string.strip (line [string.index (line, '=') + 1:])
-					if optval[0] == optval[-1] == "'" or optval[0] == optval[-1] == '"':
-						optval = optval[1:-1]
-				except ValueError:
-					optval = ''
-				self.__opts [-1][optname] = optval
-
-		return
+        self.__parse ()
+        return self
 
 
-	#######################################
-	def sections (self):
-		return self.__sects
+    #######################################
+    def __parse (self):
+        'Parse the read-in configuration file.'
+        in_section = 0
+        for (lineno, line) in self.__data:
+            if line[0] == '[':
+                in_section = 1
+                try:
+                    sect_name = string.lower (line [1:string.index (line, ']')])
+
+                except ValueError:
+                    raise BadConfigFileError, \
+                        'malformed section title in line %i:  "%s"' \
+                        % (lineno, line)
+
+                if sect_name in self.__sects:
+                    raise DuplicateSectionError, \
+                        'duplicate section "%s" found at line %i' \
+                        % (sect_name, lineno)
+
+                self.__sects.append (sect_name)
+
+                self.__opts.append ({'__section__' : sect_name})
+
+                # Insert defaults
+                for key in self.__defs.keys ():
+                    self.__opts[-1][key] = self.__defs[key]
+
+                continue
+
+            if in_section:
+                optname = string.strip (line [ : string.find (line, '=') ])
+                try:
+                    optval = string.strip (line [string.index (line, '=') + 1:])
+                    if optval[0] == optval[-1] == "'" or optval[0] == optval[-1] == '"':
+                        optval = optval[1:-1]
+                except ValueError:
+                    optval = ''
+                self.__opts [-1][optname] = optval
+
+        return
 
 
-	#######################################
-	def options (self, section):
-		'Return list of options in section.'
-		try:
-			s = self.__sects.index (string.lower (section))
-
-		except ValueError:
-			raise NoSectionError, 'file has no section "%s"' % section
-
-		return self.__opts[s].keys ()
+    #######################################
+    def sections (self):
+        return self.__sects
 
 
-	#######################################
-	def get (self, section, option):
-		'Return an option value.'
-		try:
-			s = self.__sects.index (string.lower (section))
-		except ValueError:
-			raise NoSectionError, 'file has no section "%s"' % section
+    #######################################
+    def options (self, section):
+        'Return list of options in section.'
+        try:
+            s = self.__sects.index (string.lower (section))
 
-		if not self.__opts[s].has_key (option):
-			raise NoOptionError, 'section "%s" has no option "%s"' \
-				% (section, option)
+        except ValueError:
+            raise NoSectionError, 'file has no section "%s"' % section
 
-		return self.__opts[s][option]
+        return self.__opts[s].keys ()
+
+
+    #######################################
+    def get (self, section, option):
+        'Return an option value.'
+        try:
+            s = self.__sects.index (string.lower (section))
+        except ValueError:
+            raise NoSectionError, 'file has no section "%s"' % section
+
+        if not self.__opts[s].has_key (option):
+            raise NoOptionError, 'section "%s" has no option "%s"' \
+                % (section, option)
+
+        return self.__opts[s][option]
 
 
 #######################################
