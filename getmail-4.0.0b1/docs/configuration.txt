@@ -748,7 +748,9 @@ localpart_translate = ('mailhostaccount-', '')
        enable this feature.
      * delivered_to ( boolean ) -- if set, getmail adds a Delivered-To:
        header field to the message. If unset, it will not do so. Default:
-       True.
+       True. Note that this field will contain the envelope recipient of
+       the message if the retriever in use is a multidrop retriever;
+       otherwise it will contain the string "unknown".
      * received ( boolean ) -- if set, getmail adds a Received: header
        field to the message. If unset, it will not do so. Default: True.
      * message_log ( string ) -- if set, getmail will record a log of its

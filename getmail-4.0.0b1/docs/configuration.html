@@ -1515,7 +1515,9 @@ localpart_translate = ('mailhostaccount-', '')
         <a href="#parameter-boolean">boolean</a>
         ) &mdash; if set, getmail adds a Delivered-To:
         header field to the message.  If unset, it will not do so.  Default:
-        True.
+        True.  Note that this field will contain the envelope recipient of
+        the message if the retriever in use is a multidrop retriever; 
+        otherwise it will contain the string &quot;unknown&quot;.
     </li>
     <li>
         received (

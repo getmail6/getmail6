@@ -84,6 +84,7 @@
         <li>
             <ul>
             <li><a href="troubleshooting.html#unexpected-hostname">getmail uses the wrong hostname for my machine</a></li>
+            <li><a href="troubleshooting.html#unexpected-delivered-to">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> header field</a></li>
             </ul>
         </li>
         </ul>
@@ -237,6 +238,15 @@
     <span class="file">/etc/hosts</span>
     file and make sure the &quot;right&quot; name is the first hostname
     listed for any of the addresses of the machine.
+</p>
+
+<h3 id="unexpected-delivered-to">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> header field</h3>
+<p>
+    getmail records the envelope recipient address in the 
+    <span class="file">Delivered-To:</span>
+    header field.  If the envelope recipient is not available (because you're
+    not using a multidrop retriever class, for example), getmail uses the
+    string &quot;unknown&quot;.  You can disable this header if you wish.
 </p>
 
 <!--#include virtual="footer.html"-->

@@ -13,18 +13,23 @@ Mix-in classes for SSL/non-SSL initialization:
 Base classes:
 
   RetrieverSkeleton
-
   POP3RetrieverBase
   MultidropPOP3RetrieverBase
-
   IMAPRetrieverBase
   MultidropIMAPRetrieverBase
-
 '''
 
-__all__ = ['POP3_ssl_port', 'POP3initMixIn', 'POP3SSLinitMixIn', 'IMAPinitMixIn',
-    'IMAPSSLinitMixIn', 'RetrieverSkeleton', 'POP3RetrieverBase', 'MultidropPOP3RetrieverBase',
-    'IMAPRetrieverBase', 'MultidropIMAPRetrieverBase',
+__all__ = [
+    'IMAPinitMixIn',
+    'IMAPRetrieverBase',
+    'IMAPSSLinitMixIn',
+    'MultidropPOP3RetrieverBase',
+    'MultidropIMAPRetrieverBase',
+    'POP3_ssl_port',
+    'POP3initMixIn',
+    'POP3RetrieverBase',
+    'POP3SSLinitMixIn',
+    'RetrieverSkeleton',
 ]
 
 import os
@@ -187,8 +192,8 @@ class RetrieverSkeleton(ConfigurableBase):
                                  The message will have additional data attributes
                                  "sender" and "recipient".  sender should be
                                  present or "unknown".  recipient should be non-None
-                                 if (and only if) the protocol/method of message 
-                                 retrieval preserves the original message 
+                                 if (and only if) the protocol/method of message
+                                 retrieval preserves the original message
                                  envelope.
 
       _getheaderbyid(self, msgid) - similar to _getmsgbyid() above, but only the message
@@ -239,7 +244,7 @@ class RetrieverSkeleton(ConfigurableBase):
         '''Read contents of oldmail file.'''
         self.log.trace()
         try:
-            for (msgid, timestamp) in [line.strip().split('\0', 1) for line in open(self.oldmail_filename, 'rb').xreadlines() if line.strip()!='']:
+            for (msgid, timestamp) in [line.strip().split('\0', 1) for line in open(self.oldmail_filename, 'rb') if line.strip()!='']:
                 self.oldmail[msgid] = int(timestamp)
             self.log.info('read %i uids for %s\n' % (len(self.oldmail), self))
         except IOError:
@@ -250,16 +255,23 @@ class RetrieverSkeleton(ConfigurableBase):
         self.log.trace()
         if not self.__initialized:
             return
+        wrote = 0
         try:
             f = updatefile(self.oldmail_filename)
-            for msgid, timestamp in self.oldmail.items():
-                if msgid in self.msgids and not msgid in self.deleted:
-                    # This message still in inbox; remember it for next time.
-                    f.write('%s\0%i%s' % (msgid, timestamp, os.linesep))
-                #else:
-                # Message doesn't exist in inbox, no sense remembering it.
+            for msgid in self.msgids:
+                self.log.debug('msgid %s ...' % msgid)
+                if msgid in self.deleted:
+                    # Already deleted, don't remember this one
+                    self.log.debug(' was deleted, skipping\n')
+                    continue
+                # else:
+                # not deleted, remember this one's time stamp
+                t = self.oldmail.get(msgid, self.timestamp)
+                self.log.debug(' timestamp %s\n' % t)
+                f.write('%s\0%i%s' % (msgid, t, os.linesep))
+                wrote += 1
             f.close()
-            self.log.info('wrote %i uids for %s\n' % (len(self.oldmail), self))
+            self.log.info('wrote %i uids for %s\n' % (wrote, self))
         except IOError, o:
             self.log.error('failed writing oldmail file for %s (%s)\n' % (self, o))
 
@@ -335,7 +347,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         try:
             response, msglist, octets = self.conn.uidl()
             self.log.debug('UIDL response "%s", %d octets\n' % (response, octets))
-            self.msgids = [line.split(None, 1)[1] for line in msglist]
+            self.msgids.extend([line.split(None, 1)[1] for line in msglist])
             self.log.debug('Message IDs: %s\n' % self.msgids)
             response, msglist, octets = self.conn.list()
             for line in msglist:

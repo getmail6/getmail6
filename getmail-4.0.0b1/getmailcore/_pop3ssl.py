@@ -17,14 +17,14 @@ class sslsocket(object):
     file-like .readline() for communications.  That would be okay, except that
     the new socket.ssl objects provide only read() and write(), so they
     don't act like a socket /or/ like a file.  Argh.
-    
+
     This class takes a standard, connected socket.socket() object, sets it
     to blocking mode (required for socket.ssl() to work correctly, though
     apparently not documented), wraps .write() for .sendall() and implements
     .readline().
-    
+
     The modified POP3 class below can then use this to provide POP3-over-SSL.
-    
+
     Thanks to Frank Benkstein for the inspiration.
     '''
     def __init__(self, sock, keyfile=None, certfile=None):
@@ -55,7 +55,7 @@ class sslsocket(object):
         self.sock.close()
         self.ssl = None
 
-    # self.sock.sendall    
+    # self.sock.sendall
     def sendall(self, s):
         # Maybe only set blocking around this call?
         self.ssl.write(s)
@@ -96,8 +96,8 @@ class POP3SSL(POP3):
     '''Thin subclass to add SSL functionality to the built-in POP3 class.
     Note that Python's socket module does not do certificate verification
     for SSL connections.
-    
-    This gets rid of the .file attribute from os.makefile(rawsock) and relies on 
+
+    This gets rid of the .file attribute from os.makefile(rawsock) and relies on
     sslsocket() above to provide .readline() instead.
     '''
     def __init__(self, host, port=POP3_ssl_port, keyfile=None, certfile=None):

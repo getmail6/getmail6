@@ -1,3 +1,13 @@
+Version 4.0.0b1
+10 July 2004
+
+  -first beta release
+  -add missing os import to getmail_maildir
+  -fix received_by in getmail_mbox and don't create Received: header
+  -a handful of trivial changes to make the code idiomatically consistent
+  -fix to oldmail file writing
+  -documentation updates
+
 Version 4.0.0a30
 8 July 2004
 
@@ -350,9 +360,9 @@ Changes since getmail version 3
 -make more platform-agnostic (transparently support system EOL convention,
   etc)
 -support for multiple retriever/account types:
-  -POP (simple, multidrop, SPDS)
-  -IMAPv4 (incomplete)
+  -POP (single-user, multidrop, SPDS)
+  -IMAPv4 (single-user, multidrop)
 -full native support for POP3-over-SSL and IMAP-over-SSL.
 -configuration (rc) file format changes:
   -support multiple rc files per invocation
-  -one retriever, one destination per file
+  -one mail account per rc file

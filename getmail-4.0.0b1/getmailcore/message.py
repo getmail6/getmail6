@@ -10,7 +10,7 @@ import email
 from email.Generator import Generator
 
 from exceptions import *
-from utilities import mbox_from_escape, format_header
+from utilities import mbox_from_escape, format_header, address_no_brackets
 
 #######################################
 class Message(object):
@@ -44,7 +44,7 @@ class Message(object):
             # Can't happen?
             raise SystemExit('Message() called with wrong arguments')
 
-        self.sender = self.__msg['return-path'] or 'unknown'
+        self.sender = address_no_brackets(self.__msg['return-path'] or 'unknown')
 
     def content(self):
         return self.__msg
@@ -55,7 +55,7 @@ class Message(object):
 
     def flatten(self, delivered_to, received, mangle_from=False, include_from=False):
         '''Return a string with native EOL convention.
-        
+
         The email module apparently doesn't always use native EOL, so we
         force it by writing out what we need, letting the generator write out the
         message, splitting it into lines, and joining them with the platform EOL.

@@ -17,6 +17,8 @@ class getmailOperationError(getmailError):
     pass
 
 class getmailDeliveryError(getmailOperationError):
-    '''Exception raised when problems occur during message delivery.  Subclass of getmailOperationError.'''
+    '''Exception raised when problems occur during message delivery.
+    Subclass of getmailOperationError.
+    '''
     pass
                 

@@ -1,5 +1,5 @@
 I would like to thank the following individuals and organizations
-for their gracious contributions to the development of getmail.
+for their gracious contributions to the development of getmail version 4.
 
 getmail version 4 alpha testers
 -------------------------------
@@ -14,15 +14,20 @@ Shantanu Kulkarni
 and others ...
 
 
-getmail sponsors
-----------------
-
-Klinikum Landsberg of Germany
-
-
 other thanks
 ------------
 
 Clemens Hermann, for ... well, lots
 Fredrik Steen, maintainer of the Debian packages of getmail
  
+
+
+Earlier versions of getmail also benefitted from the contributions of others,
+including the following:
+
+getmail sponsors
+----------------
+
+Klinikum Landsberg of Germany
+
+

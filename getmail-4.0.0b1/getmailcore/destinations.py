@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.3
-'''Classes implementing destinations (files, directories, or programs getmail can deliver mail to).
+'''Classes implementing destinations (files, directories, or programs getmail
+can deliver mail to).
 
 Currently implemented:
 
@@ -7,7 +8,8 @@ Currently implemented:
   Mboxrd
   MDA_qmaillocal (deliver though qmail-local as external MDA)
   MDA_external (deliver through an arbitrary external MDA)
-  MultiSorter (deliver to a selection of maildirs/mbox files based on matching recipient address patterns)
+  MultiSorter (deliver to a selection of maildirs/mbox files based on matching
+    recipient address patterns)
 '''
 
 import os
@@ -65,6 +67,7 @@ class DeliverySkeleton(ConfigurableBase):
             raise getmailConfigurationError('missing required configuration parameter %s' % o)
         self.received_from = None
         self.received_with = None
+        self.received_by = None
         self.log.trace('done\n')
 
     def retriever_info(self, retriever):
@@ -143,7 +146,7 @@ class Mboxrd(DeliverySkeleton):
         if os.path.exists(self.conf['path']) and not os.path.isfile(self.conf['path']):
             raise getmailConfigurationError('not an mboxrd file (%s)' % self.conf['path'])
         elif not os.path.exists(self.conf['path']):
-            self.f = file(self.conf['path'], 'w+b')
+            self.f = open(self.conf['path'], 'w+b')
             # Get user & group of containing directory
             s_dir = os.stat(os.path.dirname(self.conf['path']))
             try:
@@ -158,7 +161,7 @@ class Mboxrd(DeliverySkeleton):
         else:
             # Check if it _is_ an mbox file.  mbox files must start with "From " in their first line, or
             # are 0-length files.
-            self.f = file(self.conf['path'], 'r+b')
+            self.f = open(self.conf['path'], 'r+b')
             lock_file(self.f)
             self.f.seek(0, 0)
             first_line = self.f.readline()
@@ -237,7 +240,7 @@ class MDA_qmaillocal(DeliverySkeleton):
 
       group - If supplied, getmail will change the effective GID to that of the named
              group before running qmail-local.
-      
+
       homedir - complete path to the directory supplied to qmail-local as the "homedir" argument.
                 Defaults to the home directory of the current effective user ID.
 
@@ -255,11 +258,11 @@ class MDA_qmaillocal(DeliverySkeleton):
                            the address.
 
       strip_delivered_to - if set, existing Delivered-To: header fields will be removed from the message before
-                           processing by qmail-local.  This may be necessary to prevent qmail-local falsely 
+                           processing by qmail-local.  This may be necessary to prevent qmail-local falsely
                            detecting a looping message if (for instance) the system
                            retrieving messages otherwise believes it has the same domain name as the POP
                            server.  Inappropriate use, however, may cause message loops.
-                           
+
       allow_root_commands (boolean, optional) - if set, external commands are allowed when
                                                 running as root.  The default is not to allow
                                                 such behaviour.
@@ -434,7 +437,7 @@ class MDA_external(DeliverySkeleton):
                                 specified user.  This requires that the main getmail
                                 process have permission to change the effective user
                                 ID.
-                            
+
       group (string, optional) -  if provided, the external command will be run with the
                                 specified group ID.  This requires that the main getmail
                                 process have permission to change the effective group
@@ -573,8 +576,8 @@ class MultiSorter(DeliverySkeleton):
                A destination is assumed to be an mboxrd file if it starts with a dot or
                a slash and does not end with a slash.  A destination may also be specified
                by section name, i.e. "[othersectionname]".
-               Multiple patterns may match a given recipient address; the 
-               message will be delivered to /all/ maildirs with matching 
+               Multiple patterns may match a given recipient address; the
+               message will be delivered to /all/ maildirs with matching
                patterns.  Patterns are matched case-insensitively.
 
                example:

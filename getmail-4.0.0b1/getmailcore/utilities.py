@@ -3,9 +3,16 @@
 '''
 
 __all__ = [
-    'address_no_brackets', 'change_uidgid', 'deliver_maildir', 'eval_bool',
-    'is_maildir', 'lock_file', 'logfile', 'mbox_from_escape',
-    'unlock_file', 'updatefile'
+    'address_no_brackets',
+    'change_uidgid',
+    'deliver_maildir',
+    'eval_bool',
+    'is_maildir',
+    'lock_file',
+    'logfile',
+    'mbox_from_escape',
+    'unlock_file',
+    'updatefile',
 ]
 
 
@@ -50,7 +57,7 @@ class updatefile(object):
         self.filename = filename
         self.tmpname = filename + '.tmp.%d' % os.getpid()
         try:
-            f = open(self.tmpname, 'w')
+            f = open(self.tmpname, 'wb')
         except IOError, (code, msg):
             raise IOError('%s, opening output file "%s"' % (msg, self.tmpname))
         self.file = f
@@ -76,7 +83,7 @@ class logfile(object):
         self.closed = False
         self.filename = filename
         try:
-            self.file = open(os.path.expanduser(self.filename), 'a')
+            self.file = open(os.path.expanduser(self.filename), 'ab')
         except IOError, (code, msg):
             raise IOError('%s, opening file "%s"' % (msg, self.filename))
 

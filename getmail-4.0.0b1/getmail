@@ -89,8 +89,8 @@ def go(configs):
                         log.info('from <%s> ... ' % address_no_brackets(msg.sender))
                         logline += ', sender <%s>' % address_no_brackets(msg.sender)
                         if msg.recipient is not None:
-	                        log.info('to <%s> ... ' % address_no_brackets(msg.recipient))
-	                        logline += ', recipient <%s>' % address_no_brackets(msg.recipient)
+                            log.info('to <%s> ... ' % address_no_brackets(msg.recipient))
+                            logline += ', recipient <%s>' % address_no_brackets(msg.recipient)
 
                         for mail_filter in _filters:
                             log.debug('passing to filter %s ... ' % mail_filter)
@@ -229,7 +229,7 @@ def main():
                 raise getmailOperationError('configuration file %s does not exist' % path)
             elif not os.path.isfile(path):
                 raise getmailOperationError('%s is not a file' % path)
-            f = file(path, 'rb')
+            f = open(path, 'rb')
             config = {
                 'verbose' : defaults['verbose'],
                 'read_all' : defaults['read_all'],

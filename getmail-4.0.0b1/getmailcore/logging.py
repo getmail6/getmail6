@@ -18,7 +18,7 @@ __logger = None
 #######################################
 class __Logger(object):
     '''Class for logging.  Do not instantiate directly; use logger() instead.
-    
+
     logger() enforces this as a singleton.
     '''
     def __init__(self):
@@ -28,17 +28,17 @@ class __Logger(object):
 
     def addhandler(self, stream, minlevel, maxlevel=CRITICAL):
         '''Add a handler for logged messages.
-        
+
         Logged messages of at least level <minlevel> (and at most level
         <maxlevel>, default CRITICAL) will be output to <stream>.
-        
+
         If no handlers are specified, messages of all levels will be output to stdout.
         '''
         self.handlers.append({'minlevel' : minlevel, 'stream' : stream, 'newline' : True, 'maxlevel' : maxlevel})
 
     def clearhandlers(self):
         '''Clear the list of handlers.
-        
+
         There should be a way to remove only one handler from a list.  But that
         would require an easy way for the caller to distinguish between them.
         '''
@@ -69,7 +69,7 @@ class __Logger(object):
 
     def trace(self, msg='trace\n'):
         '''Log a message with level TRACE.
-        
+
         The message will be prefixed with filename, line number, and function name
         of the calling code.
         '''

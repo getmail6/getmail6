@@ -18,11 +18,13 @@ class ConfigurableBase(object):
     Sub-classes must provide the following data attributes and methods:
 
       _confitems - a tuple of dictionaries representing the parameters the class
-                   takes.  Each dictionary should contain the following key, value
-                   pairs:
+                   takes.  Each dictionary should contain the following key,
+                   value pairs:
                      - name - parameter name
-                     - type - a type function to compare the parameter value against (i.e. str, int, bool)
-                     - default - optional default value.  If not preseent, the parameter is required.
+                     - type - a type function to compare the parameter value
+                       against (i.e. str, int, bool)
+                     - default - optional default value.  If not preseent, the
+                       parameter is required.
     '''
 
     def __init__(self, **args):
