@@ -304,6 +304,10 @@ Configuring getmail
    MultidropSDPSRetriever, MultidropIMAPRetriever, and
    MultidropIMAPSSLRetriever provide this capability.
    
+   See the documentation on the [retriever] section for details of what
+   the requirements for a multidrop mailbox are. getmail user Matthias
+   Andree also has a web page about multidrop mailboxes.
+   
   Do I have to run sendmail or another MTA to use getmail?
   
    No. getmail delivers directly to maildirs, mboxrd files, or via
@@ -764,3 +768,21 @@ type = Filter_TMDA
 
    See the documentation for details on optional parameters to the
    Filter_TMDA module.
+   
+I think I found this bug in getmail ...
+
+   I get frequent reports like the following, which aren't bugs in
+   getmail. Please read them before reporting them to me.
+   
+  FutureWarning: %u/%o/%x/%X of negative int will return a signed string in
+  Python 2.4 and up
+  
+   Various people have reported this "bug" in getmail, where they see the
+   following warning when getmail is run:
+/usr/lib/python2.3/optparse.py:668: FutureWarning: %u/%o/%x/%X of negative int
+will return a signed string in Python 2.4 and up
+  return ("<%s at 0x%x: %r>"
+
+   This warning is a bug in Python 2.3.4's optparse.py module, not in
+   getmail. Feel free to report it to the Python team if the most recent
+   release of Python hasn't fixed it. I reported it in June, 2004.

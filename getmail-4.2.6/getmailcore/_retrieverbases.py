@@ -292,7 +292,7 @@ class RetrieverSkeleton(ConfigurableBase):
     def _write_oldmailfile(self):
         '''Write oldmail info to oldmail file.'''
         self.log.trace()
-        if (self.__oldmail_written 
+        if (self.__oldmail_written
                 or not self.__initialized or not self.gotmsglist):
             return
         wrote = 0
@@ -318,7 +318,7 @@ class RetrieverSkeleton(ConfigurableBase):
         except IOError, o:
             self.log.error('failed writing oldmail file for %s (%s)\n'
                 % (self, o))
-            f.abort()                
+            f.abort()
         self.__oldmail_written = True
 
     def initialize(self):
@@ -327,7 +327,7 @@ class RetrieverSkeleton(ConfigurableBase):
         # socket.ssl() and socket timeouts are incompatible in Python 2.3
         if 'timeout' in self.conf:
             socket.setdefaulttimeout(self.conf['timeout'])
-        else:            
+        else:
             # Explicitly set to None in case it was previously set
             socket.setdefaulttimeout(None)
         self.oldmail_filename = os.path.join(
@@ -393,7 +393,14 @@ class POP3RetrieverBase(RetrieverSkeleton):
             response, msglist, octets = self.conn.uidl()
             self.log.debug('UIDL response "%s", %d octets\n'
                 % (response, octets))
-            self.msgids.extend([line.split(None, 1)[1] for line in msglist])
+            for msgid in [line.split(None, 1)[1] for line in msglist]:
+                if msgid in self.msgids:
+                    raise getmailOperationError(
+                        '%s does not uniquely identify messages; '
+                        'got %s twice' % (self, msgid)
+                    )
+                else:
+                    self.msgids.append(msgid)
             self.log.debug('Message IDs: %s\n' % self.msgids)
             response, msglist, octets = self.conn.list()
             for line in msglist:
@@ -622,11 +629,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 msgcount = self._selectmailbox(mailbox)
                 if msgcount:
                     # Get UIDs and sizes for all messages in mailbox
-                    response = self._parse_imapcmdresponse('FETCH', 
+                    response = self._parse_imapcmdresponse('FETCH',
                         '1:%d' % msgcount, '(UID RFC822.SIZE)')
                     for line in response:
                         r = self._parse_imapattrresponse(line)
-                        msgid = ('%s/%s/%s' 
+                        msgid = ('%s/%s/%s'
                             % (self.uidvalidity, mailbox, r['uid']))
                         self._mboxuids[msgid] = (mailbox, r['uid'])
                         self.msgids.append(msgid)

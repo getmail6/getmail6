@@ -77,6 +77,7 @@
                o Configuring getmail
                o How do I ...
                o Using getmail with other software
+               o I think I found this bug in getmail ...
        
 Features
 
@@ -165,6 +166,15 @@ Requirements
 make
 make install
 
+   Since the above was written, Python 2.4 has been released. getmail 4
+   will work with that version of Python as well.
+   
+   getmail 4 also requires that servers uniquely identify the messages
+   they provide to getmail; certain very old or broken POP3 servers may
+   not be capable of this, but I have had only one report of such
+   problems from among the tens of thousands of people who have
+   downloaded getmail 4 from my website and from other archives.
+   
 Obtaining getmail
 
    Download getmail 4 from the official website main page at

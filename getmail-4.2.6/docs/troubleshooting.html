@@ -100,6 +100,11 @@
                     </ul>
                 </li>
                 <li><a href="troubleshooting.html#errmsg-operation-">Error: &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="troubleshooting.html#errmsg-operation-notunique">Error: <span class="meta">server-info</span> does not uniquely identify messages &hellip;</a></li>
+                    </ul>
+                </li>
                 </ul>
             </li>
             <li><a href="troubleshooting.html#warning-messages">Warning messages</a></li>
@@ -137,6 +142,7 @@
             <li><a href="faq.html#faq-configuring">Configuring getmail</a></li>
             <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
             <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
+            <li><a href="faq.html#faq-notabug">I think I found this bug in getmail &hellip;</a></li>
             </ul>
         </li>
         </ul>
@@ -299,6 +305,13 @@
     out the exact cause of the error.  Common causes are failures to connect
     to a remote mail server, timeouts during network operations, and other
     transient failures.
+</p>
+<h4 id="errmsg-operation-notunique" class="errmsg">Error: <span class="meta">server-info</span> does not uniquely identify messages &hellip;</h4>
+<p>
+    The POP3 server for this particular account was not able to uniquely identify
+    the messages in the mailstore.  getmail 4 cannot use such a server.  If the
+    server provides IMAP access, try that instead.  Otherwise, use getmail version
+    3.
 </p>
 
 <!-- ********************************************************************** -->

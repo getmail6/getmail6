@@ -137,6 +137,13 @@ Error messages
    connect to a remote mail server, timeouts during network operations,
    and other transient failures.
    
+    Error: server-info does not uniquely identify messages ...
+    
+   The POP3 server for this particular account was not able to uniquely
+   identify the messages in the mailstore. getmail 4 cannot use such a
+   server. If the server provides IMAP access, try that instead.
+   Otherwise, use getmail version 3.
+   
 Warning messages
 
    getmail may output various diagnostic warning messages. The common
