@@ -90,7 +90,7 @@ def format_header (name, line):
 ###################################
 def alarm_handler (dummy, unused):
     '''Handle an alarm (should never happen).'''
-    raise IOError, 'Maildir delivery timeout'
+    raise getmailDeliveryException, 'Delivery timeout'
 
 #######################################
 def deliver_maildir (maildirpath, msg, hostname, deliverycount=None):
@@ -207,7 +207,7 @@ def envelope_recipient (config, message):
     # User configured a header field where the envelope recipient
     # address is recorded by the MTA on the POP3 server.  Use it
     # and only it.
-    hdrname = config['recipient_header']
+    hdrname = config['envelope_recipient']
     try:
         hdrname, hdrnum = string.split (hdrname, ':', 1)
         hdrnum = int (hdrnum)
@@ -345,6 +345,8 @@ def read_configfile (filename, default_config):
                         options['log_level'] = WARN
             elif key in stringoptions:
                 options[key] = conf.getstring ('default', key)
+            elif key in listoptions:
+                options[key] = conf.get ('default', key)
             elif key != '__name__':
                 log (TRACE, 'unrecognized option "%s" in section "default"\n' % key, options)
 
@@ -382,6 +384,8 @@ def read_configfile (filename, default_config):
                             account['log_level'] = WARN
                 elif key in stringoptions:
                     account[key] = conf.getstring (section, key)
+                elif key in listoptions:
+                    account[key] = conf.get (section, key)
                 elif key != '__name__':
                     log (TRACE, 'unrecognized option "%s" in section "%s"\n' % (key, section), options)
 
@@ -403,10 +407,10 @@ def read_configfile (filename, default_config):
                 locals.append ( (recip_re, target) )
 
             # Sanity checks
-            if locals and not (account['use_*env'] or account['recipient_header']):
-                raise getmailConfigException, 'local directives require use_*env or recipient_header to identify envelope recipient'
-            if account['recipient_header'] is not None and string.lower (string.split (account['recipient_header'], ':')[0]) in ('to', 'cc', 'bcc', 'received'):
-                raise getmailConfigException, 'recipient_header must specify a header field name which reliably records the envelope recipient address.  "%s" is not such a header field.' % account['recipient_header']
+            if locals and not (account['use_*env'] or account['envelope_recipient']):
+                raise getmailConfigException, 'local directives require use_*env or envelope_recipient to identify envelope recipient'
+            if account['envelope_recipient'] is not None and string.lower (string.split (account['envelope_recipient'], ':')[0]) in ('to', 'cc', 'bcc', 'received'):
+                raise getmailConfigException, 'envelope_recipient must specify a header field name which reliably records the envelope recipient address.  "%s" is not such a header field.' % account['envelope_recipient']
 
             configs.append ( (account.copy(), locals) )
 

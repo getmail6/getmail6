@@ -42,7 +42,7 @@ local = "^user3@isp.net$,|/usr/bin/maildrop -a" # Deliver mail for "user3@isp.ne
 server = pop.exmple.org
 username = getmailltd
 password = pass
-recipient_header = 'delivered-to:2'             # Retrieve the original envelope recipient address from the
+envelope_recipient = 'delivered-to:2'           # Retrieve the original envelope recipient address from the
                                                 #   second Delivered-To: header field in each message
 postmaster = /home/jeff/Mail/                   # default maildir destination if none of the "local" directives
                                                 #   match

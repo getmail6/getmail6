@@ -178,7 +178,7 @@
 					Envelope recipient address method.  If the MTA running on the POP3 servers is 
 					sensible, it will record the envelope recipient address in a new header field at 
 					the top of the message.  You can then tell getmail to find it using the
-					<a href="docs.html#directive-recipient-header">recipient_header directive</a>.
+					<a href="docs.html#directive-envelope-recipient">envelope_recipient directive</a>.
 				</li>
 			</ul>
 		</li>
@@ -219,7 +219,7 @@
 	</p>
 
 	<h4 id="error-message-locals">
-		<a href="#error-messages">getmail complains about &quot;<span class="error">Configuration error (local directives require use_*env or recipient_header to identify envelope recipient)</span>&quot;.
+		<a href="#error-messages">getmail complains about &quot;<span class="error">Configuration error (local directives require use_*env or envelope_recipient to identify envelope recipient)</span>&quot;.
 		What's wrong?</a>
 	</h4>
 	<p>
@@ -227,7 +227,7 @@
 		directives, but you haven't told getmail how to determine the original envelope recipient address of the message.
 		To use multidrop mode, you must either enable <a href="docs.html#directive-use-*env"><span class="sample">use_*env</span></a>
 		(if your mailhost supports it) or tell getmail which header field the envelope recipient address is recorded in by the
-		mailhost's MTA using the <a href="docs.html#directive-recipient-header"><span class="sample">recipient_header</span></a>
+		mailhost's MTA using the <a href="docs.html#directive-envelope-recipient"><span class="sample">envelope_recipient</span></a>
 		directive.
 	</p>
 
@@ -247,11 +247,10 @@
 	<p>
 		getmail provides a method of retrieving mail from a domain mailbox and 
 		distributing it among the various users automatically.  See the documentation 
-		sections on <a href="docs.html#directive-local">header field pattern matching 
-		delivery targets</a>, <a href="docs.html#directive-recipient-header">recipient 
-		header field specification</a>, <a href="docs.html#directive-postmaster">default 
-		delivery target</a>, and <a href="docs.html#account-types-domain">POP3 domain 
-		mailboxes</a>.
+		sections on <a href="docs.html#directive-local">header field pattern matching delivery targets</a>,
+		<a href="docs.html#directive-envelope-recipient">envelope recipient address field specification</a>,
+		<a href="docs.html#directive-postmaster">default delivery target</a>, and
+		<a href="docs.html#account-types-domain">POP3 domain mailboxes</a>.
 	</p>
 
 	<h4 id="config-mta"><a href="#config">Do I have to run sendmail or another MTA to use getmail?</a></h4>
@@ -267,7 +266,8 @@
 	<h4 id="config-simple"><a href="#config">I've got a simple POP3 account.  Do I need &quot;local=&hellip;&quot; configuration variables?</a></h4>
 	<p>
 		No, you don't need them.  They might be useful to you if the MTA on the POP3 server
-		supports extension addresses (i.e. <a href="http://www.qmail.org/">qmail</a>).
+		supports extension addresses (i.e. <a href="http://www.qmail.org/">qmail</a>) and records the envelope
+		recipient address properly.
 		But in general, you will only need to use a <a href="docs.html/#directive-postmaster">postmaster directive</a>.
 	</p>
 
@@ -285,7 +285,26 @@
 		getmail 3.x does not have native mbox support, as all mbox-capable MDAs on a 
 		given system must use the same locking mechanism and support the same mbox 
 		subtype. You can use getmail's command delivery mechanism to deliver through an 
-		external mbox-aware MDA if you must, but consider using maildirs instead.
+		external mbox-aware MDA (see the next paragraph) if you must, but consider using 
+		maildirs instead.
+	</p>
+	<p>
+		getmail includes <span class="sample">getmail_mbox</span>, an mbox delivery 
+		agent you can use in this fashion.  It supports mboxrd-format mbox files and 
+		uses flock-style locking.  Make sure these are the correct types for your system 
+		before using it, as all mbox-handling programs on a system must use the same 
+		types and values.
+	</p>
+	<p>
+		To use getmail_mbox to deliver to mbox files, specify it as an external MDA.
+		It takes the path to the mbox file as a commandline argument, as follows:
+		<pre class="sample">getmail_mbox /path/to/mbox</pre>
+		Example uses:
+		<pre class="sample">
+postmaster = &quot;|/path/to/getmail_mbox /path/to/mbox
+local = &quot;^joe@.*$,|/path/to/getmail_mbox /home/joe/mbox
+local = &quot;^sam@.*$,|/path/to/getmail_mbox /home/sam/mbox
+		</pre>
 	</p>
 
 	<h4 id="other-errors-command"><a href="#other-errors">I've configured getmail to deliver to a command (external MDA), but it complains that the command <span class="error">exited 0 but wrote to stderr</span>.  Why?</a></h4>
@@ -390,7 +409,7 @@
 		configured to record the envelope recipient in a message header field (i.e. as 
 		qmail does with Delivered-To:), and you have configured getmail to only look at 
 		that header field with the
-		<a href="docs.html#directive-recipient-header">recipient_header</a> directive,
+		<a href="docs.html#directive-envelope-recipient">envelope_recipient</a> directive,
 		or if your ISP supports the SPDS *ENV extension and you have configured
 		getmail to use it.
 	</p>

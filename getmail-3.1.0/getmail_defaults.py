@@ -28,16 +28,19 @@ defs = {
 
     'no_delivered_to' : 0,                  # Don't add Delivered-To: header
     'no_received' :     0,                  # Don't add Received: header
-    'max_message_size' :        0,          # Maximum message size to retrieve
+    'max_message_size' :    0,              # Maximum message size to retrieve
     'max_messages_per_session' : 0,         # Stop after X messages; 0 for no
                                             #   limit.
+    'message_filter' :  None,               # Unix-style stdin->stdout filters
+                                            #   to pass messages through after
+                                            #   retrieval and before delivery
     'message_log' :     '',                 # Log info about getmail actions
                                             #   leading ~[user]/ will be expanded
                                             #   Will be prepended with value of
                                             #   getmaildir if message_log is not
                                             #   absolute after ~ expansion.
 
-    'recipient_header' :    None,           # Header containing the original 
+    'envelope_recipient' :    None,         # Header containing the original
                                             #   envelope recipient address.
                                             # Topmost Delivered-To: header is
                                             #   "delivered-to:1".  Second-from-top

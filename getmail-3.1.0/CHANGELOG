@@ -1,6 +1,36 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.1.0
+21 February 2003
+
+  -Rename the recipient_header directive to "envelope_recipient".  There was
+  simply too much confusion about it.  Sorry, but you'll have to update
+  your getmailrc file and rename this directive if you're using it.  This
+  version was going to be 3.0.5, but this change necessitates bumping the
+  version up to 3.1.0.
+  -Include separate callable program for mbox delivery.  The program,
+  getmail_mbox, is based on the mbox delivery code in getmail version
+  2.3.  It assumes mboxrd format and flock locking; if other programs
+  on your system expect a different subtype of mbox format or use a different
+  locking method, you can corrupt your mbox file.  Use at your own risk.
+  You can use this in a command delivery target from getmail
+  as "|/path/to/getmail_mbox /path/to/mboxfile" .
+  -In a similar vein, include separate callable program for maildir delivery.
+  The program, getmail_maildir, uses the same maildir delivery code as
+  getmail.  You can use this in a command delivery target from getmail
+  as "|/path/to/getmail_maildir /path/to/maildir/" .  This is mostly useful
+  if you want to deliver to a maildir after doing something else to the message,
+  and can be used in place of safecat.
+  -Add message filtering.  You can now pass messages through arbitrary
+  filters before delivery; specify one or more message_filter directives,
+  each of which is a command and arguments.  The filter(s) should read the
+  message from stdin, write to stdout, and exit 0 for success, 99 to drop
+  the message in the bitbucket, and anything else to indicate an error.
+  No docs for this yet.
+  -getmail could drop the final newline when delivering to Maildirs in
+  some circumstances.  Thanks to Jason Mastaler for the report and testing.
+
 Version 3.0.4
 20 February 2003
 

@@ -87,16 +87,17 @@
 			<pre class="sample">mkdir /usr/lib/getmail
 cp -a getmail-<em>version</em>/* /usr/lib/getmail/
 			</pre>
-			You can install getmail in your home directory or elsewhere
-			if you prefer.
+			You can install getmail in your home directory or elsewhere if you prefer.  If 
+			you use a directory other than <span class="sample">/usr/lib/getmail/</span>, 
+			change the definition of <span class="sample">GETMAILPATH</span> in the <span 
+			class="sample">getmail</span> wrapper script or ensure the directory you choose 
+			is in your <span class="sample">PYTHONPATH</span> environment variable.
 		</li>
 		<li>
 			Copy the getmail helper script to a location in your <span class="sample">PATH</span>, and
 			ensure it is executable:
 			<pre class="sample">cp -a getmail-<em>version</em>/getmail /usr/bin/
 chmod 755 /usr/bin/getmail</pre>
-			If you used an installation path other than that in step 3 above,
-			edit the value of <span class="sample">GETMAILDIR</span> in this file.
 		</li>
 	</ol>
 
@@ -259,7 +260,7 @@ postmaster = ~shannonf/Maildir/</pre>
 server = mailhost.largeisp.tld
 username = small.company
 password = RRt49slP32m
-recipient_header = delivered-to:1
+envelope_recipient = delivered-to:1
 postmaster = ~tgrieg/Mail/postmaster-maildir/
 local = tgrieg@smallcompany.tld,~tgrieg/Mail/personal-maildir/
 local = info@smallcompany.tld,~bobf/Maildir/
@@ -276,7 +277,7 @@ local = sales@smallcompany.tld,~darlab/Maildir/
 		like the above) based on the envelope recipient address, you 
 		<strong>must</strong> either enable the <span class="sample">use_*env</span> 
 		option (if your mailhost supports it) or use the <span 
-		class="sample">recipient_header</span> directive.
+		class="sample">envelope_recipient</span> directive.
 	</p>
 
 	<h4 id="delivery-targets"><a href="#configure">Message Delivery Targets</a></h4>
@@ -309,7 +310,7 @@ local = sales@smallcompany.tld,~darlab/Maildir/
 		</li>
 		<li>
 			<span class="sample">RECIPIENT</span> contains the envelope recipient address
-			as extracted from the user-configured <a href="#directive-recipient-header" class="sample">recipient_header</a> header field or <a href="#directive-use-*env" class="sample">*ENV results</a>.
+			as extracted from the user-configured <a href="#directive-envelope-recipient" class="sample">envelope_recipient</a> header field or <a href="#directive-use-*env" class="sample">*ENV results</a>.
 		</li>
 		<li>
 			<span class="sample">EXT</span> contains the extension portion of <span class="sample">RECIPIENT</span>
@@ -403,10 +404,10 @@ postmaster = "|/path/to/mda [options] 2>&amp;1"
 			<td class="listitem"><a href="#directive-local">local</a></td><td>Yes</td><td>None</td><td>Header field pattern-matching delivery target for domain mailboxes</td>
 		</tr>
 		<tr>
-			<td class="listitem"><a href="#directive-recipient-header">recipient_header</a></td><td>Yes</td><td>None</td><td>Specify a header field the POP3 server records the envelope recipient address in.</td>
+			<td class="listitem"><a href="#directive-envelope-recipient">envelope_recipient</a></td><td>Yes</td><td>None</td><td>Specify a header field the POP3 server records the envelope recipient address in.</td>
 		</tr>
 		<tr>
-			<td class="listitem"><a href="#directive-use-*env">use_*env</a></td><td>Yes</td><td>0 (No)</td><td>Use Demon's SPDS *ENV POP3 extension to retrieve message envelopes.  Overrides recipient_header above.</td>
+			<td class="listitem"><a href="#directive-use-*env">use_*env</a></td><td>Yes</td><td>0 (No)</td><td>Use Demon's SPDS *ENV POP3 extension to retrieve message envelopes.  Overrides envelope_recipient above.</td>
 		</tr>
 		<tr>
 			<td class="listitem"><a href="#directive-extension-sep">extension_sep</a></td><td>Yes</td><td>-</td><td>User extension address separator character</td>
@@ -996,7 +997,7 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				compatible extended regular expression against the envelope recipient address 
 				(retrieved using <a href="#directive-use-*env"><span 
 				class="sample">*ENV</span></a> support or found in the header field specified 
-				with the <a href="#directive-recipient- header">recipient_header</a> directive).  
+				with the <a href="#directive-recipient- header">envelope_recipient</a> directive).  
 				If a match is found, the message will be delivered to the specified <a 
 				href="#delivery-targets">target</a>. If multiple local directives contain 
 				matching patterns, each matching target will receive a copy of the message. If 
@@ -1060,7 +1061,7 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 		</tr>
 	</table>
 
-	<h6 id="directive-recipient-header"><a href="#directive-delivery-targets">Recipient header field specification</a></h6>
+	<h6 id="directive-envelope-recipient"><a href="#directive-delivery-targets">Recipient header field specification</a></h6>
 	<table class="directive">
 		<tr>
 			<td class="rowlabel">
@@ -1084,7 +1085,7 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				Syntax
 			</td>
 			<td class="rowdata">
-				recipient_header = <span class="sample">fieldname:fieldnum</span><br />
+				envelope_recipient = <span class="sample">fieldname:fieldnum</span><br />
 				fieldnum refers to the occurrence of that header field; the value
 				<span class="sample">2</span> is the second occurrence of fieldname.
 			</td>
@@ -1118,8 +1119,8 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				Examples
 			</td>
 			<td class="sample">
-				recipient_header = Delivered-To:2<br />
-				recipient_header = X-Envelope-To:1
+				envelope_recipient = Delivered-To:2<br />
+				envelope_recipient = X-Envelope-To:1
 			</td>
 		</tr>
 	</table>
@@ -1135,7 +1136,7 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				Demon's SPDS *ENV POP3 extension (described at
 				<a href="http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml">http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml</a>).<br />
 				<br />
-				This directive enables domain mailbox operation and overrides the <span class="sample">recipient_header</span>
+				This directive enables domain mailbox operation and overrides the <span class="sample">envelope_recipient</span>
 				directive.
 			</td>
 		</tr>

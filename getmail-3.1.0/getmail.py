@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.0.4'
+__version__ = '3.1.0'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -270,7 +270,7 @@ class getmail:
                 env_sender = ''
             self.logfunc (TRACE, 'found envelope sender "%s"\n' % env_sender)
 
-            if self.conf['recipient_header']:
+            if self.conf['envelope_recipient']:
                 recipient = envelope_recipient (self.conf, mess)
             else:
                 recipient = ''
@@ -293,6 +293,20 @@ class getmail:
 
         msgid = mess.get ('message-id', 'None')
         self.msglog ('New msg "%s" from "%s"' % (msgid, env_sender))
+
+        # Filter message if user wants to
+        filters = self.conf['message_filter']
+        if filters:
+            if type (filters) != ListType:
+                filters = [filters]
+            for _filter in filters:
+                rc, newmsg = self.filter_message (msg, _filter)
+                if rc == 99:
+                    self.logfunc (INFO, 'message dropped because filter "%s" exited 99\n' % _filter)
+                    return -1
+                if rc != 0:
+                    raise getmailDeliveryException, 'message filter "%s" exited %s\n' % (_filter, rc)
+                msg = newmsg
 
         count = 0
         if len (self.users):
@@ -448,6 +462,68 @@ class getmail:
         deliverycount = deliverycount + 1
         return 'command "%s"' % command
 
+    #######################################
+    def filter_message (self, msg, command):
+        '''Filter a mail message through a command.
+        '''
+        self.logfunc (TRACE, 'filtering through command "%s"\n' % command)
+        try:
+            import popen2
+        except ImportError:
+            raise getmailDeliveryException, 'popen2 module not found'
+
+        # Set a 30-second alarm for this filter
+        signal.signal (signal.SIGALRM, alarm_handler)
+        signal.alarm (30)
+
+        try:
+            try:
+                popen2._cleanup()
+                cmd = popen2.Popen3 (command, 1, bufsize=-1)
+                cmdout, cmdin, cmderr = cmd.fromchild, cmd.tochild, cmd.childerr
+                cmdin.write (string.replace (msg, line_end['pop3'], line_end['mbox']))
+                # Add trailing blank line
+                cmdin.write ('\n')
+                cmdin.flush ()
+                cmdin.close ()
+
+                r = cmd.wait ()
+                err = string.strip (cmderr.read ())
+                cmderr.close ()
+                out = cmdout.read ()
+                cmdout.close ()
+
+                if not r:
+                    # Exited 0, no signal
+                    rc = 0
+                else:
+                    if os.WIFSIGNALED (r):
+                        raise getmailDeliveryException, 'command "%s" exited on signal %s' % (command, os.WTERMSIG (r))
+                    elif os.WIFSTOPPED (r):
+                        raise getmailDeliveryException, 'command "%s" stopped' % command
+                    elif not os.WIFEXITED (r):
+                        raise getmailDeliveryException, 'command "%s" did not exit' % command
+                    rc = os.WEXITSTATUS (r)
+
+                if err:
+                    self.logfunc (WARN, '\n  filter command "%s":  %s\n' % (command, err))
+
+                if not out:
+                    raise getmailDeliveryException, 'command "%s" did not produce output' % command
+
+            except StandardError, txt:
+                # DEBUG
+                raise   
+                #    raise getmailDeliveryException, 'failure filtering message through command "%s" (%s)' % (command, txt)
+
+        finally:
+            # Filter done, cancel alarm
+            signal.alarm (0)
+            signal.signal (signal.SIGALRM, signal.SIG_DFL)
+
+        self.logfunc (TRACE, 'filtered through command "%s"\n' % command)
+        return rc, out
+
     ###################################
     def abort (self, txt):
         '''Some error has occurred after logging in to POP3 server.  Reset the
@@ -511,22 +587,25 @@ class getmail:
                 #   this is a new message (not in oldmail)
                 if self.conf['readall'] or msgid is None or not self.oldmail.has_key (msgid):
                     rc, msglines, octets = self.session.retr (msgnum)
-                    msg = string.join (msglines, line_end['pop3'])
+                    msg = string.join (msglines + [''], line_end['pop3'])
                     self.logfunc (INFO, 'retrieved')
                     msg = pop3_unescape (msg)
 
                     try:
                         # Find recipients for this message and deliver to them.
                         count = self.process_msg (msg, msgnum)
-                        if count == 0:
+                        if count == -1:
+                            pass
+                        elif count == 0:
                             self.logfunc (INFO, ' ... delivered to postmaster')
-                            count = 1
+                            self.info['localscount'] = self.info['localscount'] + 1
                         elif count == 1:
                             self.logfunc (INFO, ' ... delivered 1 copy')
+                            self.info['localscount'] = self.info['localscount'] + count
                         else:
                             self.logfunc (INFO, ' ... delivered %i copies' % count)
+                            self.info['localscount'] = self.info['localscount'] + count
 
-                        self.info['localscount'] = self.info['localscount'] + count
                     except getmailDeliveryException, txt:
                         self.logfunc (ERROR, ' ... failed delivering message (%s), skipping\n' % txt)
                         # Don't remember this message as "read" on error

@@ -37,13 +37,14 @@ tar xzf getmail-version.tar.gz
 mkdir /usr/lib/getmail
 cp -a getmail-version/* /usr/lib/getmail/
                                You can install getmail in your home
-       directory or elsewhere if you prefer.
+       directory or elsewhere if you prefer. If you use a directory other
+       than /usr/lib/getmail/, change the definition of GETMAILPATH in
+       the getmail wrapper script or ensure the directory you choose is
+       in your PYTHONPATH environment variable.
     4. Copy the getmail helper script to a location in your PATH, and
        ensure it is executable:
 cp -a getmail-version/getmail /usr/bin/
 chmod 755 /usr/bin/getmail
-       If you used an installation path other than that in step 3 above,
-       edit the value of GETMAILDIR in this file.
        
 Configuring getmail
 
@@ -174,7 +175,7 @@ Domain mailbox
 server = mailhost.largeisp.tld
 username = small.company
 password = RRt49slP32m
-recipient_header = delivered-to:1
+envelope_recipient = delivered-to:1
 postmaster = ~tgrieg/Mail/postmaster-maildir/
 local = tgrieg@smallcompany.tld,~tgrieg/Mail/personal-maildir/
 local = info@smallcompany.tld,~bobf/Maildir/
@@ -187,7 +188,7 @@ local = sales@smallcompany.tld,~darlab/Maildir/
    
    To make getmail sort mail (with local directives like the above) based
    on the envelope recipient address, you must either enable the use_*env
-   option (if your mailhost supports it) or use the recipient_header
+   option (if your mailhost supports it) or use the envelope_recipient
    directive.
    
 Message Delivery Targets
@@ -207,7 +208,7 @@ Message Delivery Targets
      * SENDER contains the envelope sender address as extracted from the
        Return-Path: header field or *ENV results.
      * RECIPIENT contains the envelope recipient address as extracted
-       from the user-configured recipient_header header field or *ENV
+       from the user-configured envelope_recipient header field or *ENV
        results.
      * EXT contains the extension portion of RECIPIENT calculated with
        the user-supplied values of extension_sep and extension_depth
@@ -256,10 +257,10 @@ getmailrc Directives
    postmaster No None Default message delivery target
    local Yes None Header field pattern-matching delivery target for
    domain mailboxes
-   recipient_header Yes None Specify a header field the POP3 server
+   envelope_recipient Yes None Specify a header field the POP3 server
    records the envelope recipient address in.
    use_*env Yes 0 (No) Use Demon's SPDS *ENV POP3 extension to retrieve
-   message envelopes. Overrides recipient_header above.
+   message envelopes. Overrides envelope_recipient above.
    extension_sep Yes - User extension address separator character
    extension_depth Yes 1 User extension address base length
    Message Retrieval
@@ -423,7 +424,7 @@ Header field pattern matching delivery target
    envelope recipient address which matches a given pattern. getmail will
    match the specified Perl- compatible extended regular expression
    against the envelope recipient address (retrieved using *ENV support
-   or found in the header field specified with the recipient_header
+   or found in the header field specified with the envelope_recipient
    directive). If a match is found, the message will be delivered to the
    specified target. If multiple local directives contain matching
    patterns, each matching target will receive a copy of the message. If
@@ -451,14 +452,14 @@ Recipient header field specification
    header field (i.e. Delivered-To: or X-Envelope-To:).
    Use it if wish to process mail from a domain mailbox, sorting and
    delivering it to multiple local user accounts using local directives.
-   Syntax recipient_header = fieldname:fieldnum
+   Syntax envelope_recipient = fieldname:fieldnum
    fieldnum refers to the occurrence of that header field; the value 2 is
    the second occurrence of fieldname.
    Optional Yes
    Default None
    Commandline equivalent None
-   Examples recipient_header = Delivered-To:2
-   recipient_header = X-Envelope-To:1
+   Examples envelope_recipient = Delivered-To:2
+   envelope_recipient = X-Envelope-To:1
    
 SPDS *ENV POP3 Extension
 
@@ -466,7 +467,7 @@ SPDS *ENV POP3 Extension
    server using Demon's SPDS *ENV POP3 extension (described at
    http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml).
    This directive enables domain mailbox operation and overrides the
-   recipient_header directive.
+   envelope_recipient directive.
    Syntax use_*env = bool
    Optional Yes
    Default 0 (No)

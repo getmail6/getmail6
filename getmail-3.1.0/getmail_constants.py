@@ -41,10 +41,13 @@ intoptions = (
     'verbose'
 )
 stringoptions = (
+    'envelope_recipient',
     'extension_sep',
     'message_log',
     'postmaster',
-    'recipient_header',
+)
+listoptions = (
+    'message_filter',
 )
 
 # Line ending conventions

@@ -128,7 +128,7 @@ How does getmail decide what local recipients to deliver a message to?
             POP3 servers is sensible, it will record the envelope
             recipient address in a new header field at the top of the
             message. You can then tell getmail to find it using the
-            recipient_header directive.
+            envelope_recipient directive.
     2. getmail will then compare each address found above to any
        configured local recipient address patterns. If a pattern matches,
        getmail will deliver the message to that target. If no patterns
@@ -159,14 +159,15 @@ getmail complains about "configuration error in getmailrc file
    world-writable getmailrc file. Change the permissions on that file.
    
 getmail complains about "Configuration error (local directives require
-use_*env or recipient_header to identify envelope recipient)". What's wrong?
+use_*env or envelope_recipient to identify envelope recipient)". What's
+wrong?
 
    The account configuration in question contains local directives, but
    you haven't told getmail how to determine the original envelope
    recipient address of the message. To use multidrop mode, you must
    either enable use_*env (if your mailhost supports it) or tell getmail
    which header field the envelope recipient address is recorded in by
-   the mailhost's MTA using the recipient_header directive.
+   the mailhost's MTA using the envelope_recipient directive.
    
 getmail configuration
 
@@ -183,8 +184,8 @@ What is a "domain mailbox"?
    getmail provides a method of retrieving mail from a domain mailbox and
    distributing it among the various users automatically. See the
    documentation sections on header field pattern matching delivery
-   targets, recipient header field specification, default delivery
-   target, and POP3 domain mailboxes.
+   targets, envelope recipient address field specification, default
+   delivery target, and POP3 domain mailboxes.
    
 Do I have to run sendmail or another MTA to use getmail?
 
@@ -198,8 +199,9 @@ I've got a simple POP3 account. Do I need "local=..." configuration
 variables?
 
    No, you don't need them. They might be useful to you if the MTA on the
-   POP3 server supports extension addresses (i.e. qmail). But in general,
-   you will only need to use a postmaster directive.
+   POP3 server supports extension addresses (i.e. qmail) and records the
+   envelope recipient address properly. But in general, you will only
+   need to use a postmaster directive.
    
 Other getmail errors
 
@@ -213,9 +215,25 @@ I've configured getmail to deliver to my mbox file, but it won't do it. Why?
    getmail 3.x does not have native mbox support, as all mbox-capable
    MDAs on a given system must use the same locking mechanism and support
    the same mbox subtype. You can use getmail's command delivery
-   mechanism to deliver through an external mbox-aware MDA if you must,
-   but consider using maildirs instead.
+   mechanism to deliver through an external mbox-aware MDA (see the next
+   paragraph) if you must, but consider using maildirs instead.
    
+   getmail includes getmail_mbox, an mbox delivery agent you can use in
+   this fashion. It supports mboxrd-format mbox files and uses
+   flock-style locking. Make sure these are the correct types for your
+   system before using it, as all mbox-handling programs on a system must
+   use the same types and values.
+   
+   To use getmail_mbox to deliver to mbox files, specify it as an
+   external MDA. It takes the path to the mbox file as a commandline
+   argument, as follows:
+getmail_mbox /path/to/mbox
+
+   Example uses:
+postmaster = "|/path/to/getmail_mbox /path/to/mbox
+local = "^joe@.*$,|/path/to/getmail_mbox /home/joe/mbox
+local = "^sam@.*$,|/path/to/getmail_mbox /home/sam/mbox
+                
 I've configured getmail to deliver to a command (external MDA), but it
 complains that the command exited 0 but wrote to stderr. Why?
 
@@ -303,7 +321,7 @@ How do I use TMDA with getmail?
    MTA at the POP3 server is configured to record the envelope recipient
    in a message header field (i.e. as qmail does with Delivered-To:), and
    you have configured getmail to only look at that header field with the
-   recipient_header directive, or if your ISP supports the SPDS *ENV
+   envelope_recipient directive, or if your ISP supports the SPDS *ENV
    extension and you have configured getmail to use it.
    
    If anyone has concrete experience using getmail and TMDA together,
