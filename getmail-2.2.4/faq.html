@@ -229,6 +229,12 @@
         </LI>
     </UL>
 
+    <H4><A NAME="other-errors-command" HREF="#other-errors">I've configured getmail to deliver to a command (external MDA), but it complains that the command <SAMP CLASS="error">exited 0 but wrote to stderr</SAMP>.  Why?</A></H4>
+    Command deliveries must exit 0 and not write anything to stderr to be considered a successful
+    delivery.  If you know your MDA can write to stderr on success, give your
+    command a <EM CLASS="sample">--quiet</EM> option (if it supports it) or
+    discard or redirect stderr in the command specification of the delivery target.
+
     <H4><A NAME="other-errors-allmail" HREF="#other-errors">Why does getmail retrieve all my messages when I've told it to only retrieve new mail?</A></H4>
     Your POP3 mail server is probably broken.  getmail requires that the
     server support the POP3 UIDL command to uniquely identify messages.

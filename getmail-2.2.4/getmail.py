@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.2.3'
+__version__ = '2.2.4'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -53,14 +53,13 @@ import poplib
 import fcntl
 import rfc822
 import cStringIO
-import stat
 import traceback
 import getopt
 import getpass
 import signal
 import sha
 from types import *
-
+from stat import *
 
 #
 # Exception classes
@@ -348,7 +347,7 @@ class getmailAddressList (rfc822.AddressList):
 
 #######################################
 class getmail:
-    '''pop_processor implements the main logic to retrieve mail from a
+    '''getmail.go() implements the main logic to retrieve mail from a
     specified POP3 server and account, and deliver retrieved mail to the
     appropriate Maildir(s) and/or mbox file(s).
     '''
@@ -422,6 +421,7 @@ class getmail:
 
     ###################################
     def __del__ (self):
+        global getmailobj
         try:
             msglog ('getmail finished for %(username)s@%(server)s:%(port)i' \
                     % self.account, self.opts)
@@ -429,6 +429,7 @@ class getmail:
             timeoutsocket.setDefaultSocketTimeout (defs['timeout'])
         except:
             pass
+        getmailobj = None
 
     ###################################
     def read_oldmailfile (self):
@@ -686,23 +687,16 @@ class getmail:
                     hdr = mess822.getfirstmatchingheader (header_type)
                     if not hdr:  continue
                     recips = rfc822.AddrlistClass(string.join (hdr)).getaddrlist ()
-                    for (name, address) in recips:
-                        if address and res['mailaddr'].search (address):
-                            # Looks like an email address, keep it
-                            recipients[string.lower (address)] = None
-                            self.logfunc (TRACE,
-                                'extract_recipients():  found address "%s"\n'
-                                % address, self.opts)
                 else:
                     # Handle all other header fields
                     recips = mess822.getaddrlist (header_type)
-                    for (name, address) in recips:
-                        if address and res['mailaddr'].search (address):
-                            # Looks like an email address, keep it
-                            recipients[string.lower (address)] = None
-                            self.logfunc (TRACE,
-                                'extract_recipients():  found address "%s"\n'
-                                % address, self.opts)
+                for (name, address) in recips:
+                    if address and res['mailaddr'].search (address):
+                        # Looks like an email address, keep it
+                        recipients[string.lower (address)] = None
+                        self.logfunc (TRACE,
+                            'extract_recipients():  found address "%s"\n'
+                            % address, self.opts)
         self.logfunc (TRACE,
             'extract_recipients():  found %i recipients\n'
             % len (recipients.keys ()), self.opts)
@@ -924,7 +918,7 @@ class getmail:
     #######################################
     def deliver_maildir (self, maildir, msg):
         'Reliably deliver a mail message into a Maildir.'
-        # Uses Dan Bernstein's recommended naming convention for maildir
+        # Uses Dan Bernstein's documented naming convention for maildir
         # delivery.  See http://cr.yp.to/proto/maildir.html for details.
         global deliverycount
         self.info['time'] = int (time.time ())
@@ -951,8 +945,8 @@ class getmail:
 
         # Get user & group of maildir
         s_maildir = os.stat (maildir)
-        maildir_owner = s_maildir[stat.ST_UID]
-        maildir_group = s_maildir[stat.ST_GID]
+        maildir_owner = s_maildir[ST_UID]
+        maildir_group = s_maildir[ST_GID]
 
         # Open file to write
         try:
@@ -1002,10 +996,11 @@ class getmail:
 
         global deliverycount
         # Construct mboxrd-style 'From_' line
-        delivery_date = mbox_timestamp ()
-        fromline = 'From %s %s\n' % (env_sender, delivery_date)
+        fromline = 'From %s %s\n' % (env_sender, mbox_timestamp ())
 
         try:
+            # When orig_length is None, we haven't opened the file yet
+            orig_length = None
             # Open mbox file
             f = open (mbox, 'rb+')
             lock_file (f)
@@ -1023,6 +1018,7 @@ class getmail:
                     'destination "%s" is not an mbox file' % mbox
 
             f.seek (0, 2)                   # Seek to end
+            orig_length = f.tell ()         # Save original length
             f.write (fromline)
 
             # Replace lines beginning with "From ", ">From ", ">>From ", ...
@@ -1042,10 +1038,24 @@ class getmail:
             unlock_file (f)
             f.close ()
             # Reset atime
-            os.utime (mbox, (status_old[stat.ST_ATIME], status_new[stat.ST_MTIME]))
+            try:
+                os.utime (mbox, (status_old[ST_ATIME], status_new[ST_MTIME]))
+            except OSError, txt:
+                # Not root or owner; readers will not be able to reliably
+                # detect new mail.  But you shouldn't be delivering to
+                # other peoples' mboxes unless you're root, anyways.
+                self.logfunc (WARN,
+                    'Warning:  failed to update atime/mtime of mbox file...\n',
+                    self.opts)
 
         except IOError, txt:
             try:
+                if not f.closed and not orig_length is None:
+                    # If the file was opened and we know how long it was,
+                    # try to truncate it back to that length
+                    # If it's already closed, or the error occurred at close(),
+                    # then there's not much we can do.
+                    f.truncate (orig_length)
                 unlock_file (f)
                 f.close ()
             except:
@@ -1070,8 +1080,7 @@ class getmail:
             raise getmailDeliveryException, 'refuse to deliver to commands as root'
 
         # Construct mboxrd-style 'From_' line
-        delivery_date = mbox_timestamp ()
-        fromline = 'From %s %s\n' % (env_sender, delivery_date)
+        fromline = 'From %s %s\n' % (env_sender, mbox_timestamp ())
 
         self.logfunc (TRACE, 'deliver_command():  delivering to command "%s"\n'
             % command, self.opts)
@@ -1095,23 +1104,29 @@ class getmail:
             out = string.strip (cmdout.read ())
             cmdout.close ()
 
-            if err or r:
-                if r and os.WIFEXITED (r):
+            if r:
+                if os.WIFEXITED (r):
                     exitcode = 'exited %i' % os.WEXITSTATUS (r)
-                    if os.WIFSIGNALED (r):
-                        exitsignal = 'signal %i' % os.WTERMSIG (r)
-                    else:
-                        exitsignal = 'no signal'
+                    exitsignal = ''
+                elif os.WIFSIGNALED (r):
+                    exitcode = 'abnormal exit'
+                    exitsignal = 'signal %i' % os.WTERMSIG (r)
                 else:
+                    # Stopped, etc.
                     exitcode = 'no exit?'
                     exitsignal = ''
                 raise getmailDeliveryException, 'command "%s" %s %s (%s)' \
                      % (command, exitcode, exitsignal, err)
+            
+            elif err:
+                raise getmailDeliveryException, 'command "%s" exited 0 but wrote to stderr (%s)' \
+                     % (command, err)
+            
             if out:
                 # Command wrote something to stdout
                 self.logfunc (INFO, 'command "%s" said "%s"' % (command, out),
                     self.opts)
-                msglog (INFO, 'command "%s" said "%s"' % (command, out),
+                msglog ('command "%s" said "%s"' % (command, out),
                     self.opts)
 
         except ImportError:
@@ -1120,7 +1135,7 @@ class getmail:
         except getmailDeliveryException:
             raise
 
-        except Exception, txt:
+        except StandardError, txt:
             raise getmailDeliveryException, \
                 'failure delivering message to command "%s" (%s)' % (command, txt)
 
@@ -1392,7 +1407,7 @@ def read_configfile (filename, overrides):
         return None
 
     s = os.stat (filename)
-    mode = stat.S_IMODE (s[stat.ST_MODE])
+    mode = S_IMODE (s[ST_MODE])
     if (mode & 022):
         raise getmailConfigException, 'file is group- or world-writable'
 
@@ -1637,28 +1652,23 @@ def main ():
 
     for (account, loptions, locals) in mail_configs:
         try:
-            mail = getmail (account, loptions, locals)
-            mail.go ()
-            try:
-                del mail
-            except:
-                pass
+            getmail (account, loptions, locals).go ()
+        except AttributeError, txt:
+            # getmail class failed to instantiate
+            log (INFO, 'Failed to instantiate getmail object, skipping...\n')
         except getmailNetworkError, txt:
             # Network not up (PPP, etc)
             log (INFO, 'Network error, skipping...\n')
-            break
         except KeyboardInterrupt, txt:
             # User aborted
             log (INFO, 'User aborted...\n')
-            try:
-                del mail
-            except:
-                pass
         except:
             log (FATAL,
                 '\ngetmail bug:  please include the following information in any bug report:\n')
             log (FATAL, 'getmail version %s\n\n' % __version__)
-            exc_type, value, tb = sys.exc_info()
+            log (FATAL, 'ConfParser version %s\n\n' % ConfParser.__version__)
+            log (FATAL, 'Python version %s\n\n' % sys.version)
+            exc_type, value, tb = sys.exc_info ()
             tblist = traceback.format_tb (tb, None) + \
                    traceback.format_exception_only (exc_type, value)
             del tb

@@ -208,6 +208,15 @@ Other getmail errors
        with the five character string "From " or be a zero-length file. The
        mboxrd specification demands this.
 
+    I've configured getmail to deliver to a command (external MDA), but it
+    complains that the command exited 0 but wrote to stderr. Why?
+
+   Command deliveries must exit 0 and not write anything to stderr to be
+   considered a successful delivery. If you know your MDA can write to stderr
+   on success, give your command a --quiet option (if it supports it) or
+   discard or redirect stderr in the command specification of the delivery
+   target.
+
     Why does getmail retrieve all my messages when I've told it to only retrieve
     new mail?
 

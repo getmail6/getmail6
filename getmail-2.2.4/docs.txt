@@ -291,6 +291,17 @@ Configuring getmail
        as configured by the extension_sep and extension_depth directives.
    Note the following restrictions:
      * getmail refuses to run external commands when running as root.
+     * If an external command writes to stderr, getmail will consider the
+       delivery a failure. If you know your MDA can write to stderr on a
+       successful delivery, either supply a --quiet option to the MDA (if it
+       supports such), or throw away or redirect stderr in one of the
+       following manners:
+
+ postmaster = "|/path/to/mda [options] 2>/dev/null"
+ postmaster = "|/path/to/mda [options] 2>&1"
+
+       This will, of course, also work with delivery targets in local
+       directives.
      * getmail will not create Maildirs or mbox files if they do not exist.
        You must create them prior to having getmail deliver mail to them. Use
        maildirmake to create empty Maildirs; use touch to create empty mbox

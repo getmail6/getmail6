@@ -1,6 +1,29 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.2.4
+6 March 2002
+
+  -getmail would previously exit if it hit a network error like unresolvable
+  DNS.  It should have continued with the next account (if any).  Thanks to
+  Geoffrey Swift for the bug report.
+  -changed deliver_mbox() to try to truncate the file back to its original
+  length if delivery fails.  Thanks to discussion with Matt Armstrong for
+  changing my mind about the usefulness of this.
+  -fix copy & paste error involving msg_log().  Thanks to Charles Jie for
+  the bug report.
+  -change deliver_mbox to not declare a delivery error if getmail cannot
+  utime() the mbox to change its mtime and atime.  mbox-reading clients
+  will not be able to reliably detect new mail if you are writing to
+  someone else's mbox file as anyone other than root.  Thanks to
+  Bob Ernst for noting this.
+  -remove duplicated code in extract_recipients()
+  -deliver_command() wouldn't properly note when an MDA exited on a signal.
+  It would instead log that the command failed to exit, but would still 
+  properly consider the delivery failed.  Fixed.  Thanks to TMDA user
+  Tim Legant for the bug report.
+  -clean up some code.
+  
 Version 2.2.3
 24 February 2002
 

@@ -351,6 +351,16 @@ local = sales@smallcompany.tld,~darlab/mbox
     Note the following restrictions:
     <UL>
         <LI>getmail refuses to run external commands when running as root.</LI>
+        <LI>If an external command writes to stderr, getmail will consider
+            the delivery a failure.  If you know your MDA can write to stderr
+            on a successful delivery,
+            either supply a <EM CLASS="sample">--quiet</EM> option to the
+            MDA (if it supports such), or throw away or redirect stderr
+            in one of the following manners:
+            <PRE CLASS="sample">postmaster = "|/path/to/mda [options] 2>/dev/null"
+postmaster = "|/path/to/mda [options] 2>&1"
+</PRE>This will, of course, also work with delivery targets in
+            <EM CLASS="sample">local</EM> directives.</LI>            
         <LI>getmail will not create Maildirs or mbox files if they do not exist.
             You must create them prior to having getmail deliver mail to them.
             Use maildirmake to create empty Maildirs; use touch to create
