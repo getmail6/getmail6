@@ -1,5 +1,12 @@
 getmail changes since version 1.11:
 
+Version 2.0.3
+20 December 2000
+
+  -fix bug in one error message which caused getmail to throw an exception
+  if it failed to write the oldmail file.
+  -added to the FAQ and documentation while I was at it.
+
 Version 2.0.2
 19 December 2000
 

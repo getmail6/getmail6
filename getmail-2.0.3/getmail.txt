@@ -18,6 +18,22 @@ Summary of Features
        
    back to top
    
+getmail Requirements
+
+     * Python version 1.5 or higher. Version 1.5.2 or higher is strongly
+       recommended.
+     * A configuration/data directory. By default, getmail looks for a
+       directory named ".getmail" in your home directory. You can specify
+       an alternative location with the --getmaildir or -g option.
+     * getmail must have write permission to the Maildirs and mbox files
+       you are delivering to. This can be done by making the various
+       destinations group writable, by only delivering to destinations
+       owned by the user getmail is running as, or by running getmail as
+       root. When delivering to Maildirs, getmail will attempt to chown
+       any files it creates to the owner of the Maildir.
+       
+   back to top
+   
 Changes Since Version 1.11
 
      * Completely rewritten for better modularity, configurability, and

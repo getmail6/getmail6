@@ -45,6 +45,68 @@ getmail Documentation
    (~/.getmail/getmailrc) and begin retrieving mail.
    You can also supply commandline options as follows:
    
+getmailrc Commandline Options
+
+   getmail understands the following commandline options:
+   
+   --help
+   -h
+          Display usage information and built-in defaults, then exit.
+          
+   --dump
+          Do not retrieve mail. Read getmailrc file and commandline
+          options and dump configuration to stdout. Useful for submitting
+          bug reports and diagnosing configuration errors.
+          
+   --quiet
+   -q
+          Do not display informational messages while running.
+          Equivalent to "verbose = 0" in getmailrc file.
+          
+   --verbose
+   -v
+          Display informational messages while running.
+          Equivalent to "verbose = 1" in getmailrc file.
+          
+   --all
+   -a
+          Retrieve all mail, including previously retrieved mail.
+          Equivalent to "readall = 1" in getmailrc file.
+          
+   --new
+   -n
+          Retrieve only previously unretrieved mail.
+          Equivalent to "readall = 0" in getmailrc file.
+          
+   --delete
+   -d
+          Delete mail from POP3 server after retrieval and delivery.
+          Equivalent to "delete = 1" in getmailrc file.
+          
+   --dont-delete
+   -l
+          Do not delete mail from POP3 server after retrieval and
+          delivery.
+          Equivalent to "delete = 0" in getmailrc file.
+          
+   --getmaildir <path>
+   -g <path>
+          Use <path> as getmail configuration/data directory.
+          
+   --rcfile <filename>
+   -r <filename>
+          Use <filename> as getmailrc file.
+          
+   --message_log <filename>
+   -m <filename>
+          Log message retrieval and delivery information to <filename>
+          Equivalent to "message_log = <filename>" in getmailrc file.
+          
+   --timeout <value>
+   -t <value>
+          Use <value> seconds as TCP timeout value.
+          Equivalent to "timeout = <value>" in getmailrc file.
+          
 getmailrc Directives
 
    The getmailrc file is structured similarly to an MS-Windows .INI file.

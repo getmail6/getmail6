@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.2'
+__version__ = '2.0.3'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -321,7 +321,6 @@ class getmail:
 		except IOError:
 			self.logfunc (TRACE, 'read_oldmailfile():  no oldmail file for '
 				'%(server)s:%(username)s\n' % self.account)
-			pass
 		return oldmail
 
 	###################################
@@ -338,8 +337,7 @@ class getmail:
 		except IOError, txt:
 			self.logfunc (TRACE, 'write_oldmailfile():  failed '
 				'writing oldmail file for %(server)s:%(username)s'
-				% self.account + ' (' + txt + ')\n')
-			pass
+				% self.account + ' (%s)\n' % txt)
 
 	###################################
 	def connect (self):
@@ -514,7 +512,7 @@ class getmail:
 		else:
 			# No Return-Path: header
 			self.logfunc (DEBUG, 'no Return-Path: header in message\n')
-			env_sender = '<@[]>'
+			env_sender = '<#@[]>'
 
 		self.logfunc (TRACE, 'process_msg():  found envelope sender "%s"\n'
 			% env_sender)

@@ -52,6 +52,20 @@ getmail FAQ
    is incorrect. The correct method is:
    postmaster = /home/adam/Maildir/
    
+  I've configured getmail to deliver to my mbox file, but it won't do it. Why?
+  
+   The problem is one or more of the following:
+     * The user getmail is running as doesn't have write permission to
+       the mbox file you specified.
+     * The path you specified is actually a symlink to the mbox file.
+       getmail refuses to deliver to an mbox if it is a symlink. Specify
+       the path to the actual file instead.
+     * The path you specified doesn't exist. getmail won't create an mbox
+       file. `touch` the file first, to create a 0-byte file.
+     * The file does not appear to be an mbox file. It has to either
+       start with the five character "From " or be a zero-length file.
+       The mbox specification demands this.
+       
   How do I make getmail deliver messages by re-injecting with SMTP?
   
    You don't. getmail doesn't do this, to prevent mail loops and bounces
