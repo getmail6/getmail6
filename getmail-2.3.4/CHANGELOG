@@ -1,6 +1,13 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.4
+27 March 2002
+
+  -make some changes to the log functions.  This should help with the few
+  sporadic errors some people have been reporting that result in TypeErrors
+  in odd places.  Please let me know if this fixes the problem.
+
 Version 2.3.3
 18 March 2002
 

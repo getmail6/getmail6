@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.3'
+__version__ = '2.3.4'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -213,6 +213,8 @@ res = {
     # Regular expression to extract addresses from 'for' clauses in 
     # Received: header fields
     'received_for' : re.compile (r'\s+for\s+<(?P<addr>.*?(?=>))', re.IGNORECASE),
+    # Percent sign escapes
+    'percent' : re.compile (r'%(?!\([\S]+\)[si])'),
 }
 
 # For trace output
@@ -235,6 +237,7 @@ def log (level, msg, opts):
         msg = '%s() [%s:%i] %s' % (trace[FUNCNAME],
             os.path.split (trace[FILENAME])[-1],
             trace[LINENO], msg)
+    msg = res['percent'].sub ('%%', msg)
     if level >= WARN:
         sys.stderr.write (msg % opts)
         sys.stderr.flush ()
@@ -468,6 +471,7 @@ class getmail:
     def msglog (self, msg):
         if not self.conf['message_log']:
             return
+	    msg = res['percent'].sub ('%%', msg)
         self.logfile.write ('%s %s\n'
             % (time.strftime ('%d %b %Y %H:%M:%S',
                               time.localtime (int (time.time ()))),
