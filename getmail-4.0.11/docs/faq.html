@@ -25,8 +25,8 @@
 <p class="about">
     getmail is licensed under the
     <a href="COPYING">GNU General Public License version 2</a>
-    (only). If you wish to obtain a license to use getmail under other terms,
-    please contact me directly.
+    (only). If you wish to obtain a license to distribute getmail under other 
+    terms, please contact me directly.
 </p>
 
 <h1 id="toc">Table of Contents</h1>
@@ -84,7 +84,6 @@
             <li><a href="faq.html#faq-about-ssl">Does getmail support SSL?</a></li>
             <li><a href="faq.html#faq-about-rewrite">Does getmail rewrite mail headers when it retrieves mail?</a></li>
             <li><a href="faq.html#faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4?  What about my &quot;oldmail&quot; files?</a></li>
-            <li><a href="faq.html#faq-how-multi">How do I retrieve mail from multiple accounts?</a></li>
             <li><a href="faq.html#faq-about-why">Why did you write getmail?  Why not just use fetchmail?</a></li>
             </ul>
         </li>
@@ -101,6 +100,7 @@
         <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
         <li>
             <ul>
+            <li><a href="faq.html#faq-how-multi">How do I retrieve mail from multiple accounts?</a></li>
             <li><a href="faq.html#faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</a></li>
             <li><a href="faq.html#faq-how-no-received">How do I stop getmail adding a Received: header to messages?</a></li>
             <li><a href="faq.html#faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</a></li>
@@ -128,19 +128,18 @@
     </li>
 </ul>
 
-<!--
-********************************************************************************
--->
+<!-- ********************************************************************** -->
 
 <h1 id="faq">Frequently-Asked Questions (FAQs)</h1>
 <p>
-    The following questions about getmail come up more-or-less frequently.
+    The following questions about getmail are answered more-or-less frequently.
     Please also read the
     <a href="troubleshooting.html#unexpected-behaviour">unexpected behaviour section</a>
     of the
     <a href="troubleshooting.html">troubleshooting document</a>.
 </p>
 
+<!-- ********************************************************************** -->
 <h2 id="faq-about">About getmail</h2>
 
 <h3 id="faq-about-what">What is getmail?</h3>
@@ -206,7 +205,7 @@
     <a href="http://www.fsf.org/">Free Software</a>.
     As such, it comes with no warranty.  However, I will do my best to support
     getmail on a voluntary basis through the
-    <a href="getmail.html#maillist">getmail mailing list</a>.
+    <a href="documentation.html#mailing-list-users">getmail mailing list</a>.
 </p>
 <p>
     If you are using getmail in a commercial or other environment where problems
@@ -217,10 +216,8 @@
     If you have questions about getmail, the first step is to read the
     <a href="documentation.html">documentation</a>,
     and the remainder of the Frequently Asked Questions. If your question isn't
-    answered there, search the getmail mailing list archives at
-    <a href="http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2">
-        http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2
-    </a>.
+    answered there, search the 
+    <a href="documentation.html#mailing-list-users-archive">getmail mailing list archives</a>.
 </p>
 <p>
     If you still haven't found an answer to your question, please subscribe to
@@ -294,10 +291,14 @@
 
 <h3 id="faq-about-rewrite">Does getmail rewrite mail headers when it retrieves mail?</h3>
 <p>
-    No.  Rewriting message header fields is bad.  getmail will add a new
-    Received: header field and a new Delivered-To: header field, but does not
-    rewrite existing headers.  You can disable the creation of these header
-    fields.
+    No.  Rewriting message header fields is bad for many reasons; the biggest 
+    problem is that it causes a loss of critical technical information necessary 
+    to track down many mail problems.  getmail will add a new 
+    <span class="file">Received:</span>
+    header field and a new 
+    <span class="file">Delivered-To:</span>
+    header field, but does not rewrite existing headers.  You can disable the 
+    creation of these header fields.
 </p>
 
 <h3 id="faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4?  What about my &quot;oldmail&quot; files?</h3>
@@ -355,15 +356,11 @@
     That's it.
 </p>
 
-<h3 id="faq-how-multi">How do I retrieve mail from multiple accounts?</h3>
-<p>
-    Create a separate getmail rc file for each account, and run getmail with
-    multiple 
-    <span class="file">--rcfile</span>
-    options.
-</p>
-
 <h3 id="faq-about-why">Why did you write getmail?  Why not just use fetchmail?</h3>
+<p>
+	Short answer:  &hellip; well, the short answer is mostly unprintable.
+	The long answer is &hellip; well, long:
+</p>
 <p>
     I do not like some of the design choices which were made with fetchmail.
     getmail does things a little differently, and for my purposes, better. In
@@ -499,6 +496,7 @@
     design and implementation errors.
 </p>
 
+<!-- ********************************************************************** -->
 <h2 id="faq-configuring">Configuring getmail</h2>
 
 <h3 id="faq-configuring-domain-mailbox">What is a &quot;domain mailbox&quot;?</h3>
@@ -603,7 +601,16 @@ type = Mboxrd
 path = ~/inbox
 </pre>
 
+<!-- ********************************************************************** -->
 <h2 id="faq-how">How do I &hellip;</h2>
+
+<h3 id="faq-how-multi">How do I retrieve mail from multiple accounts?</h3>
+<p>
+    Create a separate getmail rc file for each account, and run getmail with
+    multiple 
+    <span class="file">--rcfile</span>
+    options.
+</p>
 
 <h3 id="faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</h3>
 <p>
@@ -627,8 +634,9 @@ path = ~/inbox
     through arbitrary external MDAs.
 </p>
 <p>
-    If you still think you need to, you can use getmail's external MDA
-    support to do so.
+    If you still think you need to, you can use getmail's 
+    <a href="configuration.html#destination-mdaexternal">external MDA support</a>
+    to do so.
 </p>
 
 <h3 id="faq-how-mh">How do I make getmail deliver messages to an mh folder?</h3>
@@ -673,6 +681,16 @@ arguments = (&quot;+inbox&quot;, )
     is designed to do; there's no need to add special code to getmail to do
     this.
 </p>
+<p>
+	With a reasonably standard system
+	<span class="file">cron</span>
+	utility, a
+	<span class="file">crontab(5)</span>
+	entry like the following will make getmail retrieve mail every hour:
+</p>
+<pre class="example">
+0 * * * * /usr/local/bin/getmail --quiet
+</pre>
 
 <h3 id="faq-how-hotmail">How do I make getmail retrieve mail from Hotmail?</h3>
 <p>
@@ -683,6 +701,7 @@ arguments = (&quot;+inbox&quot;, )
     package, and have getmail retrieve mail from that POP3 proxy.
 </p>
 
+<!-- ********************************************************************** -->
 <h2 id="faq-integrating">Using getmail with other software</h2>
 <p>
     getmail user Frankye Fattarelli contributed to the following questions

@@ -9,8 +9,8 @@
    getmail is Copyright © 1998-2004 Charles Cazabon.
    
    getmail is licensed under the GNU General Public License version 2
-   (only). If you wish to obtain a license to use getmail under other
-   terms, please contact me directly.
+   (only). If you wish to obtain a license to distribute getmail under
+   other terms, please contact me directly.
    
                                Table of Contents
                                        
@@ -530,13 +530,16 @@ path = ~/inbox
    The MDA_external destination also takes several optional parameters:
      * arguments (tuple of quoted strings) -- arguments to be supplied to
        the command. The following substrings will be substituted with the
-       equivalent values from the message, if available:
+       equivalent values from the message:
           + %(sender) -- envelope return-path address
+       If the message is retrieved with a multidrop retriever class, the
+       message recipient (and parts of it) are also available with the
+       following replacement substrings:
           + %(recipient) -- envelope recipient address
           + %(local) -- local-part of the envelope recipient address
           + %(domain) -- domain-part of the envelope recipient address
-       The default value is (), so no arguments are supplied to the
-       command.
+       The default value of the arguments parameter is (), so no
+       arguments are supplied to the command.
      * unixfrom (boolean) -- whether to include a Unix-style mbox From_
        line at the beginning of the message supplied to the command.
        Defaults to false. Some MDAs expect such a line to be present and
@@ -982,13 +985,16 @@ message_log = ~/.getmail/log
    parameters:
      * arguments (tuple of quoted strings) -- arguments to be supplied to
        the command. The following substrings will be substituted with the
-       equivalent values from the message, if available:
+       equivalent values from the message:
           + %(sender) -- envelope return-path address
+       If the message is retrieved with a multidrop retriever class, the
+       message recipient (and parts of it) are also available with the
+       following replacement substrings:
           + %(recipient) -- envelope recipient address
           + %(local) -- local-part of the envelope recipient address
           + %(domain) -- domain-part of the envelope recipient address
-       The default value is (), so no arguments are supplied to the
-       command.
+       The default value of the arguments parameter is (), so no
+       arguments are supplied to the command.
      * unixfrom (boolean) -- whether to include a Unix-style mbox From_
        line at the beginning of the message supplied to the command.
        Default: False.

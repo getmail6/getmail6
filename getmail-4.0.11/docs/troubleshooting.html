@@ -25,8 +25,8 @@
 <p class="about">
     getmail is licensed under the
     <a href="COPYING">GNU General Public License version 2</a>
-    (only). If you wish to obtain a license to use getmail under other terms,
-    please contact me directly.
+    (only). If you wish to obtain a license to distribute getmail under other 
+    terms, please contact me directly.
 </p>
 
 <h1 id="toc">Table of Contents</h1>
@@ -77,6 +77,12 @@
                 <li><a href="troubleshooting.html#errmsg-config-missing-section">Configuration error: destination specifies section name <span class="meta">section</span> which does not exist</a></li>
                 </ul>
             </li>
+            <li><a href="troubleshooting.html#errmsg-delivery">Delivery error &hellip;</a></li>
+            <li>
+                <ul>
+                <li><a href="troubleshooting.html#errmsg-delivery-filterheaders">Delivery error (filter <span class="meta">filter</span> returned fewer headers (X) than supplied (Y))</a></li>
+                </ul>
+            </li>
             <li><a href="troubleshooting.html#errmsg-operation-">Error: &hellip;</a></li>
             </ul>
         </li>
@@ -85,6 +91,7 @@
             <ul>
             <li><a href="troubleshooting.html#unexpected-hostname">getmail uses the wrong hostname for my machine</a></li>
             <li><a href="troubleshooting.html#unexpected-delivered-to">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> header field</a></li>
+            <li><a href="troubleshooting.html#unexpected-recipient">getmail isn't replacing my command argument &quot;%(recipient)&quot; with the message recipient address</a></li>
             </ul>
         </li>
         </ul>
@@ -100,10 +107,6 @@
     </li>
 </ul>
 
-<!--
-********************************************************************************
--->
-
 <h1 id="troubleshooting">Troubleshooting</h1>
 <p>
     This section of the documentation is to be added to as getmail version 4
@@ -112,12 +115,14 @@
     send them to the mailing list or me.
 </p>
 
+<!-- ********************************************************************** -->
 <h2 id="error-messages">Error messages</h2>
 <p>
     getmail may output various diagnostic messages.  The common ones and
     their meanings are given below.
 </p>
 
+<!-- ********************************************************************** -->
 <h3 id="errmsg-pyversion" class="errmsg">ImportError: getmail version 4 requires Python version 2.3.3 or later</h3>
 <p>
     You tried to run getmail 4 with a version of Python prior to Python 2.3.3.
@@ -126,6 +131,7 @@
     and later.
 </p>
 
+<!-- ********************************************************************** -->
 <h3 id="errmsg-config" class="errmsg">Configuration error: &hellip;</h3>
 <p>
     getmail detected an error in your configuration.  Check your getmail rc
@@ -213,10 +219,26 @@
     but that section was not found in the file.
 </p>
 
-<!--h4 id="errmsg-config-" class="errmsg">Configuration error: </h4>
+<!-- ********************************************************************** -->
+<h3 id="errmsg-delivery" class="errmsg">Delivery error &hellip;</h3>
 <p>
-</p-->
+    getmail detected an error after retrieving a message but before delivery was 
+    successfully completed.  Some of the specific errors it may find include the 
+    following.
+</p>
 
+<h4 id="errmsg-delivery-filterheaders" class="errmsg">Delivery error (filter <span class="meta">filter</span> returned fewer headers (X) than supplied (Y))</h4>
+<p>
+    A 
+    <a href="configuration.html#conf-filters">message filter</a>
+    incorrectly removed header fields from the message header.  getmail 
+    considers this an error so that you do not lose critical information (or 
+    even the entire message).  Filters should add information to the message 
+    header or leave it alone; check the configuration for the filter program you 
+    are using.
+</p>
+
+<!-- ********************************************************************** -->
 <h3 id="errmsg-operation-" class="errmsg">Error: &hellip;</h3>
 <p>
     getmail detected an operational error.  getmail will do its best to point
@@ -247,6 +269,19 @@
     header field.  If the envelope recipient is not available (because you're
     not using a multidrop retriever class, for example), getmail uses the
     string &quot;unknown&quot;.  You can disable this header if you wish.
+</p>
+
+<h3 id="unexpected-recipient">getmail isn't replacing my command argument &quot;%(recipient)&quot; with the message recipient address</h3>
+<p>
+    The 
+    <span class="file">%(recipient)</span>,
+    <span class="file">%(local)</span>,
+    and
+    <span class="file">%(domain)</span>
+    replacement strings are only replaced if the message is retrieved with
+    a multidrop retriever class; otherwise, getmail does not &quot;know&quot;
+    the recipient address of the message, and therefore cannot perform this
+    replacement.
 </p>
 
 <!--#include virtual="footer.html"-->

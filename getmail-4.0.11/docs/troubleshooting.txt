@@ -9,8 +9,8 @@
    getmail is Copyright © 1998-2004 Charles Cazabon.
    
    getmail is licensed under the GNU General Public License version 2
-   (only). If you wish to obtain a license to use getmail under other
-   terms, please contact me directly.
+   (only). If you wish to obtain a license to distribute getmail under
+   other terms, please contact me directly.
    
                                 Troubleshooting
                                        
@@ -98,6 +98,20 @@ Error messages
    A destination in the getmail rc file refers to another rc file section
    named section, but that section was not found in the file.
    
+  Delivery error ...
+  
+   getmail detected an error after retrieving a message but before
+   delivery was successfully completed. Some of the specific errors it
+   may find include the following.
+   
+    Delivery error (filter filter returned fewer headers (X) than supplied (Y))
+    
+   A message filter incorrectly removed header fields from the message
+   header. getmail considers this an error so that you do not lose
+   critical information (or even the entire message). Filters should add
+   information to the message header or leave it alone; check the
+   configuration for the filter program you are using.
+   
   Error: ...
   
    getmail detected an operational error. getmail will do its best to
@@ -123,3 +137,11 @@ Unexpected Behaviour
    header field. If the envelope recipient is not available (because
    you're not using a multidrop retriever class, for example), getmail
    uses the string "unknown". You can disable this header if you wish.
+   
+  getmail isn't replacing my command argument "%(recipient)" with the message
+  recipient address
+  
+   The %(recipient), %(local), and %(domain) replacement strings are only
+   replaced if the message is retrieved with a multidrop retriever class;
+   otherwise, getmail does not "know" the recipient address of the
+   message, and therefore cannot perform this replacement.

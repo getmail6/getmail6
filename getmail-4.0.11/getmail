@@ -79,7 +79,7 @@ def go(configs):
             syslog.openlog('getmail', 0, syslog.LOG_MAIL)
         try:
             logline = 'initializing retriever %s' % retriever
-            log.debug('%s\n' % logline)
+            log.moreinfo('%s\n' % logline)
             if options['logfile']:
                 options['logfile'].write(logline)
             if options['message_log_syslog']:
@@ -93,16 +93,16 @@ def go(configs):
                 size = retriever.getmsgsize(msgid)
                 logline = '%s MessageID %s, %d bytes' % (retriever, msgid, size)
 
-                log.info('Message %s (%d bytes) ... ' % (msgid, size))
+                log.debug('Message %s (%d bytes) ... ' % (msgid, size))
 
                 if options['read_all'] or timestamp is None:
                     retrieve = True
 
                 if (options['max_message_size']
                         and size > options['max_message_size']):
-                    log.debug('message size (%d) > max_message_size %d, not'
+                    log.debug('message size > max_message_size %d, not'
                         ' retrieving ... '
-                        % (size, options['max_message_size']))
+                        % options['max_message_size'])
                     retrieve = False
 
                 try:
@@ -123,8 +123,8 @@ def go(configs):
                             log.debug('passing to filter %s ... ' % mail_filter)
                             msg = mail_filter.filter_message(msg, retriever)
                             if msg is None:
-                                log.info('dropped by filter %s ... '
-                                    % mail_filter)
+                                log.info('Message %s (%d bytes) dropped by '
+                                    'filter %s\n' % (msgid, size, mail_filter))
                                 logline += (', dropped by filter %s'
                                     % mail_filter)
                                 retriever.delivered(msgid)
@@ -133,7 +133,8 @@ def go(configs):
                         if msg is not None:
                             r = destination.deliver_message(msg,
                                 options['delivered_to'], options['received'])
-                            log.info('delivered to %s ... ' % r)
+                            log.info('Message %s (%d bytes) delivered to %s\n'
+                                % (msgid, size, r))
                             logline += ', delivered to %s' % r
                             retriever.delivered(msgid)
                         if options['delete']:
@@ -158,14 +159,13 @@ def go(configs):
 
                     if delete:
                         retriever.delmsg(msgid)
-                        log.info('deleted')
+                        log.moreinfo('Message %s deleted' % msgid)
                         logline += ', deleted'
 
                 except getmailDeliveryError, o:
                     log.error('Delivery error (%s)\n' % o)
                     logline += ', delivery error (%s)' % o
 
-                log.info('\n')
                 if options['logfile']:
                     options['logfile'].write(logline)
                 if options['message_log_syslog']:
@@ -203,9 +203,10 @@ def go(configs):
 
         retriever.quit()
 
-    log.info('Summary:\n')
+    if sum([i for (unused, i) in summary]):
+        log.moreinfo('Summary:\n')
     for (retriever, retrieved) in summary:
-        log.info('Retrieved %d messages from %s\n' % (retrieved, retriever))
+        log.moreinfo('Retrieved %d messages from %s\n' % (retrieved, retriever))
 
 #######################################
 def main():
@@ -258,7 +259,7 @@ def main():
 
         if options.debug:
             log.clearhandlers()
-            log.addhandler(sys.stdout, logging.DEBUG, maxlevel=logging.INFO)
+            log.addhandler(sys.stdout, logging.MOREINFO, maxlevel=logging.INFO)
             log.addhandler(sys.stderr, logging.WARNING)
 
         if options.trace:
@@ -470,7 +471,7 @@ def main():
                         % (option, val))
                     config[option] = val
 
-            if not options.trace and not config['verbose']:
+            if not (options.trace or options.debug) and not config['verbose']:
                 log.clearhandlers()
                 log.addhandler(sys.stderr, logging.WARNING)
 

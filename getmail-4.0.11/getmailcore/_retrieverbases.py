@@ -40,6 +40,7 @@ import getpass
 import email
 import poplib
 import imaplib
+import sets
 
 from exceptions import *
 from constants import *
@@ -284,9 +285,9 @@ class RetrieverSkeleton(ConfigurableBase):
                     for line in open(self.oldmail_filename, 'rb')
                     if line.strip()!='']:
                 self.oldmail[msgid] = int(timestamp)
-            self.log.info('read %i uids for %s\n' % (len(self.oldmail), self))
+            self.log.moreinfo('read %i uids for %s\n' % (len(self.oldmail), self))
         except IOError:
-            self.log.info('no oldmail file for %s\n' % self)
+            self.log.moreinfo('no oldmail file for %s\n' % self)
 
     def _write_oldmailfile(self):
         '''Write oldmail info to oldmail file.'''
@@ -297,7 +298,9 @@ class RetrieverSkeleton(ConfigurableBase):
         wrote = 0
         try:
             f = updatefile(self.oldmail_filename)
-            msgids = self.__delivered.keys() + self.oldmail.keys()
+            msgids = sets.ImmutableSet(
+                self.__delivered.keys()).union(
+                    sets.ImmutableSet(self.oldmail.keys()))
             for msgid in msgids:
                 self.log.debug('msgid %s ...' % msgid)
                 if msgid in self.deleted:
@@ -311,7 +314,7 @@ class RetrieverSkeleton(ConfigurableBase):
                 f.write('%s\0%i%s' % (msgid, t, os.linesep))
                 wrote += 1
             f.close()
-            self.log.info('wrote %i uids for %s\n' % (wrote, self))
+            self.log.moreinfo('wrote %i uids for %s\n' % (wrote, self))
         except IOError, o:
             self.log.error('failed writing oldmail file for %s (%s)\n'
                 % (self, o))

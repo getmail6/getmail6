@@ -91,6 +91,10 @@ class __Logger(object):
         '''Log a message with level DEBUG.'''
         self.log(DEBUG, msg)
 
+    def moreinfo(self, msg):
+        '''Log a message with level MOREINFO.'''
+        self.log(MOREINFO, msg)
+
     def info(self, msg):
         '''Log a message with level INFO.'''
         self.log(INFO, msg)

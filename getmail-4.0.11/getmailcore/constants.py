@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.3
 
 # Log levels
-(TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL) = range(1, 7)
+(TRACE, DEBUG, MOREINFO, INFO, WARNING, ERROR, CRITICAL) = range(1, 8)
 
 # Components of stack trace (indices to tuple)
 FILENAME = 0

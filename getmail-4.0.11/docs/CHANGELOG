@@ -1,3 +1,14 @@
+Version 4.0.11
+18 August 2004
+
+  -change oldmail file writing to save a few bytes of disk space
+  -documentation additions.
+  -Python's standard library email.Message().flatten() could barf on certain
+  types of badly mis-formatted messages (instead of the during instantiation,
+  like the /other/ buggy cases).  Hope this is fixed in Python 2.4.  Developed
+  a work-around for getmail.  Thanks:  Jürgen Nagel.
+  -changes to "normal" output of getmail to make it slightly less verbose.
+
 Version 4.0.10
 12 August 2004
 

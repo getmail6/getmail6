@@ -25,8 +25,8 @@
 <p class="about">
     getmail is licensed under the
     <a href="COPYING">GNU General Public License version 2</a>
-    (only). If you wish to obtain a license to use getmail under other terms,
-    please contact me directly.
+    (only). If you wish to obtain a license to distribute getmail under other 
+    terms, please contact me directly.
 </p>
 
 <h1 id="toc">Table of Contents</h1>
@@ -148,9 +148,7 @@
     </li>
 </ul>
 
-<!--
-********************************************************************************
--->
+<!-- ********************************************************************** -->
 
 <h1 id="configuring">Configuring getmail</h1>
 <p>
@@ -182,9 +180,7 @@ mkdir -m 0700 $HOME/.getmail
     </li>
 </ol>
 
-<!--
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--->
+<!-- ********************************************************************** -->
 
 <h2 id="rcfile">Creating a getmail rc file</h2>
 <p>
@@ -1035,12 +1031,17 @@ path = ~/inbox
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
         &mdash; arguments to be supplied to the command. The following
         substrings will be substituted with the equivalent values from the
-        message, if available:
+        message:
         <ul>
             <li>
                 <span class="sample">%(sender)</span>
                 &mdash; envelope return-path address
             </li>
+        </ul>
+        If the message is retrieved with a multidrop retriever class, the 
+        message recipient (and parts of it) are also available with the 
+        following replacement substrings:
+        <ul>
             <li>
                 <span class="sample">%(recipient)</span>
                 &mdash; envelope recipient address
@@ -1054,7 +1055,9 @@ path = ~/inbox
                 &mdash; domain-part of the envelope recipient address
             </li>
         </ul>
-        The default value is
+        The default value of the 
+        <span class="file">arguments</span>
+        parameter is
         <span class="sample">()</span>,
         so no arguments are supplied to the command.
     </li>
@@ -1887,14 +1890,19 @@ message_log = ~/.getmail/log
     <li>
         arguments
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
-        &mdash; arguments to be supplied to the command. The following
+        &mdash; arguments to be supplied to the command.  The following
         substrings will be substituted with the equivalent values from the
-        message, if available:
+        message:
         <ul>
             <li>
                 <span class="sample">%(sender)</span>
                 &mdash; envelope return-path address
             </li>
+        </ul>
+        If the message is retrieved with a multidrop retriever class, the 
+        message recipient (and parts of it) are also available with the 
+        following replacement substrings:
+        <ul>
             <li>
                 <span class="sample">%(recipient)</span>
                 &mdash; envelope recipient address
@@ -1908,10 +1916,11 @@ message_log = ~/.getmail/log
                 &mdash; domain-part of the envelope recipient address
             </li>
         </ul>
-        The default value is
+        The default value of the 
+        <span class="file">arguments</span>
+        parameter is
         <span class="sample">()</span>,
-        so no arguments are supplied to the command.
-    </li>
+        so no arguments are supplied to the command.    </li>
     <li>
         unixfrom
         (<a href="#parameter-boolean">boolean</a>)
@@ -2174,9 +2183,7 @@ type = Filter_TMDA
     <a href="getmailrc-examples">getmailrc-examples</a>.
 </p>
 
-<!--
-********************************************************************************
--->
+<!-- ********************************************************************** -->
 
 
 <h1 id="running">Running getmail</h1>
