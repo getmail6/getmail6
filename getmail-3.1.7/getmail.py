@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.1.6'
+__version__ = '3.1.7'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #

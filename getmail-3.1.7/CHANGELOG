@@ -1,6 +1,12 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.1.7
+29 May 2003
+
+  -getmail_mbox.py was missing an import for the string module.  Thanks to Emily 
+  Jackson for the report.  This was introduced in 3.1.6.
+
 Version 3.1.6
 28 May 2003
 
