@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.4'
+__version__ = '2.3.5'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -237,12 +237,12 @@ def log (level, msg, opts):
         msg = '%s() [%s:%i] %s' % (trace[FUNCNAME],
             os.path.split (trace[FILENAME])[-1],
             trace[LINENO], msg)
-    msg = res['percent'].sub ('%%', msg)
+    msg = res['percent'].sub ('%%', msg) % opts
     if level >= WARN:
-        sys.stderr.write (msg % opts)
+        sys.stderr.write (msg)
         sys.stderr.flush ()
     else:
-        sys.stdout.write (msg % opts)
+        sys.stdout.write (msg)
         sys.stdout.flush ()
 
     if msg and msg[-1] == '\n':
@@ -471,11 +471,9 @@ class getmail:
     def msglog (self, msg):
         if not self.conf['message_log']:
             return
-	    msg = res['percent'].sub ('%%', msg)
-        self.logfile.write ('%s %s\n'
-            % (time.strftime ('%d %b %Y %H:%M:%S',
-                              time.localtime (int (time.time ()))),
-            msg % self.conf))
+        msg = res['percent'].sub ('%%', msg) % self.conf
+        ts = time.strftime ('%d %b %Y %H:%M:%S ', time.localtime (time.time ()))
+        self.logfile.write (ts + msg + '\n')
         self.logfile.flush ()
 
     ###################################
@@ -610,7 +608,7 @@ class getmail:
                 continue
             self.logfunc (TRACE, 'parsing header "%s"\n' % header_type)
             if string.lower (header_type) == 'received':
-	            # Handle Received: headers specially
+                # Handle Received: headers specially
                 recips = self.extract_recipients_received (mess822)
             elif string.lower (header_type) in envelope_recipient_headers:
                 # Handle envelope recipient headers differently; only

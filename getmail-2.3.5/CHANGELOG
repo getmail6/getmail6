@@ -1,6 +1,12 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.5
+28 March 2002
+
+  -trying to fix the sporadic TypeError (or other) failures in msglog()
+  that some users are experiencing.  It's difficult to reproduce here.
+
 Version 2.3.4
 27 March 2002
 
