@@ -84,6 +84,7 @@
             <li><a href="faq.html#faq-about-ssl">Does getmail support SSL?</a></li>
             <li><a href="faq.html#faq-about-rewrite">Does getmail rewrite mail headers when it retrieves mail?</a></li>
             <li><a href="faq.html#faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4?  What about my &quot;oldmail&quot; files?</a></li>
+            <li><a href="faq.html#faq-how-multi">How do I retrieve mail from multiple accounts?</a></li>
             <li><a href="faq.html#faq-about-why">Why did you write getmail?  Why not just use fetchmail?</a></li>
             </ul>
         </li>
@@ -352,6 +353,14 @@
 </ol>
 <p>
     That's it.
+</p>
+
+<h3 id="faq-how-multi">How do I retrieve mail from multiple accounts?</h3>
+<p>
+    Create a separate getmail rc file for each account, and run getmail with
+    multiple 
+    <span class="file">--rcfile</span>
+    options.
 </p>
 
 <h3 id="faq-about-why">Why did you write getmail?  Why not just use fetchmail?</h3>

@@ -1,3 +1,13 @@
+Version 4.0.10
+12 August 2004
+
+  -cosmetic fix to output:  add whitespace after timestamp when not retrieving 
+  message.  Thanks: Matthias Andree.
+  -include MANIFEST.in in source distribution, to assist users in building 
+  "built distributions" from it.
+  -change a few output messages' level to make verbose mode slightly less
+  verbose, and add --debug switch to get "more verbose" behaviour.
+
 Version 4.0.9
 9 August 2004
 

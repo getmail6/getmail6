@@ -100,7 +100,7 @@ def go(configs):
 
                 if (options['max_message_size']
                         and size > options['max_message_size']):
-                    log.info('message size (%d) > max_message_size %d, not'
+                    log.debug('message size (%d) > max_message_size %d, not'
                         ' retrieving ... '
                         % (size, options['max_message_size']))
                     retrieve = False
@@ -109,12 +109,12 @@ def go(configs):
                     if retrieve:
                         msg = retriever.getmsg(msgid)
                         retrieved_messages += 1
-                        log.info('from <%s> ... '
+                        log.debug('from <%s> ... '
                             % address_no_brackets(msg.sender))
                         logline += (', sender <%s>'
                             % address_no_brackets(msg.sender))
                         if msg.recipient is not None:
-                            log.info('to <%s> ... '
+                            log.debug('to <%s> ... '
                                 % address_no_brackets(msg.recipient))
                             logline += (', recipient <%s>'
                                 % address_no_brackets(msg.recipient))
@@ -139,7 +139,7 @@ def go(configs):
                         if options['delete']:
                             delete = True
                     else:
-                        log.info('not retrieving (timestamp %s)' % timestamp)
+                        log.debug('not retrieving (timestamp %s) ' % timestamp)
                         logline += ', not retrieved'
 
                     if (options['delete_after'] and timestamp
@@ -174,7 +174,7 @@ def go(configs):
                 if (options['max_messages_per_session']
                         and retrieved_messages >=
                         options['max_messages_per_session']):
-                    log.info('hit max_messages_per_session (%d), breaking\n'
+                    log.debug('hit max_messages_per_session (%d), breaking\n'
                         % options['max_messages_per_session'])
                     raise StopIteration('max_messages_per_session %d'
                         % options['max_messages_per_session'])
@@ -221,9 +221,12 @@ def main():
         parser.add_option('--dump',
             dest='dump_config', action='store_true', default=False,
             help='dump configuration and exit (debugging)')
+        parser.add_option('--debug',
+            dest='debug', action='store_true', default=False,
+            help='print extended debugging information (slightly more verbose)')
         parser.add_option('--trace',
             dest='trace', action='store_true', default=False,
-            help='print extended debugging information')
+            help='print extended trace information (extremely verbose)')
         overrides = OptionGroup(parser, 'Overrides',
             'The following options override those'
             ' specified in any getmailrc file.'
@@ -252,6 +255,11 @@ def main():
         if args:
             raise getmailOperationError('unknown argument(s) %s ; try --help'
                 % args)
+
+        if options.debug:
+            log.clearhandlers()
+            log.addhandler(sys.stdout, logging.DEBUG, maxlevel=logging.INFO)
+            log.addhandler(sys.stderr, logging.WARNING)
 
         if options.trace:
             log.clearhandlers()
