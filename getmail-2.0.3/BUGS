@@ -1,8 +1,0 @@
-Known bugs in getmail:
-
--none at this time.
-
-If you find a bug in getmail, please email a description of the bug,
-any error message which getmail printed, and the result of running getmail
-with your normal options plus '--dump' to either the getmail mailing list,
-or to <getmail @ discworld.dyndns.org>.

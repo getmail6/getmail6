@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.3'
+__version__ = '2.0.4'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -76,6 +76,8 @@ class getmailDeliveryException (getmailException):
 class getmailUnhandledException (getmailException):
 	pass
 
+class getmailNetworkError (getmailException):
+	pass
 
 #
 # Defaults
@@ -253,7 +255,11 @@ class getmail:
 
 		self.account = account.copy ()
 		self.account['shorthost'] = string.split (self.account['server'], '.')[0]
-		self.account['ipaddr'] = socket.gethostbyname (self.account['server'])
+		try:
+			self.account['ipaddr'] = socket.gethostbyname (self.account['server'])
+		except socket.error, txt:
+			# Network unreachable, PPP down, etc
+			raise getmailNetworkError, 'network error (%s)' % txt
 
 		msglog ('getmail started for %(username)s@%(server)s:%(port)i' \
 				% self.account, opts)
@@ -302,10 +308,13 @@ class getmail:
 				
 	###################################
 	def __del__ (self):
-		msglog ('getmail finished for %(username)s@%(server)s:%(port)i' \
-				% self.account, self.opts)
-		msglog ('', self.opts, close=1)
-		timeoutsocket.setDefaultSocketTimeout (defs['timeout'])
+		try:
+			msglog ('getmail finished for %(username)s@%(server)s:%(port)i' \
+					% self.account, self.opts)
+			msglog ('', self.opts, close=1)
+			timeoutsocket.setDefaultSocketTimeout (defs['timeout'])
+		except:
+			pass
 
 	###################################
 	def read_oldmailfile (self):
@@ -1226,6 +1235,10 @@ def main ():
 			mail = getmail (account, loptions, locals)
 			mail.go ()
 			log (INFO, '\n')
+			del mail
+		except getmailNetworkError, txt:
+			# Network not up (PPP, etc)
+			log (INFO, 'Network error, skipping...\n')
 			del mail
 		except:
 			log (FATAL,
