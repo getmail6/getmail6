@@ -3,7 +3,7 @@
                                        
 POP3 mail retriever with reliable Maildir delivery
 
-15 March 2000
+20 March 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -261,6 +261,7 @@ readall=yes
        All other `option=value' pairs in a given section will be treated
        as destinations in a domain mailbox, in the form of email address,
        `=', and a destination path which is a `Maildir' or `mbox' file.
+       Note that getmail now forces all email addresses to lower case.
        This is optionally followed by a colon (`:') and a system
        username. If the username is provided, message files created in a
        Maildir for this recipient will have their ownership (UID and GID)
@@ -297,7 +298,8 @@ info@mycompany.com=/users/rharrington/Mail/info-requests/:rharrington
    `X-Envelope-To:'. If that header does not exist, it will look in
    `Resent-To:', `Resent-cc:', and `Resent-bcc:' headers. If none of
    those headers exist, it will look for recipients in `To:', `cc:', and
-   `bcc:' headers.
+   `bcc:' headers. If getmail fails to find any email addresses by this
+   point, it will look in `Received:' headers.
    
    getmail compares the recipients it finds against email addresses
    supplied in the `.getmailrc' configuration file. For each matching
@@ -345,5 +347,5 @@ info@smallcompany.com=/home/paula/inbox[:paula]
    please send email to me at <getmail @ discworld.dyndns.org>.
      _________________________________________________________________
    
-   This document was generated on 15 March 2000 using the texi2html
+   This document was generated on 20 March 2000 using the texi2html
    translator version 1.51a.

@@ -3,7 +3,7 @@
                                        
 Frequently Asked Questions about getmail
 
-15 March 2000
+20 March 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -198,8 +198,11 @@ password = ' a password with leading whitespace'
      * If there is no `Delivered-To: ', `Envelope-To: ', or `X-Envelope-
        To: ' header, it will use any address(es) found in `Resent-To: ',
        `Resent-cc: ', or `Resent-bcc: ' headers.
-     * As a last resort, getmail will fall back to using any email
-       address(es) found in `To: ', `cc: ', or `bcc: ' headers.
+     * If there are no addresses found by this point, getmail will fall
+       back to using any email address(es) found in `To: ', `cc: ', or
+       `bcc: ' headers.
+     * If there are still no addresses found, getmail will examine
+       `Received:' headers for addresses and use those.
        
    getmail then compares each recipient found in this way to the list of
    user-supplied recognized email address destinations in the
@@ -227,5 +230,5 @@ password = ' a password with leading whitespace'
    http://www.qcc.sk.ca/~charlesc/software/.
      _________________________________________________________________
    
-   This document was generated on 15 March 2000 using the texi2html
+   This document was generated on 20 March 2000 using the texi2html
    translator version 1.51a.

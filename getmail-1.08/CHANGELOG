@@ -1,12 +1,20 @@
 Changes for getmail:
 ====================
 
+v.1.08 20 March 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-force email addresses to lower case when reading .getmailrc file and
+	when determining recipients for domain mailbox messages.  Idea contributed
+	by getmail user Greg Jorgensen.
+	-if all else fails when trying to find recipients for domain mailbox
+	messages, try Received: headers.  Idea and code also contributed by Greg
+	Jorgensen.
+
 v.1.07.02 15 March 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 	-fixed a bug which stopped getmail from running when no config directory
 	was specified and the environment variable GETMAIL wasn't set.
 
 v.1.07.01 22 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
-	-fixed a bug preventing getmail from saving temporary files when 
+	-fixed a bug preventing getmail from saving temporary files when
 	normal delivery failed.
 
 v.1.07 15 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
@@ -17,7 +25,7 @@ v.1.06 15 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 	a problem when servers do not use the message ID as the UIDL result.
 
 v.1.05 Not released
-	
+
 v.1.04 12 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 	-getmail can now change the ownership of message files delivered to a
 	Maildir on a per-recipient basis for domain mailboxes if run with root

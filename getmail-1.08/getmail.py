@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.07.02'
+VERSION = '1.08'
 
 #
 # Imports
@@ -359,14 +359,24 @@ def domainbox_find_recipients (message):
                 recipients.append (item [1])    # Get email address
 
     if not recipients:
-        # Try To:, cc:, and bcc: last
-
+        # Try To:, cc:, and bcc: next
         for header in ('to', 'cc', 'bcc'):
             addrlist = m.getaddrlist (header)
             for item in addrlist:
                 recipients.append (item [1])    # Get email address
 
+    if not recipients:
+        # try Received: last
+        addrlist = m.getaddrlist('received')
+        for item in addrlist:
+            recipients.append(item[1])      # get email address
+
     f.close ()
+
+    # Force lowercase
+    for i in range (len (recipients)):
+        recipients[i] = string.lower (recipients[i])
+
     return recipients
 
 
@@ -667,7 +677,7 @@ def read_configfile (file):
                     except KeyError:
                         stderr ('Error:  no such user in /etc/passwd ("%s")\n'
                             % user)
-                        recips.append (option, dest, None, None)
+                        recips.append (string.lower (option), dest, None, None)
 
                 opt_reciplist.append (recips)
             else:
