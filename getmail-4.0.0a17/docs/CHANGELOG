@@ -1,3 +1,9 @@
+Version 4.0.0a17
+23 June 2004
+
+  -add exitcodes_keep and exitcodes_drop parameters to Filter_external.
+  Thanks: Frankye.
+
 Version 4.0.0a16
 23 June 2004
 
@@ -35,7 +41,7 @@ Version 4.0.0a16
   Of course, 
     locals = sam@example.net ~sam/maildir/
   is already okay if sam is a valid user and has a valid home directory.
-  -add use_syslog
+  -add message_log_syslog
   
 Version 4.0.0a15
 22 June 2004

@@ -8,6 +8,7 @@ Currently implemented:
 import os
 import signal
 import email
+import sets
 
 from exceptions import *
 from utilities import *
@@ -60,11 +61,11 @@ class FilterSkeleton(ConfigurableBase):
     def filter_message(self, msg):
         self.log.trace()
         exitcode, newmsg, err = self._filter_message(msg)
-        if exitcode in (99, 100):
+        if exitcode in self.exitcodes_drop:
             # Drop message
             self.log.info('filter %s returned %d; dropping message\n' % (self, exitcode))
             return None
-        elif exitcode or err:
+        elif (exitcode not in self.exitcodes_keep) or err:
             raise getmailOperationError('filter %s returned %d (%s)\n' % (self, exitcode, err))
 
         # Check the filter was sane
@@ -112,6 +113,14 @@ class Filter_external(FilterSkeleton):
                     path = /path/to/myfilter
                     arguments = ('--demime', '-f%(sender)', '--', '%(recipient)')
 
+      exitcodes_keep - if provided, a tuple of integers representing filter exit
+                       codes that mean to pass the message to the next filter or
+                       destination.  Default is (0, ).
+                       
+      exitcodes_drop - if provided, a tuple of integers representing filter exit
+                       codes that mean to drop the message.  Default is
+                       (99, 100).
+                       
       user (string, optional) - if provided, the external command will be run as the
                                 specified user.  This requires that the main getmail
                                 process have permission to change the effective user
@@ -130,6 +139,8 @@ class Filter_external(FilterSkeleton):
         {'name' : 'path', 'type' : str},
         {'name' : 'unixfrom', 'type' : bool, 'default' : False},
         {'name' : 'arguments', 'type' : tuple, 'default' : ()},
+        {'name' : 'exitcodes_keep', 'type' : tuple, 'default' : (0, )},
+        {'name' : 'exitcodes_drop', 'type' : tuple, 'default' : (99, 100)},
         {'name' : 'user', 'type' : str, 'default' : None},
         {'name' : 'group', 'type' : str, 'default' : None},
         {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
@@ -145,6 +156,15 @@ class Filter_external(FilterSkeleton):
             raise getmailConfigurationError('%s not executable' % self.conf['path'])
         if type(self.conf['arguments']) != tuple:
             raise getmailConfigurationError('incorrect arguments format; see documentation (%s)' % self.conf['arguments'])
+        try:
+            self.exitcodes_keep = [int(i) for i in self.conf['exitcodes_keep'] if 0 <= int(i) <= 255]
+            self.exitcodes_drop = [int(i) for i in self.conf['exitcodes_drop'] if 0 <= int(i) <= 255]
+            if not self.exitcodes_keep:
+                raise getmailConfigurationError('exitcodes_keep set empty')
+            if sets.ImmutableSet(self.exitcodes_keep).intersection(sets.ImmutableSet(self.exitcodes_drop)):
+                raise getmailConfigurationError('exitcode sets intersect')
+        except ValueError, o:
+            raise getmailConfigurationError('invalid exit code specified (%s)' % o)
 
     def __str__(self):
         self.log.trace()
