@@ -166,11 +166,12 @@ def main():
                 raise getmailOperationError('%s is not a file' % path)
             f = file(path, 'rb')
             config = {
+                'verbose' : defaults['verbose'],
                 'read_all' : defaults['read_all'],
                 'delete' : defaults['delete'],
-                'verbose' : defaults['verbose'],
-                'max_message_size' : defaults['max_message_size'],
                 'delete_after' : defaults['delete_after'],
+                'max_message_size' : defaults['max_message_size'],
+                'max_messages_per_session' : defaults['max_messages_per_session'],
             }
             # Python's ConfigParser .getboolean() can't handle booleans in the defaults.
             # Submitted a patch; we'll see if they take it.  In the meantime, ugly hack....
