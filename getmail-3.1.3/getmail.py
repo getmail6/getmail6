@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.1.2'
+__version__ = '3.1.3'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -152,7 +152,7 @@ class getmail:
         if not self.conf['message_log']:
             return
         msg = res['percent'].sub ('%%', msg) % self.conf
-        ts = time.strftime ('%d %b %Y %H:%M:%S ', time.localtime (time.time ()))
+        ts = time.strftime ('%d %b %Y %H:%M:%S ', time.gmtime (time.time ()))
         self.logfile.write (ts + msg + '\n')
         self.logfile.flush ()
 
