@@ -66,7 +66,7 @@ setup(
         'other advanced features.'),
     author='Charles Cazabon',
     author_email='getmail@discworld.dyndns.org',
-    licence='GNU GPL version 2',
+    license='GNU GPL version 2',
     url='http://www.qcc.ca/~charlesc/software/getmail-4/',
     download_url='http://www.qcc.ca/~charlesc/software/getmail-4/#download',
     classifiers=[

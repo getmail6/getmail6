@@ -251,6 +251,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.timestamp = int(time.time())
         self.__oldmail_written = False
         self.__initialized = False
+        self.gotmsglist = False
 
     def __del__(self):
         self.log.trace()
@@ -285,7 +286,8 @@ class RetrieverSkeleton(ConfigurableBase):
     def _write_oldmailfile(self):
         '''Write oldmail info to oldmail file.'''
         self.log.trace()
-        if self.__oldmail_written or not self.__initialized:
+        if (self.__oldmail_written 
+                or not self.__initialized or not self.gotmsglist):
             return
         wrote = 0
         try:
@@ -381,6 +383,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 self.msgsizes[self.msgids[msgnum - 1]] = msgsize
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
+        self.gotmsglist = True
 
     def _delmsgbyid(self, msgid):
         self.log.trace()
@@ -607,6 +610,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
             except imaplib.IMAP4.error, o:
                 raise getmailOperationError('IMAP error (%s)' % o)
+        self.gotmsglist = True
 
     def _delmsgbyid(self, msgid):
         self.log.trace()

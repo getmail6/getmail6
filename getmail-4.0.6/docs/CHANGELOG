@@ -1,3 +1,11 @@
+Version 4.0.6
+4 August 2004
+
+  -if the connection failed in a certain way, getmail could forget which 
+  messages it had already retrieved, and therefore retrieve them again when
+  the next successful connection occurred.  Fixed.  Thanks: Wim Uyttebroek.
+  --add win32 executable installer as third download option.
+
 Version 4.0.5
 3 August 2004
 
