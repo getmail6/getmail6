@@ -42,6 +42,7 @@
         <li><a href="documentation.html#installing">Installing getmail</a></li>
         <li>
             <ul>
+            <li><a href="documentation.html#installing-rpm">Installing from the RPM</a></li>
             <li><a href="documentation.html#installing-source">Installing directly from the source</a></li>
             <li>
                 <ul>
@@ -277,6 +278,10 @@ make install
 $ tar xzf getmail-<span class="meta">version</span>.tar.gz
 </pre>
 <p>
+    On Windows or Macintosh systems, use a Zip-type program to unpack the
+    tarball.
+</p>
+<p>
     On SystemV-like Unix systems, you may instead need to break this down
     into two steps:
 </p>
@@ -296,6 +301,15 @@ $ tar xf getmail-<span class="meta">version</span>.tar
     <a href="http://docs.python.org/dist/postinstallation-script.html">spotty</a>
     at present.
 </p>
+
+<h3 id="installing-rpm">Installing from the RPM</h3>
+<p>
+	If you downloaded the RPM, you should be able to install it with the 
+	following command:
+</p>
+<pre class="example">
+$ rpm -ihv getmail-<span class="meta">version</span>-1.noarch.rpm
+</pre>
 
 <h3 id="installing-source">Installing directly from the source</h3>
 <p>

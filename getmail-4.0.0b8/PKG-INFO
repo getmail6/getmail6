@@ -1,13 +1,13 @@
 Metadata-Version: 1.0
 Name: getmail
-Version: 4.0.0b7
+Version: 4.0.0b8
 Summary: a mail retrieval, sorting, and delivering system
-Home-page: http://www.qcc.ca/~charlesc/software/getmail-4
+Home-page: http://www.qcc.ca/~charlesc/software/getmail-4/
 Author: Charles Cazabon
 Author-email: getmail@discworld.dyndns.org
-License: UNKNOWN
+License: GNU GPL version 2
 Download-URL: http://www.qcc.ca/~charlesc/software/getmail-4/#download
-Description: getmail is a multi-protocol mail retrieval system withsupport for simple and domain POP3 mailboxes, domain SPDS mailboxes, mail sorting, filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and other advanced features.
+Description: getmail is a multi-protocol mail retrieval system withsupport for simple and domain POP3 and IMAP4 mailboxes, domain SPDS mailboxes, POP3-over-SSL and IMAP-over-SSL, mail sorting, message filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and other advanced features.
 Platform: UNKNOWN
 Classifier: Development Status :: 4 - Beta
 Classifier: Environment :: Console

@@ -111,6 +111,9 @@ Installing getmail
    GNU-ish Unix-like systems, this means:
 $ tar xzf getmail-version.tar.gz
 
+   On Windows or Macintosh systems, use a Zip-type program to unpack the
+   tarball.
+   
    On SystemV-like Unix systems, you may instead need to break this down
    into two steps:
 $ gunzip getmail-version.tar.gz
@@ -124,6 +127,12 @@ $ tar xf getmail-version.tar
    package and install the resulting package, but the Python distutils
    support for this is spotty at present.
    
+  Installing from the RPM
+  
+   If you downloaded the RPM, you should be able to install it with the
+   following command:
+$ rpm -ihv getmail-version-1.noarch.rpm
+
   Installing directly from the source
   
    To build and install directly from the included source, follow these

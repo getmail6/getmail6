@@ -60,12 +60,14 @@ setup(
     version=__version__,
     description='a mail retrieval, sorting, and delivering system',
     long_description=('getmail is a multi-protocol mail retrieval system with'
-        'support for simple and domain POP3 mailboxes, domain SPDS mailboxes, '
-        'mail sorting, filtering, and delivery to Maildirs, Mboxrd files, '
-        'external MDAs, and other advanced features.'),
+        'support for simple and domain POP3 and IMAP4 mailboxes, domain SPDS '
+        'mailboxes, POP3-over-SSL and IMAP-over-SSL, mail sorting, message '
+        'filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and '
+        'other advanced features.'),
     author='Charles Cazabon',
     author_email='getmail@discworld.dyndns.org',
-    url='http://www.qcc.ca/~charlesc/software/getmail-4',
+    licence='GNU GPL version 2',
+    url='http://www.qcc.ca/~charlesc/software/getmail-4/',
     download_url='http://www.qcc.ca/~charlesc/software/getmail-4/#download',
     classifiers=[
         'Development Status :: 4 - Beta',

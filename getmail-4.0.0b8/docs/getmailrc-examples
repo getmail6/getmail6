@@ -182,3 +182,21 @@ exitcodes_drop = (1,)
 [destination]
 type = Maildir
 path = ~jeffp/Maildir/
+
+#
+# Example 10: same as (3), but deliver all mail to two different local
+# mailboxes.
+#
+
+[retriever]
+type = SimpleIMAPRetriever
+server = mail.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = MultiDestination
+destinations = (
+    "~jeff/Maildir/",
+    "/var/log/mail-archive/current",
+    )
