@@ -1,0 +1,826 @@
+<HTML>
+<HEAD>
+	<TITLE>getmail version 2.0</TITLE>
+	<LINK REL=StyleSheet HREF="getmail.css" TYPE="text/css" MEDIA=screen>
+</HEAD>
+<BODY>
+	<A NAME="top"><H1>getmail</H1></A>
+	<H3><EM>A POP3 mail retriever with reliable Maildir and mbox delivery</EM></H3>
+	Copyright &copy;2000 Charles Cazabon &lt;getmail @ discworld.dyndns.org&gt;
+	<BR>
+	<BR>
+	getmail is a POP3 mail retriever, written in Python, and licensed under the
+	<A HREF="COPYING">GNU General Public License version 2</A>.<BR>
+	It is intended as a replacement for fetchmail.
+	<BR>
+	<BR>
+
+	<A NAME="contents"><H2>Contents</H2></A>
+	<UL>
+		<LI>
+			<A HREF="#summary">Summary</A>
+		</LI>
+		<LI>
+			<A HREF="#changes-v2">Changes Since Version 1.11</A>
+		</LI>
+		<LI>
+			<A HREF="#maillist">getmail Mailing List</A>
+		</LI>
+		<LI>
+			<A HREF="#faq">getmail FAQ</A>
+		</LI>
+		<LI>
+			<A HREF="#docs">getmail Documentation</A>
+			<UL>
+				<LI>
+					<A HREF="#install">Installing getmail</A>
+				</LI>
+				<LI>
+					<A HREF="#configure">Configuring getmail</A>
+				</LI>
+				<LI>
+					<A HREF="#install">Running getmail</A>
+				</LI>
+			</UL>
+		</LI>
+		<LI>
+			<A HREF="#download">Download getmail</A>
+		</LI>
+		<LI>
+			<A HREF="#example-getmailrc">Example getmailrc File</A>
+		</LI>
+	</UL>
+
+	<A NAME="summary"><H2>Summary of Features</H2></A>
+	<UL>
+		<LI>
+			Retrieve mail from an unlimited number of POP3 mailboxes and servers.
+		</LI>
+		<LI>
+			Support for multidrop or domain mailboxes.
+		</LI>
+		<LI>
+			Safe and reliable delivery to qmail-style Maildirs and mboxrd-format
+			mboxes.
+		</LI>
+		<LI>
+			Does not destroy information by rewriting mail headers.
+		</LI>
+		<LI>
+			Does not cause mail loops by doing SMTP injection, and therefore
+			does not require that you run an MTA (like qmail or sendmail) on your
+			host.
+		</LI>
+		<LI>
+			Can remember which mail it has already retrieved, and can be set
+			to only download new messages.
+		</LI>
+		<LI>
+			Written in <A HREF="http://www.pythonlabs.com/">Python</A>, and
+			therefore easy to extend.
+		</LI>
+		<LI>
+			Simple to install, configure, and use.
+		</LI>
+		<LI>
+			Won DaveCentral's &quot;Best of Linux&quot; award on 13 January 2000.
+		</LI>
+	</UL>	
+	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
+
+	<A NAME="changes-v2"><H2>Changes Since Version 1.11</H2></A>
+	<UL>
+		<LI>
+			Completely rewritten for better modularity, configurability,
+			and reliability.
+		</LI>
+		<LI>
+			Uses version 2.0 of my ConfParser module, which has also been
+			completely rewritten.  It now provides virtually 100% of
+			the functionality of Python's standard ConfigParser module, but
+			without any of the limitations.  This removes the limitation of
+			configuration values not being able to contain &quot;#&quot;
+			characters.
+		</LI>
+		<LI>
+			Will not deliver the same message to any destination more than once,
+			even if it matches recipient addresses multiple times.
+		</LI>
+		<LI>
+			getmail now attempts to deliver a message immediately after
+			retrieving it, instead of retrieving all messages from a given
+			POP3 mailbox and delivering in batches.
+		</LI>
+		<LI>
+			No more &quot;tmpmail.*&quot; files to prevent lost mail in the
+			event of a delivery failure.  If a delivery fails for any reason,
+			getmail will issue an RSET command to the POP3 server and gracefully
+			continue with the next configured POP3 account
+		</LI>
+		<LI>
+			getmail adds a &quot;Received:&quot header and a &quot;Delivered-To:&quot;
+			header to each message it retrieves.
+		</LI>
+		<LI>
+			Local addresses to search for are now specified with Perl-style
+			extended regular expressions.  If you don't know regular
+			expressions, don't worry -- plain text addresses will mostly work
+			fine.
+		</LI>
+		<LI>
+			Uses Timothy O'Malley's timeoutsocket module, if available, to
+			gracefully handle poor ISP connections and unreliable mail servers.
+			The timeout value is configurable on a per-mailbox basis.
+		</LI>
+		<LI>
+			getmail can be configured to log message retrieval and delivery to
+			a separate file for system logging purposes.
+		</LI>
+		<LI>
+			POP3 accounts and delivery destinations can no longer be specified
+			on the commandline; they must be placed in a getmailrc file.
+		</LI>
+		<LI>
+			Commandline options can also be placed in the getmailrc file for
+			persistent use.  The GETMAILOPTS environment variable is no longer
+			used.
+		</LI>
+		<LI>
+			getmail defaults to using &quot;~/.getmail/&quot; as its 
+			configuration and data directory, and &quot;~/.getmail/getmailrc&quot;
+			as its configuration file.  This can be overridden from the commandline.
+			If overridden, tilde expansion is performed on these arguments.
+		</LI>
+		<LI>
+			getmail will now work properly with POP3 servers which do not
+			implement the UIDL command, although it will not be able to determine
+			which messages it has already retrieved.
+		</LI>
+		<LI>
+			getmail now properly handles POP3 servers which return additional
+			information after a LIST command.
+		</LI>
+		<LI>
+			All exceptions are now classes, and will therefore continue to
+			work with future versions of Python which remove string exceptions.
+		</LI>
+		<LI>
+			Destination Maildir and mbox paths have tilde expansion performed
+			on them, for easier configuration.
+		</LI>
+		<LI>
+			getmailrc file format is simpler and yet more flexible.
+		</LI>
+	</UL>	
+	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
+
+	<A NAME="maillist"><H2>getmail Mailing List</H2></A>
+	A mailing list has been set up to discuss getmail.  Send a blank email to
+	&lt;getmail-subscribe @ discworld.dnsalias.org&gt; to subscribe to the list.
+	<BR>
+	Similarly, to unsubscribe, send mail from the same address you subscribed
+	with to &lt;getmail-unsubscribe @ discworld.dnsalias.org&gt;.
+	<BR>
+	Note:  you are expected to have read the <A HREF="#docs">documentation</A>
+	and <A HREF="#faq">Frequently Asked Questions</A> before posting a question
+	to the mailing list.
+	<BR>
+	<BR>
+	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
+
+	<A NAME="faq"><H2>getmail FAQ</H2></A>
+	The following are Frequently Asked Questions about getmail.  If your question
+	is not answered here, and is not answered in the <A HREF="#docs">documentation</A>,
+	please subscribe to the <A HREF="#maillist">mailing list</A>.
+	<BR>
+	<BR>
+	<OL>
+		<LI>
+			<H4>What is getmail?</H4>
+			getmail is a POP3 mail retriever, with support for both ordinary
+			and domain (or multidrop) POP3 mailboxes.  It is written in Python,
+			and licensed under the <A HREF="COPYING">GNU General Public License version 2</A>.
+			<BR>
+			<BR>
+		</LI>
+		<LI>
+			<H4>What is a &quot;domain mailbox&quot;?</H4>
+			A domain (or multidrop) mailbox is a POP3 mailbox which holds mail
+			for all users in a given domain.  Normal mailboxes contain mail for
+			a single user (like &quot;jason@myisp.co.uk&quot'); some Internet
+			Service Providers which provide webhosting or other services will
+			provide a POP3 mailbox which contains mail for all addresses in
+			a given domain (like &quot;service@smallcompany.net&quot; and
+			&quot;sales@smallcompany.net&quot;).
+			<BR>
+			<BR>
+			getmail provides a method of retrieving mail from a domain mailbox
+			and distributing it among the various users automatically.
+			<BR>
+			<BR>
+		</LI>
+		<LI>
+			<H4>Do I have to run sendmail or another MTA to use getmail?</H4>
+			No.  getmail delivers directly to Maildirs or mboxes, and does not
+			inject mail via SMTP, so no MTA is necessary.
+			<BR>
+			<BR>
+			P.S.  If you're currently running sendmail, consider switching to
+			<A HREF="http://www.qmail.org/">qmail</A> if you need a full MTA,
+			or <A HREF="http://em.ca/~bruceg/nullmailer/">nullmailer</A> if
+			you relay all your mail through your ISP's smarthost.  Both of them
+			are better and more secure than sendmail.
+			<BR>
+			<BR>
+		</LI>
+		<LI>
+			<H4>How do I make getmail deliver messages by re-injecting with SMTP?</H4>
+			You don't.  getmail doesn't do this, to prevent mail loops and bounces
+			if getmail or your Mail Transfer Agent is misconfigured.
+			<BR>
+			<BR>
+			getmail has native support for delivering to qmail-style Maildirs and
+			mboxrd-format mbox files, and therefore you shouldn't need to re-inject
+			retrieved messages.  If you want to re-inject messages to run
+			procmail, search <A HREF="http://www.freshmeat.net/">freshmeat.net</A>
+			for &quot;procbox&quot;; it was written by getmail user Jeff Clement 
+			for this purpose.
+			<BR>
+			<BR>
+		</LI>
+		<LI>
+			<H4>Does getmail rewrite mail headers when it retrieves mail?</H4>
+			No.  getmail will add a new Received: header and a new Delivered-To:
+			header, but does not rewrite existing headers.
+			<BR>
+			<BR>
+		</LI>
+		<LI>
+			<H4>Why does getmail retrieve all my messages when I've told it to
+			only retrieve new mail?</H4>
+			Your POP3 mail server is probably broken.  getmail requires that the
+			server support the POP3 UIDL command to uniquely identify messages.
+			If the server doesn't support it, getmail cannot tell which messages
+			it has already seen, and therefore retrieves all messages.
+			<BR>
+			<BR>
+		</LI>
+		<LI>
+			<H4>How do I run getmail in &quot;daemon&quot; mode?</H4>
+			Use cron to run getmail periodically if you wish.  I may add native
+			support for a daemon mode to getmail in the future; the complete
+			rewrite for version 2.0 made allowances for this.
+			<BR>
+			<BR>
+		</LI>
+	</OL>
+	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
+
+	<A NAME="docs"><H2>getmail Documentation</H2></A>
+	The formal documentation for getmail is not yet complete.  If your question
+	is not answered here or in the <A HREF="#faq">Frequently Asked Questions</A>,
+	please subscribe to the <A HREF="#maillist">mailing list</A>.
+	<BR>
+	<BR>
+	<OL>
+		<LI>
+			<A NAME="install"><H4>Installing getmail</H4></A>
+			<OL>
+				<LI>
+					<A HREF="#download">Download</A> getmail.
+					<BR>
+					<BR>
+				</LI>
+				<LI>
+					Unpack the tarball:<BR>
+					<KBD>tar xzf getmail-version.tar.gz</KBD>
+					<BR>
+					<BR>
+				</LI>
+				<LI>
+					Copy the contents to a suitable location:<BR>
+					<KBD>mkdir /usr/local/lib/getmail</KBD>
+					<KBD>cp -a getmail-version/* /usr/local/lib/getmail/</KBD>
+					<BR>
+					You can install getmail in your home directory or elsewhere
+					if you prefer.
+					<BR>
+					<BR>
+				</LI>
+				<LI>
+					Copy the getmail helper script to a location in your PATH, and
+					ensure it is executable:<BR>
+					<KBD>cp -a getmail-version/getmail /usr/local/bin/</KBD>
+					<KBD>chmod 755 /usr/local/bin/getmail</KBD>
+					If you used an installation path other than that in step 3 above,
+					edit the value of GETMAILDIR in this file.
+					<BR>
+					<BR>
+				</LI>
+			</OL>
+			<BR>
+			<BR>
+		</LI>
+		<LI>
+			<A NAME="configure"><H4>Configuring getmail</H4></A>
+			<OL>
+				<LI>
+					Create a getmail configuration/data directory in your
+					home directory:<BR>
+					<KBD>mkdir ~/.getmail</KBD>
+					You can use another path or directory name, but getmail 
+					assumes this name by default.  If you choose something
+					different, you will need to specify its name on the getmail
+					command line.
+					<BR>
+					<BR>
+				</LI>
+				<LI>
+					Create a getmailrc file in the directory you created in
+					step 1 above.  The file format is similar to an MS-Windows
+					.INI file.  The file is broken into sections; the special
+					section &quot;[default]&quot; supplies default values for
+					various options.  Each additional section describes one
+					POP3 mailbox you wish to retrieve mail from, and how to
+					deliver mail to local users.
+					<BR>
+					<BR>
+					Each configuration section begins with a section title:<BR>
+					<KBD>[descriptive title]</KBD><BR>
+					Each section must have a unique title.  Configuration values
+					in a section are specified in the following format:<BR>
+					<KBD>name = value</KBD><BR>
+					Sections other than [default] may specify the following name/value pairs:
+					<BR>
+					<BR>
+					<TABLE BORDER=1 CELLSPACING=2>
+						<TR>
+							<TH>
+								Value
+							</TH>
+							<TH>
+								Required?
+							</TH>
+							<TH>
+								Default
+							</TH>
+							<TH>
+								Function
+							</TH>
+							<TH>
+								Example
+							</TH>
+						</TR>
+						<TR>
+							<TD>
+								<NOBR>server = &lt;servername&gt;</NOBR>
+							</TD>
+							<TD>
+								Yes
+							</TD>
+							<TD>
+								&nbsp;
+							</TD>
+							<TD>
+								POP3 server name to retrieve mail from
+							</TD>
+							<TD>
+								<NOBR>server = mail.myisp.co.uk</NOBR>
+							</TD>
+						</TR>
+						<TR>
+							<TD>
+								<NOBR>port = &lt;port number&gt;</NOBR>
+							</TD>
+							<TD>
+								No
+							</TD>
+							<TD>
+								110 (POP3 default)
+							</TD>
+							<TD>
+								POP3 server port number
+							</TD>
+							<TD>
+								<NOBR>port = 8110</NOBR>
+							</TD>
+						</TR>
+						<TR>
+							<TD>
+								<NOBR>username = &lt;POP3 login name&gt;</NOBR>
+							</TD>
+							<TD>
+								Yes
+							</TD>
+							<TD>
+								&nbsp;
+							</TD>
+							<TD>
+								POP3 username
+							</TD>
+							<TD>
+								<NOBR>username = alice</NOBR>
+							</TD>
+						</TR>
+						<TR>
+							<TD>
+								<NOBR>password = &lt;POP3 password&gt;</NOBR>
+							</TD>
+							<TD>
+								No
+							</TD>
+							<TD>
+								Prompt user when getmail is run.
+							</TD>
+							<TD>
+								POP3 user password
+							</TD>
+							<TD>
+								<NOBR>password = &quot;password with trailing spaces     &quot;</NOBR>
+							</TD>
+						</TR>
+						<TR>
+							<TD>
+								<NOBR>postmaster = &lt;delivery instruction&gt;</NOBR>
+							</TD>
+							<TD>
+								Yes
+							</TD>
+							<TD>
+								&nbsp;
+							</TD>
+							<TD>
+								Default delivery instruction, if no other
+								instructions match.  This can specify a path to
+								a Maildir (requires a trailing /) or mbox file.
+								getmail will not create an mbox file if it does
+								not already exist.
+							</TD>
+							<TD>
+								<NOBR>postmaster = ~william/Maildir/</NOBR>
+							</TD>
+						</TR>
+						<TR>
+							<TD>
+								<NOBR>local = &lt;address,delivery instruction&gt;</NOBR>
+							</TD>
+							<TD>
+								No
+							</TD>
+							<TD>
+								&nbsp;
+							</TD>
+							<TD>
+								For domain (multidrop) mailboxes, deliver 
+								messages which match &lt;address&gt; according 
+								to &lt;delivery instruction&gt;.  These are 
+								Perl-style regular expression patterns.  If you 
+								don't know what a regular expression is, just 
+								put the email address here.  It will work 
+								providing the address is composed only of 
+								alphanumeric characters, dots, underscores, and 
+								hyphens.
+								<BR>
+								<BR>
+								To deliver mail from a domain mailbox to multiple
+								users, getmail should be run as root, so that it
+								can write to the user's mbox file or Maildir.
+							</TD>
+							<TD>
+								<NOBR>local = joe@company.net,~joe/Maildir/</NOBR>
+								<BR>
+								<NOBR>local = sales@company.net,~samantha/Maildir/</NOBR>
+							</TD>
+						</TR>
+					</TABLE>
+					In addition, you may specify any of the [default] section options
+					described below in a mailbox-specific section.  It will override
+					the [default] value or the built-in default.
+					<BR>
+					<BR>
+					getmail checks values in the following order:
+					<UL>
+						<LI>
+							commandline argument (if applicable)
+						</LI>
+						<LI>
+							per-mailbox configuration value
+						</LI>
+						<LI>
+							[default] section value
+						</LI>
+						<LI>
+							built-in default value
+						</LI>
+					</UL>
+				</LI>
+			</OL>
+			<BR>
+			<BR>
+		</LI>
+		<LI>
+			<A NAME="run"><H4>Running getmail</H4></A>
+			Run the getmail helper script you installed earlier:<BR>
+			<KBD>getmail</KBD><BR>
+			<BR>
+			By default, getmail will read in the default getmailrc file
+			(~/.getmail/getmailrc) and begin retrieving mail.<BR>
+			You can also supply commandline options as follows:
+			<BR>
+			<TABLE BORDER=1 CELLSPACING=2>
+				<TR>
+					<TH>
+						Long option
+					</TH>
+					<TH>
+						Short Option
+					</TH>
+					<TH>
+						getmailrc Equivalent
+					</TH>
+					<TH>
+						Function
+					</TH>
+					<TH>
+						Default
+					</TH>
+				</TR>
+				<TR>
+					<TD>
+						--help
+					</TD>
+					<TD>
+						-h
+					</TD>
+					<TD>
+						&nbsp;
+					</TD>
+					<TD>
+						Show commandline options and defaults
+					</TD>
+					<TD>
+						&nbsp;
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--verbose
+					</TD>
+					<TD>
+						-v
+					</TD>
+					<TD>
+						verbose = 1
+					</TD>
+					<TD>
+						Display informational status messages while running
+					</TD>
+					<TD>
+						Yes
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--quiet
+					</TD>
+					<TD>
+						-v
+					</TD>
+					<TD>
+						verbose = 0
+					</TD>
+					<TD>
+						Do not display informational status messages while running
+					</TD>
+					<TD>
+						No
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--getmaildir &lt;path&gt;
+					</TD>
+					<TD>
+						-g &lt;path&gt;
+					</TD>
+					<TD>
+						&nbsp;
+					</TD>
+					<TD>
+						Use &lt;path&gt; for the getmail configuration/data
+						directory instead of the default &quot;~/.getmail/&quot;.
+					</TD>
+					<TD>
+						~/.getmail/
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--rcfile &lt;filename&gt;
+					</TD>
+					<TD>
+						-r &lt;filename&gt;
+					</TD>
+					<TD>
+						&nbsp;
+					</TD>
+					<TD>
+						Use &lt;filename&gt; for the getmailrc file instead of
+						the default &quot;getmailrc&quot;.
+					</TD>
+					<TD>
+						&lt;getmaildir&gt;/getmailrc
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--dump
+					</TD>
+					<TD>
+						&nbsp;
+					</TD>
+					<TD>
+						&nbsp;
+					</TD>
+					<TD>
+						Read getmailrc file, process commandline options, and dump configuration
+						to stdout without retrieving mail.  This is for debugging purposes; if
+						requesting help from the <A HREF="#maillist">mailing list</A>, you 
+						probably should include a copy of this output.
+					</TD>
+					<TD>
+						&nbsp;
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--delete
+					</TD>
+					<TD>
+						-d
+					</TD>
+					<TD>
+						delete = 1
+					</TD>
+					<TD>
+						Delete messages from the server after retrieving them.
+					</TD>
+					<TD>
+						No
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--dont-delete
+					</TD>
+					<TD>
+						-l
+					</TD>
+					<TD>
+						delete = 0
+					</TD>
+					<TD>
+						Leave messages on the server after retrieving them.
+					</TD>
+					<TD>
+						Yes
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--all
+					</TD>
+					<TD>
+						-a
+					</TD>
+					<TD>
+						readall = 1
+					</TD>
+					<TD>
+						Retrieve all messages, even if getmail has previously 
+						retrieved them.  Note that this option only makes sense 
+						if you are not deleting messages after retrieval.
+					</TD>
+					<TD>
+						Yes
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--new
+					</TD>
+					<TD>
+						-n
+					</TD>
+					<TD>
+						readall = 0
+					</TD>
+					<TD>
+						Only retrieve new messages from the server.  Note that 
+						this option only makes sense if you are not deleting
+						messages after retrieval.
+					</TD>
+					<TD>
+						No
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--timeout &lt;value&gt;
+					</TD>
+					<TD>
+						-t &lt;value&gt;
+					</TD>
+					<TD>
+						timeout = value
+					</TD>
+					<TD>
+						Use &lt;value&gt; seconds for the TCP timeout value instead of the
+						default 180 seconds.  Note this only works if the
+						timeoutsocket module is available.
+					</TD>
+					<TD>
+						180 seconds.
+					</TD>
+				</TR>
+				<TR>
+					<TD>
+						--message-log &lt;filename&gt;
+					</TD>
+					<TD>
+						-m &lt;filename&gt;
+					</TD>
+					<TD>
+						message_log = filename
+					</TD>
+					<TD>
+						Log message retrieval and local delivery to &lt;filename&gt;.
+					</TD>
+					<TD>
+						&nbsp;
+					</TD>
+				</TR>
+			</TABLE>
+			<BR>
+			<BR>
+		</LI>
+	</OL>
+	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
+
+	<A NAME="download"><H2>Download getmail</H2></A>
+	Download getmail now:
+	<UL>
+		<LI>
+			<A HREF="getmail-2.0.tar.gz">getmail-2.0.tar.gz</A>
+		</LI>
+	</UL>
+	<BR>
+	<BR>
+	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
+
+	<A NAME="example-getmailrc"><H2>Example getmailrc File</H2></A>
+	<PRE>
+    
+[default]                                       # This section provides default arguments and values,
+                                                #    and variables which can be used in other sections
+verbose = 1                                     # Be verbose by default
+readall = 0                                     # Retrieve all messages by default
+delete = 1                                      # Delete mail after retrieval by default
+message_log = /var/log/getmail.log              # Log message retrieval and delivery to this file by default
+timeout = 240                                   # TCP timeout value; increase if on a poor connection or
+                                                #    slow POP3 server.  getmail defaults to a 180 second timeout.
+
+[Joe's Mail]                                    # Simple configuration for a single-user POP3 mailbox
+server = mail.isp.com
+port = 8110
+readall = 0
+
+username = joeuser
+                                                # no password specified; prompt for it when getmail is run
+postmaster = ~joeuser/Mail/default/             # Default delivery to this Maildir
+message_log =                                   # Don't log for this account
+                                                # No "local" directives necessary.
+
+[Company Maildrop]                              # Multidrop or domain mailbox configuration
+server = mail.isp.net
+username = getmailinc
+password = "password with trailing spaces   "
+postmaster = /var/spool/mail/postmaster         # mbox default destination if none of the "local" directives
+                                                #    match
+                                                # Use regular expression matching on the following addresses
+local = ^user1@isp.net$,~user1/Maildir/         # Mail for "user1@isp.net" is delivered to ~user1/Maildir/
+local = ^user2@isp.net$,~user2/mbox             # Mail for "user2@isp.net" is delivered to ~user1/mbox
+local = ^user3-list@isp.net$,~user3/Mail/list   # handle this qmail-style extension address separately.
+local = ^user3@isp.net$,~user3/Mail/inbox/      # 
+
+local = olduser@isp.net,/dev/null               # Throw away mail for this user, who no longer exists here,
+                                                #     to prevent the postmaster from receiving it.
+	</PRE>			
+	<A HREF="#top"><FONT SIZE="-1">back to top</FONT></A>
+
+</BODY>
+</HTML>
+
+
+
+

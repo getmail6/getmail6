@@ -1,0 +1,106 @@
+BODY {
+font-family: Arial, sans-serif;
+font-size: small;
+}
+
+TD {
+font-size: x-small;
+}
+
+A {
+text-decoration: none;
+font-weight: bold;
+color: #0040F0;
+}
+
+H1 {
+font-size: x-large;
+font-family: sans-serif;
+color: #005000;
+}
+
+H1 A {
+font-size: x-large;
+font-family: Arial, sans-serif;
+color: #005000;
+}
+
+H2 {
+font-size: large;
+font-family: Arial, sans-serif;
+font-variant: small-caps;
+color: #005000;
+}
+
+H2 A {
+font-size: large;
+font-family: Arial, sans-serif;
+font-variant: small-caps;
+color: #005000;
+}
+
+H3 {
+font-size: medium;
+font-family: Arial, sans-serif;
+color: #005000;
+}
+
+H3 A {
+font-size: medium;
+font-family: Arial, sans-serif;
+color: #005000;
+}
+
+HR {  }
+
+KBD {
+}
+
+OL {
+margin-left: 1em;
+padding-top: 1ex;
+padding-bottom: 1ex;
+}
+
+UL {
+margin-left: 1em;
+padding-top: 1ex;
+padding-bottom: 1ex;
+}
+
+LI {
+}
+
+PRE {
+font-family: Courier, Helvetica, Fixed, sans-serif;
+margin-left: 2em;
+color: #0050A0;
+}
+
+KBD {
+font-family: Courier, Helvetica, Fixed, sans-serif;
+margin-left: 2em;
+}
+
+SAMP {
+color: #005050;
+}
+
+TT {
+color: #005050;
+}
+
+CODE {
+color: #800000;
+}
+
+ADDRESS {  }
+
+TABLE {
+color: #0050D0;
+background-color: #C0F0C0;
+}
+
+.note {
+font-size: small;
+}

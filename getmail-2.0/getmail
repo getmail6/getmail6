@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# helper script for running getmail
+set -e
+
+# Change this to your getmail installation directory
+GETMAILDIR="/usr/local/lib/getmail"
+
+# You can change this to point to your Python interpreter if you wish.
+PYTHON=`which python`
+
+pushd . >/dev/null
+cd "$GETMAILDIR"
+"$PYTHON" getmail.py $@
+popd >/dev/null
