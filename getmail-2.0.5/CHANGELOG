@@ -1,5 +1,16 @@
 getmail changes since version 1.11:
 
+Version 2.0.5
+30 December 2000
+
+  -fix stupid mistake in extract_recipients().  Not sure why no one reported
+  this before.  Thanks to J. Boehm for the bug report.
+
+Version 2.0.4
+30 December 2000
+
+  -add additional exception class to catch case of PPP down, etc.
+
 Version 2.0.3
 20 December 2000
 
