@@ -419,7 +419,8 @@ bayes_ignore_header X-getmail-filter-classifier
   How do I use ClamAV with getmail?
   
    ClamAV, like SpamAssassin, can by used in standalone or client/server
-   configurations.
+   configurations. In either case, you need to add the StreamSaveToDisk
+   option to your clamav.conf file to enable scanning from stdin.
    
    To use ClamAV without the clamd daemon, use a filter configuration
    like this:
@@ -474,6 +475,10 @@ ScanMail
 
    The paths to the various decompression utilities must be specified in
    this file as well.
+   
+   See the following mailing list message from Frankye Fattarelli for
+   additional notes on using ClamAV with getmail:
+   http://marc.theaimsgroup.com/?l=getmail&m=109128345509273&w=2
    
     Getting prettier output from ClamAV
     

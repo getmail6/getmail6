@@ -1,3 +1,14 @@
+Version 4.0.3
+2 August 2004
+
+  -some types of socket errors would raise an exception instead of letting
+  getmail gracefully continue; fixed.  Thanks: David.
+  -documentatation updates; fix two typos and add to the section on using
+  ClamAV with getmail.
+  -changes to my release process; the current version's URL will not change
+  when a new version is released.  See, I try to help others, even when they
+  don't do the same...
+
 Version 4.0.2
 30 July 2004
 

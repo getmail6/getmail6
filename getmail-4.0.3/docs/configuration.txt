@@ -530,7 +530,7 @@ path = ~/inbox
    The MDA_external destination also takes several optional parameters:
      * arguments (tuple of quoted strings) -- arguments to be supplied to
        the command. The following substrings will be substituted with the
-       equivalent values from the message, if availble:
+       equivalent values from the message, if available:
           + %(sender) -- envelope return-path address
           + %(recipient) -- envelope recipient address
           + %(local) -- local-part of the envelope recipient address
@@ -982,7 +982,7 @@ message_log = ~/.getmail/log
    parameters:
      * arguments (tuple of quoted strings) -- arguments to be supplied to
        the command. The following substrings will be substituted with the
-       equivalent values from the message, if availble:
+       equivalent values from the message, if available:
           + %(sender) -- envelope return-path address
           + %(recipient) -- envelope recipient address
           + %(local) -- local-part of the envelope recipient address

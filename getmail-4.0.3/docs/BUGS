@@ -1,0 +1,35 @@
+Known bugs
+==========
+
+None.
+
+Reporting bugs
+==============
+
+Regarding packages/ports/emerges/etc
+------------------------------------
+
+CRITICAL:  if you are using a "package"/"emerge"/"port" of getmail, DO NOT
+REPORT PROBLEMS TO ME.  Report them to your OS vendor or packager -- only
+they can help you with problems introduced by their packaging of getmail,
+and only they (and I) can reliably determine whether a problem is in
+getmail, or in their packaging (it's usually the latter).  So report problems
+to whoever created the package you're using, and if the packager is sure
+it's a problem in getmail, they can report it to me.
+
+If you want to report a getmail problem to me, please ensure that you have
+installed from the tarball or noarch RPM file which I provide.  Then follow
+the rest of the instructions below.
+
+How to report a problem with getmail
+------------------------------------
+
+IMPORTANT:  Please include the output of `getmail [options] --dump` and a copy 
+of your getmail rc file(s) (with password masked) with any bug report.
+
+If you find a bug in getmail, please either join the getmail users' mailing
+list and report it there (preferred), or send it to me at 
+<getmail-bugs @ discworld.dyndns.org>.
+
+You can join the getmail users' mailing list by sending a (blank) message
+to <getmail-subscribe @ discworld.dnsalias.org>.

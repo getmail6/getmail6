@@ -13,48 +13,6 @@
    (only). If you wish to obtain a license to use getmail under other
    terms, please contact me directly.
    
-                               Table of Contents
-                                       
-     * getmail documentation
-     *
-          + Features
-          + Differences from previous versions
-          + Requirements
-          + Obtaining getmail
-          + Installing getmail
-          +
-               o Installing from the RPM
-               o Installing directly from the source
-               o
-                    # Installing in the default location
-                    # Installing under an alternate prefix directory
-                    # Installing parts of the package to alternate
-                      directories
-               o Installing the getmailcore package in a non-standard
-                 location
-               o Building a binary package from the source
-          + getmail mailing lists
-          +
-               o getmail-users' mailing list
-               o Announcements List
-     * Configuring getmail
-     *
-          + Creating a getmail rc file
-     * Running getmail
-     *
-          + Commandline options
-          + Using getmail as an MDA
-     * Troubleshooting
-     *
-          + Error messages
-          + Unexpected Behaviour
-     * Frequently-Asked Questions (FAQs)
-     *
-          + About getmail
-          + Configuring getmail
-          + How do I ...
-          + Using getmail with other software
-       
 Features
 
    getmail is a mail retriever designed to allow you to get your mail
@@ -273,6 +231,12 @@ enter root password
      * set the environment variable PYTHONPATH to tell Python where to
        find the appropriate modules. See the documentation at the
        Python.org website for details.
+       Note that setting PYTHONPATH in $HOME/.profile (or equivalent) is
+       not sufficient -- for instance, cron runs jobs in a simpler
+       environment, ignoring $HOME/.profile, and getmail would therefore
+       fail when run as a user cron job. It is strongly recommended that
+       you install the Python library files in the site-packages
+       directory which Python provides for exactly this reason.
      * modify the scripts to explicitly tell Python where you've
        installed them. Insert a line like this:
 sys.path.append('/path/to/installation-directory')

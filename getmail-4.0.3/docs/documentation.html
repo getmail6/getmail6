@@ -497,13 +497,33 @@ $ su
 </p>
 <ul>
 	<li>
-		set the environment variable
-		<span class="file">PYTHONPATH</span>
-		to tell Python where to find the appropriate modules.  See the
-		<a href="http://docs.python.org/tut/node8.html#SECTION008110000000000000000">
-			documentation at the Python.org website
-		</a>
-		for details.
+		<p>
+    		set the environment variable
+    		<span class="file">PYTHONPATH</span>
+    		to tell Python where to find the appropriate modules.  See the
+    		<a href="http://docs.python.org/tut/node8.html#SECTION008110000000000000000">
+    			documentation at the Python.org website
+    		</a>
+    		for details.
+    	</p>
+    	<p class="warning">
+    	    Note that setting 
+    		<span class="file">PYTHONPATH</span>
+    		in 
+    		<span class="file">$HOME/.profile</span>
+    		(or equivalent) is 
+    		<strong>not</strong>
+    		sufficient -- for instance, 
+    		<span class="file">cron</span>
+    		runs jobs in a simpler environment, ignoring 
+    		<span class="file">$HOME/.profile</span>,
+    		and getmail would therefore fail when run as a user cron job.
+    		It is 
+    		<strong>strongly recommended</strong>
+    		that you install the Python library files in the 
+    		<span class="file">site-packages</span>
+    		directory which Python provides for exactly this reason.
+    	</p>
 	</li>
 	<li>
 		modify the scripts to explicitly tell Python where you've installed

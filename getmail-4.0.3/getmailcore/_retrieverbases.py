@@ -433,7 +433,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         try:
             self.conn.rset()
             self.conn.quit()
-        except poplib.error_proto:
+        except (poplib.error_proto, socket.error), o:
             pass
         del self.conn
 
@@ -443,7 +443,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         try:
             self.conn.quit()
             self.conn = None
-        except poplib.error_proto, o:
+        except (poplib.error_proto, socket.error), o:
             raise getmailOperationError('POP error (%s)' % o)
         except AttributeError:
             pass
@@ -686,7 +686,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def abort(self):
         self.log.trace()
-        self.quit()
+        try:
+            self.quit()
+        except (imaplib.IMAP4.error, socket.error), o:
+            pass
 
     def quit(self):
         self.log.trace()
