@@ -1,6 +1,12 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.2.3
+24 February 2002
+
+  -fix bug in new handling of envelope recipient header fields.
+  Thanks to Martin Geisler for testing this.
+
 Version 2.2.2
 23 February 2002
 

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.2.2'
+__version__ = '2.2.3'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -685,7 +685,7 @@ class getmail:
                     # look at first matching header
                     hdr = mess822.getfirstmatchingheader (header_type)
                     if not hdr:  continue
-                    recips = rfc822.AddrlistClass(hdr).getaddrlist ()
+                    recips = rfc822.AddrlistClass(string.join (hdr)).getaddrlist ()
                     for (name, address) in recips:
                         if address and res['mailaddr'].search (address):
                             # Looks like an email address, keep it
