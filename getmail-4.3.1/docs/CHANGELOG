@@ -1,3 +1,10 @@
+Version 4.3.1
+18 January 2005
+
+  -some IMAP errors would cause getmail to raise an exception, instead of
+  gracefully proceeding with the next configured mail account.  Fixed.
+  Thanks: Matthias Andree.
+
 Version 4.3.0
 10 January 2005
 

@@ -12,109 +12,6 @@
    (only). If you wish to obtain a license to distribute getmail under
    other terms, please contact me directly.
    
-                               Table of Contents
-                                       
-     * getmail documentation
-     *
-          + getmail documentation
-          +
-               o Features
-               o Differences from previous versions
-               o Requirements
-               o Obtaining getmail
-               o Installing getmail
-               o getmail mailing lists
-     * getmail configuration
-     *
-          + Configuring getmail
-          +
-               o Creating a getmail rc file
-          + Running getmail
-          +
-               o Commandline options
-               o Using getmail as an MDA
-     * getmail troubleshooting
-     *
-          + Troubleshooting problems
-          +
-               o Error messages
-               o Warning messages
-               o Unexpected Behaviour
-     * getmail frequently-asked questions (FAQs)
-     *
-          + Frequently-Asked Questions (FAQs)
-          +
-               o About getmail
-               o
-                    # What is getmail?
-                    # What platforms/machines does getmail run on?
-                    #
-                         @ Does getmail run on MS Windows?
-                         @ Does getmail run on Macintosh systems?
-                         @ Does getmail require Unix/Linux?
-                    # How can I get support for getmail?
-                    # I think I found a bug! How do I report it?
-                    # I have a neat idea for random feature "foo" ... how
-                      do I get you to implement it?
-                    # Why won't you implement random feature "foo"?
-                    # Does getmail support virus scanning of retrieved
-                      messages?
-                    # Does getmail support spam filtering of retrieved
-                      messages?
-                    # Does getmail support SSL?
-                    # Does getmail rewrite mail headers when it retrieves
-                      mail?
-                    # Can I upgrade from getmail 3 to getmail 4? What
-                      about my "oldmail" files?
-                    # Why did you write getmail? Why not just use
-                      fetchmail?
-               o Configuring getmail
-               o
-                    # What is a "domain mailbox"?
-                    # Do I have to run sendmail or another MTA to use
-                      getmail?
-                    # Will getmail deliver mail as root?
-                    # What's a maildir?
-                    # What's "mboxrd" format?
-                    # What's this "envelope sender" and "envelope
-                      recipient" stuff?
-                    #
-                         @ Message header vs. message envelope
-                         @ Receiving messages without your address in the
-                           message header
-                         @ Responsibility for recording the message
-                           envelope
-                         @ How this relates to domain or multidrop
-                           mailboxes
-                    # This rc stuff seems complicated. Does it have to
-                      be?
-               o How do I ...
-               o
-                    # How do I retrieve mail from multiple accounts?
-                    # How do I stop getmail adding a Delivered-To: header
-                      to messages?
-                    # How do I stop getmail adding a Received: header to
-                      messages?
-                    # How do I make getmail deliver messages by
-                      re-injecting with SMTP?
-                    # How do I make getmail deliver messages to an mh
-                      folder?
-                    # How do I run getmail in "daemon" mode?
-                    # How do I make getmail retrieve mail from Hotmail?
-               o Using getmail with other software
-               o
-                    # How do I use SpamAssassin with getmail?
-                    # How do I use ClamAV with getmail?
-                    #
-                         @ Getting prettier output from ClamAV
-                    # How do I use procmail with getmail?
-                    # How do I use maildrop with getmail?
-                    # How do I use TMDA with getmail?
-               o I think I found this bug in getmail ...
-               o
-                    # FutureWarning: %u/%o/%x/%X of negative int will
-                      return a signed string in Python 2.4 and up
-       
                        Frequently-Asked Questions (FAQs)
                                        
    The following questions about getmail are answered more-or-less
@@ -889,3 +786,11 @@ will return a signed string in Python 2.4 and up
    This warning is a bug in Python 2.3.4's optparse.py module, not in
    getmail. Feel free to report it to the Python team if the most recent
    release of Python hasn't fixed it. I reported it in June, 2004.
+   
+  AttributeError: 'module' object has no attribute 'fsync'
+  
+   Various people have reported this "bug" in getmail -- it's actually a
+   bug in some versions of Python 2.3.X. It was fixed in Python version
+   2.3.3. getmail 4 detects problematic versions of Python and refuses to
+   run, but you can still encounter this problem with getmail version 3
+   if you try to run it with a broken Python version.

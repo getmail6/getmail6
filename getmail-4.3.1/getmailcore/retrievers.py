@@ -30,6 +30,7 @@ __all__ = [
     'MultidropIMAPSSLRetriever',
 ]
 
+import os
 import poplib
 import imaplib
 import types
@@ -73,7 +74,8 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('SimplePOP3Retriever(%s)\n' % self._confstring())
+        self.log.info('SimplePOP3Retriever(%s)' % self._confstring() 
+            + os.linesep)
 
 #######################################
 class BrokenUIDLPOP3Retriever(POP3RetrieverBase, POP3initMixIn):
@@ -132,7 +134,8 @@ class BrokenUIDLPOP3Retriever(POP3RetrieverBase, POP3initMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('BrokenUIDLPOP3Retriever(%s)\n' % self._confstring())
+        self.log.info('BrokenUIDLPOP3Retriever(%s)' % self._confstring()
+            + os.linesep)
 
 #######################################
 class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
@@ -165,7 +168,8 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('SimplePOP3SSLRetriever(%s)\n' % self._confstring())
+        self.log.info('SimplePOP3SSLRetriever(%s)' % self._confstring()
+            + os.linesep)
 
 #######################################
 class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
@@ -197,7 +201,8 @@ class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('MultidropPOP3Retriever(%s)\n' % self._confstring())
+        self.log.info('MultidropPOP3Retriever(%s)' % self._confstring()
+            + os.linesep)
 
 #######################################
 class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
@@ -231,7 +236,8 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('MultidropPOP3SSLRetriever(%s)\n' % self._confstring())
+        self.log.info('MultidropPOP3SSLRetriever(%s)' % self._confstring()
+            + os.linesep)
 
 #######################################
 class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
@@ -271,7 +277,8 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('MultidropSDPSRetriever(%s)\n' % self._confstring())
+        self.log.info('MultidropSDPSRetriever(%s)' % self._confstring()
+            + os.linesep)
 
     def _getmsgbyid(self, msgid):
         self.log.trace()
@@ -325,7 +332,8 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('SimpleIMAPRetriever(%s)\n' % self._confstring())
+        self.log.info('SimpleIMAPRetriever(%s)' % self._confstring()
+            + os.linesep)
 
 #######################################
 class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
@@ -366,7 +374,8 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('SimpleIMAPSSLRetriever(%s)\n' % self._confstring())
+        self.log.info('SimpleIMAPSSLRetriever(%s)' % self._confstring()
+            + os.linesep)
 
 #######################################
 class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
@@ -405,7 +414,8 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('MultidropIMAPRetriever(%s)\n' % self._confstring())
+        self.log.info('MultidropIMAPRetriever(%s)' % self._confstring()
+            + os.linesep)
 
 #######################################
 class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
@@ -448,4 +458,5 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('MultidropIMAPSSLRetriever(%s)\n' % self._confstring())
+        self.log.info('MultidropIMAPSSLRetriever(%s)' % self._confstring()
+            + os.linesep)

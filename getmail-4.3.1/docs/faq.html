@@ -159,6 +159,7 @@
             <li>
                 <ul>
                 <li><a href="faq.html#faq-notabug-futurewarning">FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up</a></li>
+                <li><a href="faq.html#faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</a></li>
                 </ul>
             </li>
             </ul>
@@ -1312,6 +1313,15 @@ type = Filter_TMDA
     <span class="file">optparse.py</span>
     module, not in getmail.  Feel free to report it to the Python team if the
     most recent release of Python hasn't fixed it.  I reported it in June, 2004.
+</p>
+
+<h3 id="faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</h3>
+<p>
+    Various people have reported this &quot;bug&quot; in getmail &mdash; it's
+    actually a bug in some versions of Python 2.3.X.  It was fixed in Python 
+    version 2.3.3.  getmail 4 detects problematic versions of Python and refuses
+    to run, but you can still encounter this problem with getmail version 3
+    if you try to run it with a broken Python version.
 </p>
 
 <!--#include virtual="footer.html"-->
