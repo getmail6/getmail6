@@ -128,7 +128,28 @@ is the "verbose" directive:
 
 This controls whether getmail operates verbosely or not, and can be overridden
 from the commandline with the --verbose/--quiet options.
+
+Some options are specified as being a Python tuple.  This means (essentially) a 
+non-mutable list of zero or more items separated by commas.  The individual 
+items can be anything, but in getmail are typically strings.  Tuples are 
+conventionally shown with surrounding parentheses, but they are optional for all 
+but the empty tuple or a tuple broken across multiple lines.  Note that a 
+1-tuple (single item tuple) requires a trailing comma.
+
+examples:
+
+  # A 1-tuple without parentheses	
+  item = "1",
+
+  # A 1-tuple with parentheses	
+  item = ("foo",)
   
+  # A 2-tuple
+  item = ("from", "to")
+  
+  # An empty tuple
+  item = ()
+
 Retriever
 ---------
 

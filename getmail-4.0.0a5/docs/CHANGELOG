@@ -1,5 +1,11 @@
+Version 4.0.0a5
+16 June 2004
+
+  -document tuple syntax.  Thanks:  Frankye.
+  -fix "filters" name collision in script.  Thanks:  Frankye.
+
 Version 4.0.0a4
-?? June 2004
+15 June 2004
 
   -fix default values in three classes' parameters which previously relied
   on type conversion.  Thanks: Andrew Raines.

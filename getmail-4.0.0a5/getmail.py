@@ -25,7 +25,7 @@ defaults = {
 
 #######################################
 def go(configs):
-    for (retriever, filters, destination, options) in configs:
+    for (retriever, _filters, destination, options) in configs:
         now = int(time.time())
         log.debug('initializing retriever %s\n' % retriever)
         retriever.initialize()
@@ -44,7 +44,7 @@ def go(configs):
                     msg = retriever.getmsg(msgid)
                     log.info('from <%s> ... ' % msg.sender)
 
-                    for mail_filter in filters:
+                    for mail_filter in _filters:
                         log.debug('passing to filter %s ... ' % mail_filter)
                         msg = mail_filter.filter_message(msg)
                         if msg is None:
@@ -140,6 +140,7 @@ def main():
                 for option in ('verbose', 'read_all', 'delete'):
                     if configparser.has_option('options', option):
                         config[option] = eval_bool(configparser.get('options', option))
+                # Add handling for delete_after, ...
 
                 retriever_type = configparser.get('retriever', 'type')
                 retriever_func = getattr(retrievers, retriever_type)
@@ -164,7 +165,7 @@ def main():
                 destination = destination_func(**destination_args)
 
                 # Filters
-                filters = []
+                _filters = []
                 filtersections =  [section.lower() for section in configparser.sections() if section.lower().startswith('filter')]
                 filtersections.sort()
                 for section in filtersections:
@@ -178,7 +179,7 @@ def main():
                         filter_args[name] = value
                     log.debug('instantiating filter %s with args %s\n' % (filter_type, filter_args))
                     mail_filter = filter_func(**filter_args)
-                    filters.append(mail_filter)
+                    _filters.append(mail_filter)
 
             except ConfigParser.NoSectionError, o:
                 raise getmailConfigurationError('configuration file %s missing section (%s)' % (path, o))
@@ -214,7 +215,7 @@ def main():
                     log.info('    %s : %s\n' % (name, config[name]))
                 log.info('\n')
             else:
-                configs.append( (retriever, filters, destination, config) )
+                configs.append( (retriever, _filters, destination, config) )
 
         go(configs)
 
