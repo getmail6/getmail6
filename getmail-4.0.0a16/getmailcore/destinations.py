@@ -13,11 +13,17 @@ Currently implemented:
 import os
 import socket
 import re
-import pwd
 import signal
+import types
+
+# Only on Unix
+try:
+    import pwd
+except ImportError:
+    pass
 
 from exceptions import *
-from utilities import is_maildir, deliver_maildir, mbox_from_escape, mbox_timestamp, lock_file, unlock_file
+from utilities import *
 from baseclasses import ConfigurableBase
 
 #######################################
@@ -236,6 +242,10 @@ class MDA_qmaillocal(DeliverySkeleton):
                            (according to the values of "conf-break" and "user").  This can be used to add or remove a prefix of
                            the address.
 
+      allow_root_commands (boolean, optional) - if set, external commands are allowed when
+                                                running as root.  The default is not to allow
+                                                such behaviour.
+
     For example, if getmail is run as user "exampledotorg", which has virtual domain
     "example.org" delegated to it with a virtualdomains entry of "example.org:exampledotorg",
     and messages are retrieved with envelope recipients like "trimtext-localpart@example.org",
@@ -254,6 +264,7 @@ class MDA_qmaillocal(DeliverySkeleton):
         {'name' : 'defaultdelivery', 'type' : str, 'default' : './Maildir/'},
         {'name' : 'conf-break', 'type' : str, 'default' : '-'},
         {'name' : 'localparttranslate', 'type' : tuple, 'default' : ('', '')},
+        {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
     )
 
     def initialize(self):
@@ -321,8 +332,8 @@ class MDA_qmaillocal(DeliverySkeleton):
         self.log.debug('recipient: set dash to "%s", ext to "%s"\n' % (msginfo['dash'], msginfo['ext']))
 
         # At least some security...
-        if os.geteuid() == 0:
-            raise getmailConfigurationError('refuse to invoke external commands as root')
+        if os.geteuid() == 0 and not self.conf['allow_root_commands']:
+            raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
         orighandler = signal.getsignal(signal.SIGCHLD)
         signal.signal(signal.SIGCHLD, signal.SIG_IGN)
@@ -394,11 +405,28 @@ class MDA_external(DeliverySkeleton):
 
                     path = /path/to/mymda
                     arguments = ('--demime', '-f%(sender)', '--', '%(recipient)')
+
+      user (string, optional) - if provided, the external command will be run as the
+                                specified user.  This requires that the main getmail
+                                process have permission to change the effective user
+                                ID.
+                            
+      group (string, optional) -  if provided, the external command will be run with the
+                                specified group ID.  This requires that the main getmail
+                                process have permission to change the effective group
+                                ID.
+
+      allow_root_commands (boolean, optional) - if set, external commands are allowed when
+                                                running as root.  The default is not to allow
+                                                such behaviour.
     '''
     _confitems = (
         {'name' : 'path', 'type' : str},
         {'name' : 'arguments', 'type' : tuple, 'default' : ()},
         {'name' : 'unixfrom', 'type' : bool, 'default' : False},
+        {'name' : 'user', 'type' : str, 'default' : None},
+        {'name' : 'group', 'type' : str, 'default' : None},
+        {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
     )
 
     def initialize(self):
@@ -441,6 +469,7 @@ class MDA_external(DeliverySkeleton):
         # Set stdout and stderr to write to files
         os.dup2(stdout.fileno(), 1)
         os.dup2(stderr.fileno(), 2)
+        change_uidgid(self.log, self.conf['user'], self.conf['group'])
         try:
             os.execl(*args)
         except OSError, o:
@@ -458,8 +487,8 @@ class MDA_external(DeliverySkeleton):
         self.log.debug('msginfo "%s"\n' % msginfo)
 
         # At least some security...
-        if os.geteuid() == 0:
-            raise getmailConfigurationError('refuse to invoke external commands as root')
+        if os.geteuid() == 0 and not self.conf['allow_root_commands'] and self.conf['user'] == None:
+            raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
         orighandler = signal.getsignal(signal.SIGCHLD)
         signal.signal(signal.SIGCHLD, signal.SIG_IGN)
@@ -540,6 +569,7 @@ class MultiSorter(DeliverySkeleton):
     _confitems = (
         {'name' : 'default', 'type' : str},
         {'name' : 'locals', 'type' : str, 'default' : ''},
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
     def initialize(self):
@@ -554,10 +584,30 @@ class MultiSorter(DeliverySkeleton):
         try:
             for (pattern, path) in [line.strip().split(None, 1) for line in self.conf['locals'].split(os.linesep) if line.strip()]:
                 p = os.path.expanduser(path)
-                if p.endswith('/'):
+                if p.startswith('[') and p.endswith(']'):
+                    destsectionname = p[1:-1]
+                    if not destsectionname in self.conf['configparser'].sections():
+                        raise getmailConfigurationError('pattern %s specifies destination section name %s which does not exist' % (pattern, path))
+                    # Construct destination instance
+                    log.debug('  getting destination for %s\n' % pattern)
+                    destination_type = self.conf['configparser'].get(destsectionname, 'type')
+                    log.debug('    type="%s"\n' % destination_type)
+                    destination_func = getattr(globals(), destination_type)
+                    if not callable(destination_func):
+                        raise getmailConfigurationError('configuration file section %s specifies incorrect destination type (%s)' % (destsectionname, destination_type))
+                    destination_args = {'configparser' : self.conf['configparser']}
+                    for (name, value) in self.conf['configparser'].items(destsectionname):
+                        if name in ('type', 'configparser'): continue
+                        log.debug('    parameter %s="%s"\n' % (name, value))
+                        destination_args[name] = value
+                    log.debug('    instantiating destination %s with args %s\n' % (destination_type, destination_args))
+                    dest = destination_func(**destination_args)
+                elif (p.startswith('/') or p.startswith('.')) and p.endswith('/'):
                     dest = Maildir(path=p)
-                else:
+                elif (p.startswith('/') or p.startswith('.')):
                     dest = Mboxrd(path=p)
+                else:
+                    raise getmailConfigurationError('specified destination %s not of recognized type' % p)
                 self.targets.append( (re.compile(pattern.replace('\\', '\\\\'), re.IGNORECASE), dest) )
         except re.error, o:
             raise getmailConfigurationError('invalid regular expression %s' % o)

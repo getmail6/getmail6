@@ -1,3 +1,42 @@
+Version 4.0.0a16
+23 June 2004
+
+  -add user and group, and allow_root_commands parameters to MDA_external 
+  destination and Filter_external filter classes.
+  -make import pwd fail gracefully for Windows, etc.
+  -add allow_root_commands parameter to MDA_external destination and 
+  Filter_external filter classes to force overriding of running external 
+  commands as root.
+  -pass reference to configparser to retriever, destination, and filters
+  -add MultiSorter destination of "[section]" which invokes another 
+  destination from the same getmail rc file.  Use this to deliver to programs
+  by including an MDA_external destination in a section named [foo] in the
+  rc file, then specify that section name in the MultiSorter in the locals
+  part, i.e.
+    [destination]
+    type = MultiSorter
+    postmaster = /path/to/maildir/
+    locals = joe /path/to/maildir/
+      sam /path/to/mbox/
+      chris [myprogram]
+    [myprogram]
+    type = MDA_external
+	path = /usr/local/bin/mymda
+	arguments = ("--strip-attachments", "-f%(sender)", "--fast")
+  Don't try to cause a loop using this to point to itself.  You have been
+  warned.
+  -MultiSorter is now a little stricter about destination names.  A maildir
+  (after any tilde expansion, if applicable) must start with "." or "/" and
+  end with "/".  An mboxrd (after any tilde expansion, if applicable) must
+  start with "." or "/".  This means if you previous had something like:
+    locals = sam@example.net subdir/maildir/
+  You'll need to change it to:
+    locals = sam@example.net ./subdir/maildir/
+  Of course, 
+    locals = sam@example.net ~sam/maildir/
+  is already okay if sam is a valid user and has a valid home directory.
+  -add use_syslog
+  
 Version 4.0.0a15
 22 June 2004
 

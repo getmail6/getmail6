@@ -7,6 +7,12 @@ import ConfigParser
 import pprint
 from optparse import OptionParser, OptionGroup
 
+# Unix only
+try:
+    import syslog
+except ImportError:
+    pass
+        
 from getmailcore import __version__, retrievers, destinations, filters, logging
 from getmailcore.exceptions import *
 from getmailcore.utilities import eval_bool, logfile
@@ -26,6 +32,7 @@ defaults = {
     'delete_after' : 0,
     'max_messages_per_session' : 0,
     'message_log' : None,
+    'message_log_syslog' : False,
     'logfile' : None,
 }
 
@@ -41,6 +48,8 @@ def go(configs):
     for (retriever, _filters, destination, options) in configs:
         now = int(time.time())
         retrieved_messages = 0
+        if options['message_log_syslog']:
+            syslog.openlog('getmail', 0, syslog.LOG_MAIL)
         log.debug('initializing retriever %s\n' % retriever)
         retriever.initialize()
         try:
@@ -49,7 +58,7 @@ def go(configs):
                 delete = False
                 timestamp = retriever.oldmail.get(msgid, None)
                 size = retriever.getmsgsize(msgid)
-                logline = 'MessageID %s, %d bytes' % (msgid, size)
+                logline = '%s MessageID %s, %d bytes' % (retriever, msgid, size)
     
                 log.info('Message %s (%d bytes) ... ' % (msgid, size))
     
@@ -106,6 +115,8 @@ def go(configs):
                 log.info('\n')
                 if options['logfile']:
                     options['logfile'].write(logline)
+                if options['message_log_syslog']:
+                    syslog.syslog(syslog.LOG_INFO, logline)
 
                 if options['max_messages_per_session'] and retrieved_messages >= options['max_messages_per_session']:
                     log.info('hit max_messages_per_session (%d), breaking\n' % options['max_messages_per_session'])
@@ -195,6 +206,7 @@ def main():
                 'max_messages_per_session' : defaults['max_messages_per_session'],
                 'logfile' : defaults['logfile'],
                 'message_log' : defaults['message_log'],
+                'message_log_syslog' : defaults['message_log_syslog'],
             }
             # Python's ConfigParser .getboolean() can't handle booleans in the defaults.
             # Submitted a patch; we'll see if they take it.  In the meantime, ugly hack....
@@ -207,7 +219,7 @@ def main():
             configparser.readfp(f, path)
 
             try:
-                for option in ('verbose', 'read_all', 'delete'):
+                for option in ('verbose', 'read_all', 'delete', 'message_log_syslog'):
                     log.debug('  looking for option %s ... ' % option)
                     if configparser.has_option('options', option):
                         log.debug('got "%s"' % configparser.get('options', option))
@@ -259,9 +271,12 @@ def main():
                 retriever_func = getattr(retrievers, retriever_type)
                 if not callable(retriever_func):
                     raise getmailConfigurationError('configuration file %s specifies incorrect retriever type (%s)' % (path, retriever_type))
-                retriever_args = {'getmaildir' : options.getmaildir}
+                retriever_args = {
+                    'getmaildir' : options.getmaildir,
+                    'configparser' : configparser,
+                }
                 for (name, value) in configparser.items('retriever'):
-                    if name == 'type' : continue
+                    if name in ('type', 'configparser'): continue
                     log.debug('    parameter %s="%s"\n' % (name, value))
                     retriever_args[name] = value
                 log.debug('    instantiating retriever %s with args %s\n' % (retriever_type, retriever_args))
@@ -276,9 +291,9 @@ def main():
                 destination_func = getattr(destinations, destination_type)
                 if not callable(destination_func):
                     raise getmailConfigurationError('configuration file %s specifies incorrect destination type (%s)' % (path, destination_type))
-                destination_args = {}
+                destination_args = {'configparser' : configparser}
                 for (name, value) in configparser.items('destination'):
-                    if name == 'type' : continue
+                    if name in ('type', 'configparser'): continue
                     log.debug('    parameter %s="%s"\n' % (name, value))
                     destination_args[name] = value
                 log.debug('    instantiating destination %s with args %s\n' % (destination_type, destination_args))
@@ -296,9 +311,9 @@ def main():
                     filter_func = getattr(filters, filter_type)
                     if not callable(filter_func):
                         raise getmailConfigurationError('configuration file %s specifies incorrect filter type (%s)' % (path, filter_type))
-                    filter_args = {}
+                    filter_args = {'configparser' : configparser}
                     for (name, value) in configparser.items(section):
-                        if name == 'type' : continue
+                        if name in ('type', 'configparser'): continue
                         log.debug('      parameter %s="%s"\n' % (name, value))
                         filter_args[name] = value
                     log.debug('      instantiating filter %s with args %s\n' % (filter_type, filter_args))

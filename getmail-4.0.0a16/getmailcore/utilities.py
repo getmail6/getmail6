@@ -2,11 +2,23 @@
 '''Utility classes and functions for getmail.
 '''
 
+__all__ = ['is_maildir', 'deliver_maildir', 'mbox_from_escape',
+    'mbox_timestamp', 'lock_file', 'unlock_file', 'address_no_brackets',
+    'eval_bool', 'change_uidgid', 'updatefile', 'logfile',
+]
+
 import os
 import signal
 import time
 import glob
 import fcntl
+
+# Only on Unix
+try:
+    import pwd
+    import grp
+except ImportError:
+    pass
 
 from exceptions import *
 
@@ -101,7 +113,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
     '''Reliably deliver a mail message into a Maildir.  Uses Dan Bernstein's
     documented rules for maildir delivery, and the updated naming convention
     for new files (modern delivery identifiers).  See
-    http://cr.yp.to/proto/maildir.html and 
+    http://cr.yp.to/proto/maildir.html and
     http://qmail.org/man/man5/maildir.html for details.
     '''
     if not is_maildir(maildirpath):
@@ -236,3 +248,29 @@ def eval_bool(s):
     elif val in ('1', 'true', 'yes', 'on'):
         return True
     return bool(eval(val))
+
+#######################################
+def change_uidgid(logger, user=None, _group=None):
+    '''Change the current effective GID and UID to those specified by user and _group.
+    '''
+    try:
+        if user:
+            logger.debug('Getting GID for specified group %s\n' % _group)
+            try:
+                run_gid = grp.getgrnam(_group).gr_gid
+            except KeyError, o:
+                raise getmailConfigurationError('no such specified group (%s)' % o)
+            if os.getegid() != run_gid:
+                logger.debug('Setting egid to %d\n' % run_gid)
+                os.setegid(run_gid)
+        if self.conf['user']:
+            logger.debug('Getting UID for specified user %s\n' % user)
+            try:
+                run_uid = pwd.getpwnam(user).pw_uid
+            except KeyError, o:
+                raise getmailConfigurationError('no such specified user (%s)' % o)
+            if os.geteuid() != run_uid:
+                logger.debug('Setting euid to %d\n' % run_uid)
+                os.seteuid(run_uid)
+    except OSError, o:
+        raise getmailDeliveryError('change UID/GID to %s/%s failed (%s)' % (user, _group, o))

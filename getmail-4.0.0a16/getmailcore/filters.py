@@ -10,7 +10,7 @@ import signal
 import email
 
 from exceptions import *
-from utilities import is_maildir, deliver_maildir, mbox_from_escape, mbox_timestamp, lock_file, unlock_file
+from utilities import *
 from baseclasses import ConfigurableBase
 
 #######################################
@@ -111,11 +111,28 @@ class Filter_external(FilterSkeleton):
 
                     path = /path/to/myfilter
                     arguments = ('--demime', '-f%(sender)', '--', '%(recipient)')
+
+      user (string, optional) - if provided, the external command will be run as the
+                                specified user.  This requires that the main getmail
+                                process have permission to change the effective user
+                                ID.
+                            
+      group (string, optional) -  if provided, the external command will be run with the
+                                specified group ID.  This requires that the main getmail
+                                process have permission to change the effective group
+                                ID.
+
+      allow_root_commands (boolean, optional) - if set, external commands are allowed when
+                                                running as root.  The default is not to allow
+                                                such behaviour.
     '''
     _confitems = (
         {'name' : 'path', 'type' : str},
         {'name' : 'unixfrom', 'type' : bool, 'default' : False},
         {'name' : 'arguments', 'type' : tuple, 'default' : ()},
+        {'name' : 'user', 'type' : str, 'default' : None},
+        {'name' : 'group', 'type' : str, 'default' : None},
+        {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
     )
 
     def initialize(self):
@@ -157,6 +174,7 @@ class Filter_external(FilterSkeleton):
         # Set stdout and stderr to write to files
         os.dup2(stdout.fileno(), 1)
         os.dup2(stderr.fileno(), 2)
+        change_uidgid(self.log, self.conf['user'], self.conf['group'])
         try:
             os.execl(*args)
         except OSError, o:
@@ -174,8 +192,8 @@ class Filter_external(FilterSkeleton):
         self.log.debug('msginfo "%s"\n' % msginfo)
 
         # At least some security...
-        if os.geteuid() == 0:
-            raise getmailConfigurationError('refuse to invoke external commands as root')
+        if os.geteuid() == 0 and not self.conf['allow_root_commands'] and self.conf['user'] == None:
+            raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
         orighandler = signal.getsignal(signal.SIGCHLD)
         signal.signal(signal.SIGCHLD, signal.SIG_IGN)

@@ -5,10 +5,6 @@ TODO
 
 -RPM package
 
--allow command delivery in MultiSorter?
-  -how to include arguments, replacements, etc. without having to parse
-  a string into separate argv values?
-
 -flush out getmailrc-example
 
 -test, test, test
@@ -34,3 +30,12 @@ DONE
 -max_messages_per_session
 -make output cleaner when hitting max_messages_per_session
 -message_log
+-add "user" and "group" parameters to destinations (and maybe filters)
+  that run in separate processes.
+-add allow_root_commands
+-allow command delivery in MultiSorter?
+  -how to include arguments, replacements, etc. without having to parse
+  a string into separate argv values?
+  -add specified-section for program destinations in MultiSorter
+
+

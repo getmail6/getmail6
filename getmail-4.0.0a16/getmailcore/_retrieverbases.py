@@ -37,7 +37,7 @@ import imaplib
 
 from exceptions import *
 from constants import *
-from utilities import updatefile, address_no_brackets
+from utilities import *
 from _pop3ssl import POP3SSL, POP3_ssl_port
 from baseclasses import ConfigurableBase
 

@@ -61,7 +61,7 @@ class ConfigurableBase(object):
                         self.conf[name] = eval_bool(val)
                     else:
                         self.conf[name] = dtype(eval(val))
-                except (ValueError, SyntaxError), o:
+                except (ValueError, SyntaxError, TypeError), o:
                     raise getmailConfigurationError('configuration value %s (%s) not of required type %s (%s)' % (name, val, dtype, o))
         self.__confchecked = True
         self.log.trace('done\n')

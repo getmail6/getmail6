@@ -23,7 +23,7 @@ import imaplib
 
 from exceptions import *
 from constants import *
-from utilities import updatefile, address_no_brackets
+from utilities import *
 from baseclasses import ConfigurableBase
 from _retrieverbases import *
 
