@@ -1,6 +1,15 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.1.5pre
+4 September 2001
+
+  -add exception handling for out-of-memory during message retrieval and
+  processing.  Thanks to Russell Sutherland for the report.
+  -add somewhat experimental eliminate_duplicates option.  Will prevent duplicate
+  delivery of identical message bodies when a message is addressed to two
+  recipients in the same domain mailbox.
+
 Version 2.1.4
 3 September 2001
 

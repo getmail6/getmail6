@@ -35,7 +35,6 @@ getmail Documentation
        supplies default values for various options. Each additional
        section describes one POP3 mailbox you wish to retrieve mail from,
        and how to deliver mail to local users.
-       Note: the configuration file must not be group- or world-writable.
        See the section on Configuration Directives for details.
        
   Running getmail
@@ -305,6 +304,33 @@ getmailrc Directives
           
    Examples
           no_received = 1
+     _________________________________________________________________
+   
+      Duplicate message elimination
+      
+   This directive controls whether getmail will suppress delivery of
+   duplicate messages due to multiple recipients in the same domain
+   mailbox. Duplicate detection is done by hashing the message body.
+   Note: the best way to eliminate duplicates in this manner is to
+   control delivery based on the envelope recipient address, which the
+   server may record in a Delivered-To: or X-Envelope-To: header. This
+   option is intended for the many broken mailhosts which do not record
+   the envelope recipient.
+   
+   Directive
+          eliminate_duplicates = <1>
+          
+   Optional
+          Yes
+          
+   Default
+          No. Do not detect duplicate messages.
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          eliminate_duplicates = 1
      _________________________________________________________________
    
       Default Delivery Instruction (postmaster)

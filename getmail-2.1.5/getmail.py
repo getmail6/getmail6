@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.1.4'
+__version__ = '2.1.5'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -58,6 +58,7 @@ import traceback
 import getopt
 import getpass
 import signal
+import sha
 from types import *
 
 
@@ -128,6 +129,7 @@ defs = {
                                             #   authentication
     'no_delivered_to' : 0,                  # Don't add Delivered-To: header
     'no_received' :     0,                  # Don't add Received: header
+    'eliminate_duplicates' :    0,          # Eliminate duplicate messages
     'dump' :            0,                  # Leave this alone.
     'help' :            0,                  # Leave this alone.
     }
@@ -145,7 +147,7 @@ me = None
 
 # Options recognized in configuration getmailrc file
 intoptions = ('verbose', 'readall', 'delete', 'timeout', 'use_apop',
-    'no_delivered_to', 'no_received')
+    'no_delivered_to', 'no_received', 'eliminate_duplicates')
 stringoptions = ('message_log', 'recipient_header')
 
 # Exit codes
@@ -398,6 +400,7 @@ class getmail:
         self.info['msgcount'] = 0
         self.info['localscount'] = 0
         getmailobj = self
+        self.msgs_delivered = {}
                 
     ###################################
     def __del__ (self):
@@ -695,8 +698,20 @@ class getmail:
         '''Determine which configured local recipients to send a copy of this
         message to, and dispatch to the deliver_msg() method.
         '''
+        delivered = 0
         
-        delivered = {}
+        try:
+            body_start = string.index (msg, line_end['pop3'] * 2)
+        except ValueError:
+            self.logfunc (TRACE, 'do_deliveries():  message appears to have no body',
+                self.opts)
+            body_start = 0
+        digestobj = sha.new (msg[body_start:])
+        digest = digestobj.digest ()
+        self.logfunc (TRACE, 'do_deliveries():  message digest "%s", body "%s..."'
+            % (digestobj.hexdigest (), msg[body_start:body_start + 40]),
+            self.opts)
+
         # Test each recipient address against the compiled regular expression 
         # objects for each configured user for this POP3 mailbox.  If the 
         # recipient address matches a given user's re, deliver at most one copy 
@@ -710,16 +725,27 @@ class getmail:
                     self.logfunc (TRACE,
                         'do_deliveries():  user re matched recipient "%s"\n'
                         % recipient, self.opts)
-                    if delivered.has_key (user['target']):
-                        # Never deliver multiple copies of a message to
-                        # same destination
-                        self.logfunc (TRACE,
-                            'do_deliveries():  already delivered to target "%(target)s", skipping...\n'
-                            % user, self.opts)
-                    else:
-                        # Remember that we've delivered this message to this target
-                        delivered[user['target']] = 1
-                        
+                    do_delivery = 1
+                    if self.opts['eliminate_duplicates']:
+                        if self.msgs_delivered.has_key (digest):
+                            if user['target'] in self.msgs_delivered[digest]:
+                                # Never deliver multiple copies of a message to same destination
+                                self.logfunc (TRACE,
+                                    'do_deliveries():  already delivered to target "%(target)s", skipping...\n'
+                                    % user, self.opts)
+                                do_delivery = 0
+                                # Add a delivery, so it doesn't go to postmaster
+                                delivered = delivered + 1
+
+                            else:
+                                # Deliver to this recipient and keep track
+                                self.msgs_delivered[digest].append (user['target'])
+                                
+                        else:
+                            # First recipient of this message, keep track
+                            self.msgs_delivered[digest] = [user['target']]
+                            
+                    if do_delivery:
                         dt = self.deliver_msg (user['target'],
                             self.message_add_info (msg, recipient), env_sender)
                         msglog ('delivered to %s for <%s>' % (dt, recipient),
@@ -727,12 +753,14 @@ class getmail:
                         self.logfunc (TRACE,
                             'do_deliveries():  delivered to "%(target)s"\n'
                             % user, self.opts)
+                        delivered = delivered + 1
+                        
                 else:
                     self.logfunc (TRACE,
                         'do_deliveries():  user re did not match recipient "%s"\n'
                         % recipient, self.opts)
                             
-        return len (delivered)
+        return delivered
 
     #######################################
     def deliver_msg (self, dest, msg, env_sender):
@@ -1142,6 +1170,13 @@ class getmail:
                 % self.account + ' (%s)' % txt, self.opts)
             self.abort (txt)
 
+        except MemoryError:
+            txt = 'Memory exhausted during session with %(server)s' % self.account
+            self.logfunc (WARN, txt + '\n', self.opts)
+            msglog ('Memory exhausted during session for %(username)s on %(server)s:%(port)i'
+                % self.account, self.opts)
+            self.abort ('Out of memory')
+
 ###################################
 def alarm_handler (sig, other):
     '''Handle an alarm (should never happen).'''
@@ -1366,6 +1401,7 @@ def parse_options (args):
             o['verbose'] = 1
         elif option == '--trace':
             o['verbose'] = 2
+            ConfParser.debug = 1
         elif option == '--quiet' or option == '-q':
             o['verbose'] = 0
         elif option == '--message-log' or option == '-m':
