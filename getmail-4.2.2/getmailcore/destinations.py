@@ -106,10 +106,6 @@ class Maildir(DeliverySkeleton, ForkingBase):
 
       path - path to maildir, which will be expanded for leading '~/' or
       '~USER/', as well as environment variables.
-
-    getmail will attempt to chown the file created to the UID and GID of the
-    maildir.  If this fails (i.e. getmail does not have sufficient permissions),
-    no error is raised.
     '''
     _confitems = (
         {'name' : 'path', 'type' : str},

@@ -283,7 +283,7 @@ class RetrieverSkeleton(ConfigurableBase):
         try:
             for (msgid, timestamp) in [line.strip().split('\0', 1)
                     for line in open(self.oldmail_filename, 'rb')
-                    if line.strip()!='']:
+                    if (line.strip()!='' and '\0' in line)]:
                 self.oldmail[msgid] = int(timestamp)
             self.log.moreinfo('read %i uids for %s\n' % (len(self.oldmail), self))
         except IOError:
@@ -318,6 +318,7 @@ class RetrieverSkeleton(ConfigurableBase):
         except IOError, o:
             self.log.error('failed writing oldmail file for %s (%s)\n'
                 % (self, o))
+            f.abort()                
         self.__oldmail_written = True
 
     def initialize(self):

@@ -1,3 +1,10 @@
+Version 4.2.2
+11 October 2004
+
+  -in child delivery processes, change real as well as effective uid/gid.
+  Thanks: David Watson.
+  -handle corrupted oldmail file better.  Thanks: Matthias Andree.
+  
 Version 4.2.1
 8 October 2004
 

@@ -89,6 +89,14 @@ class updatefile(object):
     def __del__(self):
         self.close()
 
+    def abort(self):
+        try:
+            if hasattr(self, 'file'):
+                self.file.close()
+        except IOError:
+            pass            
+        self.closed = True
+        
     def close(self):
         if self.closed or not hasattr(self, 'file'):
             return
@@ -361,12 +369,12 @@ def change_uidgid(logger=None, uid=None, gid=None):
             if os.getegid() != gid:
                 if logger:
                     logger.debug('Setting egid to %d\n' % gid)
-                os.setegid(gid)
+                os.setregid(gid, gid)
         if uid:
             if os.geteuid() != uid:
                 if logger:
                     logger.debug('Setting euid to %d\n' % uid)
-                os.seteuid(uid)
+                os.setreuid(uid, uid)
     except OSError, o:
         raise getmailDeliveryError('change UID/GID to %s/%s failed (%s)'
             % (uid, gid, o))
