@@ -32,6 +32,8 @@ use_*env = 1                                    # Use Demon's SPDS *ENV POP3 ext
                                                 #   envelope sender and recipient addresses.
 postmaster = /var/spool/mail/postmaster/        # default maildir destination if none of the "local" directives
                                                 #   match
+command_add_fromline = 0						# Don't prepend an mbox-type From_ line to messages delivered
+												#   to commands
                                                 # Use regular expression matching on the following addresses
 local = ^user1@isp.net$,~user1/Maildir/         # Mail for "user1@isp.net" is delivered to ~user1/Maildir/
 local = ^user2-list@isp.net$,~user2/Mail/list/  # Handle this qmail-style extension address separately.

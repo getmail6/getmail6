@@ -319,7 +319,11 @@ local = sales@smallcompany.tld,~darlab/Maildir/
 			This is primarily useful for external MDAs such as <a href="http://tmda.net/">TMDA</a>.
 		</li>
 	</ul>
-
+	<p>
+		getmail will normally prepend messages with an mbox-style From_ line before delivering
+		them to an external command; to disable this behaviour, use the
+		<a href="#directive-fromline">command_add_fromline</a> directive.
+	</p>
 	<p>
 		Note the following restrictions:
 	</p>
@@ -383,7 +387,7 @@ postmaster = "|/path/to/mda [options] 2>&amp;1"
 			<td class="listitem"><a href="#directive-password">password</a></td><td>Yes</td><td>Prompt for password</td><td>POP3 account password</td>
 		</tr>
 		<tr>
-			<td class="listitem"><a href="#directive-apop">use_apop</a></td><td>Yes</td><td>0 (No)</td><td>Use POP3 APOP authentication if available</td>
+			<td class="listitem"><a href="#directive-apop">use_apop</a></td><td>Yes</td><td>0 (No)</td><td>Use POP3 APOP authentication</td>
 		</tr>
 		<tr>
 			<td colspan="4" class="subheader"><a href="#directive-message-format">Message Formatting</a></td>
@@ -414,6 +418,9 @@ postmaster = "|/path/to/mda [options] 2>&amp;1"
 		</tr>
 		<tr>
 			<td class="listitem"><a href="#directive-extension-depth">extension_depth</a></td><td>Yes</td><td>1</td><td>User extension address base length</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-fromline">command_add_fromline</a></td><td>Yes</td><td>1 (Yes)</td><td>Prepend command deliveries with mbox-style From_ line</td>
 		</tr>
 		<tr>
 			<td colspan="4" class="subheader"><a href="#directive-retrieval">Message Retrieval</a></td>
@@ -758,8 +765,8 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 				Function
 			</td>
 			<td class="rowdata">
-				Use POP3 APOP authentication if available.  Falls back to
-				USER/PASS authentication if not supported.
+				Use POP3 APOP authentication if available.  getmail will exit
+				if APOP is configured but not supported by the server.
 			</td>
 		</tr>
 		<tr>
@@ -1318,6 +1325,58 @@ PERFORMANCE OF THIS SOFTWARE.</pre>
 			</td>
 			<td class="sample">
 				extension_depth = 2
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-fromline"><a href="#directive-delivery-targets">Command delivery From_ line prepend</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify whether to prepend command deliveries with an mbox-style From_ line.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				command_add_fromline = <span class="sample">bool</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				1 (Yes)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				command_add_fromline = 0
 			</td>
 		</tr>
 	</table>

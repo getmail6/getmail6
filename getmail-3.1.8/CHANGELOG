@@ -1,6 +1,14 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.1.8
+22 July 2003
+
+  -Add command_add_fromline directive to control prepending mbox-style From_ 
+  lines to command deliveries.  Defaults to 1, the previous behaviour.  Set
+  to 0 to disable.  The need for this was simultaneously discovered by
+  both Robin Bowes and Stephen Giles.
+
 Version 3.1.7
 29 May 2003
 

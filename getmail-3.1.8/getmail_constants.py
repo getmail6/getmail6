@@ -25,6 +25,7 @@ loglevels = {
 
 # Options recognized in configuration getmailrc file
 intoptions = (
+    'command_add_fromline',
     'delete',
     'delete_after',
     'extension_depth',

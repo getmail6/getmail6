@@ -1,0 +1,391 @@
+
+   #Charles Cazabon's Pages
+
+getmail Frequently Asked Questions (FAQ)
+
+   These  are  the  Frequently  Asked  Questions  about  getmail. If your
+   question  is  not  answered  here  or  in  the  documentation,  please
+   subscribe to the mailing list.
+
+About this document
+
+   The official location of this document is
+   http://www.qcc.ca/~charlesc/software/getmail-3.0/docs.html.  For  easy
+   navigation,  all  headings  in  the  HTML version of this document are
+   links to their parent heading.
+
+Table of Contents
+
+    1. About getmail
+    2. Error messages
+    3. getmail configuration
+    4. Other errors
+    5. How do I ...
+
+About getmail
+
+What is getmail?
+
+   getmail  is  a POP3 mail retriever, with support for both ordinary and
+   domain  (or  multidrop)  POP3  mailboxes. It is written in Python, and
+   licensed under the GNU General Public License version 2.
+
+Why did you write getmail? Why not just use fetchmail?
+
+   I  do  not  like  some  of  the  design  choices  which were made with
+   fetchmail.  getmail  does  things  a  little  differently,  and for my
+   purposes,  better.  In  addition,  most  people find getmail easier to
+   configure  and  use  than fetchmail. Perhaps most importantly, getmail
+   goes  to  great  lengths  to  ensure  that  mail  is never lost, while
+   fetchmail (in its default configuration) frequently loses mail, causes
+   mail  loops,  bounces  legitimate  messages,  and  causes  many  other
+   problems.
+
+   In addition, fetchmail has a long history of security problems:
+     * versions  released  before 20 June 2001 contain a buffer overflow,
+       which can be remotely exploited (see
+       www.securityfocus.com/bid/2877   for   details).  getmail  is  not
+       vulnerable  to  buffer  overflows,  because  buffers in Python are
+       dynamically sized.
+     * Another remotely-exploitable security hole discovered in fetchmail
+       in June 2002; versions prior to 5.9.10 (released in June 2002) are
+       exploitable.
+     * Reading fetchmail's UPDATES file, it appears that another security
+       problem  was fixed in 5.9.12, where a server could crash fetchmail
+       on 64-bit platforms. Also worrying is a mention that it includes a
+       fix for "password shrouding".
+     * Another remotely-exploitable security hole in fetchmail discovered
+       in  September  2002; this hole lets an attacker run arbitrary code
+       on the victim's computer.
+     * Another remotely-exploitable security hole in fetchmail discovered
+       in  December 2002; once again, a remote attacker can run arbitrary
+       code   on   the   machine   running   fetchmail   in  its  default
+       configuration. See this advisory for details.
+
+   But don't just take my word for it.
+
+   getmail users have not had to worry about any of these security holes.
+
+How can I get support for getmail?
+
+   getmail is Free Software. As such, it comes with no warranty. However,
+   I  will do my best to support getmail on a voluntary basis through the
+   getmail mailing list.
+
+   If  you  are  using getmail in a commercial or other environment where
+   problems  cost  money, consider contacting me privately for commercial
+   support.
+
+   If  you  have  questions  about getmail, the first step is to read the
+   documentation, and the remainder of the Frequently Asked Questions. If
+   your  question  isn't  answered there, search the getmail mailing list
+   archives at http://marc.theaimsgroup.com/?l=getmail&r=1&w=2.
+
+   If  you  still  haven't  found  an  answer  to  your  question, please
+   subscribe   to   the   mailing  list  by  sending  a  blank  email  to
+   <getmail-subscribe   @   discworld.dnsalias.org>.  If  you  post  your
+   question  there,  I will see it. As an additional bonus, your question
+   may be answered by another member of the list.
+
+I think I found a bug! How do I report it?
+
+   Ideally, you should join the mailing list. Send your bug report there.
+   You should include the following information:
+     * getmail version
+     * Python version
+     * any error message which getmail displayed
+     * the  output  from  running  getmail  with your normal options plus
+       --dump
+     * if  your  problem  is  getmail  not  determining  the proper local
+       recipient,  please include the output of running getmail with your
+       normal   options  plus  --trace,  showing  the  retrieval  of  one
+       problematic message.
+
+   If you absolutely cannot sign up for the mailing list, send the report
+   to me directly. I may not be able to respond to all reports privately,
+   but I will try to address any bugs I find out about this way.
+
+Does getmail support virus scanning of retrieved messages?
+
+   Yes,  getmail  can  use  external MDAs which do absolutely any type of
+   message  scanning, filtering, etc. Also see this question about how to
+   do this.
+
+Does getmail rewrite mail headers when it retrieves mail?
+
+   No--rewriting  message  header  fields  is bad. getmail will add a new
+   Received:  header field and a new Delivered-To: header field, but does
+   not  rewrite  existing  headers. You can disable the creation of these
+   header fields.
+
+How does getmail decide what local recipients to deliver a message to?
+
+   This is a two-step process.
+    1. getmail  first  tries  to  find  who  the  message  was originally
+       addressed to using one of two methods:
+          + If  you have enabled SPDS *ENV support, getmail will retrieve
+            the  original  envelope  of  the message from an SPDS-enabled
+            server (i.e. Demon provides this).
+          + Envelope  recipient address method. If the MTA running on the
+            POP3  servers  is  sensible,  it  will  record  the  envelope
+            recipient  address  in  a  new header field at the top of the
+            message.  You  can  then  tell  getmail  to find it using the
+            envelope_recipient directive.
+    2. getmail  will  then  compare  each  address  found  above  to  any
+       configured local recipient address patterns. If a pattern matches,
+       getmail  will  deliver  the message to that target. If no patterns
+       match,  or  if  you have not configured getmail to reconstruct the
+       original  envelope,  the  message  is  delivered  to  the  default
+       delivery instruction (postmaster directive).
+
+Error Messages
+
+getmail complains about "incomplete format string" ...
+
+   Double  any  percent  signs  you have in your getmailrc file--i.e., if
+   your password is foo%bar, then actually specify it as foo%%bar.
+
+getmail complains about "error in getmailrc file (expected option value, got
+... )"
+
+   You  have  a  syntax error in your getmailrc file. Empty option values
+   are  not  allowed. If you want to specify an empty string as an option
+   value, you have to quote it:
+foo = ""
+
+getmail complains about "configuration error in getmailrc file
+(/path/to/getmailrc): file is group- or world-writable". What's wrong?
+
+   Your  getmailrc  configuration  file  is group- or world-writable. For
+   security   reasons,   getmail   refuses   to  run  with  a  group-  or
+   world-writable getmailrc file. Change the permissions on that file.
+
+getmail complains about "Configuration error (local directives require
+use_*env or envelope_recipient to identify envelope recipient)". What's
+wrong?
+
+   The  account  configuration in question contains local directives, but
+   you  haven't  told  getmail  how  to  determine  the original envelope
+   recipient  address  of  the  message.  To use multidrop mode, you must
+   either  enable use_*env (if your mailhost supports it) or tell getmail
+   which  header  field  the envelope recipient address is recorded in by
+   the mailhost's MTA using the envelope_recipient directive.
+
+getmail complains about "Delivery error (refuse to deliver to commands as
+root)". What's wrong?
+
+   You're  running  getmail  as  user  "root"  (UID 0) and trying to have
+   getmail run an external command. The documentation says don't do that.
+
+getmail configuration
+
+What is a "domain mailbox"?
+
+   A  domain (or multidrop) mailbox is a POP3 mailbox which receives mail
+   for  all  users in a given domain. Normal mailboxes contain mail for a
+   single  user (like jason@myisp.co.uk); some Internet Service Providers
+   which provide webhosting or other services will provide a POP3 mailbox
+   which receives mail for all addresses in a given domain (i.e. mail for
+   service@smallcompany.net,  sales@smallcompany.net, and indeed anything
+   @smallcompany.net ends up in the same POP3 mailbox).
+
+   getmail provides a method of retrieving mail from a domain mailbox and
+   distributing  it  among  the  various  users  automatically.  See  the
+   documentation  sections  on  header  field  pattern  matching delivery
+   targets,  envelope  recipient  address  field  specification,  default
+   delivery target, and POP3 domain mailboxes.
+
+Do I have to run sendmail or another MTA to use getmail?
+
+   No.  getmail  delivers directly to Maildirs or via arbitrary MDAs, and
+   never  injects  mail  via SMTP, so no MTA is necessary. P.S. If you're
+   currently  running sendmail, consider switching to qmail if you need a
+   full  MTA, or nullmailer if you relay all your mail through your ISP's
+   smarthost. Both of them are better and more secure than sendmail.
+
+I've got a simple POP3 account. Do I need "local=..." configuration
+variables?
+
+   No, you don't need them. They might be useful to you if the MTA on the
+   POP3  server supports extension addresses (i.e. qmail) and records the
+   envelope  recipient  address  properly.  But in general, you will only
+   need to use a postmaster directive.
+
+Other getmail errors
+
+I've configured getmail to deliver to my Maildir, but it won't do it. Why?
+
+   Double-check  your  getmailrc  file.  Maildir  delivery  targets  must
+   include a trailing slash.
+
+I've configured getmail to deliver to my mbox file, but it won't do it. Why?
+
+   getmail  3.x  does  not  have native mbox support, as all mbox-capable
+   MDAs on a given system must use the same locking mechanism and support
+   the  same  mbox  subtype.  You  can  use  getmail's  command  delivery
+   mechanism  to deliver through an external mbox-aware MDA (see the next
+   paragraph) if you must, but consider using maildirs instead.
+
+   getmail  includes  getmail_mbox, an mbox delivery agent you can use in
+   this   fashion.   It   supports  mboxrd-format  mbox  files  and  uses
+   flock-style  locking.  Make  sure these are the correct types for your
+   system before using it, as all mbox-handling programs on a system must
+   use the same types and values.
+
+   To  use  getmail_mbox  to  deliver  to  mbox  files,  specify it as an
+   external  MDA.  It  takes  the  path to the mbox file as a commandline
+   argument, as follows:
+getmail_mbox /path/to/mbox
+
+   Example uses:
+postmaster = "|/path/to/getmail_mbox /path/to/mbox"
+local = "^joe@.*$,|/path/to/getmail_mbox /home/joe/mbox"
+local = "^sam@.*$,|/path/to/getmail_mbox /home/sam/mbox"
+
+I've configured getmail to deliver to a command (external MDA), but it
+complains that the command exited 0 but wrote to stderr. Why?
+
+   Command  deliveries must exit 0 and not write anything to stderr to be
+   considered  a  successful  delivery. If you know your MDA can write to
+   stderr  on success, give your command a --quiet option (if it supports
+   it)  or discard or redirect stderr in the command specification of the
+   delivery target.
+
+Why does getmail retrieve all my messages when I've told it to only retrieve
+new mail?
+
+   Your  POP3  mail  server is probably broken. getmail requires that the
+   server support the POP3 UIDL command to uniquely identify messages. If
+   the  server  doesn't support it, getmail cannot tell which messages it
+   has already seen, and therefore retrieves all messages.
+
+How do I ...
+
+How do I stop getmail adding a Delivered-To: header to email?
+
+   Use the no_delivered_to configuration directive.
+
+How do I stop getmail adding a Received: header to email?
+
+   Use the no_received configuration directive.
+
+How do I make getmail deliver messages to a program?
+
+   Specify  the  delivery target as |path-to-command. You should probably
+   use   full   paths  (e.g.  /usr/bin/maildrop).  As  a  basic  security
+   precaution,  getmail  will  refuse  to  deliver  to  programs if it is
+   running as root.
+
+   Warning:  if  you don't know what you're doing, you can shoot yourself
+   in the foot with this option.
+
+How do I make getmail deliver messages by re-injecting with SMTP?
+
+   You  don't. getmail doesn't do this, to prevent lost mail, mail loops,
+   and  bounces  if getmail or your Mail Transfer Agent is misconfigured.
+   getmail  has native support for delivering to qmail-style Maildirs and
+   commands  (pipe  delivery).  Therefore you shouldn't need to re-inject
+   retrieved messages.
+
+   If  you  absolutely  must inject retrieved messages into an MTA, it is
+   possible  to  do  this  knowing  no  more than what is included in the
+   getmail  documentation.  If  you  know  enough about mail to avoid the
+   pitfalls mentioned above, you don't need my help figuring out how.
+
+How do I make getmail use SSL / talk to an SSL-wrapped POP3 server (POP3S)?
+
+   Use  the  SSL  utility  stunnel to set up an SSL tunnel from a port on
+   your  machine to the SSL-wrapped POP3 port (typically TCP port 995) on
+   the  mailserver. Then configure getmail to connect to the local end of
+   the tunnel.
+
+   The  easiest way to do this is to use a tiny shellscript wrapper which
+   sets up the tunnel and then runs getmail. An example would be:
+#!/bin/sh
+/usr/sbin/stunnel -c -D 4 -d 8110 -r 192.168.2.3:995
+getmail
+
+   The  above script sets up a tunnel from port 8110 on localhost to port
+   995 on the mailserver at 192.168.2.3. You would then use the following
+   getmailrc configuration:
+[SSL-wrapped access to my mail]
+server = localhost
+port = 8110
+username = me
+password = mypassword
+
+   Note  that  there are security considerations with this configuration,
+   as  with all configurations. For instance, do not configure getmail to
+   connect  to a port that another local user might have already set up a
+   listener on; stunnel could fail to set up the tunnel, and if the other
+   user  had  set up a POP3 listener, getmail would send your credentials
+   to  it.  You  could  set up the tunnel on a privileged port to prevent
+   non-privileged local users from mounting this type of attack.
+
+How do I run getmail in "daemon" mode?
+
+   Use your system's cron utility to run getmail periodically if you wish
+   to  have  mail retrieved automatically at intervals. This is precisely
+   what  cron  is  designed to do; there's no need to add special code to
+   getmail to do this.
+
+How do I use TMDA with getmail?
+
+   TMDA  is the Tagged Message Delivery Agent, an excercise in preventing
+   spam from ever reaching your inbox.
+
+   To make getmail export the environment variables which TMDA needs, you
+   must  use  local  directives  in  your  getmailrc  file.  You can then
+   optionally set the extension_sep and extension_depth directives.
+
+   For  example,  if  getmail  determines  the  envelope  recipient to be
+   domain-user-ext1-ext2@otherdomain.tld,  extension_sep is set to -, and
+   extension_depth   is   set   to  1,  then  getmail  will  set  EXT  to
+   user-ext1-ext2.  If  extension_depth  is 2, it will instead set EXT to
+   ext1-ext2.
+
+   TMDA    renames    existing    Delivered-To:    header    fields    to
+   Old-Delivered-To:. Previous versions (0.55 through 0.57 or so) instead
+   tried  to  strip  recent  Delivered-To:  fields  and may have required
+   disabling getmail's addition of new Delivered-To: header fields.
+
+   You  will  need  a  wrapper  around  TMDA to use in a command delivery
+   target  which  conditionally delivers the message based on TMDA's exit
+   code.  getmail does not include such a wrapper; you will need to write
+   it or find it yourself.
+
+   Note  that  getmail  will  only  be  able  to  determine  the envelope
+   recipient address (and extension part of that address) reliably if the
+   MTA  at the POP3 server is configured to record the envelope recipient
+   in a message header field (i.e. as qmail does with Delivered-To:), and
+   you have configured getmail to only look at that header field with the
+   envelope_recipient  directive,  or  if your ISP supports the SPDS *ENV
+   extension and you have configured getmail to use it.
+
+   If  anyone  has  concrete  experience using getmail and TMDA together,
+   please  feel free to send instructions or your wrapper script to me; I
+   personally do not use a filtering MDA and therefore have no experience
+   making TMDA work with getmail.
+
+How do I do virus scanning of retrieved messages with getmail?
+
+   You  can do this in hundreds of different ways. There are many threads
+   in  the  mailing  list  archive  dealing specifically with this topic;
+   please  read  at  least  all  of February 2003, including this thread,
+   before posting to the mailing list.
+
+How do I do message filtering with getmail?
+
+   The  best  way is to use a program designed specifically to do message
+   filtering, like a filtering MDA. The best-known example of a filtering
+   MDA  is  procmail,  but  I  don't recommend using it. maildrop is much
+   easier to use.
+
+   getmail  can  invoke  arbitrary  programs as external MDAs, so you can
+   also  write your own filters as you choose. A simple example, changing
+   all  occurrences  of the string "stupid" to "XXXXXX" and using safecat
+   to  deliver  the  resulting  filtered message to a Maildir might be to
+   specify a delivery target of
+|/bin/sed 's/stupid/XXXXXX/g' | safecat ./Maildir/tmp ./Maildir/new
+
+   .

@@ -235,6 +235,15 @@
 		directive.
 	</p>
 
+	<h4 id="error-message-root">
+		<a href="#error-messages">getmail complains about &quot;<span class="error">Delivery error (refuse to deliver to commands as root)</span>&quot;.
+		What's wrong?</a>
+	</h4>
+	<p>
+		You're running getmail as user &quot;root&quot; (UID 0) and trying to have getmail run an external command.
+		<a href="docs.html#delivery-targets">The documentation says don't do that.</a>
+	</p>
+
 	<h3 id="config"><a href="#faq">getmail configuration</a></h3>
 
 	<h4 id="config-domain"><a href="#config">What is a &quot;domain mailbox&quot;?</a></h4>
@@ -305,9 +314,9 @@
 		<pre class="sample">getmail_mbox /path/to/mbox</pre>
 		Example uses:
 		<pre class="sample">
-postmaster = &quot;|/path/to/getmail_mbox /path/to/mbox
-local = &quot;^joe@.*$,|/path/to/getmail_mbox /home/joe/mbox
-local = &quot;^sam@.*$,|/path/to/getmail_mbox /home/sam/mbox
+postmaster = &quot;|/path/to/getmail_mbox /path/to/mbox&quot;
+local = &quot;^joe@.*$,|/path/to/getmail_mbox /home/joe/mbox&quot;
+local = &quot;^sam@.*$,|/path/to/getmail_mbox /home/sam/mbox&quot;
 		</pre>
 	</p>
 
@@ -366,6 +375,40 @@ local = &quot;^sam@.*$,|/path/to/getmail_mbox /home/sam/mbox
 		my help figuring out how.
 	</p>
 
+	<h4 id="how-ssl"><a href="#how">How do I make getmail use SSL / talk to an SSL-wrapped POP3 server (POP3S)?</a></h4>
+	<p>
+		Use the SSL utility <a href="http://www.stunnel.org/">stunnel</a> to set up an SSL tunnel from
+		a port on your machine to the SSL-wrapped POP3 port (typically TCP port 995) on the mailserver.
+		Then configure getmail to connect to the local end of the tunnel.
+	</p>
+	<p>
+		The easiest way to do this is to use a tiny shellscript wrapper which sets up the tunnel
+		and then runs getmail.  An example would be:
+	</p>
+	<pre class="sample">#!/bin/sh
+/usr/sbin/stunnel -c -D 4 -d 8110 -r 192.168.2.3:995
+getmail
+	</pre>
+	<p>
+		The above script sets up a tunnel from port 8110 on localhost to port 995 on
+		the mailserver at 192.168.2.3.  You would then use the following getmailrc
+		configuration:
+	</p>
+	<pre class="sample">[SSL-wrapped access to my mail]
+server = localhost
+port = 8110
+username = me
+password = mypassword
+	</pre>
+	<p>
+		Note that there are security considerations with this configuration, as with all 
+		configurations.  For instance, do not configure getmail to connect to a port 
+		that another local user might have already set up a listener on; stunnel could 
+		fail to set up the tunnel, and if the other user had set up a POP3 listener, 
+		getmail would send your credentials to it.  You could set up the tunnel on
+		a privileged port to prevent non-privileged local users from mounting this
+		type of attack.
+	</p>
 	<h4 id="how-daemon"><a href="#how">How do I run getmail in &quot;daemon&quot; mode?</a></h4>
 	<p>
 		Use your system's cron utility to run getmail periodically if you wish to have 

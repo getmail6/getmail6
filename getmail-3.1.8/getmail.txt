@@ -1,0 +1,77 @@
+
+   #Charles Cazabon's Pages
+
+Summary of Features
+
+     * Retrieve  mail  from  an  unlimited  number  of POP3 mailboxes and
+       servers.
+     * Support for multidrop or domain mailboxes.
+     * Safe  and  reliable  delivery  to qmail-style Maildirs, as well as
+       program  (pipe)  delivery  for  use  with arbitrary external MDAs.
+       Includes  an  MDA  for  mbox files that supports mboxrd format and
+       fcntl-type flock locking.
+     * Does not destroy information by rewriting mail headers.
+     * Does  not  cause mail loops by doing SMTP injection, and therefore
+       does  not  require that you run an MTA (like qmail or sendmail) on
+       your host.
+     * Can  remember  which mail it has already retrieved, and can be set
+       to only download new messages.
+     * Written in Python, and therefore easy to extend or customize.
+     * Simple to install, configure, and use.
+     * Won DaveCentral's "Best of Linux" award on 13 January 2000.
+
+   back to top
+
+getmail Requirements
+
+     * Python version 1.5.2 or higher.
+     * A  configuration/data  directory.  By default, getmail looks for a
+       directory named ".getmail" in your home directory. You can specify
+       an alternative location with the --getmaildir or -g option.
+     * getmail  must  have  write  permission  to  the  Maildirs  you are
+       delivering to. This can be done by making the various destinations
+       group  writable,  by  only delivering to destinations owned by the
+       user  getmail  is  running as, or by running getmail as root. When
+       delivering to Maildirs, getmail will attempt to chown any files it
+       creates to the owner of the Maildir.
+
+   back to top
+
+Changes From Version 2
+
+   For  a list of incremental changes since version 2.3.x, please see the
+   changelog.
+
+   back to top
+
+getmail Mailing Lists
+
+Discussion / Support List
+
+   A  mailing list has been set up to discuss getmail. Send a blank email
+   to  <getmail-subscribe  @  discworld.dnsalias.org> to subscribe to the
+   list.
+
+   Similarly,  to  unsubscribe,  send  mail  from  the  same  address you
+   subscribed with to <getmail-unsubscribe @ discworld.dnsalias.org>.
+
+   There is a browsable archive of the list at
+   http://marc.theaimsgroup.com/?l=getmail&r=1&w=2.
+
+   Note:  you  are expected to have read the documentation and Frequently
+   Asked  Questions,  and  browsed/searched  the  mailing  list archives,
+   before posting a question to the mailing list.
+
+Announcements List
+
+   If  you  only  want  to  be  notified  of  new releases of getmail, an
+   announce-only   list   has   been  set  up.  Send  a  blank  email  to
+   <getmail-announce-subscribe  @ discworld.dnsalias.org> to subscribe to
+   the list.
+
+   Similarly,  to  unsubscribe,  send  mail  from  the  same  address you
+   subscribed      with      to      <getmail-announce-unsubscribe      @
+   discworld.dnsalias.org>.
+
+   All  announcements  will be sent to both lists, so there is no need to
+   subscribe to the announcements list if you are on the discussion list.

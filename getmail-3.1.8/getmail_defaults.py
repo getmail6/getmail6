@@ -44,6 +44,9 @@ defs = {
                                             # Envelope-To: header would be
                                             #   "envelope-to:2".
 
+    'command_add_fromline' : 1,             # Add mbox-style From_ line to
+                                            #   start of messages delivered through
+                                            #   commands
     'extension_sep' :   '-',                # Extension address separator
     'extension_depth' : 1,                  # Number of local-part pieces to
                                             #   consider part of the base

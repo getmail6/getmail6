@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.1.7'
+__version__ = '3.1.8'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -404,7 +404,8 @@ class getmail:
             #cmd = popen2.Popen3 (command, 1, bufsize=-1)
             cmd = popen2.Popen3 (command, 1, bufsize=512)
             cmdout, cmdin, cmderr = cmd.fromchild, cmd.tochild, cmd.childerr
-            cmdin.write (fromline)
+            if self.conf['command_add_fromline']:
+                cmdin.write (fromline)
             cmdin.write (string.replace (msg, line_end['pop3'], line_end['mbox']))
             # Add trailing blank line
             cmdin.write ('\n')
