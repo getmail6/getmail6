@@ -207,11 +207,6 @@ class POP3initMixIn(object):
         self.log.trace()
         try:
             self.conn = poplib.POP3(self.conf['server'], self.conf['port'])
-            if self.conf['use_apop']:
-                self.conn.apop(self.conf['username'], self.conf['password'])
-            else:
-                self.conn.user(self.conf['username'])
-                self.conn.pass_(self.conf['password'])
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
 
@@ -230,11 +225,6 @@ class POP3SSLinitMixIn(object):
                 raise getmailConfigurationError('optional certfile and keyfile must be supplied together')
         try:
             self.conn = POP3SSL(self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile'])
-            if self.conf['use_apop']:
-                self.conn.apop(self.conf['username'], self.conf['password'])
-            else:
-                self.conn.user(self.conf['username'])
-                self.conn.pass_(self.conf['password'])
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
 
@@ -347,7 +337,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 self.conn.apop(self.conf['username'], self.conf['password'])
             else:
                 self.conn.user(self.conf['username'])
-                self.conn.user(self.conf['password'])
+                self.conn.pass_(self.conf['password'])
             self._getmsglist()
             self.log.debug('msgids: %s\n' % self.msgids)
             self.log.debug('msgsizes: %s\n' % self.msgsizes)
@@ -561,7 +551,8 @@ class MultidropSPDSRetriever(SimplePOP3Retriever, POP3initMixIn):
         {'name' : 'port', 'type' : int, 'default' : 110},
         {'name' : 'username', 'type' : str},
         {'name' : 'password', 'type' : str, 'default' : None},
-        #{'name' : 'use_apop', 'type' : bool, 'default' : False},
+        # Demon apparently doesn't support APOP
+        {'name' : 'use_apop', 'type' : bool, 'default' : False},
     )
 
     def __init__(self, **args):
