@@ -1,5 +1,14 @@
 getmail changes since version 1.11:
 
+Version 2.0.6
+9 January 2001
+
+  -another typo bug in extract_recipients().  Thanks to Roger De Salis for the
+  bug report.
+  -remove redundant information from message log.  Thanks to Frédéric L. W.
+  Meunier for pointing this out.
+  -fix 'quiet' operation.  Thanks to Frédéric L. W. Meunier for the bug report.
+
 Version 2.0.5
 30 December 2000
 

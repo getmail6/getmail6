@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.5'
+__version__ = '2.0.6'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -168,8 +168,9 @@ options = defs.copy ()						# Start as a copy of defaults
 #
 
 #######################################
-def log (level=INFO, msg=''):
+def log (level=INFO, msg='', opts={'verbose' : 1}):
 	if not msg or level < INFO:  return
+	if opts['verbose'] == 0 and level < ERROR:  return
 	if level >= ERROR:
 		file = sys.stderr
 	else:
@@ -246,7 +247,7 @@ class getmail:
 	def __init__ (self, account, opts, users, logfunc=log):
 		self.logfunc = logfunc
 		self.logfunc (TRACE, '__init__():  account="%s", opts="%s", '
-			'users="%s"\n' % (account, opts, users))
+			'users="%s"\n' % (account, opts, users), opts)
 		
 		for key in ('server', 'port', 'username', 'password'):
 			if not account.has_key (key):
@@ -290,7 +291,7 @@ class getmail:
 			self.users.append ( {'re' : re.compile (key),
 				'target' : os.path.expanduser (users[key])} )
 			self.logfunc (TRACE, '__init__():  User #%i:  re="%s", target="%s"\n'
-				% (len (self.users), key, self.users[-1]['target']))
+				% (len (self.users), key, self.users[-1]['target']), self.opts)
 
 		self.oldmail_filename = os.path.join (
 			os.path.expanduser (self.opts['getmaildir']),
@@ -326,10 +327,11 @@ class getmail:
 				oldmail[string.rstrip (line)] = None
 			f.close ()
 			self.logfunc (TRACE, 'read_oldmailfile():  read %i' % len (oldmail)
-				+ ' uids for %(server)s:%(username)s\n' % self.account)
+				+ ' uids for %(server)s:%(username)s\n' % self.account,
+				self.opts)
 		except IOError:
 			self.logfunc (TRACE, 'read_oldmailfile():  no oldmail file for '
-				'%(server)s:%(username)s\n' % self.account)
+				'%(server)s:%(username)s\n' % self.account, self.opts)
 		return oldmail
 
 	###################################
@@ -342,11 +344,12 @@ class getmail:
 			f.close ()
 			self.logfunc (TRACE, 'write_oldmailfile():  wrote %i'
 				% len (self.oldmail)
-				+ ' uids for %(server)s:%(username)s\n' % self.account)
+				+ ' uids for %(server)s:%(username)s\n' % self.account,
+				self.opts)
 		except IOError, txt:
 			self.logfunc (TRACE, 'write_oldmailfile():  failed '
 				'writing oldmail file for %(server)s:%(username)s'
-				% self.account + ' (%s)\n' % txt)
+				% self.account + ' (%s)\n' % txt, self.opts)
 
 	###################################
 	def connect (self):
@@ -354,35 +357,35 @@ class getmail:
 		try:
 			session = poplib.POP3 (self.account['server'], self.account['port'])
 			self.logfunc (INFO, '%(server)s:  POP3 session initiated on port %(port)s for "%(username)s"\n'
-					% self.account)
+					% self.account, self.opts)
 			self.logfunc (INFO, '%(server)s:' % self.account
-				+ '  POP3 greeting:  %s\n' % session.welcome)
+				+ '  POP3 greeting:  %s\n' % session.welcome, self.opts)
 			msglog ('POP3 connect for %(username)s on %(server)s:%(port)i'
 				% self.account + ' (%s)' % session.welcome, self.opts)
 		except Timeout, txt:
 			txt = 'Timeout connecting to %(server)s' % self.account
-			self.logfunc (DEBUG, txt + '\n')
+			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('timeout during POP3 connect for %(username)s on %(server)s:%(port)i'
 				% self.account, self.opts)
 			raise getmailTimeoutException, txt
 		except poplib.error_proto, response:
 			txt = '%(server)s:' % self.account \
 				+ '  connect failed (%s)' % response
-			self.logfunc (DEBUG, txt + '\n')
+			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('POP3 connect failed for %(username)s on %(server)s:%(port)i' 
 				% self.account + ' (%s)' % response, self.opts)
 			raise getmailProtoException, txt
 		except socket.error, txt:
 			txt = 'Socket exception connecting to %(server)s' % self.account \
 				+ ' (%s)' % txt
-			self.logfunc (DEBUG, txt + '\n')
+			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('socket error during POP3 connect for %(username)s on %(server)s:%(port)i'
 				% self.account + ' (%s)' % txt, self.opts)
 			raise getmailSocketException, txt
 		except StandardError, txt:
 			txt = 'Unknown exception connecting to %(server)s' % self.account \
 				+ ' (%s)' % txt
-			self.logfunc (FATAL, txt + '\n')
+			self.logfunc (FATAL, txt + '\n', self.opts)
 			msglog ('unknown error during POP3 connect for %(username)s on %(server)s:%(port)i'
 				% self.account + ' (%s)' % txt, self.opts)
 			raise getmailUnhandledException, txt
@@ -395,31 +398,31 @@ class getmail:
 		try:
 			rc = self.session.user (self.account['username'])
 			self.logfunc (INFO, '%(server)s:' % self.account
-				+ '  POP3 user reponse:  %s\n' % rc)
+				+ '  POP3 user reponse:  %s\n' % rc, self.opts)
 			rc = self.session.pass_ (self.account['password'])
 			self.logfunc (INFO, '%(server)s:' % self.account
-				+ '  POP3 password response:  %s\n' % rc)
+				+ '  POP3 password response:  %s\n' % rc, self.opts)
 			msglog ('POP3 login successful', self.opts)
 		except Timeout, txt:
 			txt = 'Timeout during login to %(server)s' % self.account
-			self.logfunc (DEBUG, txt + '\n')
+			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('timeout during POP3 login', self.opts)
 			raise getmailTimeoutException, txt
 		except poplib.error_proto, response:
 			txt = '%(server)s:' % self.account + '  login failed (%s)' % response
-			self.logfunc (DEBUG, txt + '\n')
+			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('POP3 login failed (%s)' % response, self.opts)
 			raise getmailProtoException, txt
 		except socket.error, txt:
 			txt = 'Socket exception during POP3 login with %(server)s' \
 				% self.account + ' (%s)' % txt
-			self.logfunc (DEBUG, txt + '\n')
+			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('socket error during POP3 login (%s)' % txt, self.opts)
 			raise getmailSocketException, txt
 		except StandardError, txt:
 			txt = 'Unknown exception during login to %(server)s' \
 				% self.account + ' (%s)' % txt
-			self.logfunc (ERROR, txt + '\n')
+			self.logfunc (ERROR, txt + '\n', self.opts)
 			msglog ('unknown error during POP3 login (%s)' % txt, self.opts)
 			raise getmailUnhandledException, txt
 
@@ -432,28 +435,28 @@ class getmail:
 			response = self.session.list ()
 			rc, msglist_txt = response[0:2]
 			self.logfunc (INFO, '%(server)s:' % self.account
-				+ '  POP3 list response:  %s\n' % rc)
+				+ '  POP3 list response:  %s\n' % rc, self.opts)
 			msglog ('POP3 list (%s)' % rc, self.opts)
 		except Timeout, txt:
 			txt = 'Timeout retrieving message list from %(server)s' % self.account
-			self.logfunc (DEBUG, txt + '\n')
+			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('timeout during POP3 list', self.opts)
 			raise getmailTimeoutException, txt
 		except poplib.error_proto, response:
 			txt = '%(server)s:' % self.account + '  list failed (%s)' % response
-			self.logfunc (DEBUG, txt + '\n')
+			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('POP3 list failed (%s)' % response, self.opts)
 			raise getmailProtoException, txt
 		except socket.error, txt:
 			txt = 'Socket exception during POP3 session with %(server)s' \
 				% self.account + ' (%s)' % txt
-			self.logfunc (DEBUG, txt + '\n')
+			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('socket error during POP3 list (%s)' % txt, self.opts)
 			raise getmailSocketException, txt
 		except StandardError, txt:
 			txt = 'Unknown exception for list command on %(server)s' \
 				% self.account + ' (%s)' % txt
-			self.logfunc (ERROR, txt + '\n')
+			self.logfunc (ERROR, txt + '\n', self.opts)
 			msglog ('unknown error during POP3 list (%s)' % txt, self.opts)
 			raise getmailUnhandledException, txt
 		msglist = []
@@ -475,7 +478,8 @@ class getmail:
 				header_type = mess822.isheader (line)
 
 				self.logfunc (TRACE,
-					'extract_recipients():  parsing header "%s"\n' % header_type)
+					'extract_recipients():  parsing header "%s"\n'
+					% header_type, self.opts)
 				
 				for header_group in EXTRA_RECIPIENT_HEADERS:
 					if header_type in header_group:
@@ -492,9 +496,10 @@ class getmail:
 					continue
 
 				for (comment, address) in reciplist:
-					recipient.append (address)
+					recipients.append (address)
 					self.logfunc (TRACE,
-						'extract_recipients():  found address "%s"\n' % address)
+						'extract_recipients():  found address "%s"\n'
+						% address, self.opts)
 
 				raise IndexError			# Exit outer loop				
 				
@@ -520,11 +525,12 @@ class getmail:
 			sender_name = addrlist[0][0]
 		else:
 			# No Return-Path: header
-			self.logfunc (DEBUG, 'no Return-Path: header in message\n')
+			self.logfunc (DEBUG, 'no Return-Path: header in message\n',
+				self.opts)
 			env_sender = '<#@[]>'
 
 		self.logfunc (TRACE, 'process_msg():  found envelope sender "%s"\n'
-			% env_sender)
+			% env_sender, self.opts)
 
 		# Extract possible recipients
 		#headers = mess.headers[:]
@@ -532,7 +538,7 @@ class getmail:
 
 		self.logfunc (TRACE,
 			'process_msg():  extract_recipients found %i recipients\n'
-			% len (recipients))
+			% len (recipients), self.opts)
 
 		# Iff we have not found any recipient addresses, look for recipients in
 		# particular headers, one group at a time.  Quit after first group which
@@ -546,21 +552,21 @@ class getmail:
 						recipients.append (address)
 						self.logfunc (TRACE,
 							'process_msg():  found address "%s" in header "%s"\n'
-							% (address, header))
+							% (address, header), self.opts)
 
 		# Force lowercase
 		recipients = map (string.lower, recipients)
 		
 		msglog ('new message "%s": from <%s>, to: %s'
-			% (msgid, env_sender, string.join (recipients, ', ')), self.opts)
+			% (msgid, env_sender, string.join (recipients, ', ')[:80]),
+			self.opts)
 
 		count = self.do_deliveries (recipients, msg, msgid, env_sender)
 
 		self.logfunc (TRACE, 'process_msg():  do_deliveries did %i deliveries\n'
-			% count)
+			% count, self.opts)
 
-		msglog ('finished message "%s":  %i local recipients'
-			% (msgid, count), self.opts)
+		msglog ('finished message:  %i local recipients' % count, self.opts)
 		
 		return count
 
@@ -580,35 +586,36 @@ class getmail:
 				if user['re'].match (recipient):
 					self.logfunc (TRACE,
 						'do_deliveries():  user re matched recipient "%s"\n'
-						% recipient)
+						% recipient, self.opts)
 					if delivered.has_key (user['target']):
 						# Never deliver multiple copies of a message to
 						# same destination
 						self.logfunc (TRACE,
 							'do_deliveries():  already delivered to target "%(target)s", skipping...\n'
-							% user)
+							% user, self.opts)
 						continue
 					# Remember that we've delivered this message to this target
 					delivered[user['target']] = 1
 					
 					dt = self.deliver_msg (user['target'],
 						self.message_add_info (msg, recipient), env_sender)
-					msglog ('message "%s":  delivered to %s for <%s>' 
-						% (msgid, dt, recipient), self.opts)
+					msglog ('delivered to %s for <%s>' % (dt, recipient),
+						self.opts)
 					self.logfunc (TRACE,
-						'do_deliveries():  delivered to "%(target)s"\n' % user)
+						'do_deliveries():  delivered to "%(target)s"\n'
+						% user, self.opts)
 		
 		if not len (delivered):
 			# Made no deliveries of this message; send it to the default delivery
 			# target.
 			self.logfunc (TRACE, 'do_deliveries():  no matches, '
-				'delivering to default target "%s"\n' % self.default_delivery)
+				'delivering to default target "%s"\n'
+				% self.default_delivery, self.opts)
 			delivered[None] = 1
 			dt = self.deliver_msg (self.default_delivery,
 				self.message_add_info (msg,
 				'postmaster@%(hostname)s' % self.info), env_sender)
-			msglog ('message "%s":  delivered to default %s'
-				% (msgid, dt), self.opts)
+			msglog ('delivered to default %s' % dt, self.opts)
 					
 		return len (delivered)
 
@@ -716,7 +723,7 @@ class getmail:
 	
 		# Delivery done
 		self.logfunc (TRACE, 'deliver_maildir():  delivered to Maildir "%s"\n'
-			% maildir)
+			% maildir, self.opts)
 
 		deliverycount = deliverycount + 1
 		return 'Maildir "%s"' % maildir
@@ -774,7 +781,8 @@ class getmail:
 				'failure writing message to mbox file "%s" (%s)' % (mbox, txt)
 	
 		# Delivery done
-		self.logfunc (TRACE, 'deliver_mbox():  delivered to mbox "%s"\n' % mbox)
+		self.logfunc (TRACE, 'deliver_mbox():  delivered to mbox "%s"\n'
+			% mbox, self.opts)
 
 		deliverycount = deliverycount + 1
 		return 'mbox file "%s"' % mbox
@@ -784,7 +792,7 @@ class getmail:
 		'''Some error has occurred after logging in to POP3 server.  Reset the
 		server and close the session cleanly if possible.'''
 
-		self.logfunc (WARN, 'Resetting connection and aborting...\n')
+		self.logfunc (WARN, 'Resetting connection and aborting...\n', self.opts)
 		msglog ('Aborting... (%s)' % txt, self.opts)
 
 		# Ignore exceptions with this session, as abort() is invoked after
@@ -814,7 +822,8 @@ class getmail:
 			getmailProtoException, Timeout), txt:
 			# Failed to connect; return to skip this user.
 			self.logfunc (WARN, 'failed to retrieve message list '
-				'for "%(username)s"' % self.account + ' (%s)\n' % txt)
+				'for "%(username)s"' % self.account + ' (%s)\n' % txt,
+				self.opts)
 			self.abort (txt)
 			return
 	
@@ -825,9 +834,10 @@ class getmail:
 				if msgnum == msginfo == None:
 					# No more messages; POP3.list() returns a final int
 					self.logfunc (INFO, '%(server)s:  finished retrieving messages\n'
-						% self.account)
+						% self.account, self.opts)
 					break
-				self.logfunc (INFO, '  msg #%i : len %s ... ' % (msgnum, msginfo))
+				self.logfunc (INFO, '  msg #%i : len %s ... '
+					% (msgnum, msginfo), self.opts)
 
 				try:
 					rc = self.session.uidl (msgnum)
@@ -837,7 +847,7 @@ class getmail:
 				except pop3lib.error_proto, txt:
 					msgid = None
 					self.logfunc (WARN, 'POP3 server failed UIDL command' \
-						' (%s), retrieving message ... ' % txt)
+						' (%s), retrieving message ... ' % txt, self.opts)
 
 				# Retrieve this message if:
 				#	"get all mail" option is set, OR
@@ -847,12 +857,13 @@ class getmail:
 					or not self.oldmail.has_key (msgid):
 					rc, msglines, octets = self.session.retr (msgnum)
 					msg = string.join (msglines, line_end['pop3'])
-					self.logfunc (INFO, 'retrieved')
+					self.logfunc (INFO, 'retrieved', self.opts)
 					msglog ('retrieved message "%s"\n' % msgid, self.opts)
 					self.info['msgcount'] = self.info['msgcount'] + 1
 					msg = pop3_unescape (msg)
 				else:
-					self.logfunc (INFO, 'previously retrieved, skipping ...\n')
+					self.logfunc (INFO, 'previously retrieved, skipping ...\n',
+						self.opts)
 					msglog ('message "%s" previously retrieved, skipping ...\n'
 						% msgid, self.opts)
 					continue
@@ -860,22 +871,23 @@ class getmail:
 				# Find recipients for this message and deliver to them.
 				count = self.process_msg (msg)
 				if count == 1:
-					self.logfunc (INFO, ' ... delivered 1 copy')
+					self.logfunc (INFO, ' ... delivered 1 copy', self.opts)
 				else:
-					self.logfunc (INFO, ' ... delivered %i copies' % count)
+					self.logfunc (INFO, ' ... delivered %i copies' % count, 
+						self.opts)
 
 				self.info['localscount'] = self.info['localscount'] + count
 				
 				# Delete this message if the "delete" option is set
 				if self.opts['delete']:
 					rc = self.session.dele (msgnum)
-					self.logfunc (INFO, ' ... deleted')
+					self.logfunc (INFO, ' ... deleted', self.opts)
 					# Remove msgid from list of current inbox contents
 					if msgid is not None:  del inbox[-1]
 				elif msgid is not None:
 					self.oldmail[msgid] = None
 				# Finished delivering this message		
-				self.logfunc (INFO, '\n')
+				self.logfunc (INFO, '\n', self.opts)
 
 			# Done processing messages; process oldmail contents
 			for oldmsgid in self.oldmail.keys ():
@@ -889,7 +901,7 @@ class getmail:
 			getmailProtoException, Timeout), txt:
 			# Failed to process a message; return to skip this user.
 			self.logfunc (WARN, 'failed to process message list for "%(username)s"'
-					% self.account + ' (%s)\n' % txt)
+					% self.account + ' (%s)\n' % txt, self.opts)
 			self.abort (txt)
 			return
 
@@ -897,11 +909,11 @@ class getmail:
 		self.session.quit ()
 		self.logfunc (INFO, 
 			'%(server)s:  POP3 session completed for "%(username)s"\n'
-			% self.account)
+			% self.account, self.opts)
 		self.logfunc (INFO, 
 			'%(server)s:' % self.account 
 			+ '  retrieved %(msgcount)i messages for %(localscount)i local recipients\n'
-			% self.info)
+			% self.info, self.opts)
 
 		return
 
