@@ -245,7 +245,8 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
     _confitems = (
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        # socket.ssl() and socket timeouts are incompatible in Python 2.3
+        #{'name' : 'timeout', 'type' : int, 'default' : 180},
         {'name' : 'server', 'type' : str},
         {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_SSL_PORT},
         {'name' : 'username', 'type' : str},
@@ -316,7 +317,8 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
     _confitems = (
         {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        # socket.ssl() and socket timeouts are incompatible in Python 2.3
+        #{'name' : 'timeout', 'type' : int, 'default' : 180},
         {'name' : 'server', 'type' : str},
         {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_SSL_PORT},
         {'name' : 'username', 'type' : str},

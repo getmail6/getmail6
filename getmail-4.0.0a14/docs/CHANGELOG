@@ -1,3 +1,13 @@
+Version 4.0.0a14
+22 June 2004
+
+  -fix IMAP-over-SSL.  socket.ssl objects are apparently incompatible with
+  socket timeouts, even in the IMAP_SSL class.
+  -ensure --trace debugging output doesn't output passwords.  
+  Thanks: Julian Gomez.
+  -IMAP classes would stop indexing mailboxes when they hit an empty one.
+  Fixed.  Thanks: Julian Gomez.
+
 Version 4.0.0a13
 21 June 2004
 

@@ -30,7 +30,10 @@ class ConfigurableBase(object):
         self.log.trace('args: %s\n' % args)
         self.conf = {}
         for (name, value) in args.items():
-            self.log.trace('setting %s to %s (%s)\n' % (name, value, type(value)))
+            if name.lower() == 'password':
+                self.log.trace('setting %s to * (%s)\n' % (name, type(value)))
+            else:
+                self.log.trace('setting %s to "%s" (%s)\n' % (name, value, type(value)))
             self.conf[name] = value
         self.__confchecked = False
         self.checkconf()
@@ -43,9 +46,9 @@ class ConfigurableBase(object):
             self.log.trace('checking %s\n' % item)
             name = item['name']
             dtype = item['type']
-            if not self.conf.has_key(name):
+            if not name in self.conf:
                 # Not provided
-                if item.has_key('default'):
+                if 'default' in item:
                     self.conf[name] = item['default']
                 else:
                     raise getmailConfigurationError('missing required configuration directive %s' % name)

@@ -56,6 +56,8 @@ class POP3initMixIn(object):
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
 
+        self.log.trace('POP3 connection %s established\n' % self.conn)
+
 #######################################
 class POP3SSLinitMixIn(object):
     '''Mix-In class to do POP3 over SSL initialization.
@@ -70,9 +72,16 @@ class POP3SSLinitMixIn(object):
             if self.conf['certfile'] is None or self.conf['keyfile'] is None:
                 raise getmailConfigurationError('optional certfile and keyfile must be supplied together')
         try:
-            self.conn = POP3SSL(self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile'])
+            if self.conf['certfile'] and self.conf['keyfile']:
+                self.log.trace('establishing POP3 SSL connection to %s:%d with keyfile %s, certfile %s\n' % (self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile']))
+                self.conn = POP3SSL(self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile'])
+            else:
+                self.log.trace('establishing POP3 SSL connection to %s:%d\n' % (self.conf['server'], self.conf['port']))
+                self.conn = POP3SSL(self.conf['server'], self.conf['port'])
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
+
+        self.log.trace('POP3 SSL connection %s established\n' % self.conn)
 
 #######################################
 class IMAPinitMixIn(object):
@@ -84,6 +93,8 @@ class IMAPinitMixIn(object):
             self.conn = imaplib.IMAP4(self.conf['server'], self.conf['port'])
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
+
+        self.log.trace('IMAP connection %s established\n' % self.conn)
 
 #######################################
 class IMAPSSLinitMixIn(object):
@@ -99,9 +110,16 @@ class IMAPSSLinitMixIn(object):
             if self.conf['certfile'] is None or self.conf['keyfile'] is None:
                 raise getmailConfigurationError('optional certfile and keyfile must be supplied together')
         try:
-            self.conn = imaplib.IMAP4_SSL(self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile'])
+            if self.conf['certfile'] and self.conf['keyfile']:
+                self.log.trace('establishing IMAP SSL connection to %s:%d with keyfile %s, certfile %s\n' % (self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile']))
+                self.conn = imaplib.IMAP4_SSL(self.conf['server'], self.conf['port'], self.conf['keyfile'], self.conf['certfile'])
+            else:
+                self.log.trace('establishing IMAP SSL connection to %s:%d\n' % (self.conf['server'], self.conf['port']))
+                self.conn = imaplib.IMAP4_SSL(self.conf['server'], self.conf['port'])
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
+
+        self.log.trace('IMAP SSL connection %s established\n' % self.conn)
 
 #
 # Base classes
@@ -238,7 +256,7 @@ class RetrieverSkeleton(ConfigurableBase):
     def getheader(self, msgid):
         if not self.__initialized:
             raise getmailOperationError('not initialized')
-        if not self.headercache.has_key(msgid):
+        if not msgid in self.headercache:
             self.headercache[msgid] = self._getheaderbyid(msgid)
         return self.headercache[msgid]
 
@@ -398,7 +416,7 @@ class MultidropPOP3RetrieverBase(POP3RetrieverBase):
         for (name, val) in msg._headers:
             name = name.lower()
             val = val.strip()
-            if data.has_key(name):
+            if name in data:
                 data[name].append(val)
             else:
                 data[name] = [val]
@@ -438,7 +456,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         result, resplist = getattr(self.conn, cmd)(*args)
         if result != 'OK':
             raise getmailOperationError('IMAP error (command %s returned %s)' % ('%s %s' % (cmd, args), result))
-        self.log.debug('command %s response %s\n' % ('%s %s' % (cmd, args), resplist))
+        if cmd.lower().startswith('login'):
+            self.log.debug('login command response %s\n' % resplist)
+        else:
+            self.log.debug('command %s response %s\n' % ('%s %s' % (cmd, args), resplist))
         return resplist
 
     def _parse_imapuidcmdresponse(self, cmd, *args):
@@ -489,7 +510,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 response = self._parse_imapuidcmdresponse('SEARCH', 'ALL')
                 uids = response[0].split()
                 if not uids:
-                    return
+                    continue
                 self.log.debug('uid("SEARCH", "ALL") returned %d UIDs (%s)\n' % (len(uids), uids))
                 # Get message sizes
                 response = self._parse_imapuidcmdresponse('FETCH', ','.join(uids), 'RFC822.SIZE')
@@ -564,13 +585,18 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         if self.conf.get('password', None) is None:
             self.conf['password'] = getpass.getpass('Enter password for %s:  ' % self)
         RetrieverSkeleton.initialize(self)
-        socket.setdefaulttimeout(self.conf['timeout'])
+        # socket.ssl() and socket timeouts are incompatible in Python 2.3
+        if 'timeout' in self.conf:
+            socket.setdefaulttimeout(self.conf['timeout'])
         try:
+            self.log.trace('trying self._connect()\n')
             self._connect()
+            self.log.trace('logging in\n')
             if self.conf['use_cram_md5']:
                 self._parse_imapcmdresponse('login_cram_md5', self.conf['username'], self.conf['password'])
             else:
                 self._parse_imapcmdresponse('login', self.conf['username'], self.conf['password'])
+            self.log.trace('logged in, getting message list\n')
             self._getmsglist()
             self.log.debug('msgids: %s\n' % self.msgids)
             self.log.debug('msgsizes: %s\n' % self.msgsizes)
@@ -622,7 +648,7 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         for (name, val) in msg._headers:
             name = name.lower()
             val = val.strip()
-            if data.has_key(name):
+            if name in data:
                 data[name].append(val)
             else:
                 data[name] = [val]
