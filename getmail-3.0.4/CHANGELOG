@@ -1,6 +1,20 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.0.4
+20 February 2003
+
+  -Catch a user incorrectly specifying two values for recipient_header.
+  Thanks to Francisco Stefano Wechsler for the report.
+  -Update ConfParser to version 3.3, designed to make it easier to catch
+  user configuration errors.
+  -Update configuration-handling code to use new features of ConfParser 3.3
+  above, report configuration errors more clearly.  Thanks to Francisco
+  Stefano Wechsler for the report which got me looking at this.
+  -Add explicit check for recipient_header specifying a known-incorrect
+  value.  Thanks to Edward Davis for the report that got me looking at this.
+  -Move some sanity checks around to report errors earlier.
+
 Version 3.0.3
 14 February 2003
 

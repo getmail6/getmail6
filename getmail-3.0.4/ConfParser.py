@@ -39,7 +39,7 @@ This module is similar, except:
         starts a value).
 '''
 
-__version__ = '3.2'
+__version__ = '3.3'
 __author__ = 'Charles Cazabon <software @ discworld.dyndns.org>'
 
 #
@@ -417,6 +417,16 @@ class ConfParser:
         val = self.getint (section, option)
         return val != 0     
         
+    #######################################
+    def getstring (self, section, option):
+        '''A convenience method which enforces that the option value is a 
+        single string.  Multiple values will raise ValueError.
+        '''
+        val = self.get (section, option)
+        if type (val) == ListType:
+            raise ConversionError, 'expected single value, got list ([%s] %s == "%s")' % (section, option, val)
+        return val
+
     #######################################
     def dump (self):
         '''Dump the parsed contents of the configuration file.

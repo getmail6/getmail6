@@ -216,7 +216,7 @@ def envelope_recipient (config, message):
     except ValueError:
         # No name:num split, use first
         hdrnum = 1
-    
+
     return address_no_brackets (message.get_specific_header (hdrname, hdrnum))
 
 #######################################
@@ -344,7 +344,7 @@ def read_configfile (filename, default_config):
                     else:
                         options['log_level'] = WARN
             elif key in stringoptions:
-                options[key] = conf.get ('default', key)
+                options[key] = conf.getstring ('default', key)
             elif key != '__name__':
                 log (TRACE, 'unrecognized option "%s" in section "default"\n' % key, options)
 
@@ -358,13 +358,13 @@ def read_configfile (filename, default_config):
                     if item == 'port':
                         account[item] = conf.getint (section, item)
                     else:
-                        account[item] = conf.get (section, item)
+                        account[item] = conf.getstring (section, item)
                 except ConfParser.NoOptionError, txt:
                     raise getmailConfigException, 'section [%s] missing required option (%s)' % (section, item)
 
             # Read in password if supplied; otherwise prompt for it.
             try:
-                account['password'] = conf.get (section, 'password')
+                account['password'] = conf.getstring (section, 'password')
             except ConfParser.NoOptionError, txt:
                 account['password'] = getpass.getpass (
                     'Enter password for %(username)s@%(server)s:%(port)s :  '
@@ -381,7 +381,7 @@ def read_configfile (filename, default_config):
                         else:
                             account['log_level'] = WARN
                 elif key in stringoptions:
-                    account[key] = conf.get (section, key)
+                    account[key] = conf.getstring (section, key)
                 elif key != '__name__':
                     log (TRACE, 'unrecognized option "%s" in section "%s"\n' % (key, section), options)
 
@@ -401,6 +401,12 @@ def read_configfile (filename, default_config):
                 except ValueError, txt:
                     raise getmailConfigException, 'section [%s] syntax error in local (%s)' % (section, _local)
                 locals.append ( (recip_re, target) )
+
+            # Sanity checks
+            if locals and not (account['use_*env'] or account['recipient_header']):
+                raise getmailConfigException, 'local directives require use_*env or recipient_header to identify envelope recipient'
+            if account['recipient_header'] is not None and string.lower (string.split (account['recipient_header'], ':')[0]) in ('to', 'cc', 'bcc', 'received'):
+                raise getmailConfigException, 'recipient_header must specify a header field name which reliably records the envelope recipient address.  "%s" is not such a header field.' % account['recipient_header']
 
             configs.append ( (account.copy(), locals) )
 

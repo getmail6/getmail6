@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.0.3'
+__version__ = '3.0.4'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -100,9 +100,6 @@ class getmail:
             self.logfunc (TRACE, 'User #%i:  re="%s", target="%s"\n'
                 % (len (self.users), re_s, self.users[-1]['target']))
 
-        if self.users and not (self.conf['use_*env'] or self.conf['recipient_header']):
-            raise getmailConfigException, 'local directives require use_*env or recipient_header to identify envelope recipient'
-        
         self.oldmail_filename = os.path.join (
             os.path.expanduser (self.conf['getmaildir']),
             string.replace ('oldmail-%(server)s-%(port)i-%(username)s' % self.conf,
