@@ -1,6 +1,6 @@
 #!/usr/bin/python
 '''getmail.py - POP3 mail retriever with reliable Maildir and mbox delivery.
-Copyright (C) 2000 Charles Cazabon <getmail @ discworld.dyndns.org>
+Copyright (C) 2001 Charles Cazabon <getmail @ discworld.dyndns.org>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of version 2 of the GNU General Public License
@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.13'
+__version__ = '2.0.14'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -489,7 +489,7 @@ class getmail:
 					% header_type, self.opts)
 				recips = mess822.getaddrlist (header_type)
 				for (name, address) in recips:
-					if re_mailaddr.search (address):
+					if address and re_mailaddr.search (address):
 						# Looks like an email address, keep it
 						recipients[string.lower (address)] = None
 						self.logfunc (TRACE,
@@ -847,6 +847,7 @@ class getmail:
 				count = self.process_msg (msg)
 				if count == 0:
 					self.logfunc (INFO, ' ... delivered to postmaster', self.opts)
+					count = 1
 				elif count == 1:
 					self.logfunc (INFO, ' ... delivered 1 copy', self.opts)
 				else:
@@ -912,7 +913,7 @@ def blurb ():
 	except ImportError:
 		pass
 	print '\n'
-	print 'Copyright (C) 2000 Charles Cazabon <getmail @ discworld.dyndns.org>'
+	print 'Copyright (C) 2001 Charles Cazabon <getmail @ discworld.dyndns.org>'
 	print 'Licensed under the GNU General Public License version 2.  See the file'
 	print 'COPYING for details.'
 	print

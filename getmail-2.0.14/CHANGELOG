@@ -1,4 +1,12 @@
 getmail changes since version 1.11:
+-----------------------------------
+
+Version 2.0.14
+8 February 2001
+
+  -change output to include postmaster deliveries in local deliveries count
+  -ensure address is returned by mess822.getaddrlist() in extract_recipients().
+  Thanks to Alex Kramarov for the bug report.
 
 Version 2.0.13
 6 February 2001
