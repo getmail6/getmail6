@@ -18,18 +18,24 @@
 #
 # Run without arguments for help.
 #
-# To retrieve mail for accounts, run with arguments as follows:
+# To retrieve mail for accounts on a one-time basis, run with arguments as
+# follows:
 #  getmail.py [options] user1@mailhost1[:port],maildir1[,password1] \
 #    user2@mailhost2[:port],maildir2[,password2]
 #
-# These arguments can also be placed in a configfile (suggested:
-# $HOME/.getmailrc), one per line, with '#' indicating the start of comments.
-# This file can be specified on the commandline with the -c or --config
-# options, or in the environment variable as specified in ENV_RCFILE below
-# (default:  GETMAILRC).
-#
 # If port is omitted, it defaults to the standard POP3 port, 110.
 # If passwords are omitted, they will be prompted for.
+#
+# To regularly retrieve from the same accounts, it is easiest to place this
+# information in a configuration file (suggested:  $HOME/.getmail/.getmailrc),
+# one per line, with '#' indicating the start of comments.
+# This file can be specified on the commandline with the -r or --rcfile
+# options.  If not specified, the default is '.getmailrc' in the directory
+# specified in the environment variable 'GETMAIL' if it exists.  This directory
+# can be overridden with the -c or --configdir options.
+#
+# Use of a config/data directory allows getmail to keep track of messages it
+# has already seen, and can then retrieve only new mail.
 #
 # Maildir is the mail storage format designed by Dan Bernstein, author of
 # qmail (among other things).  It is supported by many Unix MUAs, including
@@ -37,7 +43,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.90'
+VERSION = '0.91'
 
 #
 # Imports
@@ -56,9 +62,9 @@ from types import *
 DEF_PORT =				110				# Normal POP3 port
 DEF_DELETE =			0				# Delete mail after retrieving (0, 1)
 DEF_READ_ALL =			1				# Retrieve all mail (1) or just new (0)
+DEF_RCFILE =			'.getmailrc'	# Default.getmailrc filename
 ENV_GETMAIL =			'GETMAIL'		# Env. variable to get configuration/
 										#  data directory name from
-DEF_RCFILE =			'.getmailrc'	# Default.getmailrc filename
 
 
 #
@@ -86,8 +92,8 @@ OK, ERROR = (0, -1)
 CR =			'\r'
 LF =			'\n'
 deliverycount = 0
-argv = sys.argv
-stderr = sys.stderr.write
+argv = 			sys.argv
+stderr = 		sys.stderr.write
 
 #
 # Functions
@@ -95,17 +101,19 @@ stderr = sys.stderr.write
 
 #######################################
 def main ():
-	'''getmail.py, a POP3 mail retriever.
-	Copyright (C) 2000 Charles Cazabon
-	Licensed under the GNU General Public License version 2.
-	Run without arguments for help.
+	'''getmail.py, a POP3 mail retriever with reliable maildir delivery.
+	Copyright (C) 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	Licensed under the GNU General Public License version 2.  See the file
+	COPYING for details.  Run without arguments for help.
 	'''
 	about ()
 	parse_options (sys.argv)
 
 	for i in range (len (opt_account)):
 		mail = get_mail (opt_host[i], opt_port[i], opt_account[i],
-						 opt_password[i], opt_delete_retrieved, opt_retrieve_read)
+						 opt_password[i], opt_configdir,
+						 opt_delete_retrieved, opt_retrieve_read,
+						 opt_verbose)
 
 		for msg in mail:
 			maildirdeliver (opt_maildir[i], pop3_unescape (msg))
@@ -114,12 +122,12 @@ def main ():
 
 
 #######################################
-def get_mail (host, port, account, password, delete, getall):
+def get_mail (host, port, account, password, datadir, delete, getall, verbose):
 	'Retrieve messages from a POP3 server for one account.'
 
 	messages, retrieved = [], 0
 	shorthost = string.split (host, '.') [0]
-	oldmailfile = os.path.join (opt_configdir, 'oldmail:%s:%s' % (host, account))
+	oldmailfile = os.path.join (datadir, 'oldmail:%s:%s' % (host, account))
 	oldmail = []
 
 	try:
@@ -136,8 +144,7 @@ def get_mail (host, port, account, password, delete, getall):
 			print '%s:  POP3 session initiated on port %s for "%s"' \
 				% (shorthost, port, account)
 		rc = session.getwelcome ()
-		if opt_verbose:
-			print '%s:  POP3 greeting:  %s' % (shorthost, rc)
+		if verbose:  print '%s:  POP3 greeting:  %s' % (shorthost, rc)
 	except poplib.error_proto, response:
 		stderr ('%s:  returned greeting "%s"\n' % (shorthost, response))
 		return
@@ -147,11 +154,9 @@ def get_mail (host, port, account, password, delete, getall):
 
 	try:
 		rc = session.user (account)
-		if opt_verbose:
-			print '%s:  POP3 user reponse:  %s' % (shorthost, rc)
+		if verbose:  print '%s:  POP3 user reponse:  %s' % (shorthost, rc)
 		rc = session.pass_ (password)
-		if opt_verbose:
-			print '%s:  POP3 password response:  %s' % (shorthost, rc)
+		if verbose:  print '%s:  POP3 password response:  %s' % (shorthost, rc)
 	except poplib.error_proto, response:
 		stderr ('%s:  returned "%s" during login\n' % (shorthost, response))
 		return []
@@ -161,8 +166,7 @@ def get_mail (host, port, account, password, delete, getall):
 		list = session.list ()
 		rc = list[0]
 		msglist = list[1]
-		if opt_verbose:
-			print '%s:  POP3 list response:  %s' % (shorthost, rc)
+		if verbose:  print '%s:  POP3 list response:  %s' % (shorthost, rc)
 
 	except poplib.error_proto, response:
 		stderr ('Error retrieving message list, skipping ...\n')
@@ -171,11 +175,10 @@ def get_mail (host, port, account, password, delete, getall):
 		for item in msglist:
 			if type (item) == IntType:
 				# No more messages; POP3.list() returns a final int
-				if opt_verbose:
-					print '%s:  finished retrieving messages' % shorthost
+				if verbose:  print '%s:  finished retrieving messages' % shorthost
 				break
 			msgnum, msglen = string.split (item)
-			if opt_verbose:
+			if verbose:
 				print '  msg %i : len %i ...' % (int (msgnum), int (msglen)),
 				sys.stdout.flush ()
 
@@ -190,15 +193,10 @@ def get_mail (host, port, account, password, delete, getall):
 				messages.append (msg)
 				retrieved = retrieved + 1
 
-				if opt_verbose:
-					print 'retrieved',
-					sys.stdout.flush ()
-
+				if verbose:  print 'retrieved',; sys.stdout.flush ()
 				if delete:
 					rc = session.dele (int (msgnum))
-					if opt_verbose:
-						print '... deleted',
-						sys.stdout.flush ()
+					if verbose:  print '... deleted',; sys.stdout.flush ()
 					try:
 						# Deleting mail, no need to remember uidl's now
 						os.remove (oldmailfile)
@@ -210,7 +208,7 @@ def get_mail (host, port, account, password, delete, getall):
 						f.seek (0, 2) # Append to end.
 						f.write ('%s\n' % uidl)
 						f.close ()
-						if opt_verbose:
+						if verbose:
 							print '... wrote to oldmail file',
 							sys.stdout.flush ()
 					except IOError:
@@ -219,21 +217,19 @@ def get_mail (host, port, account, password, delete, getall):
 			else:
 				print 'previously retrieved, skipping ...',
 
-			if opt_verbose:
-				print ''
-				sys.stdout.flush ()
+			if verbose:  print ''; sys.stdout.flush ()
 
 	except poplib.error_proto, response:
 		stderr ('%s:  exception "%s" during retrieval, resetting...\n'
 				% (shorthost, response))
 		session.rset ()
 
-	if opt_verbose:
+	if verbose:
 		print '%s:  POP3 session completed for "%s"' % (shorthost, account)
 
 	session.quit ()
 
-	if opt_verbose:
+	if verbose:
 		print '%s:  POP3 connection closed' % shorthost
 		print '%i messages retrieved\n' % retrieved
 
@@ -333,7 +329,7 @@ def usage ():
 	'  -h or --help               this screen\n'
 	'  -r or --rcfile <file>      use <file> instead of default .getmailrc\n'
 	'  -c or --configdir <dir>    use <dir> as config/data directory,\n'
-	'                   instead of contents of "%s" environment variable\n'
+	'      Default configdir is directory set in "%s" environment variable\n'
 	'\n'
 	'For multiple account retrieval, multiple user@mailhost[:port],maildir[,password]\n'
 	'options can be used.  If not supplied, port defaults to %i.  Passwords not\n'
@@ -354,13 +350,15 @@ def parse_options (argv):
 
 	error = 0
 
-	if os.environ.has_key (ENV_GETMAIL):
+	try:
 		opt_configdir = os.environ[ENV_GETMAIL]
+	except KeyError:
+		opt_configdir = ''
 
 	optslist, args = [], []
 
 	opts = 'c:dlanvh'
-	longopts = ['delete', 'dont-delete', 'all', 'new', 'verbose', 'config=',
+	longopts = ['delete', 'dont-delete', 'all', 'new', 'verbose', 'configdir=',
 		'help']
 
 	try:

@@ -1,6 +1,10 @@
 Changes for getmail:
 ====================
 
+v.0.91 3 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Fixed bug in option parsing for --configdir longopt.
+	-Some cleanups for future options.
+
 v.0.90 2 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 	-Implemented retrieval of only unread mail, with tracking via POP3 UIDL
 	  ID's.
