@@ -1,7 +1,7 @@
 Changes for getmail:
 ====================
 
-v.0.97 8 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+v.0.97.x 8 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
     -Slightly changed creation of 'From ' mbox delimiter for overly picky
       mail clients.
     -Options to delete retrieved mail, and to only retrieve unread mail,
@@ -12,6 +12,7 @@ v.0.97 8 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
     -Consequently, the commandline options only affect accounts given on
       the commandline.  Defaults are built into the script, in the
       section titled 'Defaults'.
+    -Changed password entry method.
 
 v.0.96 8 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
     -Fixed a bug which resulted in failure to deliver to an mbox file when

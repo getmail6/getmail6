@@ -49,14 +49,14 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.97.1'
+VERSION = '0.97.2'
 
 #
 # Imports
 #
 
-import sys, os, string, time, socket, poplib, getopt, termios, TERMIOS, fcntl, \
-	rfc822, cStringIO, ConfigParser
+import sys, os, string, time, socket, poplib, getopt, fcntl, \
+	rfc822, cStringIO, ConfigParser, getpass
 from types import *
 
 
@@ -565,6 +565,7 @@ def parse_options (argv):
 		opt_verbose, opt_rcfile, opt_configdir, opt_dump, opt_ignoreconfig, \
 		opt_showhelp
 
+	delete, retrieve_read = DEF_DELETE, DEF_READ_ALL
 	error = 0
 
 	# If the environment variable is set, set the default config/data dir
@@ -726,18 +727,8 @@ def parse_options (argv):
 	if not error:
 		for i in range (len (opt_password)):
 			if opt_password[i]:  continue
-			fd = sys.stdin.fileno ()
-			oldattr = termios.tcgetattr(fd)
-			newattr = termios.tcgetattr(fd)
-			newattr[3] = newattr[3] & ~TERMIOS.ECHO          # lflags
-			try:
-				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, newattr)
-				opt_password[i] = raw_input ('Enter password for %s@%s:  '
-								% (opt_account[i], opt_host[i]))
-
-			finally:
-				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, oldattr)
-			print
+			opt_password[i] = getpass.getpass ('Enter password for %s@%s:  '
+											   % (opt_account[i], opt_host[i]))
 
 	if opt_dump:
 		# Debugging aid, dumps current option config.
