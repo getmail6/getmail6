@@ -101,8 +101,7 @@ class Maildir(DeliverySkeleton):
 
     def _deliver_message(self, msg):
         self.log.trace()
-        data = os.linesep.join(msg.as_string(unixfrom=False).splitlines())
-        f = deliver_maildir(self.conf['path'], data, self.hostname, self.dcount)
+        f = deliver_maildir(self.conf['path'], msg_flatten(msg), self.hostname, self.dcount)
         self.log.debug('maildir file %s' % f)
         self.dcount += 1
         return 'Maildir %snew/%s' % (self.conf['path'], f)
@@ -123,10 +122,6 @@ class Mboxrd(DeliverySkeleton):
     _confitems = (
         {'name' : 'path', 'type' : str},
     )
-    # Regular expression object to escape "From ", ">From ", ">>From ", ...
-    # with ">From ", ">>From ", ... in mbox deliveries.  This is for mboxrd format
-    # mboxes.
-    efrom = re.compile(r'^(?P<gts>\>*)From ', re.MULTILINE)
 
     def initialize(self):
         self.log.trace()
@@ -180,9 +175,8 @@ class Mboxrd(DeliverySkeleton):
         self.f.seek(0, 2)
         try:
             self.f.write('From %s %s%s' % (mbox_from_escape(msg.sender), mbox_timestamp(), os.linesep))
-            lines = self.efrom.sub('>\g<gts>From ', msg.as_string(unixfrom=False)).splitlines()
-            # Write out message with native EOL convention
-            self.f.write(os.linesep.join(lines + ['', '']))
+            # Write out message with native EOL
+            self.f.write(os.linesep.join(msg_lines(msg, mangle_from=True) + ['', '']))
             self.f.flush()
             os.fsync(self.f.fileno())
             status_new = os.fstat(self.f.fileno())
@@ -286,10 +280,9 @@ class MDA_qmaillocal(DeliverySkeleton):
         self.log.debug('about to execl() with args %s\n' % str(args))
         # Modify message
         del msg['return-path']
-        # Write out message with native EOL convention
+        # Write out message
         msgfile = os.tmpfile()
-        lines = msg.as_string(unixfrom=False).splitlines()
-        msgfile.write(os.linesep.join(lines))
+        msgfile.write(msg_flatten(msg))
         msgfile.flush()
         os.fsync(msgfile.fileno())
         # Rewind
@@ -458,8 +451,7 @@ class MDA_external(DeliverySkeleton):
         del msg['return-path']
         # Write out message with native EOL convention
         msgfile = os.tmpfile()
-        lines = msg.as_string(unixfrom=self.conf['unixfrom']).splitlines()
-        msgfile.write(os.linesep.join(lines))
+        msgfile.write(msg_flatten(msg, include_from=self.conf['unixfrom']))
         msgfile.flush()
         os.fsync(msgfile.fileno())
         # Rewind

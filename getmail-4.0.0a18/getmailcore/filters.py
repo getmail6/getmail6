@@ -183,8 +183,7 @@ class Filter_external(FilterSkeleton):
         self.log.debug('about to execl() with args %s\n' % str(args))
         # Write out message with native EOL convention
         msgfile = os.tmpfile()
-        lines = msg.as_string(unixfrom=self.conf['unixfrom']).splitlines()
-        msgfile.write(os.linesep.join(lines))
+        msgfile.write(msg_flatten(msg, include_from=self.conf['unixfrom']))
         msgfile.flush()
         os.fsync(msgfile.fileno())
         # Rewind

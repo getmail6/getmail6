@@ -6,6 +6,7 @@ import time
 import ConfigParser
 import pprint
 from optparse import OptionParser, OptionGroup
+from socket import timeout
 
 # Unix only
 try:
@@ -50,9 +51,9 @@ def go(configs):
         retrieved_messages = 0
         if options['message_log_syslog']:
             syslog.openlog('getmail', 0, syslog.LOG_MAIL)
-        log.debug('initializing retriever %s\n' % retriever)
-        retriever.initialize()
         try:
+            log.debug('initializing retriever %s\n' % retriever)
+            retriever.initialize()
             for msgid in retriever:
                 retrieve = False
                 delete = False
@@ -124,6 +125,12 @@ def go(configs):
 
         except StopIteration:
             pass
+
+        except timeout, o:
+            log.error('timeout (%s)' % o)
+
+        except getmailOperationError, o:
+            log.error('Operation error (%s)\n' % o)
 
         summary.append( (str(retriever), retrieved_messages) )
         retriever.quit()

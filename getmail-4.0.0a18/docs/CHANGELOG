@@ -1,3 +1,13 @@
+Version 4.0.0a18
+24 June 2004
+
+  -add msg_flatten(), msg_lines() and use them exclusively to prevent 
+  .as_string() from changing header fields for spurious reasons.
+  Thanks: Andrew Raines.
+  -remove code doing From_-escaping in Mboxrd and let the email module do it.
+  -fix copy & paste errors in change_uidgid().  Thanks: Andrew Raines.
+  -catch timeouts
+
 Version 4.0.0a17
 23 June 2004
 

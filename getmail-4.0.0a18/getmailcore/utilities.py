@@ -2,10 +2,12 @@
 '''Utility classes and functions for getmail.
 '''
 
-__all__ = ['is_maildir', 'deliver_maildir', 'mbox_from_escape',
-    'mbox_timestamp', 'lock_file', 'unlock_file', 'address_no_brackets',
-    'eval_bool', 'change_uidgid', 'updatefile', 'logfile',
+__all__ = [
+    'address_no_brackets', 'change_uidgid', 'deliver_maildir', 'eval_bool',
+    'is_maildir', 'lock_file', 'logfile', 'mbox_from_escape', 'mbox_timestamp',
+    'msg_flatten', 'msg_lines', 'unlock_file', 'updatefile'
 ]
+
 
 import os
 import signal
@@ -254,7 +256,7 @@ def change_uidgid(logger, user=None, _group=None):
     '''Change the current effective GID and UID to those specified by user and _group.
     '''
     try:
-        if user:
+        if _group:
             logger.debug('Getting GID for specified group %s\n' % _group)
             try:
                 run_gid = grp.getgrnam(_group).gr_gid
@@ -263,7 +265,7 @@ def change_uidgid(logger, user=None, _group=None):
             if os.getegid() != run_gid:
                 logger.debug('Setting egid to %d\n' % run_gid)
                 os.setegid(run_gid)
-        if self.conf['user']:
+        if user:
             logger.debug('Getting UID for specified user %s\n' % user)
             try:
                 run_uid = pwd.getpwnam(user).pw_uid
@@ -274,3 +276,20 @@ def change_uidgid(logger, user=None, _group=None):
                 os.seteuid(run_uid)
     except OSError, o:
         raise getmailDeliveryError('change UID/GID to %s/%s failed (%s)' % (user, _group, o))
+
+#######################################
+def msg_lines(msg, mangle_from=False, include_from=False, max_linelen=998):
+    '''Take a message object and return a list of text lines.
+    '''
+    f = cStringIO.StringIO()
+    gen = email.Generator.Generator(f, mangle_from, max_linelen)
+    gen.flatten(msg, include_from)
+    # email module apparently doesn't always use native EOL, so force it
+    return f.read().splitlines()
+
+#######################################
+def msg_flatten(msg, mangle_from=False, include_from=False, max_linelen=998):
+    '''Take a message object and return a string with native EOL convention.
+    '''
+    # email module apparently doesn't always use native EOL, so force it
+    return os.linesep.join(msg_lines(msg, mangle_from, include_from, max_linelen))

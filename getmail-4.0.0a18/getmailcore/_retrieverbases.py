@@ -55,6 +55,10 @@ class POP3initMixIn(object):
             self.conn = poplib.POP3(self.conf['server'], self.conf['port'])
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
+        except socket.timeout:
+            raise getmailOperationError('timeout during connect')
+        except socket.gaierror, o:
+            raise getmailOperationError('socket error during connect (%s)' % o)
 
         self.log.trace('POP3 connection %s established\n' % self.conn)
 
@@ -80,6 +84,10 @@ class POP3SSLinitMixIn(object):
                 self.conn = POP3SSL(self.conf['server'], self.conf['port'])
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
+        except socket.timeout:
+            raise getmailOperationError('timeout during connect')
+        except socket.gaierror, o:
+            raise getmailOperationError('socket error during connect (%s)' % o)
 
         self.log.trace('POP3 SSL connection %s established\n' % self.conn)
 
@@ -93,6 +101,10 @@ class IMAPinitMixIn(object):
             self.conn = imaplib.IMAP4(self.conf['server'], self.conf['port'])
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
+        except socket.timeout:
+            raise getmailOperationError('timeout during connect')
+        except socket.gaierror, o:
+            raise getmailOperationError('socket error during connect (%s)' % o)
 
         self.log.trace('IMAP connection %s established\n' % self.conn)
 
@@ -118,6 +130,10 @@ class IMAPSSLinitMixIn(object):
                 self.conn = imaplib.IMAP4_SSL(self.conf['server'], self.conf['port'])
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
+        except socket.timeout:
+            raise getmailOperationError('timeout during connect')
+        except socket.gaierror, o:
+            raise getmailOperationError('socket error during connect (%s)' % o)
 
         self.log.trace('IMAP SSL connection %s established\n' % self.conn)
 
