@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.2.1'
+__version__ = '2.2.2'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -161,6 +161,9 @@ intoptions = ('verbose', 'readall', 'delete', 'timeout', 'use_apop',
     'no_delivered_to', 'no_received', 'eliminate_duplicates',
     'max_message_size', 'delete_after', 'extension_depth')
 stringoptions = ('message_log', 'recipient_header', 'extension_sep')
+
+# For these headers, only the first will be parsed
+envelope_recipient_headers = ('delivered-to', 'envelope-to', 'x-envelope-to')
 
 # Exit codes
 exitcodes = {
@@ -677,14 +680,29 @@ class getmail:
                                 % address, self.opts)
 
             elif mess822.has_key (header_type):
-                recips = mess822.getaddrlist (header_type)
-                for (name, address) in recips:
-                    if address and res['mailaddr'].search (address):
-                        # Looks like an email address, keep it
-                        recipients[string.lower (address)] = None
-                        self.logfunc (TRACE,
-                            'extract_recipients():  found address "%s"\n'
-                            % address, self.opts)
+                if string.lower (header_type) in envelope_recipient_headers:
+                    # Handle envelope recipient headers differently; only
+                    # look at first matching header
+                    hdr = mess822.getfirstmatchingheader (header_type)
+                    if not hdr:  continue
+                    recips = rfc822.AddrlistClass(hdr).getaddrlist ()
+                    for (name, address) in recips:
+                        if address and res['mailaddr'].search (address):
+                            # Looks like an email address, keep it
+                            recipients[string.lower (address)] = None
+                            self.logfunc (TRACE,
+                                'extract_recipients():  found address "%s"\n'
+                                % address, self.opts)
+                else:
+                    # Handle all other header fields
+                    recips = mess822.getaddrlist (header_type)
+                    for (name, address) in recips:
+                        if address and res['mailaddr'].search (address):
+                            # Looks like an email address, keep it
+                            recipients[string.lower (address)] = None
+                            self.logfunc (TRACE,
+                                'extract_recipients():  found address "%s"\n'
+                                % address, self.opts)
         self.logfunc (TRACE,
             'extract_recipients():  found %i recipients\n'
             % len (recipients.keys ()), self.opts)

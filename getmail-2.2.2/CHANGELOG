@@ -1,6 +1,14 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.2.2
+23 February 2002
+
+  -change handling of header fields which should contain the envelope
+  recipient address so that only the first matching header field is used.
+  This should make TMDA use easier, and domain mailbox handling better.
+  Thanks to Martin Geisler for the report which got me looking at this.
+
 Version 2.2.1
 12 February 2002
 
