@@ -13,6 +13,14 @@ plus the --dump option and send the output to me.
 -Can't have # symbols in usernames, maildirnames, or passwords in the configfile.
   This is because it is used as a comment delimiter.
 
+-Domain mailbox support has limitations on account names supplied in the
+  .getmailrc file due to the configfile parser I am currently using.
+  Underscores in the domain name will not work.
+  Anything non-alphanumeric in the username or domain name will probably not
+  work.
+  I may have to write my own parser to fix this.  I would appreciate any
+  feedback on the experimental domain mailbox support.
+
 -Specifying --new and --delete will not delete messages on the server which
   getmail has previously retrieved.  When --new is specified, getmail skips to
   the next message as soon as it sees a message it has previously downloaded.

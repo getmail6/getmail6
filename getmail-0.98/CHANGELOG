@@ -1,6 +1,12 @@
 Changes for getmail:
 ====================
 
+v.0.98 9 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+    -Added experimental code for handling domain mailboxes.  Feedback would
+      be greatly appreciated.  See the files USAGE and ABOUT and
+      example.getmailrc to configure domain mailbox support.
+    -Changed some error messages.
+
 v.0.97.x 8 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
     -Slightly changed creation of 'From ' mbox delimiter for overly picky
       mail clients.

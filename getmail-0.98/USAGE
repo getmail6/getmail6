@@ -8,6 +8,9 @@ accounts, and reliably delivers into a Maildir specified on a per-account
 basis.  It can now also deliver into mbox files, although this should not
 be attempted over NFS.
 
+Experimental support for domain (multidrop) mailboxes has been added.  Feedback
+on this feature would be greatly appreciated.
+
 Bugs, questions, feature requests, and comments should be directed to me
 (Charles Cazabon) at <getmail@discworld.dyndns.org>.
 
@@ -49,6 +52,8 @@ See the example.getmailrc file for more details.
 Use option -n or --new for only unread mail.  Use option -v or --verbose to
 see what's going on.
 
+For domain (multidrop) mailbox support, read the section at the end of this
+document.
 
 Basic usage for getmail.py:
 ---------------------------
@@ -126,3 +131,65 @@ Options that getmail currently recognizes are:
   --dump                     Output debugging information on your usage.  If
     you have problems with getmail, invoke it with the options you normally
     use, plus --dump and send the output to me at <getmail@discworld.dyndns.org>.
+
+
+Experimental Support for Domain Mailboxes
+-----------------------------------------
+
+I have added experimental support for domain (multidrop) mailboxes.  A domain
+mailbox is a POP3 mailbox which receives mail for multiple users.  For example,
+all mail for anyone at mycompany.com might be delivered to a single POP3
+mailbox named 'mycompany@isp.com'.
+
+getmail can be configured to retrieve mail from a domain mailbox, and deliver
+each message separately, to the user it was originally addressed to.  This
+type of operation is not supported in a standard way by the majority of
+the email infrastructure, so the support is experimental for now.  I would
+appreciate feedback on how this works for you if you try it.
+
+getmail tries to determine who each message was originally intended for
+by looking at the message headers.  If the first valid header is a
+qmail-style "Delivered-To: " header, it will use that as the recipient.
+If that header does not exist, it will look for recipients in "Resent-To: ",
+"Resent-cc: ", and "Resent-bcc: " headers.  If none of those headers exist,
+it will look for recipients in "To: ", "cc: ", and "bcc: " headers.
+
+getmail compares the recipients it finds against email addresses supplied in
+the .getmailrc configuration file.  For each matching address it finds, getmail
+delivers a copy of that message to a destination Maildir or mbox file
+specified for that address.  If it finds no matches, it delivers the message
+to a default destination, which should be the postmaster or other person
+responsible for sorting out email issues in that domain.
+
+Note that the current support has limitations on characters which can be
+present in the handled email addresses.  This will change in the future.
+
+The configuration file section for a domain mailbox should look like this:
+	[Section title]
+	type=domainbox
+	account=pop3username
+	host=pophost.domain
+	password=pop_password
+	destination=/path/to/default_delivery_destination
+	delete=(yes|no)
+	readall=(yes|no)
+	email_address=/path/to/destination
+	email_address2=/path/to/destination2
+	[...]
+
+When specifying email addresses, the '@' symbol must be replaced with an
+underscore ('_').  Non-alphanumeric characters in the email address will
+probably cause getmail to fail to parse the file.
+
+Some examples of the "email=destination" lines are:
+	joe_smallcompany.com=/home/joe/Maildir
+	info_smallcompany.com=/home/paula/inbox
+
+Note that getmail must have write access to the Maildir or mbox files which
+it delivers mail to.  This may mean making them group-writable, or running
+getmail as root.  getmail never forks any processes or execs any other
+programs, so the security implications are limited.  Note, however, that
+any regular file specified as a destination will be appended to with messages
+for that destination -- getmail does not verify that a file it can write to
+is indeed an mbox file.  This is one more reason to use Maildirs.
+

@@ -1,0 +1,73 @@
+# This is a sample .getmailrc file
+# Comment lines begin with '#'.  Comments can also be placed after an option
+# on the same line.
+# Trailing whitespace is ignored.
+# Blank lines are ignored.
+#
+# Accounts to retrieve mail from are specified, one per section in this format:
+#
+#[section name]                 # Make them unique and meaningful to yourself.
+#account=popusername
+#host=pophost.isp.com
+#port=110                       # Optional, defaults to standard POP3 port (110)
+#destination=path               # Maildir or mbox file for mailbox accounts, and default
+#                               #  destination for domain mailbox accounts
+#password=POP3password          # Optional.  If not supplied, getmail will
+#                               #  prompt for a password.
+#delete=(yes|no)                # Optional, delete mail after retrieving.
+#readall=(yes|no)               # Optional, retrieve all mail or just new mail.
+#                               # 'delete' defaults to 'no'.
+#                               # 'readall' defaults to 'yes'
+#type=(mailbox|domainbox)       # Optional, defaults to 'mailbox'.  'domainbox'
+#                               # is a domain mailbox, also known as a multidrop
+#                               # mailbox.
+#email=destination              # For domain mailbox accounts, specify email=destination pairs
+#email=destination              # Replace the '@' symbol with '_'.
+#[...]
+
+
+
+[Joe's mail at work]
+type=mailbox                    # Not necessary, this is the default.
+account=joe
+host=mail.isp.com
+destination=/home/joe/Maildir   # Joe's Maildir
+password=mymailpass
+delete=yes                      # Delete mail after retrieving
+
+[Company 'info' account]
+account=info
+host=mail.company.com
+destination=/home/robyn/Maildir
+password=infopass
+delete=no                       # Leave mail on server after getting
+readall=no                      # But only retrieve new mail, not previously
+                                #  read mail.
+
+[Nathan's home email]
+account=nathan
+host=mail.home.org
+port=8110                       # Note non-standard port
+destination=/users/nat/Mail/inbox
+delete=yes
+
+
+[Smallcompany domain mailbox]   # A domain mailbox
+type=domainbox
+account=mycompany               # The POP3 user name for the domain mailbox
+host=mail.isp.net
+                                # The following is the default destination, for
+                                # when no email address matches.
+destination=/home/postmaster/Maildir
+password=companypass
+delete=yes
+                                # The remainder of the lines here are in the
+                                # format 'email=destination'.  If the incoming
+                                # message has a recipient matching one of these,
+                                # it will be delivered to that destination.
+                                # The '@' symbol in the email address must be
+                                # replaced with '_'.
+joe_mycompany.com=/home/joe/Maildir
+paula_mycompany.com=/home/paula/Maildir
+info_mycompany.com=/home/paula/Mail/info
+webmaster_mycompany.com=/home/jeff/inbox

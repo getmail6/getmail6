@@ -7,15 +7,15 @@ Yet to be done:
 
 -Possibly allow delivery to mh folders.
 
--Possibly allow delivery to various maildirs based on headers in received
-  messages, to allow the use of domain mailboxes.  I believe 'fetchmail'
-  calls this 'multidrop'.
-
 -Distribute a Makefile with an 'install' target with the program.  This will
   become a higher priority once there is a proper manpage, etc to install.
 
+-Write a new parser for the .getmailrc configuration files to allow more
+  flexible usernames and domain names to be handled.  Either that, or change
+  the syntax.  The second option is easier, I suspect.
 
 Done:
 =====
 
 [Added in v.0.94]  Allow delivery to mbox files.
+[Added in v.0.98]  Experimental support for domain (multidrop) mailboxes.
