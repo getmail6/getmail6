@@ -13,6 +13,9 @@ Currently implemented:
     it shows.  The Python standard library module imaplib leaves much up to
     the user because of this.
   SimpleIMAPSSLRetriever - the above, for IMAP-over-SSL.
+
+  MultidropIMAPRetriever
+  MultidropIMAPSSLRetriever
 '''
 
 import poplib
@@ -21,7 +24,6 @@ import imaplib
 from exceptions import *
 from constants import *
 from utilities import updatefile, address_no_brackets
-from pop3ssl import POP3SSL, POP3_ssl_port
 from baseclasses import ConfigurableBase
 from _retrieverbases import *
 
@@ -217,6 +219,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
         {'name' : 'password', 'type' : str, 'default' : None},
 
         {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
+        {'name' : 'move_on_delete', 'type' : str, 'default' : None},
 
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
         # so we can't do this yet.
@@ -249,6 +252,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
         {'name' : 'password', 'type' : str, 'default' : None},
 
         {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
+        {'name' : 'move_on_delete', 'type' : str, 'default' : None},
 
         {'name' : 'keyfile', 'type' : str, 'default' : None},
         {'name' : 'certfile', 'type' : str, 'default' : None},
@@ -269,3 +273,76 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('SimpleIMAPSSLRetriever(%s)\n' % self._confstring())
+
+#######################################
+class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
+    '''Retriever class for multi-drop IMAPv4 mailboxes.
+    '''
+    _confitems = (
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_PORT},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+
+        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
+        {'name' : 'move_on_delete', 'type' : str, 'default' : None},
+
+        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
+        # so we can't do this yet.
+        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
+
+        {'name' : 'envelope_recipient', 'type' : str},
+    )
+
+    def __str__(self):
+        self.log.trace()
+        return 'MultidropIMAPRetriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('MultidropIMAPRetriever(%s)\n' % self._confstring())
+
+#######################################
+class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
+    '''Retriever class for multi-drop IMAPv4-over-SSL mailboxes.
+    '''
+    _confitems = (
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_SSL_PORT},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+
+        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
+        {'name' : 'move_on_delete', 'type' : str, 'default' : None},
+
+        {'name' : 'keyfile', 'type' : str, 'default' : None},
+        {'name' : 'certfile', 'type' : str, 'default' : None},
+
+        # imaplib.IMAP4.login_cram_md5() requires the (unimplemented) .authenticate(),
+        # so we can't do this yet.
+        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
+
+        {'name' : 'envelope_recipient', 'type' : str},
+    )
+
+    def __str__(self):
+        self.log.trace()
+        return 'MultidropIMAPSSLRetriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('MultidropIMAPSSLRetriever(%s)\n' % self._confstring())

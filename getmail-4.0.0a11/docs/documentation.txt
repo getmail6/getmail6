@@ -21,25 +21,25 @@ No HTML; please configure your MUA to send plain-text only.  Please do not
 send questions regarding getmail verison 4 to the main getmail users' mailing
 list; it will only confuse things.
 
-WARNING:  getmail version 4 is presently alpha-quality software.  That means it 
-is not feature-complete and almost certainly contains bugs, perhaps even some 
-that could eat your mail.  It is recommended that you only test getmail v. 4 
-with mail accounts which you can afford to lose messages from, test accounts set 
-up expressly for this purpose, or that you retrieve all your mail with a stable 
+WARNING:  getmail version 4 is presently alpha-quality software.  That means it
+is not feature-complete and almost certainly contains bugs, perhaps even some
+that could eat your mail.  It is recommended that you only test getmail v. 4
+with mail accounts which you can afford to lose messages from, test accounts set
+up expressly for this purpose, or that you retrieve all your mail with a stable
 retriever first (i.e. getmail v.3).
 
 Major Changes since v.3
 =======================
 
-Each getmail rc file can only contain one account to retrieve mail from.  If you 
-are currently retrieving mail from multiple accounts, you will need multiple rc 
-files.  They can all reside in the same data/configuration directory, and 
-getmail can be invoked with multiple rc files in a single run, so you can still 
-retrieve mail from multiple accounts without having to run getmail multiple 
+Each getmail rc file can only contain one account to retrieve mail from.  If you
+are currently retrieving mail from multiple accounts, you will need multiple rc
+files.  They can all reside in the same data/configuration directory, and
+getmail can be invoked with multiple rc files in a single run, so you can still
+retrieve mail from multiple accounts without having to run getmail multiple
 times.
 
-The rc file format is slightly different.  getmail is now modular and 
-extensible; each rc file contains an optional [options] section, one [retriever] 
+The rc file format is slightly different.  getmail is now modular and
+extensible; each rc file contains an optional [options] section, one [retriever]
 section, zero or more [filterX] sections, and one [destination] section.
 
 The message logging feature of version 3 is not yet re-implemented for v.4.
@@ -50,7 +50,7 @@ Invoking getmail
 getmail v.4 is invoked as follows:
 
     usage: getmail.py [options]
-    
+
     options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -61,7 +61,7 @@ getmail v.4 is invoked as follows:
                             multiple times)
       --dump                dump configuration and exit (debugging)
       --trace               print extended debugging information
-    
+
       Overrides:
         The following options override those specified in any getmailrc file.
         -v, --verbose       print informational messages
@@ -71,16 +71,16 @@ getmail v.4 is invoked as follows:
         -a, --all           retrieve all messages
         -n, --new           retrieve only unread messages
 
-getmail can be invoked with no options; --getmaildir defaults to 
+getmail can be invoked with no options; --getmaildir defaults to
 "$HOME/.getmail/", and --rcfile defaults to "getmailrc".  A simple invocation
 reading two rc files might be:
 
-  ./getmail.py --rcfile getmailrc1 --rcfile getmailrc2
+    ./getmail.py --rcfile getmailrc1 --rcfile getmailrc2
 
 If you are using ~/data/getmail as your data/configuration directory instead
 of the default ~/.getmail/, the above command would become:
 
-  ./getmail.py --getmaildir ~/data/getmail/ --rcfile getmailrc1 --rcfile getmailrc2
+    ./getmail.py --getmaildir ~/data/getmail/ --rcfile getmailrc1 --rcfile getmailrc2
 
 Configuring getmail
 ===================
@@ -88,11 +88,11 @@ Configuring getmail
 A getmail rc file consists of sections of name, value pairs.  Each section
 is preceded by a section header like:
 
-  [section name]
+    [section name]
 
 The section's name, value pairs are specified like this:
 
-  name = value
+    name = value
 
 They can also be specified as "name : value", but that's ugly and confuses
 the issue.
@@ -106,12 +106,12 @@ section can be omitted.  Filters are specified with section titles beginning
 with "filter" and are applied in collating order; for instance, to apply
 three filters, you would have the following sections:
 
-  [filter1]
-  ...
-  [filter2]
-  ...
-  [filter3]
-  ...
+    [filter1]
+    ...
+    [filter2]
+    ...
+    [filter3]
+    ...
 
 The simplest possible getmail rc file consists of a [retriever] section
 and a [destination] section.
@@ -120,49 +120,72 @@ Options
 -------
 
 getmail global defaults can be configured in the [options] section of the
-getmail rc file.  At the moment, the only option available for this section
-is the "verbose" directive:
+getmail rc file.  At the moment, the only options available for this section
+are:
 
-  verbose = 0
-  verbose = 1
+    verbose (boolean) - default: True
+    read_all (boolean) - default: True
+    delete (boolean) - default: False
+    delete_after (integer) - default: 0
+    max_message_size (integer) - default: 0
 
-This controls whether getmail operates verbosely or not, and can be overridden
-from the commandline with the --verbose/--quiet options.
+Boolean options can be set to True or False (case-insensitive).  They also
+accept "1", "on", "0", and "off" for compatibility.
 
-Some options are specified as being a Python tuple.  This means (essentially) a 
-non-mutable list of zero or more items separated by commas.  The individual 
-items can be anything, but in getmail are typically strings.  Tuples are 
-conventionally shown with surrounding parentheses, but they are optional for all 
-but the empty tuple or a tuple broken across multiple lines.  Note that a 
-1-tuple (single item tuple) requires a trailing comma.
+Integer options take any positive integer, and the default value of 0 means to
+disable that function.
+
+The specific meaning of the options are:
+
+    verbose - controls whether getmail operates verbosely or not, and can be
+    overridden from the commandline with the --verbose/--quiet options.
+
+    read_all - controls whether getmail will retrieve all mail, or only
+    new/unseen  messages.
+
+    delete - controls whether getmail will delete a message after retrieving.
+
+    delete_after - delete messages after they've been in the mailbox X days
+    (instead of immediately after retrieval).  Note that delete overrides
+    delete_after.
+
+    max_message_size - don't retrieve messages over X bytes long.
+
+Some parameter values (for destinations, etc) are specified as being a Python
+tuple.  This means (essentially) a non-mutable list of zero or more items
+separated by commas.  The individual items can be anything, but in getmail are
+typically strings.  Tuples are conventionally shown with surrounding
+parentheses, but they are optional for all but the empty tuple or a tuple broken
+across multiple lines.  Note that a 1- tuple (single item tuple) requires a
+trailing comma.
 
 examples:
 
-  # A 1-tuple without parentheses	
-  item = "1",
+    # A 1-tuple without parentheses
+    item = "1",
 
-  # A 1-tuple with parentheses	
-  item = ("foo",)
-  
-  # A 2-tuple
-  item = ("from", "to")
-  
-  # An empty tuple
-  item = ()
+    # A 1-tuple with parentheses
+    item = ("foo",)
+
+    # A 2-tuple
+    item = ("from", "to")
+
+    # An empty tuple
+    item = ()
 
 Retriever
 ---------
 
 A getmail retriever is a message source.  It is configured with the [retriever]
 section of the rc file.
-  
+
 The current retrievers are:
 
     SimplePOP3Retriever - single-drop POP3 retriever with optional APOP support.
                         Does not provide recipient information about retrieved
                         messages.
     SimplePOP3SSLRetriever - same as above for POP3-over-SSL support.
-    MultidropPOP3Retriever - multi-drop (domain mailbox) retriever with 
+    MultidropPOP3Retriever - multi-drop (domain mailbox) retriever with
                            optional APOP support.  Provides recipient
                            information about retrieved messages.
     MultidropPOP3SSLRetriever - same as above for POP3-over-SSL support.
@@ -171,6 +194,10 @@ The current retrievers are:
                            information about retrieved messages.
     SimpleIMAPRetriever - basic IMAPv4r1 support.
     SimpleIMAPSSLRetriever - same as above for IMAP-over-SSL support.
+    MultidropIMAPRetriever - multi-drop (domain mailbox) retriever for IMAP.
+                             Provides recipient information about retrieved
+                             messages.
+    MultidropIMAPSSLRetriever - same as above for IMAP-over-SSL support.
 
 SimplePOP3Retriever takes the following configuration parameters:
 
@@ -194,7 +221,7 @@ SimplePOP3Retriever takes the following configuration parameters:
 SimplePOP3SSLRetriever takes the same configuration parameters as
 SimplePOP3Retriever, plus two optional additional parameters:
 
-    port (optional) - same as above, but the default is the standard 
+    port (optional) - same as above, but the default is the standard
                       POP3-over-SSL port (995).
     keyfile (optional) - path to an SSL PEM-formatted key file containing
                          the private key to use.
@@ -203,7 +230,7 @@ SimplePOP3Retriever, plus two optional additional parameters:
 Note that Python's socket.ssl() function does not do any certificate
 verification!
 
-MultidropPOP3Retriever takes the same configuration parameters as 
+MultidropPOP3Retriever takes the same configuration parameters as
 SimplePOP3Retriever, plus one additional parameter:
 
     envelope_recipient - indicates which message header field holds the address
@@ -221,7 +248,7 @@ SimplePOP3Retriever, plus one additional parameter:
         username = exampledotorg
         password = mailpassword
         envelope_recipient = delivered-to:2
-        
+
 MultidropPOP3SSLRetriever takes the same configuration parameters as
 MultidropPOP3Retriever, plus two optional additional parameters:
 
@@ -231,8 +258,8 @@ MultidropPOP3Retriever, plus two optional additional parameters:
 
 Note that Python's socket.ssl() function does not do any certificate
 verification!
-                         
-MultidropSPDSRetriever takes the same configuration parameters as 
+
+MultidropSPDSRetriever takes the same configuration parameters as
 SimplePOP3Retriever, except that it does not take the use_apop parameter.
 
     example:
@@ -260,7 +287,15 @@ SimpleIMAPRetriever takes the following configuration parameters:
                            Defaults to ("INBOX", ).  To retrieve mail from
                            several mailboxes, you might set this to
                            ("INBOX", "spam", "list-getmail") or similar.
-    
+    move_on_delete (optional) - a string representing the path of a mailbox.
+                                If present, getmail will copy messages to that
+                                mailbox before deleting them (i.e., to copy
+                                retrieved mail to an archive mailbox, etc).
+                                Note that this happens only when the delete
+                                command is issued; if you don't tell getmail
+                                to delete retrieved mail, it won't be copied
+                                either.
+
     example:
 
         [retriever]
@@ -269,12 +304,42 @@ SimpleIMAPRetriever takes the following configuration parameters:
         username = jeff.plotzky
         password = mailpassword
         mailboxes = ('INBOX', 'lists/getmail', 'lists/foobar')
+        move_on_delete = archive/retrieved
 
 SimpleIMAPSSLRetriever takes the same configuration parameters as
 SimpleIMAPRetriever, plus two optional additional parameters:
 
-    port (optional) - same as above, but the default is the standard 
+    port (optional) - same as above, but the default is the standard
                       IMAP-over-SSL port (993).
+    keyfile (optional) - path to an SSL PEM-formatted key file containing
+                         the private key to use.
+    certfile (optional) - path to a PEM-formatted certificate chain file.
+
+Note that Python's socket.ssl() function does not do any certificate
+verification!
+
+MultidropIMAPRetriever takes the same configuration parameters as
+SimpleIMAPRetriever, plus one additional parameter:
+
+    envelope_recipient - indicates which message header field holds the address
+                         of the message recipient.  This is given in the format
+                         "header_fieldname:number".  A value of
+                         "delivered-to:3" indicates getmail should extract the
+                         envelope recipient address from the third (from the
+                         top) Delivered-To: header field.
+
+    example:
+
+        [retriever]
+        type = MultidropIMAPRetriever
+        server = mail.example.net
+        username = exampledotorg
+        password = mailpassword
+        envelope_recipient = delivered-to:2
+
+MultidropIMAPSSLRetriever takes the same configuration parameters as
+MultidropIMAPRetriever, plus two optional additional parameters:
+
     keyfile (optional) - path to an SSL PEM-formatted key file containing
                          the private key to use.
     certfile (optional) - path to a PEM-formatted certificate chain file.
@@ -311,24 +376,24 @@ Maildir takes the following configuration parameters:
 
     path - path to the maildir.  This will be expanded for leading "~/" or
     "~user/".
-    
+
     example:
 
         [destination]
         type = Maildir
         path = ~tracyk/Maildir/
 
-	Note that a maildir must exist before trying to deliver to it!  getmail will 
-	/not/ create a specified maildir if it does not exist.  If you don't know 
-	what a maildir is, see http://qmail.org/man/man5/maildir.html and 
-	http://cr.yp.to/proto/maildir.html .       
+    Note that a maildir must exist before trying to deliver to it!  getmail will
+    /not/ create a specified maildir if it does not exist.  If you don't know
+    what a maildir is, see http://qmail.org/man/man5/maildir.html and
+    http://cr.yp.to/proto/maildir.html .
 
 Mboxrd takes the following configuration parameters:
 
     path - path to the mboxrd file.  This will be expanded for leading "~/" or
     "~user/".  Note that unlike v.3, getmail v.4 will create the specified
     mboxrd file if it does not exist.
-    
+
     example:
 
         [destination]
@@ -340,10 +405,10 @@ delivering mail using qmail-local as an MDA, please ask on the list first.
 
 MDA_external takes the following configuration parameters:
 
-    path - path to the command to use an an MDA.  This will be expanded for 
+    path - path to the command to use an an MDA.  This will be expanded for
            leading "~/" or "~user/".
-    
-    arguments (optional) - arguments to be supplied to the command, expressed as 
+
+    arguments (optional) - arguments to be supplied to the command, expressed as
                            a valid Python tuple.  If available from the message
                            retriever, the following string replacements can be
                            specified:
@@ -351,10 +416,10 @@ MDA_external takes the following configuration parameters:
                             %(recipient) - recipient address
                             %(domain) - domain-part of recipient address
                             %(local) - local-part of recipient address
-    
+
     unixfrom (optional) - whether to include a From_ line before the message.
                           Defaults to False.
-                          
+
     example:
 
         [destination]
@@ -364,10 +429,10 @@ MDA_external takes the following configuration parameters:
 
 MultiSorter takes the following configuration parameters:
 
-    default - path to maildir or mbox file which takes all mail not 
-              otherwise matched by locals (see below).  This will be expanded 
+    default - path to maildir or mbox file which takes all mail not
+              otherwise matched by locals (see below).  This will be expanded
               for leading "~/" or "~user/".
-    
+
     locals - a list of (regular expression, destination) pairs, one per line.
              Lines after the first must start with whitespace to indicate
              they are a continuation of the previous line.
@@ -390,25 +455,25 @@ MultiSorter takes the following configuration parameters:
 Filters
 -------
 
-Filters are optional programs which can cause getmail to drop (ignore) certain 
-messages, or change the content of messages before delivering them to a 
-destination.  Each filter is specified in its own section in the getmail rc file 
-(i.e. [filter1], [filter2], etc) and is applied in collating order.  A filter 
+Filters are optional programs which can cause getmail to drop (ignore) certain
+messages, or change the content of messages before delivering them to a
+destination.  Each filter is specified in its own section in the getmail rc file
+(i.e. [filter1], [filter2], etc) and is applied in collating order.  A filter
 can return None instead of the message to cause getmail to drop the message.
 
-The only currently supported filter type is Filter_external, which passes the 
-message through an arbitrary external command.  This command /must/ read the 
-message from stdin and write the (possibly modified) message to stdout.  If the 
-command exits 99 or 100, the message will be dropped (i.e. not delivered to any 
-destination).  Otherwise, if the command exits nonzero or writes 
+The only currently supported filter type is Filter_external, which passes the
+message through an arbitrary external command.  This command /must/ read the
+message from stdin and write the (possibly modified) message to stdout.  If the
+command exits 99 or 100, the message will be dropped (i.e. not delivered to any
+destination).  Otherwise, if the command exits nonzero or writes
 to stderr, it is considered an error.
 
 Filter_external takes the following configuration parameters:
 
-    path - path to the command to use an a filter.  This will be expanded for 
+    path - path to the command to use an a filter.  This will be expanded for
            leading "~/" or "~user/".
-    
-    arguments (optional) - arguments to be supplied to the command, expressed as 
+
+    arguments (optional) - arguments to be supplied to the command, expressed as
                            a valid Python tuple.  If available from the message
                            retriever, the following string replacements can be
                            specified:
@@ -416,7 +481,7 @@ Filter_external takes the following configuration parameters:
                             %(recipient) - recipient address
                             %(domain) - domain-part of recipient address
                             %(local) - local-part of recipient address
-    
+
     unixfrom (optional) - whether to include a From_ line before the message.
                           Defaults to False.
 
@@ -430,8 +495,8 @@ Filter_external takes the following configuration parameters:
 Example configurations
 ======================
 
-The simplest getmail 4 configuration is a SimplePOP3Retriever which delivers all 
-mail to a single Maildir or Mboxrd destination.  Such a getmail rc file might 
+The simplest getmail 4 configuration is a SimplePOP3Retriever which delivers all
+mail to a single Maildir or Mboxrd destination.  Such a getmail rc file might
 look like this:
 
         [retriever]
@@ -444,9 +509,9 @@ look like this:
         type = Maildir
         path = ~tracyk/Maildir/
 
-The simplest domain-mailbox configuration involves a MultidropPOP3Retriever 
-which delivers mail to an assortment of maildirs or mbox files with a 
-MultiSorter destination.  Such a getmail rc file might 
+The simplest domain-mailbox configuration involves a MultidropPOP3Retriever
+which delivers mail to an assortment of maildirs or mbox files with a
+MultiSorter destination.  Such a getmail rc file might
 look like this:
 
         [retriever]

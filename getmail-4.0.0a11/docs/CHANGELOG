@@ -1,3 +1,15 @@
+Version 4.0.0a11
+21 June 2004
+
+  -add MultidropIMAPRetriever and MultidropIMAPSSLRetriever
+  -add move_on_delete parameter to all IMAP retrievers.
+  -add and document delete_after and max_message_size options
+  -document read_all and delete options
+  -rename pop3ssl.py
+  -fix --quiet.  i.e., getmail should again operate truly silently if you
+  want it to.
+  -retrievers' quit() method wasn't getting called.  Fix.  Thanks: Frankye.
+
 Version 4.0.0a10
 19 June 2004
 

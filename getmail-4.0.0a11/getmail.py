@@ -22,10 +22,14 @@ defaults = {
     'verbose' : True,
     'read_all' : True,
     'delete' : False,
+    'max_message_size' : 0,
+    'delete_after' : 0,
 }
 
 #######################################
 def go(configs):
+    log.info('getmail version %s\n' % __version__)
+    log.info('Copyright (C) 1998-2004 Charles Cazabon.  Licensed under the GNU GPL version 2.\n')
     for (retriever, _filters, destination, options) in configs:
         now = int(time.time())
         log.debug('initializing retriever %s\n' % retriever)
@@ -34,14 +38,18 @@ def go(configs):
             retrieve = False
             delete = False
             timestamp = retriever.oldmail.get(msgid, None)
+            size = retriever.getmsgsize(msgid)
+
+            log.info('Message %s (%d bytes) ... ' % (msgid, size))
+
             if options['read_all'] or timestamp is None:
                 retrieve = True
-            size = retriever.getmsgsize(msgid)
-            if options['max_message_size'] and size > int(options['max_message_size']):
+
+            if options['max_message_size'] and size > options['max_message_size']:
+                log.info('message size (%d) > max_message_size %d, not retrieving ... ' % (size, options['max_message_size']))
                 retrieve = False
 
             try:    
-                log.info('Message %s (%d bytes) ... ' % (msgid, size))
                 if retrieve:
                     msg = retriever.getmsg(msgid)
                     log.info('from <%s> ... ' % msg.sender)
@@ -60,24 +68,29 @@ def go(configs):
                         delete = True
                 else:
                     log.info('not retrieving (timestamp %s)' % timestamp)
+
+                if options['delete_after'] and timestamp and (now - timestamp)/86400 >= options['delete_after']:
+                    log.debug('message older than %d days (%s seconds), will delete ... ' % (options['delete_after'], (now - timestamp)))
+                    delete = True
+    
+                if not retrieve and timestamp is None:
+                    # We haven't retrieved this message.  Don't delete it.
+                    log.debug('message not yet retrieved, not deleting ... ')
+                    delete = False
+    
+                if delete:
+                    retriever.delmsg(msgid)
+                    log.info('deleted')
+    
             except getmailDeliveryError, o:
                 log.error('Delivery error (%s)\n' % o)
-                continue
-
-            if options['delete_after'] and timestamp and (now - timestamp)/86400 >= int(options['delete_after']):
-                delete = True
-
-            if delete:
-                retriever.delmsg(msgid)
-                log.info('deleted')
 
             log.info('\n')
 
+        retriever.quit()
 
 #######################################
 def main():
-    log.info('getmail version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2004 Charles Cazabon.  Licensed under the GNU GPL version 2.\n')
     try:
         parser = OptionParser(version='%%prog %s' % __version__)
         parser.add_option('-g', '--getmaildir',
@@ -145,8 +158,8 @@ def main():
                 'read_all' : defaults['read_all'],
                 'delete' : defaults['delete'],
                 'verbose' : defaults['verbose'],
-                'max_message_size' : None,
-                'delete_after' : None,
+                'max_message_size' : defaults['max_message_size'],
+                'delete_after' : defaults['delete_after'],
             }
             # Python's ConfigParser .getboolean() can't handle booleans in the defaults.
             # Submitted a patch; we'll see if they take it.  In the meantime, ugly hack....
@@ -171,7 +184,21 @@ def main():
                     else:
                         log.debug('not found')
                     log.debug('\n')
-                # FIXME:  Add handling for delete_after, ...
+
+                for option in ('delete_after', 'max_message_size'):
+                    log.debug('  looking for option %s ... ' % option)
+                    if configparser.has_option('options', option):
+                        log.debug('got "%s"' % configparser.get('options', option))
+                        try:
+                            config[option] = configparser.getint('options', option)
+                            log.debug('-> %s' % config[option])
+                        except ValueError:
+                            raise getmailConfigurationError('configuration file %s incorrect (option %s must be integer, not %s)' % (path, option, configparser.get('options', option)))
+                    else:
+                        log.debug('not found')
+                    log.debug('\n')
+
+                # FIXME:  Add handling for message_log, ...
 
                 # Clear out the ConfigParser defaults before processing further sections
                 configparser._defaults = {}

@@ -1,24 +1,30 @@
 #!/usr/bin/env python2.3
-'''Base classes implementing retrievers (message sources getmail can retrieve mail from).
+'''Base and mix-in classes implementing retrievers (message sources getmail can retrieve mail from).
 
-In this module:
+None of these classes can be instantiated directly.  In this module:
 
-  POP3initMixIn (mix-in initialization class for non-SSL POP3 classes; not to be instantiated directly)
-  POP3SSLinitMixIn (mix-in initialization class for POP3-over-SSL classes; not to be instantiated directly)
-  IMAPinitMixIn (mix-in initialization class for non-SSL IMAP classes; not to be instantiated directly)
-  IMAPSSLinitMixIn (mix-in initialization class for IMAP-over-SSL classes; not to be instantiated directly)
+Mix-in classes for SSL/non-SSL initialization:
 
-  RetrieverSkeleton (base class; not to be instantiated directly)
+  POP3initMixIn
+  POP3SSLinitMixIn
+  IMAPinitMixIn
+  IMAPSSLinitMixIn
 
-  POP3RetrieverBase (base class; not to be instantiated directly)
-  MultidropPOP3RetrieverBase (base class; not to be instantiated directly)
+Base classes:
 
-  IMAPRetrieverBase  (base class; not to be instantiated directly)
+  RetrieverSkeleton
+
+  POP3RetrieverBase
+  MultidropPOP3RetrieverBase
+
+  IMAPRetrieverBase
+  MultidropIMAPRetrieverBase
+
 '''
 
-__all__ = ['POP3initMixIn', 'POP3SSLinitMixIn', 'IMAPinitMixIn', 'IMAPSSLinitMixIn',
-    'RetrieverSkeleton', 'POP3RetrieverBase', 'MultidropPOP3RetrieverBase',
-    'IMAPRetrieverBase',
+__all__ = ['POP3_ssl_port', 'POP3initMixIn', 'POP3SSLinitMixIn', 'IMAPinitMixIn',
+    'IMAPSSLinitMixIn', 'RetrieverSkeleton', 'POP3RetrieverBase', 'MultidropPOP3RetrieverBase',
+    'IMAPRetrieverBase', 'MultidropIMAPRetrieverBase'
 ]
 
 import os
@@ -32,7 +38,7 @@ import imaplib
 from exceptions import *
 from constants import *
 from utilities import updatefile, address_no_brackets
-from pop3ssl import POP3SSL, POP3_ssl_port
+from _pop3ssl import POP3SSL, POP3_ssl_port
 from baseclasses import ConfigurableBase
 
 #
@@ -505,6 +511,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             mailbox, uid = self._getmboxuidbymsgid(msgid)
             self._selectmailbox(mailbox)
             # Delete message
+            if self.conf['move_on_delete']:
+                self.log.debug('copying message to folder "%s"\n' % self.conf['move_on_delete'])
+                response = self._parse_imapuidcmdresponse('COPY', uid, self.conf['move_on_delete'])
             self.log.debug('deleting message "%s"\n' % uid)
             response = self._parse_imapuidcmdresponse('STORE', uid, 'FLAGS', '(\Deleted)')
         except imaplib.IMAP4.error, o:
@@ -582,3 +591,50 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
 
+#######################################
+class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
+    '''Base retriever class for multi-drop IMAP mailboxes.
+
+    Envelope is reconstructed from Return-Path: (sender) and a header specified
+    by the user (recipient).  This header is specified with the "envelope_recipient"
+    parameter, which takes the form <field-name>[:<field-number>].  field-number
+    defaults to 1 and is counted from top to bottom in the message.  For instance,
+    if the envelope recipient is present in the second Delivered-To: header field
+    of each message, envelope_recipient should be specified as "delivered-to:2".
+    '''
+
+    def initialize(self):
+        self.log.trace()
+        IMAPRetrieverBase.initialize(self)
+        self.envrecipname = self.conf['envelope_recipient'].split(':')[0].lower()
+        self.envrecipnum = 0
+        try:
+            self.envrecipnum = int(self.conf['envelope_recipient'].split(':', 1)[1]) - 1
+            if self.envrecipnum < 0:
+                raise ValueError(self.conf['envelope_recipient'])
+        except IndexError:
+            pass
+        except ValueError, o:
+            raise getmailConfigurationError('invalid envelope_recipient specification format (%s)' % o)
+
+    def _getmsgbyid(self, msgid):
+        self.log.trace()
+        msg = IMAPRetrieverBase._getmsgbyid(self, msgid)
+        data = {}
+        for (name, val) in msg._headers:
+            name = name.lower()
+            val = val.strip()
+            if data.has_key(name):
+                data[name].append(val)
+            else:
+                data[name] = [val]
+
+        try:
+            line = data[self.envrecipname][self.envrecipnum]
+        except (KeyError, IndexError), unused:
+            raise getmailConfigurationError('envelope_recipient specified header missing (%s)' % self.conf['envelope_recipient'])
+        msg.recipient = [address_no_brackets(address) for (name, address) in email.Utils.getaddresses([line]) if address]
+        if len(msg.recipient) != 1:
+            raise getmailConfigurationError('extracted <> 1 envelope recipient address (%s)' % msg.recipient)
+        msg.recipient = msg.recipient[0]
+        return msg

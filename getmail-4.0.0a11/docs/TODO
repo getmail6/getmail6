@@ -18,13 +18,7 @@ TODO
   and I can't rely on /usr/bin/python2.3 or anything like that being
   present either.  "#!/usr/bin/env python2.3" will have to do for now.
 
--make delete work with previously retrieved messages, and add delete_after
-
--message_log
-
--max_message_size, max_messages_per_session
-
--Multidrop IMAP support
+-message_log, max_messages_per_session
 
 DONE
 ====
@@ -34,3 +28,8 @@ DONE
   SSL and non-SSL connections.
 -fix every-other-message problem with delete
 -break retrievers.py into smaller units
+-Multidrop IMAP support
+-make delete work with previously retrieved messages, and add delete_after
+  (not tested yet)
+-max_message_size
+-fix --quiet (first two lines output)

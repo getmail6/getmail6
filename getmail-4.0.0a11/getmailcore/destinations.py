@@ -110,8 +110,9 @@ class Mboxrd(DeliverySkeleton):
       path - path to mboxrd file, which will be expanded for leading '~/' or '~USER/'.
 
     Note the differences between various subtypes of mbox format (mboxrd, mboxo,
-    mboxcl, mboxcl2) and differences in locking; see
-    http://qmail.org/man/man5/mbox.html for details.
+    mboxcl, mboxcl2) and differences in locking; see the following for details:
+    http://qmail.org/man/man5/mbox.html
+    http://groups.google.com/groups?selm=4ivk9s%24bok%40hustle.rahul.net
     '''
     _confitems = (
         {'name' : 'path', 'type' : str},
