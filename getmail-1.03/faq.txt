@@ -3,7 +3,7 @@
                                        
 Frequently Asked Questions about getmail
 
-6 Febuary 2000
+8 Febuary 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -23,11 +23,13 @@ Frequently Asked Questions about getmail
           + 1.9 Can getmail retrieve mail from an IMAP server?
           + 1.10 Can getmail deliver by re-injecting messages via SMTP
             like fetchmail?
-          + 1.11 How do I make getmail be less verbose?
-          + 1.12 How does getmail determine the recipient of a message in
+          + 1.11 Can I leave whitespace in option values in the config
+            file?
+          + 1.12 How do I make getmail be less verbose?
+          + 1.13 How does getmail determine the recipient of a message in
             a domain mailbox?
-          + 1.13 How do I report a bug, or request a feature?
-          + 1.14 I have a question about getmail that isn't answered
+          + 1.14 How do I report a bug, or request a feature?
+          + 1.15 I have a question about getmail that isn't answered
             here...
      * 2 Other Questions
           + 2.1 Do you have any other software available?
@@ -155,14 +157,21 @@ destination = /home/username/Maildir # default Maildir
 popusername-extension1@isp.net = /home/username/Mail/list1
 popusername-extension2@isp.net = /home/username/Mail/list2
 
-1.11 How do I make getmail be less verbose?
+1.11 Can I leave whitespace in option values in the config file?
+
+   Yes, internal spaces are always okay. Leading and trailing whitespace
+   is stripped by default. To preserve leading and trailing whitespace,
+   quote the value with either single `'' or double `"' quotes.
+password = ' a password with leading whitespace'
+
+1.12 How do I make getmail be less verbose?
 
    Well, you could avoid supplying the `--verbose' or `-v' options. If
    you've specified one of these in the environment variable
    `GETMAILOPTS' and want to override it on the commandline, use the
    `--quiet' or `-q' option.
    
-1.12 How does getmail determine the recipient of a message in a domain mailbox?
+1.13 How does getmail determine the recipient of a message in a domain mailbox?
 
    getmail examines the headers messages retrieved from domain mailboxes.
    The algorithm works as follows:
@@ -179,12 +188,18 @@ popusername-extension2@isp.net = /home/username/Mail/list2
      * As a last resort, getmail will fall back to using any email
        address(es) found in `To: ', `cc: ', or `bcc: ' headers.
        
-1.13 How do I report a bug, or request a feature?
+   getmail then compares each recipient found in this way to the list of
+   user-supplied recognized email address destinations in the
+   `.getmailrc' file. For each match found, the message is delivered to
+   the stated destination `Maildir' or `mbox' file. Each non-match is
+   delivered to the default destination for the domain mailbox.
+   
+1.14 How do I report a bug, or request a feature?
 
    To report a bug, make a feature request, or get support with getmail,
    please send email to me at <getmail @ discworld.dyndns.org>.
    
-1.14 I have a question about getmail that isn't answered here...
+1.15 I have a question about getmail that isn't answered here...
 
    Have you read the documentation? Have you looked at the
    `example.getmailrc' file? Then write to me, so you can get help, and
@@ -199,5 +214,5 @@ popusername-extension2@isp.net = /home/username/Mail/list2
    http://www.qcc.sk.ca/~charlesc/software/.
      _________________________________________________________________
    
-   This document was generated on 6 Febuary 2000 using the texi2html
+   This document was generated on 8 Febuary 2000 using the texi2html
    translator version 1.51a.

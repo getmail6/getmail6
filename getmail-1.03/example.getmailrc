@@ -1,6 +1,15 @@
 # This is a sample .getmailrc file
 # Comments begin with '#' and so can't appear in usernames, passwords, etc.
 # Leading and trailing whitespace is ignored.
+#
+# To preserve leading or trailing whitespace on an option value, quote it with
+# single or double quotes, e.g.
+#
+# password = ' this is a password '
+#  or
+# password = " this is another password "
+#
+
 # Blank lines are ignored.
 #
 # Accounts to retrieve mail from are specified, one per section in this format:
@@ -31,7 +40,7 @@ type=mailbox                        # Not necessary, this is the default
   account=joe                       # Leading and trailing whitespace is ignored
 host = mail.isp.com                 # Whitespace around the '=' is OK too
 destination=/home/joe/Maildir       # Joe's Maildir
-password=mymailpass
+password = ' my mail password with leading whitespace'
 delete=yes                          # Delete mail after retrieving
 
 #################################

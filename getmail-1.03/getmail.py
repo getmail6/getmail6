@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.02'
+VERSION = '1.03'
 
 #
 # Imports
@@ -604,7 +604,7 @@ def read_configfile (file):
     if not os.path.isfile (file):
         return
 
-    conf = GetmailParser (defaults)
+    conf = ConfParser (defaults)
 
     try:
         conf.read (file)
@@ -626,11 +626,11 @@ def read_configfile (file):
             pw = string.replace (pw, '\0', '')
             dest = string.replace (dest, '\0', '')
 
-            opt_account.append (string.strip (account))
-            opt_host.append (string.strip (host))
+            opt_account.append (account)
+            opt_host.append (host)
             opt_port.append (port)
-            opt_password.append (string.strip (pw))
-            opt_dest.append (string.strip (dest))
+            opt_password.append (pw)
+            opt_dest.append (dest)
             if dele in true:
                 opt_delete_retrieved.append (1)
             else:
@@ -905,9 +905,10 @@ def parse_options (argv):
             % (opt_verbose, opt_rcfile, opt_configdir)
         print 'Accounts:'
         for i in range (len (opt_account)):
-            print '  %s,%s:%s,%s delete=%s readall=%s' \
+            print '  %s,%s:%s,%s,"%s" delete=%s readall=%s' \
                 % (opt_account[i], opt_host[i], opt_port[i], opt_dest[i],
-                   opt_delete_retrieved[i], opt_retrieve_read[i])
+                   opt_password[i], opt_delete_retrieved[i],
+                   opt_retrieve_read[i])
         sys.exit (RC_DEBUG)
 
     if error:
@@ -918,125 +919,128 @@ def parse_options (argv):
 
 
 #######################################
-class GetmailParser:
-    '''Class to parse a configuration file without all the limitations in
-    ConfigParser.py, but without the dictionary formatting options either.
-    '''
-    #######################################
-    def __init__ (self, defaults = {}):
-        'Constructor.'
-        self.__rawdata = []
-        self.__data = []
-        self.__sects = []
-        self.__opts = []
-        self.__defs = {}
-        try:
-            for key in defaults.keys ():
-                self.__defs[key] = defaults[key]
+class ConfParser:
+	'''Class to parse a configuration file without all the limitations in
+	ConfigParser.py, but without the dictionary formatting options either.
+	'''
+	#######################################
+	def __init__ (self, defaults = {}):
+		'Constructor..'
 
-        except AttributeError:
-            raise DefaultsError, 'defaults "%s" not a dictionary' % defaults
+		self.__rawdata = []
+		self.__data = []
+		self.__sects = []
+		self.__opts = []
+		self.__defs = {}
 
+		try:
+			for key in defaults.keys ():
+				self.__defs[key] = defaults[key]
 
-    #######################################
-    def read (self, filename):
-        'Read configuration file.'
-        try:
-            f = open (filename, 'r')
-            self.__rawdata = f.readlines ()
-            f.close ()
-
-        except IOError:
-            raise FileIOError, 'error reading configuration file "%s"' \
-                % filename
-
-        n = 0
-        for line in self.__rawdata:
-            try:
-                line = line [ : string.index (line, '#')]
-            except ValueError:
-                pass
-            line = string.strip (line)
-            if line:
-                self.__data.append ((n, line))
-            n = n + 1
-
-        self.__parse ()
-        return self
+		except AttributeError:
+			raise DefaultsError, 'defaults "%s" not a dictionary' % defaults
 
 
-    #######################################
-    def __parse (self):
-        'Parse the read-in configuration file.'
-        in_section = 0
-        for (lineno, line) in self.__data:
-            if line[0] == '[':
-                in_section = 1
-                try:
-                    sect_name = string.lower (line [1:string.index (line, ']')])
+	#######################################
+	def read (self, filename):
+		'Read configuration file.'
+		try:
+			f = open (filename, 'r')
+			self.__rawdata = f.readlines ()
+			f.close ()
 
-                except ValueError:
-                    raise BadConfigFileError, \
-                        'malformed section title in line %i:  "%s"' \
-                        % (lineno, line)
+		except IOError:
+			raise FileIOError, 'error reading configuration file "%s"' \
+				% filename
 
-                if sect_name in self.__sects:
-                    raise DuplicateSectionError, \
-                        'duplicate section "%s" found at line %i' \
-                        % (sect_name, lineno)
+		n = 0
+		for line in self.__rawdata:
+			try:
+				line = line [ : string.index (line, '#')]
+			except ValueError:
+				pass
+			line = string.strip (line)
+			if line:
+				self.__data.append ((n, line))
+			n = n + 1
 
-                self.__sects.append (sect_name)
-
-                self.__opts.append ({'__section__' : sect_name})
-
-                # Insert defaults
-                for key in self.__defs.keys ():
-                    self.__opts[-1][key] = self.__defs[key]
-
-                continue
-
-            if in_section:
-                optname = string.strip (line [ : string.find (line, '=') ])
-                try:
-                    optval = line [ string.index (line, '=') : ]
-                    optval = string.strip (optval [ 1 : ])
-                except ValueError:
-                    optval = ''
-                self.__opts [-1][optname] = optval
-
-        return
+		self.__parse ()
+		return self
 
 
-    #######################################
-    def sections (self):
-        return self.__sects
+	#######################################
+	def __parse (self):
+		'Parse the read-in configuration file.'
+		in_section = 0
+		for (lineno, line) in self.__data:
+			if line[0] == '[':
+				in_section = 1
+				try:
+					sect_name = string.lower (line [1:string.index (line, ']')])
+
+				except ValueError:
+					raise BadConfigFileError, \
+						'malformed section title in line %i:  "%s"' \
+						% (lineno, line)
+
+				if sect_name in self.__sects:
+					raise DuplicateSectionError, \
+						'duplicate section "%s" found at line %i' \
+						% (sect_name, lineno)
+
+				self.__sects.append (sect_name)
+
+				self.__opts.append ({'__section__' : sect_name})
+
+				# Insert defaults
+				for key in self.__defs.keys ():
+					self.__opts[-1][key] = self.__defs[key]
+
+				continue
+
+			if in_section:
+				optname = string.strip (line [ : string.find (line, '=') ])
+				try:
+					optval = string.strip (line [string.index (line, '=') + 1:])
+					if optval[0] == optval[-1] == "'" or optval[0] == optval[-1] == '"':
+						optval = optval[1:-1]
+				except ValueError:
+					optval = ''
+				self.__opts [-1][optname] = optval
+
+		return
 
 
-    #######################################
-    def options (self, section):
-        'Return list of options in section.'
-        try:
-            s = self.__sects.index (string.lower (section))
-
-        except ValueError:
-            raise NoSectionError, 'file has no section "%s"' % section
-
-        return self.__opts[s].keys ()
+	#######################################
+	def sections (self):
+		return self.__sects
 
 
-    #######################################
-    def get (self, section, option):
-        'Return an option value.'
-        try:
-            s = self.__sects.index (string.lower (section))
-        except ValueError:
-            raise NoSectionError, 'file has no section "%s"' % section
+	#######################################
+	def options (self, section):
+		'Return list of options in section.'
+		try:
+			s = self.__sects.index (string.lower (section))
 
-        if not self.__opts[s].has_key (option):
-            raise NoOptionError, 'section "%s" has no option "%s"' \
-                % (section, option)
+		except ValueError:
+			raise NoSectionError, 'file has no section "%s"' % section
 
-        return self.__opts[s][option]
+		return self.__opts[s].keys ()
+
+
+	#######################################
+	def get (self, section, option):
+		'Return an option value.'
+		try:
+			s = self.__sects.index (string.lower (section))
+		except ValueError:
+			raise NoSectionError, 'file has no section "%s"' % section
+
+		if not self.__opts[s].has_key (option):
+			raise NoOptionError, 'section "%s" has no option "%s"' \
+				% (section, option)
+
+		return self.__opts[s][option]
 
 
 #######################################

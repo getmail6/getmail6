@@ -1,20 +1,24 @@
 Changes for getmail:
 ====================
 
-v.1.02 6 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
-    -Added checking for 'Envelope-To: ' and 'X-Envelope-To: ' headers for
-    domain mailboxes.  Updated documentation.
+v.1.03 8 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Added the ability to quote option values in the .getmailrc file to preserve
+	leading and trailing whitespace.  Can be quoted with single or double
+	quotes; they are not necessary if there is no leading or trailing
+	whitespace on the option value.
 
-v.1.01 27 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
-    -Added the --quiet/-q option to override the --verbose/-v option when
-    supplied GETMAILOPTS.
+v.1.02 2 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Various small changes
+
+v.1.01 29 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Various small changes
 
 v.1.00 22 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
     -Wrote some texinfo documentation to replace the mishmash that existed
     previously.
     -Took out the last of the (commented-out) debugging output.  I figure
     getmail is now production quality code.
-    -Included the getmail startup accelerator script.
+	-Included the getmail startup accelerator script.
     -Whee, hit verison 1.00.  Let me know if it needs work.
 
 v.0.99 10 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>

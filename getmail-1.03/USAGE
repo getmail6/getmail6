@@ -176,7 +176,9 @@ The configuration file section for a domain mailbox should look like this:
     type=domainbox
       account=pop3username          # Leading and trailing whitespace is ignored
     host=pophost.domain
-    password = pop_password         # Whitespace surrounding the '=' is OK too.
+    password = " pop_password"      # Whitespace surrounding the '=' is OK too.
+    								# Quote values which have leading or trailing
+    								# whitespace
     destination=/path/to/default_delivery_destination
     delete=(yes|no)
     readall=(yes|no)

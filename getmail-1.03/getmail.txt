@@ -3,7 +3,7 @@
                                        
 POP3 mail retriever with reliable Maildir delivery
 
-6 Febuary 2000
+8 Febuary 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -122,8 +122,11 @@ destination=destinationpath
 delete=value
 readall=value
        The options can be specified in any order. Blank lines are
-       ignored, as is anything after a `#' symbol. The meaning of the
-       individual options in each section are as follows:
+       ignored, as is anything after a `#' symbol. Leading and trailing
+       whitespace on the option names and values is ignored. To preserve
+       leading or trailing whitespace on an option value (such as a POP
+       password), surround it with either single or double quotes. The
+       meaning of the individual options in each section are as follows:
           + `identifier' is not currently used by getmail. Identifiers
             must be unique, and should be meaningful to you.
           + `account' is your POP3 account name.
@@ -304,10 +307,10 @@ info@mycompany.com=/users/rharrington/Mail/info-requests/
    The configuration file section for a domain mailbox should look like
    this:
 [Section title]
-type=domainbox
-account=pop3username
+type = domainbox               # whitespace is OK around the `='
+  account=pop3username         # so is leading and trailing whitespace
 host=pophost.domain
-password=pop_password
+password = "  pop_password with leading whitespace"
 destination=/path/to/default_delivery_destination
 delete=(yes|no)
 readall=(yes|no)
@@ -335,5 +338,5 @@ info@smallcompany.com=/home/paula/inbox
    please send email to me at <getmail @ discworld.dyndns.org>.
      _________________________________________________________________
    
-   This document was generated on 6 Febuary 2000 using the texi2html
+   This document was generated on 8 Febuary 2000 using the texi2html
    translator version 1.51a.
