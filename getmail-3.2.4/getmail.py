@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.2.3'
+__version__ = '3.2.4'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -178,12 +178,12 @@ class getmail:
             self.logfunc (TRACE, 'no oldmail file for %s\n' % self)
 
     ###################################
-    def write_oldmailfile (self, cur_messages):
+    def write_oldmailfile (self):
         '''Write oldmail info to oldmail file.'''
         try:
             f = updatefile (self.oldmail_filename)
             for msgid, timestamp in self.oldmail.items ():
-                if msgid in cur_messages:
+                if msgid in self.inbox:
                     # This message still in inbox; remember it for next time.
                     f.write ('%s\0%i\n' % (msgid, timestamp))
                 #else:
@@ -535,7 +535,7 @@ class getmail:
 
         self.logfunc (WARN, 'Resetting connection and aborting (%s)\n' % txt)
         self.msglog ('Aborted (%s)' % txt)
-
+        self.write_oldmailfile()
         # Ignore exceptions with this session, as abort() is invoked after
         # errors are already detected.
         try:
@@ -551,7 +551,7 @@ class getmail:
     def go (self):
         '''Main method to retrieve mail from one POP3 account, process it,
         and deliver it to appropriate local recipients.'''
-        # Establish POP3 connection
+        self.inbox = []
         try:
             # Establish POP3 connection
             self.connect ()
@@ -562,7 +562,6 @@ class getmail:
             # Retrieve message list for this user.
             self.message_list ()
 
-            inbox = []
             for (msgnum, msglen, msgid) in self.msglist:
                 if msgnum == msglen == msgid == None:
                     # No more messages; POP3.list() returns a final int
@@ -570,7 +569,7 @@ class getmail:
                     break
 
                 # Append msgid to list of current inbox contents
-                inbox.append (msgid)
+                self.inbox.append (msgid)
 
                 if self.conf['max_messages_per_session']:
                     if self.info['msgcount'] == self.conf['max_messages_per_session']:
@@ -614,7 +613,7 @@ class getmail:
                     except getmailDeliveryException, txt:
                         self.logfunc (ERROR, ' ... failed delivering message (%s), skipping\n' % txt)
                         # Don't remember this message as "read" on error
-                        del inbox[-1]
+                        del self.inbox[-1]
                         # Skip to next message, don't abort
                         continue
 
@@ -629,7 +628,7 @@ class getmail:
                     rc = self.session.dele (msgnum)
                     self.logfunc (INFO, ', deleted')
                     # Remove msgid from list of current inbox contents
-                    if msgid is not None:  del inbox[-1]
+                    if msgid is not None:  del self.inbox[-1]
                 if self.conf['delete_after']:
                     if self.oldmail.get (msgid, None):
                         self.logfunc (TRACE, time.strftime (' originally seen %Y-%m-%d %H:%M:%S', time.localtime (self.oldmail[msgid])))
@@ -639,7 +638,7 @@ class getmail:
                         rc = self.session.dele (msgnum)
                         self.logfunc (INFO, ' ... older than %(delete_after)i days, deleted')
                         # Remove msgid from list of current inbox contents
-                        if msgid is not None:  del inbox[-1]
+                        if msgid is not None:  del self.inbox[-1]
 
                 if msgid is not None and not self.oldmail.get (msgid, None):
                     self.oldmail[msgid] = self.timestamp
@@ -647,7 +646,7 @@ class getmail:
                 self.logfunc (INFO, '\n')
 
             # Done processing messages; process oldmail contents
-            self.write_oldmailfile (inbox)
+            self.write_oldmailfile()
 
             # Close session and display summary
             self.session.quit ()

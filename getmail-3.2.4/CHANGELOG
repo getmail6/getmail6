@@ -1,6 +1,13 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.2.4
+6 May 2004
+
+  -change abort() to try writing the oldmail file before quitting, so
+  that on the majority of server/network errors, previously delivered messages
+  are still remembered as "not new".  Thanks to Rick Richard for the report.
+
 Version 3.2.3
 29 April 2004
 
