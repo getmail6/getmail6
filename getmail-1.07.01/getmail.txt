@@ -3,7 +3,7 @@
                                        
 POP3 mail retriever with reliable Maildir delivery
 
-16 Febuary 2000
+22 Febuary 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -345,5 +345,5 @@ info@smallcompany.com=/home/paula/inbox[:paula]
    please send email to me at <getmail @ discworld.dyndns.org>.
      _________________________________________________________________
    
-   This document was generated on 16 Febuary 2000 using the texi2html
+   This document was generated on 22 Febuary 2000 using the texi2html
    translator version 1.51a.
