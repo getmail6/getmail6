@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.15'
+__version__ = '2.0.16'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -58,6 +58,7 @@ import stat
 import traceback
 import getopt
 import getpass
+import md5
 from types import *
 
 
@@ -124,6 +125,8 @@ defs = {
 							'bcc',
 							'Received'
 							],
+	'use_apop' :		0,					# Use APOP instead of PASS for
+											#   authentication
 	'dump' :			0,					# Leave this alone.
 	'help' :			0,					# Leave this alone.
 	}
@@ -137,7 +140,7 @@ defs = {
 me = None
 
 # Options recognized in configuration getmailrc file
-intoptions = ('verbose', 'readall', 'delete', 'timeout')
+intoptions = ('verbose', 'readall', 'delete', 'timeout', 'use_apop')
 stringoptions = ('message_log', 'recipient_header')
 
 # Exit codes
@@ -166,6 +169,9 @@ RECIPIENT_HEADERS = (
 
 # Simple re to determine if a string might be an email address
 re_mailaddr = re.compile ('.+@.+\..+')
+
+# RE for finding timestamp in a POP3 welcome banner, for APOP use
+re_bannertimestamp = re.compile ('^.*(?P<timestamp>\<.+\>).*$')
 
 # Count of deliveries for getmail; used in Maildir delivery
 deliverycount = 0
@@ -406,7 +412,7 @@ class getmail:
 			msglog ('socket error during POP3 connect for %(username)s on %(server)s:%(port)i'
 				% self.account + ' (%s)' % txt, self.opts)
 			raise getmailSocketException, txt
-		except StandardError, txt:
+		except Exception, txt:
 			txt = 'Unknown exception connecting to %(server)s' % self.account \
 				+ ' (%s)' % txt
 			self.logfunc (FATAL, txt + '\n', self.opts)
@@ -423,9 +429,14 @@ class getmail:
 			rc = self.session.user (self.account['username'])
 			self.logfunc (INFO, '%(server)s:' % self.account
 				+ '  POP3 user reponse:  %s\n' % rc, self.opts)
-			rc = self.session.pass_ (self.account['password'])
-			self.logfunc (INFO, '%(server)s:' % self.account
-				+ '  POP3 password response:  %s\n' % rc, self.opts)
+			if self.opts['use_apop']:
+				rc = self.session.apop (self.account['password'])
+				self.logfunc (INFO, '%(server)s:' % self.account
+					+ '  POP3 APOP response:  %s\n' % rc, self.opts)
+			else:
+				rc = self.session.pass_ (self.account['password'])
+				self.logfunc (INFO, '%(server)s:' % self.account
+					+ '  POP3 PASS response:  %s\n' % rc, self.opts)
 			msglog ('POP3 login successful', self.opts)
 		except Timeout, txt:
 			txt = 'Timeout during login to %(server)s' % self.account
@@ -443,7 +454,7 @@ class getmail:
 			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('socket error during POP3 login (%s)' % txt, self.opts)
 			raise getmailSocketException, txt
-		except StandardError, txt:
+		except Exception, txt:
 			txt = 'Unknown exception during login to %(server)s' \
 				% self.account + ' (%s)' % txt
 			self.logfunc (ERROR, txt + '\n', self.opts)
@@ -477,7 +488,7 @@ class getmail:
 			self.logfunc (DEBUG, txt + '\n', self.opts)
 			msglog ('socket error during POP3 list (%s)' % txt, self.opts)
 			raise getmailSocketException, txt
-		except StandardError, txt:
+		except Exception, txt:
 			txt = 'Unknown exception for list command on %(server)s' \
 				% self.account + ' (%s)' % txt
 			self.logfunc (ERROR, txt + '\n', self.opts)
@@ -924,8 +935,7 @@ class getmail:
 				+ '  retrieved %(msgcount)i messages for %(localscount)i local recipients\n'
 				% self.info, self.opts)
 
-		except (getmailTimeoutException, getmailSocketException,
-			getmailProtoException, Timeout), txt:
+		except (getmailException, Timeout), txt:
 			# Failed to process a message; return to skip this user.
 			self.logfunc (WARN, 'failed to process message list for "%(username)s"'
 					% self.account + ' (%s)\n' % txt, self.opts)

@@ -19,7 +19,8 @@ message_log =                                   # Don't log for this account
                                                 # No "local" directives necessary.
 recipient_header = received						# For this account, only look for recipient headers
 recipient_header = x-envelope-to				#   in "Received:" and "X-Envelope-To:" headers
-
+use_apop = 1									# Use APOP authentication for this account instead of
+												#   cleartext PASS
 [Company Maildrop]                              # Multidrop or domain mailbox configuration
 server = mail.isp.net
 username = getmailinc

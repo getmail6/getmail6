@@ -1,6 +1,23 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.0.16
+11 February 2001
+
+  -add additional exception to list to ensure no loss of email.  This is
+  a brown-paper-bag bug.  It would happen if delivery failed in some
+  circumstances and the server treated a dropped connection as a successfully
+  completed session.  Thanks to Dan Reish for the bug report.
+  -fix weird code bug -- remove incorrect exception name in two places.  Not
+  enough coffee that day?  Nobody noticed (or at least reported) this one.
+  Would only have come up in strange error conditions.
+  -add APOP authentication.  Use configuration option "use_apop = 1" in the
+  account section to enable this.  You still need to supply your password as
+  normal.  getmail still defaults to normal PASS authentication.
+  Sigh.  Wrote all the code for creating the appropriate secret by hand, then
+  looked at poplib.py and found it does it for you.  At least my algorithm was
+  identical to it.
+
 Version 2.0.15
 10 February 2001
 
@@ -8,7 +25,7 @@ Version 2.0.15
   list of headers which was previously hardcoded.  List once for each header
   type you want to look in.
   -include semi-manual parser for extracting addresses from Received: headers.
-    Thanks to Ian ? for the bug report which made me do this.
+  Thanks to Ian ? for the bug report which made me do this.
   -optimize process_msg()
   -remove obsolete "options" global
   -update documentation, FAQ, and example getmailrc file

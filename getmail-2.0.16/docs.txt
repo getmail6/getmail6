@@ -236,6 +236,27 @@ getmailrc Directives
           password = "password with embedded # symbol"
      _________________________________________________________________
    
+      APOP Authentication Specification
+      
+   This directive controls whether getmail will use normal cleartext PASS
+   authentication or APOP authentication with the given password.
+   
+   Directive
+          use_apop = <1>
+          
+   Optional
+          Yes
+          
+   Default
+          No. Use PASS authentication.
+          
+   Commandline equivalent
+          None
+          
+   Examples
+          use_apop = 1
+     _________________________________________________________________
+   
       Default Delivery Instruction (postmaster)
       
    This directive controls where getmail will deliver mail to which does
