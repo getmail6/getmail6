@@ -18,7 +18,7 @@
 # getmail returns the number of messages retrieved, or -1 on error.
 #
 
-VERSION = '0.3'
+VERSION = '0.4'
 
 #
 # Imports
@@ -44,14 +44,14 @@ DEF_PASSWORD_STDIN =	1				# Read POP3 password from stdin (0, 1)
 # Options
 #
 
-opt_host =				None
+opt_host =				[]
 opt_port =				DEF_PORT
-opt_account =			None
-opt_password =			None
+opt_account =			[]
+opt_password =			[]
 opt_password_stdin =	DEF_PASSWORD_STDIN
 opt_delete_retrieved =	DEF_DELETE
 opt_retrieve_read =		DEF_READ_ALL
-opt_maildir =			None
+opt_maildir =			[]
 opt_verbose =			0
 
 
@@ -81,11 +81,12 @@ def main ():
 	'''
 	about ()
 	parse_options (sys.argv)
-	
-	mail = get_mail (opt_host, opt_port, opt_account, opt_password)
-	
-	for msg in mail:
-		maildirdeliver (opt_maildir, unescape_lines (msg))
+
+	for i in range (len (opt_account)):
+		mail = get_mail (opt_host[i], opt_port[i], opt_account[i], opt_password[i])
+		
+		for msg in mail:
+			maildirdeliver (opt_maildir, unescape_lines (msg))
 		
 	sys.exit (deliverycount)
 
@@ -100,7 +101,7 @@ def get_mail (host, port, account, password):
 	try:
 		session = poplib.POP3 (host, port)
 		if opt_verbose:
-			print '%s:  POP3 session initiated' % shorthost
+			print '%s:  POP3 session initiated for "%s"' % (shorthost, account)
 		rc = session.getwelcome ()
 		if opt_verbose:
 			print '%s:  POP3 greeting:  %s' % (shorthost, rc)
@@ -128,8 +129,7 @@ def get_mail (host, port, account, password):
 		rc = list[0]
 		msglist = list[1]
 		if opt_verbose:
-			print '%s:  POP3 list response:  %s\n  message list:  %s' \
-					% (shorthost, rc, msglist)
+			print '%s:  POP3 list response:  %s\n' % (shorthost, rc)
 
 		for item in msglist:
 			if type (item) == IntType:
@@ -156,7 +156,7 @@ def get_mail (host, port, account, password):
 		session.rset ()
 
 	if opt_verbose:
-		print '%s:  POP3 session completed' % shorthost
+		print '%s:  POP3 session completed for "%s"' % (shorthost, account)
 	
 	session.quit ()
 
@@ -331,56 +331,64 @@ def parse_options (argv):
 				stderr ('Error:  option --host supplied without value\n')
 				error = 1
 			else:
-				opt_host = value
+				opt_host.append (value)
 
 		elif option == '--name' or option == '-n':
 			if not value:
 				stderr ('Error:  option --name supplied without value\n')
 				error = 1
 			else:
-				opt_account = value
+				opt_account.append (value)
 
 		elif option == '--pass' or option == '-p':
 			if not value:
 				stderr ('Error:  option --pass supplied without value\n')
 				error = 1
 			else:
-				opt_password = value
+				opt_password.append (value)
 
 		elif option == '--maildir' or option == '-m':
 			if not value:
 				stderr ('Error:  option --maildir supplied without value\n')
 				error = 1
 			else:
-				opt_maildir = value
+				opt_maildir.append (value)
 
 	# Check mandatory options
 	if not opt_host:
-		stderr ('Error:  no host supplied\n')
+		stderr ('Error:  no host(s) supplied\n')
 		error = 1
 	if not opt_account:
-		stderr ('Error:  no account supplied\n')
+		stderr ('Error:  no account(s) supplied\n')
 		error = 1
 	if not opt_maildir:
-		stderr ('Error:  no maildir supplied\n')
+		stderr ('Error:  no maildir(s) supplied\n')
 		error = 1
 
+	if not (len (opt_host) == len (opt_account) == len (opt_maildir)) \
+		and (len (opt_password) != 0) and (len (opt_password) != len (opt_account)):
+		stderr ('Error:  different number of hosts/names/maildirs supplied\n')
+		error = 1
+	
 	# Read password from stdin if requested and no --pass option
 	if not error and not opt_password and opt_password_stdin:
-		fd = sys.stdin.fileno ()
-		oldattr = termios.tcgetattr(fd)
-		newattr = termios.tcgetattr(fd)
-		newattr[3] = newattr[3] & ~TERMIOS.ECHO          # lflags
-		try:
-			termios.tcsetattr (fd, TERMIOS.TCSADRAIN, newattr)
-			opt_password = raw_input ('Enter password:  ')
+		for i in range (len (opt_account)):
+			fd = sys.stdin.fileno ()
+			oldattr = termios.tcgetattr(fd)
+			newattr = termios.tcgetattr(fd)
+			newattr[3] = newattr[3] & ~TERMIOS.ECHO          # lflags
+			try:
+				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, newattr)
+				opt_password.append \
+					(raw_input ('Enter password for %s@%s:  '
+								% (opt_account[i], opt_host[i])))
+	
+			finally:
+				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, oldattr)
+			print
 
-		finally:
-			termios.tcsetattr (fd, TERMIOS.TCSADRAIN, oldattr)
-		print
-
-	if not opt_password:
-		stderr ('Error:  no password supplied\n')
+	if not opt_password or (len (opt_password) != len (opt_account)):
+		stderr ('Error:  not enough passwords supplied\n')
 		error = 1
 
 	if error:
