@@ -123,19 +123,17 @@
     Please also read the 
     <a href="troubleshooting.html#unexpected-behaviour">unexpected behaviour section</a>
     of the
-    <a href="troubleshooting.html">troubleshooting document</a>
-    .
+    <a href="troubleshooting.html">troubleshooting document</a>.
 </p>
 
 <h2 id="faq-about">About getmail</h2>
 
 <h3 id="faq-about-what">What is getmail?</h3>
 <p>
-	getmail is a mail retriever with support for POP3, POP3-over-SSL, IMAP4,
-	IMAP4-over-SSL, and SPDS mail accounts.
-	It supports normal single-user mail accounts and multidrop (domain)
-	mailboxes.
-	getmail is written in Python, and licensed under the
+	getmail is a mail retriever with support for POP3, POP3-over-SSL, IMAP4, 
+	IMAP4-over-SSL, and SPDS mail accounts. It supports normal single-user mail 
+	accounts and multidrop (domain) mailboxes. getmail is written in Python, and 
+	licensed under the
 	<a href="COPYING">GNU General Public License version 2</a>.
 </p>
 
@@ -194,10 +192,10 @@
 	If you still haven't found an answer to your question, please subscribe to
 	the
 	<a href="documentation.html#mailing-list-users">getmail users' mailing list</a>
-	by sending a blank email to
-	&lt;getmail-subscribe @ discworld.dnsalias.org&gt;
-	. If you post your question there, I will see it.  As an additional bonus,
-	your question may be answered by another member of the list.
+	by sending a blank email to &lt;getmail-subscribe @ 
+	discworld.dnsalias.org&gt;. If you post your question there, I will see it.  
+	As an additional bonus, your question may be answered by another member of 
+	the list.
 </p>
 
 <h3 id="faq-about-bug">I think I found a bug!  How do I report it?</h3>
@@ -284,8 +282,7 @@
 <ol>
     <li>
         Rename your old getmail rc file, creating a new file in
-        <span class="file">~/.getmail/getmailrc</span>
-        .
+        <span class="file">~/.getmail/getmailrc</span>.
     </li>
     <li>
         Create a new
@@ -431,11 +428,11 @@
 	    http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724
 	</a>
 	and
-	<a href="http://esr.1accesshost.com/">http://esr.1accesshost.com/</a>
-	.
+	<a href="http://esr.1accesshost.com/">http://esr.1accesshost.com/</a>.
 </p>
 <p>
-	getmail users have not had to worry about any of these security holes.
+	getmail users have not had to worry about any of these security holes or
+	design and implementation errors.
 </p>
 
 <h2 id="faq-configuring">Configuring getmail</h2>
@@ -445,10 +442,10 @@
 	A domain (or multidrop) mailbox is a POP3 mailbox which receives mail for
 	all users in a given domain.  Normal mailboxes contain mail for a single
 	user (like
-	<span class="file">jason@myisp.co.uk</span>
-	); some Internet Service Providers which provide webhosting or other
-	services will provide a POP3 mailbox which receives mail for all addresses
-	in a given domain (i.e. mail for
+	<span class="file">jason@myisp.co.uk</span>);
+	some Internet Service Providers which provide webhosting or other services 
+	will provide a POP3 mailbox which receives mail for all addresses in a given 
+	domain (i.e. mail for
 	<span class="file">service@smallcompany.net</span>,
 	<span class="file">sales@smallcompany.net</span>,
 	and indeed anything
@@ -459,14 +456,11 @@
 	getmail provides a method of retrieving mail from a domain mailbox and
 	distributing it among the various users automatically.  The retriever
 	classes
-	<a href="configuration.html#retriever-multidroppop3">MultidropPOP3Retriever</a>
-	,
-	<a href="configuration.html#retriever-multidroppop3ssl">MultidropPOP3SSLRetriever</a>
-	,
-	<a href="configuration.html#retriever-multidropspds">MultidropSPDSRetriever</a>
-	,
-	<a href="configuration.html#retriever-multidropimap">MultidropIMAPRetriever</a>
-	, and
+	<a href="configuration.html#retriever-multidroppop3">MultidropPOP3Retriever</a>,
+	<a href="configuration.html#retriever-multidroppop3ssl">MultidropPOP3SSLRetriever</a>,
+	<a href="configuration.html#retriever-multidropspds">MultidropSPDSRetriever</a>,
+	<a href="configuration.html#retriever-multidropimap">MultidropIMAPRetriever</a>,
+	and
 	<a href="configuration.html#retriever-multidropimapssl">MultidropIMAPSSLRetriever</a>
 	provide this capability.
 </p>

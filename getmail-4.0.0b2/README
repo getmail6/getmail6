@@ -28,17 +28,17 @@ To install:  getmail v.4 uses the standard Python distutils.  Do the following
 
   This will install the software as follows:
 
-    -the three scripts will be installed in /usr/local/bin/
+    -the three scripts will be installed in <PREFIX>/bin/
     -the Python files will be installed under the site-packages directory of
      your Python installation (typically /usr/local/lib/pythonXXX or
-     /usr/lib/pythonXXX)
-    -the documentation will be installed under /usr/local/doc/getmail-<version>/
-    -the man pages will be installed under /usr/local/man/
+     /usr/lib/pythonXXX, but may be elsewhere -- this is detected automatically)
+    -the documentation will be installed under <PREFIX>/doc/getmail-<version>/
+    -the man pages will be installed under <PREFIX>/man/
 
-  You can specify an alternate directory to install under with
-  --prefix=<path>, like:
-
-    python setup.py install --prefix=/package/misc/host/localhost/getmail-VERSION/
+  <PREFIX> is the directory Python was configured to install under (typically
+  either /usr/local/ or /usr/, but may be another value).  See the file
+  docs/documentation.html or docs/documentation.txt for details on installing
+  files to directories other than these defaults.
 
 The three scripts included in the package (getmail, getmail_maildir, and
 getmail_mbox) will have their "#!"-interpreter line automatically modified

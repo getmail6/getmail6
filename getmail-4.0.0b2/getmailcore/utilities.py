@@ -7,6 +7,7 @@ __all__ = [
     'change_uidgid',
     'deliver_maildir',
     'eval_bool',
+    'expand_user_vars',
     'is_maildir',
     'lock_file',
     'logfile',
@@ -83,7 +84,7 @@ class logfile(object):
         self.closed = False
         self.filename = filename
         try:
-            self.file = open(os.path.expanduser(self.filename), 'ab')
+            self.file = open(expand_user_vars(self.filename), 'ab')
         except IOError, (code, msg):
             raise IOError('%s, opening file "%s"' % (msg, self.filename))
 
@@ -330,3 +331,10 @@ def format_header(name, line):
     if line:
         header += line.strip() + os.linesep
     return header
+
+#######################################
+def expand_user_vars(s):
+    '''Return a string expanded for both leading "~/" or "~username/" and
+    environment variables in the form "$varname" or "${varname}".
+    '''
+    return os.path.expanduser(os.path.expandvars(s))

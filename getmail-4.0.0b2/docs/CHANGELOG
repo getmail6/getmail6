@@ -1,3 +1,14 @@
+Version 4.0.0b2
+13 July 2004
+
+  -documentation fixes regarding installation.  Thanks: Emily Jackson.
+  -do environment variable expansion in paths and arguments (before
+  substitutions like %(sender), etc) in addition to expanding leading
+  ~/ or ~user/ .  Thanks: Paul.
+  -try change to code which reaps child processes; the previous code failed
+  on a few Linux systems (perhaps the ones where the kernel changed
+  fork() behaviour to run the child first?)  Reported by Paul.
+
 Version 4.0.0b1
 10 July 2004
 

@@ -9,6 +9,7 @@ import os
 import signal
 import email
 import sets
+import errno
 
 from exceptions import *
 from message import *
@@ -149,7 +150,7 @@ class Filter_external(FilterSkeleton):
 
     def initialize(self):
         self.log.trace()
-        self.conf['path'] = os.path.expanduser(self.conf['path'])
+        self.conf['path'] = expand_user_vars(self.conf['path'])
         self.conf['command'] = os.path.basename(self.conf['path'])
         if not os.path.isfile(self.conf['path']):
             raise getmailConfigurationError('no such command %s' % self.conf['path'])
@@ -177,12 +178,6 @@ class Filter_external(FilterSkeleton):
 
     def _filter_command(self, msg, msginfo, stdout, stderr):
         try:
-            args = [self.conf['path'], self.conf['path']]
-            for arg in self.conf['arguments']:
-                for (key, value) in msginfo.items():
-                    arg = arg.replace('%%(%s)' % key, value)
-                args.append(arg)
-            self.log.debug('about to execl() with args %s\n' % str(args))
             # Write out message with native EOL convention
             msgfile = os.tmpfile()
             msgfile.write(msg.flatten(False, False, include_from=self.conf['unixfrom']))
@@ -196,6 +191,13 @@ class Filter_external(FilterSkeleton):
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
             change_uidgid(self.log, self.conf['user'], self.conf['group'])
+            args = [self.conf['path'], self.conf['path']]
+            for arg in self.conf['arguments']:
+                arg = expand_user_vars(arg)
+                for (key, value) in msginfo.items():
+                    arg = arg.replace('%%(%s)' % key, value)
+                args.append(arg)
+            self.log.debug('about to execl() with args %s\n' % str(args))
             try:
                 os.execl(*args)
             except OSError, o:
@@ -235,7 +237,11 @@ class Filter_external(FilterSkeleton):
         try:
             pid, r = os.waitpid(childpid, 0)
         except OSError, o:
-            raise getmailOperationError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
+            if o.errno == errno.ECHILD:
+                # Child already exited, reap it
+                pid, r = os.wait()
+            else:
+                raise getmailDeliveryError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
 
         signal.signal(signal.SIGCHLD, orighandler)
         stdout.seek(0)
@@ -301,7 +307,11 @@ class Filter_classifier(Filter_external):
         try:
             pid, r = os.waitpid(childpid, 0)
         except OSError, o:
-            raise getmailOperationError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
+            if o.errno == errno.ECHILD:
+                # Child already exited, reap it
+                pid, r = os.wait()
+            else:
+                raise getmailDeliveryError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
 
         signal.signal(signal.SIGCHLD, orighandler)
         stdout.seek(0)

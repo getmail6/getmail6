@@ -56,7 +56,7 @@ setup(
     url='http://www.qcc.ca/~charlesc/software/getmail-4',
     download_url='http://www.qcc.ca/~charlesc/software/getmail-4/#download',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: End Users/Desktop',
         'Intended Audience :: System Administrators',

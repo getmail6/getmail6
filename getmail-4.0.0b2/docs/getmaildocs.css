@@ -3,7 +3,7 @@ p { margin: 0.1em; padding: 0.5em; }
 p.introduction { padding: 2em; color: black; background-color: #f0f0f0; }
 .about { font-size: 80%; }
 .title { font-weight: bold; text-decoration: underline; }
-.file { font-family: monospace; color: #700000; background-color: transparent; }
+.file { font-family: monospace; font-size: 130%; color: #700000; background-color: transparent; }
 pre.example {
 	display : block;
 	margin: 1em;
@@ -16,11 +16,12 @@ pre.example {
 .meta { font-style: italic; color: #0000c0; background-color: transparent; }
 .meta:before { content: "<"; }
 .meta:after { content: ">"; }
-.sample { font-family: monospace; color: #000070; background-color: transparent; }
+.sample { font-family: monospace; font-size: 130%; color: #000070; background-color: transparent; }
 .warning { color: red; background-color: transparent; }
-.errmsg { font-family: monospace; }
+.errmsg { font-family: monospace; font-size: 150%; }
 
 hr.divider { margin-top: 5em; }
-h1 { font-size: 150%; }
-h2 { font-size: 120%; color: #0070a0; background-color: transparent; }
-.reference { display: block; padding: 1em 0; font-size: 80%; font-style: italic; }
+/* h1 { font-size: 150%; } */
+/* h2 { font-size: 120%; color: #0070a0; background-color: transparent; } */
+/* .reference { display: block; padding: 1em 0; font-size: 80%; font-style: italic; } */
+

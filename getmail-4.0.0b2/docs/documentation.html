@@ -43,7 +43,7 @@
         <li>
             <ul>
             <li><a href="documentation.html#installing-source">Installing directly from the source</a></li>
-            <li><a href="documentation.html# class=">Installing in a non-standard location</a></li>
+            <li><a href="documentation.html# class=">Installing the <span class="file">getmailcore</span> package in a non-standard location</a></li>
             <li><a href="documentation.html#installing-binary">Building a binary package from the source</a></li>
             </ul>
         </li>
@@ -309,57 +309,100 @@ $ su
 # python setup.py install
 </pre>
 <p>
-    By default, getmail version 4 will install three scripts into
-    <span class="file">/usr/local/bin/</span>:
+	This will, by default, install files into subdirectories under the directory 
+	<span class="meta">prefix</span>,
+	which is the directory that your Python installation was configured to 
+	install under (typically
+	<span class="file">/usr/local/</span>
+	or
+	<span class="file">/usr/</span>,
+	but other values are sometimes used):
 </p>
 <ul>
-    <li class="file">getmail</li>
-    <li class="file">getmail_maildir</li>
-    <li class="file">getmail_mbox</li>
+	<li>
+		the scripts 
+		<span class="file">getmail</span>,
+		<span class="file">getmail_maildir</span>,
+		and
+		<span class="file">getmail_mbox</span>
+		will be installed under
+		<span class="file"><span class="meta">prefix</span>/bin/</span>
+	</li>
+	<li>
+		the Python package 
+		<span class="file">getmailcore</span>
+		(which implements all the protocol&ndash;, filter&ndash;, and 
+		destination-specific code for getmail, plus various other bits) will be 
+		installed under the site-specific packages directory of your Python
+		library directory.  This directory is
+		<span class="file"><span class="meta">prefix</span>/lib/python-<span class="meta">python-version</span>/site-packages/</span>.
+	</li>
+	<li>
+		The documentation directory
+		<span class="file">getmail-<span class="meta">getmail-version</span></span>
+		will be installed under
+		<span class="file"><span class="meta">prefix</span>/doc/</span>
+	</li>
+	<li>
+		The manual pages for the three scripts will be installed under
+		<span class="file"><span class="meta">prefix</span>/man/</span>
+	</li>
 </ul>
 <p>
-    The documentation will be installed into
-    <span class="file">/usr/local/doc/getmail-<span class="meta">version</span></span>,
-    and the
-    <span class="file">getmailcore</span>
-    Python files will be installed into the
-    <span class="file">site-packages</span>
-    subdirectory of your Python library directory (typically
-    <span class="file">/usr/local/lib/python-<span class="meta">version</span></span>
-    or
-    <span class="file">/usr/lib/python-<span class="meta">version</span></span>
-    depending on whether Python was installed as a part of your operating system
-    or independently).
-</p>
-<p>
-    You can specify an alternate directory to install getmail in using the
-    <span class="file">--prefix=<span class="meta">path</span></span>
-    or
-    <span class="file">--home=<span class="meta">path</span></span>
-    options when running the
-    <span class="file">install</span>
-    portion of the above commands:
+    You can specify an alternate
+    <span class="meta">prefix</span>
+    directory by supplying the
+    <span class="file">--prefix</span>
+    option to the install command, like this:
 </p>
 <pre class="example">
-# python setup.py install --prefix=/package/misc/host/localhost/getmail-<span class="meta">version</span>/
-$ python setup.py install --home=~/
+# python setup.py install --prefix=<span class="meta">path</span>
 </pre>
 <p>
 	These alternate installations allow you to install the software without
 	root privileges (say, by installing under
-	<span class="file">$HOME/</span>
-	).
+	<span class="file">$HOME/</span>).
+	Note, however, that the 
+	<span class="file">getmailcore</span>
+	package will not be in the default Python module search path if you do
+	this; see the next section for details.
 </p>
-
-<h3 class="warning">Installing in a non-standard location</h3>
 <p>
-	Note:  if you use one of the above methods to install into a directory other
-	than the default, the three scripts (
-	<span class="file">getmail</span>,
+	If you only want to change the directory for some of the components, use
+	the following options:
+</p>
+<ul>
+	<li>
+		<span class="file">--install-lib=<span class="meta">path</span></span>
+		specifies the directory the
+		<span class="file">getmailcore</span>
+		package is installed under.  See the next section if you use this
+		option.
+	</li>
+	<li>
+		<span class="file">--install-scripts=<span class="meta">path</span></span>
+		specifies the directory the three scripts are installed under.
+	</li>
+	<li>
+		<span class="file">--install-data=<span class="meta">path</span></span>
+		specifies the directory the documentation is installed under (i.e.,
+		<span class="file"><span class="meta">path</span>/doc/getmail-<span class="meta">getmail-version</span>/</span>
+		for the HTML and plaintext documentation, and
+		<span class="file"><span class="meta">path</span>/man/</span>
+		for the manual pages).
+	</li>
+</ul>
+
+<h3 class="warning">Installing the <span class="file">getmailcore</span> package in a non-standard location</h3>
+<p>
+	Note:  if you use one of the above methods to install the
+	<span class="file">getmailcore</span> 
+	package into a directory other than the default, the three scripts 
+	(<span class="file">getmail</span>,
 	<span class="file">getmail_maildir</span>,
 	and
-	<span class="file">getmail_mbox</span>
-	) will almost certainly be unable to locate the required files from the
+	<span class="file">getmail_mbox</span>)
+	will almost certainly be unable to locate the required files from the
 	<span class="file">getmailcore</span>
 	package, because they will not be in a directory in the standard Python
 	module search path.  You will need to do one of the following to make those
@@ -379,7 +422,7 @@ $ python setup.py install --home=~/
 		modify the scripts to explicitly tell Python where you've installed
 		them.  Insert a line like this:
 <pre class="example">
-sys.path.insert('/path/to/installation-directory')
+sys.path.append('/path/to/installation-directory')
 </pre>
 		containing the path to the directory you installed the
 		<span class="file">getmailcore</span>

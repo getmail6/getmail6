@@ -29,7 +29,7 @@ class ConfigurableBase(object):
 
     def __init__(self, **args):
         self.log = logger()
-        self.log.trace('args: %s\n' % args)
+        self.log.trace()
         self.conf = {}
         for (name, value) in args.items():
             if name.lower() == 'password':
@@ -58,7 +58,10 @@ class ConfigurableBase(object):
                 # Value supplied, but not of expected type.  Try to convert.
                 try:
                     val = self.conf[name]
-                    self.log.debug('converting %s (%s) to type %s\n' % (name, val, dtype))
+                    if name.lower() == 'password':
+                        self.log.debug('converting password to type %s\n' % dtype)
+                    else:
+                        self.log.debug('converting %s (%s) to type %s\n' % (name, val, dtype))
                     if dtype == bool:
                         self.conf[name] = eval_bool(val)
                     else:

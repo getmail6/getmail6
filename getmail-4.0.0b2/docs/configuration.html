@@ -163,7 +163,6 @@
         directory, so you should set the permissions on it appropriately.
         <pre class="example">
 mkdir -m 0700 $HOME/.getmail
-foobar
         </pre>
     </li>
     <li>
@@ -387,7 +386,9 @@ second_parameter = value
     <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
 	(for POP3 mail accounts) or
    	<a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
-	(for IMAP mail accounts).
+	(for IMAP mail accounts).  If you don't know what type of mail account
+	you currently have, consult the documentation your ISP or mailhost
+	provides you with.
 </p>
 <p>
     Specify the mail account type with one of the above values, like this:
@@ -406,16 +407,14 @@ type = <span class="meta">typename</span>
 </p>
 <ul>
     <li>
-        server (
-        <a href="#parameter-string">string</a>
-        ) &mdash; the name or IP address of the server to retrieve
-        mail from
+        server 
+        (<a href="#parameter-string">string</a>)
+        &mdash; the name or IP address of the server to retrieve mail from
     </li>
     <li>
-        username (
-        <a href="#parameter-string">string</a>
-        ) &mdash; username to provide when logging in to the
-        mail server
+        username
+        (<a href="#parameter-string">string</a>)
+        &mdash; username to provide when logging in to the mail server
     </li>
 </ul>
 <p>
@@ -423,18 +422,16 @@ type = <span class="meta">typename</span>
 </p>
 <ul>
     <li>
-        port (
-        <a href="#parameter-integer">integer</a>
-        ) &mdash; the TCP port number to connect to.  If not
-        provided, the default is a port appropriate for the protocol (110 for
-        POP3, etc.)
+        port 
+        (<a href="#parameter-integer">integer</a>)
+        &mdash; the TCP port number to connect to.  If not provided, the default 
+        is a port appropriate for the protocol (110 for POP3, etc.)
     </li>
     <li>
-        password (
-        <a href="#parameter-string">string</a>
-        ) &mdash; password to use when logging in to the mail
-        server.  If not provided, getmail will prompt you to enter the password
-        when run.
+        password 
+        (<a href="#parameter-string">string</a>)
+        &mdash; password to use when logging in to the mail server.  If not 
+        provided, getmail will prompt you to enter the password when run.
     </li>
 </ul>
 
@@ -446,21 +443,20 @@ type = <span class="meta">typename</span>
 </p>
 <ul>
     <li>
-        use_apop (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set to True, getmail will use APOP-style
-        authentication to log in to the server instead of normal USER/PASS
-        authentication.  This is not supported by many POP3 servers.  The
-        default is
+        use_apop 
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set to True, getmail will use APOP-style authentication to 
+        log in to the server instead of normal USER/PASS authentication.  This 
+        is not supported by many POP3 servers.  The default is
         <span class="file">False</span>.
     </li>
     <li>
-        timeout (
-        <a href="#parameter-integer">integer</a>
-        ) &mdash; how long (in seconds) to wait for socket
-        operations to complete before considering them failed.  If not
-        specified, the default is 180 seconds.  You may need to increase this
-        value in particularly poor networking conditions.
+        timeout
+        (<a href="#parameter-integer">integer</a>)
+        &mdash; how long (in seconds) to wait for socket operations to complete 
+        before considering them failed.  If not specified, the default is 180 
+        seconds.  You may need to increase this value in particularly poor 
+        networking conditions.
     </li>
 </ul>
 
@@ -472,18 +468,18 @@ type = <span class="meta">typename</span>
 </p>
 <ul>
     <li>
-        timeout (
-        <a href="#parameter-integer">integer</a>
-        ) &mdash; see
+        timeout 
+        (<a href="#parameter-integer">integer</a>)
+        &mdash; see
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
     </li>
     <li>
-        mailboxes (
-        <a href="#parameter-tuplestrings">tuple of quoted strings</a>
-        ) &mdash; a list of mailbox paths to
-        retrieve mail from, expressed as a Python tuple. If not specified, the
-        default is to retrieve mail from the mail folder named
+        mailboxes 
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
+        &mdash; a list of mailbox paths to retrieve mail from, expressed as a 
+        Python tuple. If not specified, the default is to retrieve mail from the 
+        mail folder named
         <span class="file">INBOX</span>.
         You might want to retrieve messages from several different mail folders,
         using a configuration like this:
@@ -493,12 +489,12 @@ mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
         </pre>
     </li>
     <li>
-        move_on_delete (
-        <a href="#parameter-string">string</a>
-        ) &mdash; if set, messages are moved to the named
-        mail folder before being deleted from their original location.  Note
-        that if you configure getmail not to delete retrieved messages (the
-        default behaviour), they will not be moved at all.
+        move_on_delete 
+        (<a href="#parameter-string">string</a>)
+        &mdash; if set, messages are moved to the named mail folder before being 
+        deleted from their original location.  Note that if you configure 
+        getmail not to delete retrieved messages (the default behaviour), they 
+        will not be moved at all.
     </li>
 </ul>
 
@@ -510,24 +506,23 @@ mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
 </p>
 <ul>
     <li>
-        use_apop (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; see
+        use_apop 
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; see
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
     </li>
     <li>
-        keyfile (
-        <a href="#parameter-string">string</a>
-        ) &mdash; use the specified PEM-formatted key file in the
-        SSL negotiation.  Note that no certificate or key validation is done.
+        keyfile 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; use the specified PEM-formatted key file in the SSL negotiation.  
+        Note that no certificate or key validation is done.
     </li>
     <li>
-        certfile (
-        <a href="#parameter-string">string</a>
-        ) &mdash; use the specified PEM-formatted certificate
-        file in the SSL negotiation.  Note that no certificate or key validation
-        is done.
+        certfile 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; use the specified PEM-formatted certificate file in the SSL 
+        negotiation.  Note that no certificate or key validation is done.
     </li>
 </ul>
 
@@ -539,30 +534,30 @@ mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
 </p>
 <ul>
     <li>
-        mailboxes (
-        <a href="#parameter-tuplestrings">tuple of quoted strings</a>
-        ) &mdash; see
+        mailboxes 
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>) 
+        &mdash; see
         <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
         for definition.
     </li>
     <li>
-        move_on_delete (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        move_on_delete 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
         for definition.
     </li>
     <li>
-        keyfile (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        keyfile 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
         for definition.
     </li>
     <li>
-        certfile (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        certfile 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
         for definition.
     </li>
@@ -576,11 +571,10 @@ mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
 </p>
 <ul>
     <li>
-        envelope_recipient (
-        <a href="#parameter-string">string</a>
-        ) &mdash; the name and position of the header
-        field which records the envelope recipient address.  This is set to a
-        value of the form
+        envelope_recipient 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; the name and position of the header field which records the 
+        envelope recipient address.  This is set to a value of the form
         <span class="file">
             <span class="meta">field_name</span>
             :
@@ -597,16 +591,16 @@ envelope_recipient = delivered-to:1
 </p>
 <ul>
     <li>
-        use_apop (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; see
+        use_apop 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
     </li>
     <li>
-        timeout (
-        <a href="#parameter-integer">integer</a>
-        ) &mdash; see
+        timeout 
+        (<a href="#parameter-integer">integer</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
     </li>
@@ -620,9 +614,9 @@ envelope_recipient = delivered-to:1
 </p>
 <ul>
     <li>
-        envelope_recipient (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        envelope_recipient 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-multidroppop3">MultidropPOP3Retriever</a>
         for definition.
     </li>
@@ -633,23 +627,23 @@ envelope_recipient = delivered-to:1
 </p>
 <ul>
     <li>
-        use_apop (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; see
+        use_apop 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
     </li>
     <li>
-        keyfile (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        keyfile 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
         for definition.
     </li>
     <li>
-        certfile (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        certfile 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
         for definition.
     </li>
@@ -663,9 +657,9 @@ envelope_recipient = delivered-to:1
 </p>
 <ul>
     <li>
-        timeout (
-        <a href="#parameter-integer">integer</a>
-        ) &mdash; see
+        timeout 
+        (<a href="#parameter-integer">integer</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
     </li>
@@ -679,9 +673,9 @@ envelope_recipient = delivered-to:1
 </p>
 <ul>
     <li>
-        envelope_recipient (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        envelope_recipient 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-multidroppop3">MultidropPOP3Retriever</a>
         for definition.
     </li>
@@ -692,23 +686,23 @@ envelope_recipient = delivered-to:1
 </p>
 <ul>
     <li>
-        timeout (
-        <a href="#parameter-integer">integer</a>
-        ) &mdash; see
+        timeout 
+        (<a href="#parameter-integer">integer</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
     </li>
     <li>
-        mailboxes (
-        <a href="#parameter-tuplestrings">tuple of quoted strings</a>
-        ) &mdash; see
+        mailboxes 
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>) 
+        &mdash; see
         <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
         for definition.
     </li>
     <li>
-        move_on_delete (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        move_on_delete 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
         for definition.
     </li>
@@ -722,9 +716,9 @@ envelope_recipient = delivered-to:1
 </p>
 <ul>
     <li>
-        envelope_recipient (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        envelope_recipient 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-multidroppop3">MultidropPOP3Retriever</a>
         for definition.
     </li>
@@ -735,30 +729,30 @@ envelope_recipient = delivered-to:1
 </p>
 <ul>
     <li>
-        mailboxes (
-        <a href="#parameter-tuplestrings">tuple of quoted strings</a>
-        ) &mdash; see
+        mailboxes 
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>) 
+        &mdash; see
         <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
         for definition.
     </li>
     <li>
-        move_on_delete (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        move_on_delete 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
         for definition.
     </li>
     <li>
-        keyfile (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        keyfile 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
         for definition.
     </li>
     <li>
-        certfile (
-        <a href="#parameter-string">string</a>
-        ) &mdash; see
+        certfile 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; see
         <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
         for definition.
     </li>
@@ -900,14 +894,18 @@ envelope_recipient = delivered-to:1
 </p>
 <ul>
     <li>
-        path (
-        <a href="#parameter-string">string</a>
-        ) &mdash; the path to the maildir, ending in slash
+        path 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; the path to the maildir, ending in slash
         (<span class="file">/</span>).
         This value will be expanded for leading
         <span class="file">~</span>
         or
-        <span class="file">~<span class="meta">USER</span></span>.
+        <span class="file">~<span class="meta">USER</span></span>
+        and environment variables in the form
+        <span class="file">$<span class="meta">VARNAME</span></span>
+        or
+        <span class="file">${<span class="meta">VARNAME</span>}</span>.
         You might want to deliver messages to a maildir named
         <span class="file">Maildir</span>
         in your home directory; you could do this with a configuration like
@@ -941,13 +939,17 @@ path = ~/Maildir/
 </p>
 <ul>
     <li>
-        path (
-        <a href="#parameter-string">string</a>
-        ) &mdash; the path to the mbox file. This value will be
-        expanded for leading
+        path 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; the path to the mbox file. This value will be expanded for 
+        leading
         <span class="file">~</span>
         or
-        <span class="file">~<span class="meta">USER</span></span>.
+        <span class="file">~<span class="meta">USER</span></span>
+        and environment variables in the form
+        <span class="file">$<span class="meta">VARNAME</span></span>
+        or
+        <span class="file">${<span class="meta">VARNAME</span>}</span>.
         You might want to deliver messages to an mbox file named
         <span class="file">inbox</span>
         in your home directory; you could do this with a configuration like
@@ -966,21 +968,24 @@ path = ~/inbox
     message delivery agent, or MDA).  Some typical MDAs include
     <a href="http://www.flounder.net/~mrsam/maildrop/maildrop.html">maildrop</a>
     and
-    <a href="http://www.procmail.org/">procmail</a>
-    .
+    <a href="http://www.procmail.org/">procmail</a>.
 </p>
 <p>
     The MDA_external destination takes one required parameter:
 </p>
 <ul>
     <li>
-        path (
-        <a href="#parameter-string">string</a>
-        ) &mdash; the path to the command to run. This value will be
-        expanded for leading
+        path 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; the path to the command to run. This value will be expanded for 
+        leading
         <span class="file">~</span>
         or
-        <span class="file">~<span class="meta">USER</span></span>.
+        <span class="file">~<span class="meta">USER</span></span>
+        and environment variables in the form
+        <span class="file">$<span class="meta">VARNAME</span></span>
+        or
+        <span class="file">${<span class="meta">VARNAME</span>}</span>.
     </li>
 </ul>
 <p>
@@ -988,11 +993,11 @@ path = ~/inbox
 </p>
 <ul>
     <li>
-        arguments (
-        <a href="#parameter-tuplestrings">tuple of quoted strings</a>
-        ) &mdash; arguments to be supplied to
-        the command. The following substrings will be substituted with the
-        equivalent values from the message, if availble:
+        arguments 
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>) 
+        &mdash; arguments to be supplied to the command. The following 
+        substrings will be substituted with the equivalent values from the 
+        message, if availble:
         <ul>
             <li>
                 <span class="sample">%(sender)</span>
@@ -1016,35 +1021,33 @@ path = ~/inbox
         so no arguments are supplied to the command.
     </li>
     <li>
-        unixfrom (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; whether to include a Unix-style mbox
+        unixfrom 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; whether to include a Unix-style mbox
         <span class="file">From_</span>
         line at the beginning of the message supplied to the command.  Defaults
         to false.  Some MDAs expect such a line to be present and will fail
         to operate if it is missing.
     </li>
     <li>
-        user (
-        <a href="#parameter-string">string</a>
-        ) &mdash; if supplied, getmail will change the effective UID
-        to that of the named user. Note that this typically requires root
-        privileges.
+        user 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; if supplied, getmail will change the effective UID to that of 
+        the named user. Note that this typically requires root privileges.
     </li>
     <li>
-        group (
-        <a href="#parameter-string">string</a>
-        ) &mdash; if supplied, getmail will change the effective
-        GID to that of the named group. Note that this typically requires root
-        privileges.
+        group 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; if supplied, getmail will change the effective GID to that of 
+        the named group. Note that this typically requires root privileges.
     </li>
     <li>
-        allow_root_commands (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set, getmail will run external
-        commands even if it is currently running with root privileges.  The
-        default is false, which causes getmail to raise an exception if it is
-        asked to run an external command as root.
+        allow_root_commands 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set, getmail will run external commands even if it is 
+        currently running with root privileges.  The default is false, which 
+        causes getmail to raise an exception if it is asked to run an external 
+        command as root.
         <span class="warning">
             Note that setting this option has serious security implications.
             Don't use it if you don't know what you're doing.
@@ -1091,15 +1094,19 @@ arguments = (&quot;--strip-forbidden-attachments&quot;, &quot;--recipient=%(reci
 </p>
 <ul>
     <li>
-        default (
-        <a href="#parameter-string">string</a>
-        ) &mdash; the destination for messages which aren't
-        matched by any of the &quot;locals&quot; regular expressions.  The
-        destination can be a maildir, mboxrd file, or other destination.  The
-        string is first expanded for leading
+        default 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; the destination for messages which aren't matched by any of the 
+        &quot;locals&quot; regular expressions.  The destination can be a 
+        maildir, mboxrd file, or other destination.  The string is first 
+        expanded for leading
         <span class="file">~</span>
         or
-        <span class="file">~<span class="meta">USER</span></span>.
+        <span class="file">~<span class="meta">USER</span></span>
+        and environment variables in the form
+        <span class="file">$<span class="meta">VARNAME</span></span>
+        or
+        <span class="file">${<span class="meta">VARNAME</span>}</span>.
         Then:
         <ul>
             <li>
@@ -1172,14 +1179,14 @@ user = bob
 </p>
 <ul>
     <li>
-        locals (
-        <a href="#parameter-string">string</a>
-        ) &mdash; one or more regular expression &ndash;
-        destination pairs, each on a separate line. Messages will be delivered
-        to each destination for which the envelope recipient matches the given
-        regular expression.  The regular expression and destination are supplied
-        on the same line and separated by whitespace. Destinations are specified
-        in the same manner as with the &quot;default&quot; parameter, above.
+        locals 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; one or more regular expression &ndash; destination pairs, each 
+        on a separate line. Messages will be delivered to each destination for 
+        which the envelope recipient matches the given regular expression.  The 
+        regular expression and destination are supplied on the same line and 
+        separated by whitespace. Destinations are specified in the same manner 
+        as with the &quot;default&quot; parameter, above.
     </li>
 </ul>
 <p>
@@ -1323,17 +1330,17 @@ user = log
 </p>
 <ul>
     <li>
-        qmaillocal (
-        <a href="#parameter-string">string</a>
-        ) &mdash; path to the
+        qmaillocal 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; path to the
         <span class="file">qmail-local</span>
         program. The default value is
         <span class="file">/var/qmail/bin/qmail-local</span>.
     </li>
     <li>
-        user (
-        <a href="#parameter-string">string</a>
-        ) &mdash; supplied to
+        user 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; supplied to
         <span class="file">qmail-local</span>,
         and also tells getmail to change the current effective UID to that of
         the named user before running
@@ -1342,25 +1349,25 @@ user = log
         the account name of the current effective UID.
     </li>
     <li>
-        group (
-        <a href="#parameter-string">string</a>
-        ) &mdash; if supplied, getmail will change the effective
-        GID to that of the named group before running
+        group 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; if supplied, getmail will change the effective GID to that of 
+        the named group before running
         <span class="file">qmail-local</span>.
         Note that this typically requires root privileges.
     </li>
     <li>
-        homedir (
-        <a href="#parameter-string">string</a>
-        ) &mdash; supplied to
+        homedir 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; supplied to
         <span class="file">qmail-local</span>.
         The default value is the home directory of the account with the current
         effective UID.
     </li>
     <li>
-        localdomain (
-        <a href="#parameter-string">string</a>
-        ) &mdash; supplied to
+        localdomain 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; supplied to
         <span class="file">qmail-local</span>
         as its
         <span class="file">domain</span>
@@ -1368,9 +1375,9 @@ user = log
         local host.
     </li>
     <li>
-        defaultdelivery (
-        <a href="#parameter-string">string</a>
-        ) &mdash; supplied to
+        defaultdelivery 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; supplied to
         <span class="file">qmail-local</span>
         as its
         <span class="file">defaultdelivery</span>
@@ -1378,9 +1385,9 @@ user = log
         <span class="file">./Maildir/</span>.
     </li>
     <li>
-        conf-break (
-        <a href="#parameter-string">string</a>
-        ) &mdash; supplied to
+        conf-break 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; supplied to
         <span class="file">qmail-local</span>
         as its
         <span class="file">dash</span>
@@ -1388,10 +1395,10 @@ user = log
         <span class="file">-</span>.
     </li>
     <li>
-        localpart_translate (
-        <a href="#parameter-tuplestrings">2-tuple of quoted strings</a>
-        ) &mdash; if supplied, the recipient address of the message (which is
-        used to construct the
+        localpart_translate 
+        (<a href="#parameter-tuplestrings">2-tuple of quoted strings</a>) 
+        &mdash; if supplied, the recipient address of the message (which is used 
+        to construct the
         <span class="file">local</span>
         argument (among others) to
         <span class="file">qmail-local</span>)
@@ -1404,9 +1411,9 @@ user = log
         (i.e., no translation).
     </li>
     <li>
-        strip_delivered_to (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set,
+        strip_delivered_to 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set,
         <span class="file">Delivered-To:</span>
         header fields will be removed from the message before handing it to
         <span class="file">qmail-local</span>.
@@ -1420,9 +1427,9 @@ user = log
         <span class="file">False</span>.
     </li>
     <li>
-        allow_root_commands (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set, getmail will run
+        allow_root_commands 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set, getmail will run
         <span class="file">qmail-local</span>
         even if it is currently running with root privileges.  The default is
         false, which causes getmail to raise an exception if it is asked to run
@@ -1457,91 +1464,90 @@ localpart_translate = ('mailhostaccount-', '')
 
 <h3 id="conf-options">Creating the <span class="file">[options]</span> section</h3>
 <p>
-    The <span class="file">options</span> section of the rc file (which is
-    not required) can be used to alter getmail's default behaviour.  The
-    parameters supported in this section are as follows:
+    The 
+    <span class="file">options</span>
+    section of the rc file (which is not required) can be used to alter 
+    getmail's default behaviour.  The parameters supported in this section are 
+    as follows:
 </p>
 <ul>
     <li>
-        verbose (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set, getmail prints messages about each
-        of its actions.  If unset, getmail will only print warnings and errors.
-        Default: True.
+        verbose 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set, getmail prints messages about each of its actions.  If 
+        unset, getmail will only print warnings and errors. Default: True.
     </li>
     <li>
-        read_all (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set, getmail retrieves all available
-        messages.  If unset, getmail only retrieves messages it has not seen
-        before.  Default: True.
+        read_all 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set, getmail retrieves all available messages.  If unset, 
+        getmail only retrieves messages it has not seen before.  Default: True.
     </li>
     <li>
-        delete (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set, getmail will delete messages after
-        retrieving and successfully delivering them.  If unset, getmail will
-        leave messages on the server after retrieving them.  Default: False.
+        delete 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set, getmail will delete messages after retrieving and 
+        successfully delivering them.  If unset, getmail will leave messages on 
+        the server after retrieving them.  Default: False.
     </li>
     <li>
-        delete_after (
-        <a href="#parameter-integer">integer</a>
-        ) &mdash; if set, getmail will delete messages
-        this number of days after first seeing them, if they have been
-        retrieved and delivered.  This, in effect, leaves messages on the
-        server for a configurable number of days after retrieving them.
-        Note that the delete parameter has higher priority; if both are set,
-        the messages will be deleted immediately.  Default: 0, which means
-        not to enable this feature.
+        delete_after 
+        (<a href="#parameter-integer">integer</a>) 
+        &mdash; if set, getmail will delete messages this number of days after 
+        first seeing them, if they have been retrieved and delivered.  This, in 
+        effect, leaves messages on the server for a configurable number of days 
+        after retrieving them. Note that the delete parameter has higher 
+        priority; if both are set, the messages will be deleted immediately.  
+        Default: 0, which means not to enable this feature.
     </li>
     <li>
-        max_message_size (
-        <a href="#parameter-integer">integer</a>
-        ) &mdash; if set, getmail will not
-        retrieve messages larger than this number of bytes.  Default: 0, which
-        means not to enable this feature.
+        max_message_size 
+        (<a href="#parameter-integer">integer</a>) 
+        &mdash; if set, getmail will not retrieve messages larger than this 
+        number of bytes.  Default: 0, which means not to enable this feature.
     </li>
     <li>
-        max_messages_per_session (
-        <a href="#parameter-integer">integer</a>
-        ) &mdash; if set, getmail will
-        process a maximum of this number of messages before closing the
-        session with the server.  This can be useful if your network or the
-        server is particuarly unreliable.  Default: 0, which means not to
-        enable this feature.
+        max_messages_per_session 
+        (<a href="#parameter-integer">integer</a>) 
+        &mdash; if set, getmail will process a maximum of this number of 
+        messages before closing the session with the server.  This can be useful 
+        if your network or the server is particuarly unreliable.  Default: 0, 
+        which means not to enable this feature.
     </li>
     <li>
-        delivered_to (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set, getmail adds a Delivered-To:
-        header field to the message.  If unset, it will not do so.  Default:
-        True.  Note that this field will contain the envelope recipient of
-        the message if the retriever in use is a multidrop retriever; 
-        otherwise it will contain the string &quot;unknown&quot;.
+        delivered_to 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set, getmail adds a Delivered-To: header field to the 
+        message.  If unset, it will not do so.  Default: True.  Note that this 
+        field will contain the envelope recipient of the message if the 
+        retriever in use is a multidrop retriever; otherwise it will contain the 
+        string &quot;unknown&quot;.
     </li>
     <li>
-        received (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set, getmail adds a Received:
-        header field to the message.  If unset, it will not do so.  Default:
-        True.
+        received 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set, getmail adds a Received: header field to the message.  
+        If unset, it will not do so.  Default: True.
     </li>
     <li>
-        message_log (
-        <a href="#parameter-string">string</a>
-        ) &mdash; if set, getmail will record a log of its
-        actions to the named file.  The value will be expanded for
-        leading
+        message_log 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; if set, getmail will record a log of its actions to the named 
+        file.  The value will be expanded for leading
         <span class="file">~</span>
         or
-        <span class="file">~<span class="meta">USER</span></span>.
+        <span class="file">~<span class="meta">USER</span></span>
+        and environment variables in the form
+        <span class="file">$<span class="meta">VARNAME</span></span>
+        or
+        <span class="file">${<span class="meta">VARNAME</span>}</span>.
         Default: '' (the empty string), which means not to enable this feature.
     </li>
     <li>
-        message_log_syslog (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set, getmail will record a log
-        of its actions using the system logger.
+        message_log_syslog 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set, getmail will record a log of its actions using the 
+        system logger.
         <span class="warning">
         	Note that syslog is inherently unreliable and can lose log messages.
         </span>
@@ -1572,17 +1578,19 @@ message_log = ~/.getmail/log
 
 <h3 id="conf-filters">Creating the <span class="file">[filter-<span class="meta">something</span>]</span> sections</h3>
 <p>
-    The filter-<span class="meta">something</span> section(s) of the rc file
-    (which are not required) tell getmail to process messages in some way after
-    retrieving them, but before delivering them to your destinations.  Filters
-    can tell getmail to drop a message (i.e. not deliver it at all), add
-    information to the message header (i.e. for a spam-classification system or
-    similar), or modify message content (like an antivirus system stripping
-    suspected MIME parts from messages).
+    The 
+    filter-<span class="meta">something</span>
+    section(s) of the rc file (which are not required) tell getmail to process 
+    messages in some way after retrieving them, but before delivering them to 
+    your destinations.  Filters can tell getmail to drop a message (i.e. not 
+    deliver it at all), add information to the message header (i.e. for a spam-
+    classification system or similar), or modify message content (like an 
+    antivirus system stripping suspected MIME parts from messages).
 </p>
 <p>
     You can specify any number of filters; provide a separate rc file section
-    for each, naming each of them filter-<span class="meta">something</span>.
+    for each, naming each of them 
+    filter-<span class="meta">something</span>.
     They will be run in collated order, so it's likely simplest to name them
     like this:
 </p>
@@ -1627,13 +1635,17 @@ message_log = ~/.getmail/log
 </p>
 <ul>
     <li>
-        path (
-        <a href="#parameter-string">string</a>
-        ) &mdash; the path to the command to run. This value will be
-        expanded for leading
+        path 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; the path to the command to run. This value will be expanded for 
+        leading
         <span class="file">~</span>
         or
-        <span class="file">~<span class="meta">USER</span></span>.
+        <span class="file">~<span class="meta">USER</span></span>
+        and environment variables in the form
+        <span class="file">$<span class="meta">VARNAME</span></span>
+        or
+        <span class="file">${<span class="meta">VARNAME</span>}</span>.
     </li>
 </ul>
 <p>
@@ -1641,11 +1653,11 @@ message_log = ~/.getmail/log
 </p>
 <ul>
     <li>
-        arguments (
-        <a href="#parameter-tuplestrings">tuple of quoted strings</a>
-        ) &mdash; arguments to be supplied to
-        the command. The following substrings will be substituted with the
-        equivalent values from the message, if availble:
+        arguments 
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>) 
+        &mdash; arguments to be supplied to the command. The following 
+        substrings will be substituted with the equivalent values from the 
+        message, if availble:
         <ul>
             <li>
                 <span class="sample">%(sender)</span>
@@ -1669,51 +1681,48 @@ message_log = ~/.getmail/log
         so no arguments are supplied to the command.
     </li>
     <li>
-        unixfrom (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; whether to include a Unix-style mbox
+        unixfrom 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; whether to include a Unix-style mbox
         <span class="file">From_</span>
-        line at the beginning of the message supplied to the command.  Defaults
-        to false.
+        line at the beginning of the message supplied to the command.  Default:
+        False.
     </li>
     <li>
-        user (
-        <a href="#parameter-string">string</a>
-        ) &mdash; if supplied, getmail will change the effective UID
-        to that of the named user. Note that this typically requires root
-        privileges.
+        user 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; if supplied, getmail will change the effective UID to that of 
+        the named user. Note that this typically requires root privileges.
     </li>
     <li>
-        group (
-        <a href="#parameter-string">string</a>
-        ) &mdash; if supplied, getmail will change the effective
-        GID to that of the named group. Note that this typically requires root
-        privileges.
+        group 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; if supplied, getmail will change the effective GID to that of 
+        the named group. Note that this typically requires root privileges.
     </li>
     <li>
-        allow_root_commands (
-        <a href="#parameter-boolean">boolean</a>
-        ) &mdash; if set, getmail will run external
-        commands even if it is currently running with root privileges.  The
-        default is false, which causes getmail to raise an exception if it is
-        asked to run an external command as root.
+        allow_root_commands 
+        (<a href="#parameter-boolean">boolean</a>) 
+        &mdash; if set, getmail will run external commands even if it is 
+        currently running with root privileges.  The default is false, which 
+        causes getmail to raise an exception if it is asked to run an external 
+        command as root.
         <span class="warning">
             Note that setting this option has serious security implications.
             Don't use it if you don't know what you're doing.
         </span>
     </li>
     <li>
-        exitcodes_drop (
-        <a href="#parameter-tupleintegers">tuple of integers</a>
-        ) &mdash; if the filter returns an exit
-        code in this list, the message will be dropped.  The default is
+        exitcodes_drop 
+        (<a href="#parameter-tupleintegers">tuple of integers</a>) 
+        &mdash; if the filter returns an exit code in this list, the message 
+        will be dropped.  The default is
         <span class="sample">(99, 100)</span>.
     </li>
     <li>
-        exitcodes_keep (
-        <a href="#parameter-tupleintegers">tuple of integers</a>
-        ) &mdash; if the filter returns an exit
-        code other than those in
+        exitcodes_keep 
+        (<a href="#parameter-tupleintegers">tuple of integers</a>) 
+        &mdash; if the filter returns an exit code other than those in
         <span class="file">exitcodes_drop</span>
         and
         <span class="file">exitcodes_keep</span>,

@@ -292,7 +292,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.log.trace()
         self.checkconf()
         self.oldmail_filename = os.path.join(
-            os.path.expanduser(self.conf['getmaildir']),
+            expand_user_vars(self.conf['getmaildir']),
             ('oldmail-%(server)s-%(port)i-%(username)s' % self.conf).replace('/', '-').replace(':', '-')
         )
         self._read_oldmailfile()

@@ -17,6 +17,7 @@ import socket
 import re
 import signal
 import types
+import errno
 
 # Only on Unix
 try:
@@ -89,7 +90,8 @@ class Maildir(DeliverySkeleton):
 
     Parameters:
 
-      path - path to maildir, which will be expanded for leading '~/' or '~USER/'.
+      path - path to maildir, which will be expanded for leading '~/' or 
+      '~USER/', as well as environment variables.
 
     getmail will attempt to chown the file created to the UID and GID of the
     maildir.  If this fails (i.e. getmail does not have sufficient permissions),
@@ -103,7 +105,7 @@ class Maildir(DeliverySkeleton):
         self.log.trace()
         self.hostname = socket.getfqdn()
         self.dcount = 0
-        self.conf['path'] = os.path.expanduser(self.conf['path'])
+        self.conf['path'] = expand_user_vars(self.conf['path'])
         if not self.conf['path'].endswith('/'):
             raise getmailConfigurationError('maildir path missing trailing / (%s)' % self.conf['path'])
         if not is_maildir(self.conf['path']):
@@ -129,7 +131,8 @@ class Mboxrd(DeliverySkeleton):
 
     Parameters:
 
-      path - path to mboxrd file, which will be expanded for leading '~/' or '~USER/'.
+      path - path to mboxrd file, which will be expanded for leading '~/' 
+      or '~USER/', as well as environment variables.
 
     Note the differences between various subtypes of mbox format (mboxrd, mboxo,
     mboxcl, mboxcl2) and differences in locking; see the following for details:
@@ -142,7 +145,7 @@ class Mboxrd(DeliverySkeleton):
 
     def initialize(self):
         self.log.trace()
-        self.conf['path'] = os.path.expanduser(self.conf['path'])
+        self.conf['path'] = expand_user_vars(self.conf['path'])
         if os.path.exists(self.conf['path']) and not os.path.isfile(self.conf['path']):
             raise getmailConfigurationError('not an mboxrd file (%s)' % self.conf['path'])
         elif not os.path.exists(self.conf['path']):
@@ -290,8 +293,8 @@ class MDA_qmaillocal(DeliverySkeleton):
 
     def initialize(self):
         self.log.trace()
-        self.conf['qmaillocal'] = os.path.expanduser(self.conf['qmaillocal'])
-        self.conf['homedir'] = os.path.expanduser(self.conf['homedir'])
+        self.conf['qmaillocal'] = expand_user_vars(self.conf['qmaillocal'])
+        self.conf['homedir'] = expand_user_vars(self.conf['homedir'])
         if not os.path.isdir(self.conf['homedir']):
             raise getmailConfigurationError('no such directory %s' % self.conf['homedir'])
 
@@ -378,7 +381,11 @@ class MDA_qmaillocal(DeliverySkeleton):
         try:
             pid, r = os.waitpid(childpid, 0)
         except OSError, o:
-            raise getmailDeliveryError('failed waiting for qmail-local %d (%s)' % (childpid, o))
+            if o.errno == errno.ECHILD:
+                # Child already exited, reap it
+                pid, r = os.wait()
+            else:
+                raise getmailDeliveryError('failed waiting for qmail-local %d (%s)' % (childpid, o))
 
         signal.signal(signal.SIGCHLD, orighandler)
         stdout.seek(0)
@@ -458,7 +465,7 @@ class MDA_external(DeliverySkeleton):
 
     def initialize(self):
         self.log.trace()
-        self.conf['path'] = os.path.expanduser(self.conf['path'])
+        self.conf['path'] = expand_user_vars(self.conf['path'])
         self.conf['command'] = os.path.basename(self.conf['path'])
         if not os.path.isfile(self.conf['path']):
             raise getmailConfigurationError('no such command %s' % self.conf['path'])
@@ -476,12 +483,6 @@ class MDA_external(DeliverySkeleton):
 
     def _deliver_command(self, msg, msginfo, delivered_to, received, stdout, stderr):
         try:
-            args = [self.conf['path'], self.conf['path']]
-            for arg in self.conf['arguments']:
-                for (key, value) in msginfo.items():
-                    arg = arg.replace('%%(%s)' % key, value)
-                args.append(arg)
-            self.log.debug('about to execl() with args %s\n' % str(args))
             # Write out message with native EOL convention
             msgfile = os.tmpfile()
             msgfile.write(msg.flatten(delivered_to, received, include_from=self.conf['unixfrom']))
@@ -495,6 +496,13 @@ class MDA_external(DeliverySkeleton):
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
             change_uidgid(self.log, self.conf['user'], self.conf['group'])
+            args = [self.conf['path'], self.conf['path']]
+            for arg in self.conf['arguments']:
+                arg = expand_user_vars(arg)
+                for (key, value) in msginfo.items():
+                    arg = arg.replace('%%(%s)' % key, value)
+                args.append(arg)
+            self.log.debug('about to execl() with args %s\n' % str(args))
             try:
                 os.execl(*args)
             except OSError, o:
@@ -534,7 +542,11 @@ class MDA_external(DeliverySkeleton):
         try:
             pid, r = os.waitpid(childpid, 0)
         except OSError, o:
-            raise getmailDeliveryError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
+            if o.errno == errno.ECHILD:
+                # Child already exited, reap it
+                pid, r = os.wait()
+            else:
+                raise getmailDeliveryError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
 
         signal.signal(signal.SIGCHLD, orighandler)
         stdout.seek(0)
@@ -601,7 +613,7 @@ class MultiSorter(DeliverySkeleton):
     )
 
     def _get_destination(self, path):
-        p = os.path.expanduser(path)
+        p = expand_user_vars(path)
         if p.startswith('[') and p.endswith(']'):
             destsectionname = p[1:-1]
             if not destsectionname in self.conf['configparser'].sections():

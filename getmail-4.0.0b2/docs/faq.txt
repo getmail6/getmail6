@@ -16,7 +16,7 @@
                                        
    The following questions about getmail come up more-or-less frequently.
    Please also read the unexpected behaviour section of the
-   troubleshooting document .
+   troubleshooting document.
    
 About getmail
 
@@ -71,7 +71,7 @@ About getmail
    
    If you still haven't found an answer to your question, please
    subscribe to the getmail users' mailing list by sending a blank email
-   to <getmail-subscribe @ discworld.dnsalias.org> . If you post your
+   to <getmail-subscribe @ discworld.dnsalias.org>. If you post your
    question there, I will see it. As an additional bonus, your question
    may be answered by another member of the list.
    
@@ -133,7 +133,7 @@ About getmail
    
    To upgrade, do the following:
     1. Rename your old getmail rc file, creating a new file in
-       ~/.getmail/getmailrc .
+       ~/.getmail/getmailrc.
     2. Create a new [options] section, containing the appropriate values
        from your version 3 rc file [defaults] section.
     3. Create a new [retriever] section, using your previous server
@@ -206,9 +206,10 @@ About getmail
    
    But don't just take my word for it; see
    http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724 and
-   http://esr.1accesshost.com/ .
+   http://esr.1accesshost.com/.
    
-   getmail users have not had to worry about any of these security holes.
+   getmail users have not had to worry about any of these security holes
+   or design and implementation errors.
    
 Configuring getmail
 
@@ -216,7 +217,7 @@ Configuring getmail
   
    A domain (or multidrop) mailbox is a POP3 mailbox which receives mail
    for all users in a given domain. Normal mailboxes contain mail for a
-   single user (like jason@myisp.co.uk ); some Internet Service Providers
+   single user (like jason@myisp.co.uk); some Internet Service Providers
    which provide webhosting or other services will provide a POP3 mailbox
    which receives mail for all addresses in a given domain (i.e. mail for
    service@smallcompany.net, sales@smallcompany.net, and indeed anything
@@ -224,8 +225,8 @@ Configuring getmail
    
    getmail provides a method of retrieving mail from a domain mailbox and
    distributing it among the various users automatically. The retriever
-   classes MultidropPOP3Retriever , MultidropPOP3SSLRetriever ,
-   MultidropSPDSRetriever , MultidropIMAPRetriever , and
+   classes MultidropPOP3Retriever, MultidropPOP3SSLRetriever,
+   MultidropSPDSRetriever, MultidropIMAPRetriever, and
    MultidropIMAPSSLRetriever provide this capability.
    
   Do I have to run sendmail or another MTA to use getmail?
