@@ -229,7 +229,10 @@ def go(configs):
         log.info('  %d messages retrieved, %d skipped\n'
             % (msgs_retrieved, msgs_skipped))
         log.debug('retriever %s finished\n' % retriever)
-        retriever.quit()
+        try:
+            retriever.quit()
+        except getmailOperationError, o:
+            log.debug('%s: operation error during quit (%s)\n' % (configfile, o))
 
     if sum([i for (unused, i, unused) in summary]) and oplevel > 1:
         log.info('Summary:\n')
@@ -416,10 +419,14 @@ def main():
                     retriever_args[name] = value
                 log.debug('    instantiating retriever %s with args %s\n'
                     % (retriever_type, format_params(retriever_args)))
-                retriever = retriever_func(**retriever_args)
-                log.debug('    checking retriever configuration for %s\n'
-                    % retriever)
-                retriever.checkconf()
+                try:
+                    retriever = retriever_func(**retriever_args)
+                    log.debug('    checking retriever configuration for %s\n'
+                        % retriever)
+                    retriever.checkconf()
+                except getmailOperationError, o:
+                    log.error('Error initializing retriever: %s\n' % o)
+                    continue
 
                 # Destination
                 log.debug('  getting destination\n')

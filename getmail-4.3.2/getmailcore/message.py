@@ -136,7 +136,8 @@ class Message(object):
                 time.asctime()) + os.linesep)
         # Write the Return-Path: header
         f.write(format_header('Return-Path', self.sender))
-        # Maybe remove previous Return-Path: header fields?
+        # Remove previous Return-Path: header fields.
+        del self.__msg['Return-Path']
         if delivered_to:
             f.write(format_header('Delivered-To', self.recipient or 'unknown'))
         if received:

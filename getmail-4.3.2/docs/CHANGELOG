@@ -1,3 +1,12 @@
+Version 4.3.2
+5 February 2005
+
+  -previously, if an SSL POP3 or IMAP server abruptly closed the connection 
+  before getmail could finish logging in, getmail would exit instead of 
+  proceeding to the next configured mail account.  Fixed.  Thanks: Matthias
+  Andree, Frank Benkstein, Thomas Schwinge.
+  -eliminate duplicate Return-Path: header fields.  Thanks: Angles Puglisi.
+
 Version 4.3.1
 18 January 2005
 

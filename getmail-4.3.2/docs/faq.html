@@ -25,7 +25,7 @@
 <p class="about">
     getmail is licensed under the
     <a href="COPYING">GNU General Public License version 2</a>
-    (only). If you wish to obtain a license to distribute getmail under other 
+    (only). If you wish to obtain a license to distribute getmail under other
     terms, please contact me directly.
 </p>
 
@@ -137,7 +137,15 @@
                 <li><a href="faq.html#faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</a></li>
                 <li><a href="faq.html#faq-how-mh">How do I make getmail deliver messages to an mh folder?</a></li>
                 <li><a href="faq.html#faq-how-daemon">How do I run getmail in &quot;daemon&quot; mode?</a></li>
+                <li><a href="faq.html#faq-how-maxpersession">How do I make getmail stop after retrieving X messages so that the server actually flushes deleted messages?</a></li>
                 <li><a href="faq.html#faq-how-hotmail">How do I make getmail retrieve mail from Hotmail?</a></li>
+                <li><a href="faq.html#faq-how-to">I'm using getmail.  How do I make it &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="faq.html#faq-how-to-tempstop">I'm running getmail from cron.  How do I temporarily stop it?</a></li>
+                    <li><a href="faq.html#faq-how-to-mutex">How do I stop multiple instances of getmail from running at the same time?</a></li>
+                    </ul>
+                </li>
                 </ul>
             </li>
             <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
@@ -159,6 +167,7 @@
             <li>
                 <ul>
                 <li><a href="faq.html#faq-notabug-futurewarning">FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up</a></li>
+                <li><a href="faq.html#faq-notabug-deprecationwarning-strict">DeprecationWarning: 'strict' argument is deprecated (and ignored)</a></li>
                 <li><a href="faq.html#faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</a></li>
                 </ul>
             </li>
@@ -256,7 +265,7 @@
     If you have questions about getmail, the first step is to read the
     <a href="documentation.html">documentation</a>,
     and the remainder of the Frequently Asked Questions. If your question isn't
-    answered there, search the 
+    answered there, search the
     <a href="documentation.html#mailing-list-users-archive">getmail mailing list archives</a>.
 </p>
 <p>
@@ -271,14 +280,14 @@
 
 <h3 id="faq-about-bug">I think I found a bug!  How do I report it?</h3>
 <p class="important">
-	First, make sure that you are running the latest version.  You can always
-	find what is the latest version by checking this page at the original
-	web site:
-	<br />
-	<a href="http://www.qcc.ca/~charlesc/software/getmail-4/">http://www.qcc.ca/~charlesc/software/getmail-4/</a>.
-	<br />
-	If you running an older version of the software, chances are whatever bug
-	you may have found has already been fixed.
+    First, make sure that you are running the latest version.  You can always
+    find what is the latest version by checking this page at the original
+    web site:
+    <br />
+    <a href="http://www.qcc.ca/~charlesc/software/getmail-4/">http://www.qcc.ca/~charlesc/software/getmail-4/</a>.
+    <br />
+    If you running an older version of the software, chances are whatever bug
+    you may have found has already been fixed.
 </p>
 <p>
     Ideally, you should join the
@@ -314,30 +323,30 @@
 
 <h3 id="faq-about-random-feature">I have a neat idea for random feature &quot;foo&quot; &hellip; how do I get you to implement it?</h3>
 <p>
-	Follow the same instructions as for reporting bugs above &mdash; yes, that
-	means I would prefer you submit your idea to the getmail users' mailing list.
-	That will lead to a useful discussion if your feature has not been proposed
-	before.
+    Follow the same instructions as for reporting bugs above &mdash; yes, that
+    means I would prefer you submit your idea to the getmail users' mailing list.
+    That will lead to a useful discussion if your feature has not been proposed
+    before.
 </p>
 
 <h3 id="faq-about-random-feature-rejected">Why won't you implement random feature &quot;foo&quot;?</h3>
 <p>
-	Every line of code added to getmail has a certain cost.  Every feature 
-	added requires code, documentation, and support.  Adding features increases
-	the complexity of the software, confuses users, and leads to higher support
-	costs.  I therefore weigh features very carefully as a cost-versus-benefit
-	tradeoff before deciding whether to add them.
+    Every line of code added to getmail has a certain cost.  Every feature
+    added requires code, documentation, and support.  Adding features increases
+    the complexity of the software, confuses users, and leads to higher support
+    costs.  I therefore weigh features very carefully as a cost-versus-benefit
+    tradeoff before deciding whether to add them.
 </p>
 <p>
-	Some users are confused by this.  They think that a feature you don't use
-	has no cost, and therefore if it has any value to anyone, it should be
-	added.  That simply isn't the case; the costs of an unused feature are
-	simply borne by others, including me.
+    Some users are confused by this.  They think that a feature you don't use
+    has no cost, and therefore if it has any value to anyone, it should be
+    added.  That simply isn't the case; the costs of an unused feature are
+    simply borne by others, including me.
 </p>
 <p>
-	If you have asked me to add some feature, and I've said no, this may be
-	the reason.  Other possibilities include me simply not having had sufficient
-	time to implement it yet.
+    If you have asked me to add some feature, and I've said no, this may be
+    the reason.  Other possibilities include me simply not having had sufficient
+    time to implement it yet.
 </p>
 
 <h3 id="faq-about-virus">Does getmail support virus scanning of retrieved messages?</h3>
@@ -369,13 +378,13 @@
 
 <h3 id="faq-about-rewrite">Does getmail rewrite mail headers when it retrieves mail?</h3>
 <p>
-    No.  Rewriting message header fields is bad for many reasons; the biggest 
-    problem is that it causes a loss of critical technical information necessary 
-    to track down many mail problems.  getmail will add a new 
+    No.  Rewriting message header fields is bad for many reasons; the biggest
+    problem is that it causes a loss of critical technical information necessary
+    to track down many mail problems.  getmail will add a new
     <span class="file">Received:</span>
-    header field and a new 
+    header field and a new
     <span class="file">Delivered-To:</span>
-    header field, but does not rewrite existing headers.  You can disable the 
+    header field, but does not rewrite existing headers.  You can disable the
     creation of these header fields.
 </p>
 
@@ -436,8 +445,8 @@
 
 <h3 id="faq-about-why">Why did you write getmail?  Why not just use fetchmail?</h3>
 <p>
-	Short answer:  &hellip; well, the short answer is mostly unprintable.
-	The long answer is &hellip; well, long:
+    Short answer:  &hellip; well, the short answer is mostly unprintable.
+    The long answer is &hellip; well, long:
 </p>
 <p>
     I do not like some of the design choices which were made with fetchmail.
@@ -558,8 +567,8 @@
     </li>
 </ul>
 <p>
-    As of July, 2004, there may be at least 2 unfixed denial-of-service attacks, 
-    2 unfixed remote-code-execution, 2 unfixed remote-user-access, and 3 unfixed 
+    As of July, 2004, there may be at least 2 unfixed denial-of-service attacks,
+    2 unfixed remote-code-execution, 2 unfixed remote-user-access, and 3 unfixed
     remote-shell attacks against fetchmail.  See
     <a href="http://www.mail-archive.com/euglug@euglug.org/msg00971.html">http://www.mail-archive.com/euglug@euglug.org/msg00971.html</a>
     for details
@@ -612,13 +621,13 @@
     provide this capability.
 </p>
 <p>
-	See the 
-	<a href="configuration.html#conf-retriever-multidrop">documentation on the 
-		<span class="file">[retriever]</span>
-	section</a>
-	for details of what the requirements for a multidrop mailbox are.
-	getmail user Matthias Andree also has a 
-	<a href="http://www.dt.e-technik.uni-dortmund.de/~ma/mail/multidrop">web page about multidrop mailboxes</a>.
+    See the
+    <a href="configuration.html#conf-retriever-multidrop">documentation on the
+        <span class="file">[retriever]</span>
+    section</a>
+    for details of what the requirements for a multidrop mailbox are.
+    getmail user Matthias Andree also has a
+    <a href="http://www.dt.e-technik.uni-dortmund.de/~ma/mail/multidrop">web page about multidrop mailboxes</a>.
 </p>
 
 <h3 id="faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</h3>
@@ -668,190 +677,190 @@
 
 <h3 id="faq-configuring-envelope">What's this &quot;envelope sender&quot; and &quot;envelope recipient&quot; stuff?</h3>
 <p>
-    The &quot;envelope&quot; of an email message is &quot;message 
-    metadata&quot;; that is, the message is information, and the envelope is 
-    information about the message (information about other information).  
-    Knowing this is critical to understanding what a domain or multidrop mailbox 
+    The &quot;envelope&quot; of an email message is &quot;message
+    metadata&quot;; that is, the message is information, and the envelope is
+    information about the message (information about other information).
+    Knowing this is critical to understanding what a domain or multidrop mailbox
     is, how it works, and what getmail can do for you.
 </p>
 <p>
-	<a href="http://cr.yp.to/smtp/mail.html">Others have tried to explain this</a>
-	with varying degrees of success.  I'll use the standard analogy of normal
-	postal (i.e. non-electronic) mail:
+    <a href="http://cr.yp.to/smtp/mail.html">Others have tried to explain this</a>
+    with varying degrees of success.  I'll use the standard analogy of normal
+    postal (i.e. non-electronic) mail:
 </p>
 <h4 id="faq-configuring-envelope-header">Message header vs. message envelope</h4>
 <p>
-	When you receive a letter (a reply from the customer-disservice department
-	of your telephone company, say) it arrives in an envelope.  You tear it
-	open, remove the letter, and read it.  At the top of the letter is the
-	telephone company's return address, followed by the date the letter was
-	written.  Your name and mailing address follow that, and then the remainder
-	of the letter.
+    When you receive a letter (a reply from the customer-disservice department
+    of your telephone company, say) it arrives in an envelope.  You tear it
+    open, remove the letter, and read it.  At the top of the letter is the
+    telephone company's return address, followed by the date the letter was
+    written.  Your name and mailing address follow that, and then the remainder
+    of the letter.
 </p>
 <p>
-	The important thing to keep in mind is that the contents of the letter 
-	(including the addresses just discussed) are never looked at by the post 
-	office.  If they can't deliver the letter (your mailing address on the 
-	envelope got smudged in the rain), they'll return it to the address listed 
-	in the top-left corner of the envelope.  They don't check to make sure that 
-	the address listed there is the same as the one listed at the top of the 
-	letter. Similarly, when they can successfully deliver it, they don't check 
-	to make sure that the recipient name and address on the envelope matches the 
-	one listed on the letter between the date and the salutation.
+    The important thing to keep in mind is that the contents of the letter
+    (including the addresses just discussed) are never looked at by the post
+    office.  If they can't deliver the letter (your mailing address on the
+    envelope got smudged in the rain), they'll return it to the address listed
+    in the top-left corner of the envelope.  They don't check to make sure that
+    the address listed there is the same as the one listed at the top of the
+    letter. Similarly, when they can successfully deliver it, they don't check
+    to make sure that the recipient name and address on the envelope matches the
+    one listed on the letter between the date and the salutation.
 </p>
 <p>
-	The message header fields
-	<span class="file">From:</span>
-	and
-	<span class="file">Resent-from:</span>
-	are equivalent to the block of address information at the top of the letter;
-	it usually contains the name and address of the sender of the message,
-	but it is never actually used in the delivery of the message.
-	Similarly, the
-	<span class="file">To:</span>,
-	<span class="file">cc:</span>,
-	<span class="file">Resent-to:</span>,
-	<span class="file">and Resent-cc:</span>
-	header fields are the equivalent of the block of address information between 
-	the date and the salutation on the letter; they usually contain the names 
-	and addresses of the intended recipients of the message, but they too are 
-	not used in the delivery of the message.
+    The message header fields
+    <span class="file">From:</span>
+    and
+    <span class="file">Resent-from:</span>
+    are equivalent to the block of address information at the top of the letter;
+    it usually contains the name and address of the sender of the message,
+    but it is never actually used in the delivery of the message.
+    Similarly, the
+    <span class="file">To:</span>,
+    <span class="file">cc:</span>,
+    <span class="file">Resent-to:</span>,
+    <span class="file">and Resent-cc:</span>
+    header fields are the equivalent of the block of address information between
+    the date and the salutation on the letter; they usually contain the names
+    and addresses of the intended recipients of the message, but they too are
+    not used in the delivery of the message.
 </p>
 <h4 id="faq-configuring-envelope-bcc">Receiving messages without your address in the message header</h4>
 <p>
-	You might open an envelope addressed to you and find that the letter inside
-	makes no mention of your name.  Your name and address don't appear anywhere
-	in the letter, but it was still successfully delivered to you based on the
-	envelope information.  There's nothing strange about this.  If someone else
-	opens your mail for you, discards the envelopes, and places the contents
-	in your in-basket, you might wonder how some of it ended up there, because
-	there's nothing to connect you with the message contents.
+    You might open an envelope addressed to you and find that the letter inside
+    makes no mention of your name.  Your name and address don't appear anywhere
+    in the letter, but it was still successfully delivered to you based on the
+    envelope information.  There's nothing strange about this.  If someone else
+    opens your mail for you, discards the envelopes, and places the contents
+    in your in-basket, you might wonder how some of it ended up there, because
+    there's nothing to connect you with the message contents.
 </p>
 <p>
-	Email is exactly like this.  Each message has two parts, the message 
-	contents, and the message envelope.  The message contents include the 
-	message header, and the message body.  The message envelope is made up of 
-	exactly one envelope sender address (which can be empty) and one or more 
-	envelope recipient addresses.  If the message cannot be delivered for any 
-	reason, and the envelope sender address is
-	<strong>not</strong>
-	empty, the message 
-	<strong>must</strong>
-	be returned to the envelope sender address by the mail transfer agent (MTA)
-	which last accepted responsibility for delivering the message.
-	These notifications are known as &quot;bounce messages&quot; or
-	sometimes as &quot;non-delivery notifications&quot;.  Bounce messages are
-	sent using the empty envelope return path, to prevent mail loops from 
-	occurring when a bounce message itself cannot be delivered.
+    Email is exactly like this.  Each message has two parts, the message
+    contents, and the message envelope.  The message contents include the
+    message header, and the message body.  The message envelope is made up of
+    exactly one envelope sender address (which can be empty) and one or more
+    envelope recipient addresses.  If the message cannot be delivered for any
+    reason, and the envelope sender address is
+    <strong>not</strong>
+    empty, the message
+    <strong>must</strong>
+    be returned to the envelope sender address by the mail transfer agent (MTA)
+    which last accepted responsibility for delivering the message.
+    These notifications are known as &quot;bounce messages&quot; or
+    sometimes as &quot;non-delivery notifications&quot;.  Bounce messages are
+    sent using the empty envelope return path, to prevent mail loops from
+    occurring when a bounce message itself cannot be delivered.
 </p>
 <p>
-	Confusion often arises among novice users about the difference between the
-	message header and the message envelope; they seem to believe that they
-	are not independant.  This appears to be an artifact of their use of
-	simple-minded GUI mail user agents (MUAs) that do not allow them to set
-	the envelopes of their messages explicitly, but instead simply use the
-	contents of the From: header field as the envelope sender address, and
-	any addresses found in 
-	<span class="file">To:</span>,
-	<span class="file">cc:</span>,
-	and
-	<span class="file">bcc:</span>
-	header fields as the envelope recipient addresses.  While these are
-	sensible 
-	<em>as default values</em>,
-	more powerful MUAs allow the user to override this choice.
+    Confusion often arises among novice users about the difference between the
+    message header and the message envelope; they seem to believe that they
+    are not independant.  This appears to be an artifact of their use of
+    simple-minded GUI mail user agents (MUAs) that do not allow them to set
+    the envelopes of their messages explicitly, but instead simply use the
+    contents of the From: header field as the envelope sender address, and
+    any addresses found in
+    <span class="file">To:</span>,
+    <span class="file">cc:</span>,
+    and
+    <span class="file">bcc:</span>
+    header fields as the envelope recipient addresses.  While these are
+    sensible
+    <em>as default values</em>,
+    more powerful MUAs allow the user to override this choice.
 </p>
 <h4 id="faq-configuring-envelope-record">Responsibility for recording the message envelope</h4>
 <p>
-	The last MTA to receive a message (usually the one running on the POP or 
-	IMAP server where you retrieve your mail from) essentially acts as your 
-	correspondence secretary, accepting your mail from the postman, opening it, 
-	and placing it into your in-basket.  Note that this would normally destroy 
-	the important information contained in the message envelope.  To prevent 
-	this loss of information, this MTA is supposed to copy the information from 
-	the envelope into new fields in the header of the message content, as if 
-	your secretrary copied the sender and recipient addresses onto the back of 
-	your letters in felt pen.  Unfortunately, some MTAs do not always do this
-	properly, and envelope information can then be lost.  When this happens,
-	it makes dealing with certain types of mail messages problematic:
+    The last MTA to receive a message (usually the one running on the POP or
+    IMAP server where you retrieve your mail from) essentially acts as your
+    correspondence secretary, accepting your mail from the postman, opening it,
+    and placing it into your in-basket.  Note that this would normally destroy
+    the important information contained in the message envelope.  To prevent
+    this loss of information, this MTA is supposed to copy the information from
+    the envelope into new fields in the header of the message content, as if
+    your secretrary copied the sender and recipient addresses onto the back of
+    your letters in felt pen.  Unfortunately, some MTAs do not always do this
+    properly, and envelope information can then be lost.  When this happens,
+    it makes dealing with certain types of mail messages problematic:
 </p>
 <ul>
-	<li>
-		bcc'd messages (bcc stands for blind carbon copy), where you are an 
-		envelope recipient, but your address does not appear in the message 
-		content (i.e., your address does not appear in a 
-		<span class="file">To:</span>, 
-		<span class="file">cc:</span>, 
-		or similar message header field).  With bcc'd messages, the 
-		<span class="file">From:</span>
-		header field contains the name and address of the author of the message,
-		and the 
-		<span class="file">To:</span>
-		and
-		<span class="file">cc:</span>
-		header fields contain the names and addresses of the other, non-blind
-		recipients of the message.
-	</li>
-	<li>
-		mailing list messages, where you are an envelope recipient, but your 
-		address does not appear in the message content (i.e., your address does 
-		not appear in a 
-		<span class="file">To:</span>, 
-		<span class="file">cc:</span>, 
-		or similar message header field).  Mailing list messages have the
-		envelope sender address set to the mailing list manager (so that it
-		can monitor &quot;bad&quot; list addresses for bounces), while the
-		<span class="file">From:</span>
-		header field contains the name and address of the author of the
-		message.  The envelope recipient addresses of mailing list messages
-		are the addresses of the list subscribers, while the 
-		<span class="file">To:</span>
-		header field usually contains the address of the mailing list.
-	</li>
-	<li>
-		other, less common cases.
-	</li>
+    <li>
+        bcc'd messages (bcc stands for blind carbon copy), where you are an
+        envelope recipient, but your address does not appear in the message
+        content (i.e., your address does not appear in a
+        <span class="file">To:</span>,
+        <span class="file">cc:</span>,
+        or similar message header field).  With bcc'd messages, the
+        <span class="file">From:</span>
+        header field contains the name and address of the author of the message,
+        and the
+        <span class="file">To:</span>
+        and
+        <span class="file">cc:</span>
+        header fields contain the names and addresses of the other, non-blind
+        recipients of the message.
+    </li>
+    <li>
+        mailing list messages, where you are an envelope recipient, but your
+        address does not appear in the message content (i.e., your address does
+        not appear in a
+        <span class="file">To:</span>,
+        <span class="file">cc:</span>,
+        or similar message header field).  Mailing list messages have the
+        envelope sender address set to the mailing list manager (so that it
+        can monitor &quot;bad&quot; list addresses for bounces), while the
+        <span class="file">From:</span>
+        header field contains the name and address of the author of the
+        message.  The envelope recipient addresses of mailing list messages
+        are the addresses of the list subscribers, while the
+        <span class="file">To:</span>
+        header field usually contains the address of the mailing list.
+    </li>
+    <li>
+        other, less common cases.
+    </li>
 </ul>
 <p>
-	MTAs are supposed to record the envelope sender address by placing it into a 
-	new
-	<span class="file">Return-Path:</span>
-	header field at the top of the message.  They should then record the
-	envelope recipient address(es) in another new header field; sometimes this
-	header field is named
-	<span class="file">Delivered-To:</span>,
-	but it can also be 
-	<span class="file">Envelope-To:</span>
-	or one of a few other names.
+    MTAs are supposed to record the envelope sender address by placing it into a
+    new
+    <span class="file">Return-Path:</span>
+    header field at the top of the message.  They should then record the
+    envelope recipient address(es) in another new header field; sometimes this
+    header field is named
+    <span class="file">Delivered-To:</span>,
+    but it can also be
+    <span class="file">Envelope-To:</span>
+    or one of a few other names.
 </p>
 <h4 id="faq-configuring-envelope-multidrop">How this relates to domain or multidrop mailboxes</h4>
 <p>
-	A domain or multidrop mailbox is one which receives mail for multiple email
-	addresses (commonly all addresses in a given domain).  If you do not want
-	all of this mail to go to one person, you need to know who the messages
-	were originally addressed to after retrieving them from the POP/IMAP
-	multidrop mailbox.  You
-	<strong>cannot</strong>
-	do this by looking at the
-	<span class="file">To:</span>, 
-	<span class="file">cc:</span>, 
-	or other informational message header fields, because they do not actually
-	reflect the message envelope at the time of delivery.  Instead, you have
-	to reconstruct the envelope information from the message header fields
-	which the MTA on the server used to record it at the time of delivery.
+    A domain or multidrop mailbox is one which receives mail for multiple email
+    addresses (commonly all addresses in a given domain).  If you do not want
+    all of this mail to go to one person, you need to know who the messages
+    were originally addressed to after retrieving them from the POP/IMAP
+    multidrop mailbox.  You
+    <strong>cannot</strong>
+    do this by looking at the
+    <span class="file">To:</span>,
+    <span class="file">cc:</span>,
+    or other informational message header fields, because they do not actually
+    reflect the message envelope at the time of delivery.  Instead, you have
+    to reconstruct the envelope information from the message header fields
+    which the MTA on the server used to record it at the time of delivery.
 </p>
 <p>
-	If the final MTA does not record the message envelope (the envelope sender,
-	and all envelope recipient addresses in the domain mailbox the message was
-	sent to), then 
-	<em>mail will be lost or misdirected 
-	<strong>regardless</strong>
-	of which software you use to access the mailbox</em>.
-	The mailbox cannot actually be said to be a domain mailbox in this case; the 
-	defining characteristic of a domain mailbox is that it records the envelope 
-	correctly. The configuration of the MTA running on the server needs to be 
-	fixed so that the envelope is properly recorded for every message it 
-	receives.
+    If the final MTA does not record the message envelope (the envelope sender,
+    and all envelope recipient addresses in the domain mailbox the message was
+    sent to), then
+    <em>mail will be lost or misdirected
+    <strong>regardless</strong>
+    of which software you use to access the mailbox</em>.
+    The mailbox cannot actually be said to be a domain mailbox in this case; the
+    defining characteristic of a domain mailbox is that it records the envelope
+    correctly. The configuration of the MTA running on the server needs to be
+    fixed so that the envelope is properly recorded for every message it
+    receives.
 </p>
 
 <h3 id="faq-configuring-simple">This rc stuff seems complicated.  Does it have to be?</h3>
@@ -901,7 +910,7 @@ path = ~/inbox
 <h3 id="faq-how-multi">How do I retrieve mail from multiple accounts?</h3>
 <p>
     Create a separate getmail rc file for each account, and run getmail with
-    multiple 
+    multiple
     <span class="file">--rcfile</span>
     options.
 </p>
@@ -928,7 +937,7 @@ path = ~/inbox
     through arbitrary external MDAs.
 </p>
 <p>
-    If you still think you need to, you can use getmail's 
+    If you still think you need to, you can use getmail's
     <a href="configuration.html#destination-mdaexternal">external MDA support</a>
     to do so.
 </p>
@@ -976,15 +985,24 @@ arguments = (&quot;+inbox&quot;, )
     this.
 </p>
 <p>
-	With a reasonably standard system
-	<span class="file">cron</span>
-	utility, a
-	<span class="file">crontab(5)</span>
-	entry like the following will make getmail retrieve mail every hour:
+    With a reasonably standard system
+    <span class="file">cron</span>
+    utility, a
+    <span class="file">crontab(5)</span>
+    entry like the following will make getmail retrieve mail every hour:
 </p>
 <pre class="example">
 0 * * * * /usr/local/bin/getmail --quiet
 </pre>
+
+<h3 id="faq-how-maxpersession">How do I make getmail stop after retrieving X messages so that the server actually flushes deleted messages?</h3>
+<p>
+    Use the
+    <a href="configuration.html#conf-options"><span class="file">max_messages_per_session</span></a>
+    option to limit the number of messages getmail will process in a single
+    session.  Some users with flaky servers use this option to reduce the
+    chances of seeing messages more than once if the server dies in mid-session.
+</p>
 
 <h3 id="faq-how-hotmail">How do I make getmail retrieve mail from Hotmail?</h3>
 <p>
@@ -993,6 +1011,118 @@ arguments = (&quot;+inbox&quot;, )
     or simply set up the POP3 proxy from the
     <a href="http://httpmail.sourceforge.net/">httpmail</a>
     package, and have getmail retrieve mail from that POP3 proxy.
+</p>
+
+<h3 id="faq-how-to">I'm using getmail.  How do I make it &hellip;</h3>
+<p>
+    These are supplementary questions I occasionally see about doing various
+    things to enhance a
+    <span class="file">getmail</span>
+    setup.  The solution to many of them is to use a standard Unix technique
+    of some sort to make the system behave in a certain manner, or otherwise
+    change the behaviour of something that's actually outside of
+    <span class="file">getmail</span>
+    proper.
+</p>
+
+<h4 id="faq-how-to-tempstop">I'm running getmail from cron.  How do I temporarily stop it?</h4>
+<p>
+    Some people ask about temporarily stopping
+    <span class="file">getmail</span>
+    from running from a
+    <span class="file">cron</span>
+    job, possibly because the mail server is down and they don't want to see
+    the warnings
+    <span class="file">cron</span>
+    mails them.
+</p>
+<p>
+    The easiest method is to comment out
+    <span class="file">getmail</span>
+    from your
+    <span class="file">crontab</span>
+    file:
+</p>
+<ol>
+    <li>
+        Run
+        <pre class="example">$ crontab -e</pre>
+        to edit your
+        <span class="file">crontab</span>
+        file.
+    </li>
+    <li>
+        Place a # (pound) character at the start of the line containing the call
+        to
+        <span class="file">getmail</span>.
+    </li>
+    <li>
+        Save the changed file.
+    </li>
+</ol>
+<p>
+    When you want to re-enable getmail, edit the file again and un-do the
+    above change.
+</p>
+<p>
+    If you need to do this on a regular basis, you can instead use a
+    &quot;flag file&quot; to tell the system whether or not to run
+    <span class="file">getmail</span>:
+</p>
+<p>
+    Change your
+    <span class="file">cron</span>
+    job or shellscript that normally launches
+    <span class="file">getmail</span>
+    to check for the presence of a certain file first, and have it not run
+    <span class="file">getmail</span>
+    if that file is present.  For example, your
+    <span class="file">crontab</span>
+    entry could be changed to do this:
+</p>
+<pre class="example">
+    [ -f ~/.getmail/do-not-run ] || /path/to/getmail
+</pre>
+<p>
+    When you don't want getmail to run,
+    <span class="file">touch</span>
+    that file:
+</p>
+<pre class="example">
+    $ touch ~/.getmail/do-not-run
+</pre>
+<p>
+    When you want getmail to run again, delete it:
+</p>
+<pre class="example">
+    $ rm -f ~/.getmail/do-not-run
+</pre>
+<p>
+    This is even safe for scripting, as creating and removing the file are
+    atomic operations under Unix.
+</p>
+
+<h4 id="faq-how-to-mutex">How do I stop multiple instances of getmail from running at the same time?</h4>
+<p>
+    getmail has no problems running multiple instances in parallel, though you
+    shouldn't attempt to use the same getmail rc file from two different
+    instances at the same time.  If you need to prevent two instances of getmail
+    from running simultaneously, use any standard Unix method of providing a
+    mutex for this purpose.  One example would be to run getmail under a
+    program like
+    <span class="file">setlock</span>
+    (part of the
+    <a href="http://cr.yp.to/daemontools.html"><span class="file">daemontools</span></a>
+    package).  Change your script or
+    <span class="file">crontab</span>
+    file to invoke getmail like this:
+</p>
+<pre class="example">
+/path/to/setlock -n /path/to/lockfile /path/to/getmail [getmail options]
+</pre>
+<p>
+    There are other programs that provide functionality similar to
+    <span class="file">setlock</span>.
 </p>
 
 <!-- ********************************************************************** -->
@@ -1064,14 +1194,14 @@ bayes_ignore_header X-getmail-filter-classifier
 
 <h3 id="faq-integrating-clamav">How do I use ClamAV with getmail?</h3>
 <p>
-	You should also read <a href="http://article.gmane.org/gmane.mail.getmail.user/1486">this message</a>
-	in the getmail users' mailing list archives and the ClamAV documentation if
-	you want to use ClamAV with getmail.
+    You should also read <a href="http://article.gmane.org/gmane.mail.getmail.user/1486">this message</a>
+    in the getmail users' mailing list archives and the ClamAV documentation if
+    you want to use ClamAV with getmail.
 </p>
 <p>
     <a href="http://www.clamav.net/">ClamAV</a>,
-    like SpamAssassin, can by used in standalone or client/server 
-    configurations.  In either case, you need to add the 
+    like SpamAssassin, can by used in standalone or client/server
+    configurations.  In either case, you need to add the
     <span class="file">StreamSaveToDisk</span>
     option to your
     <span class="file">clamav.conf</span>
@@ -1155,7 +1285,7 @@ ScanMail
     file as well.
 </p>
 <p>
-    See the following mailing list message from Frankye Fattarelli for 
+    See the following mailing list message from Frankye Fattarelli for
     additional notes on using ClamAV with getmail:
     <a href="http://marc.theaimsgroup.com/?l=getmail&amp;m=109128345509273&amp;w=2">http://marc.theaimsgroup.com/?l=getmail&amp;m=109128345509273&amp;w=2</a>
 </p>
@@ -1196,7 +1326,7 @@ arguments = (&quot;-R&quot;, &quot;X-getmail-filter-classifier:&quot;,
 
 <h3 id="faq-integrating-procmail">How do I use procmail with getmail?</h3>
 <p>
-    Simply invoke 
+    Simply invoke
     <span class="file">procmail</span>
     as an
     <a href="configuration.html#destination-mdaexternal">external MDA</a>.
@@ -1204,23 +1334,23 @@ arguments = (&quot;-R&quot;, &quot;X-getmail-filter-classifier:&quot;,
     requires that one of the following be true:
 </p>
 <ul>
-	<li>
-		that the message begin with a Unix &quot;From &quot; line
-    	(the mbox message delimiter)
-	</li>
-	<li>
-		that
-	    <span class="file">procmail</span>
-		is invoked with the 
-	    <span class="file">-f</span>
-	    option supplying the envelope sender, so that it may generate the
-	    &quot;From &quot; line
-	</li>
+    <li>
+        that the message begin with a Unix &quot;From &quot; line
+        (the mbox message delimiter)
+    </li>
+    <li>
+        that
+        <span class="file">procmail</span>
+        is invoked with the
+        <span class="file">-f</span>
+        option supplying the envelope sender, so that it may generate the
+        &quot;From &quot; line
+    </li>
 </ul>
 <p>
     To have getmail generate and prepend the &quot;From &quot; line to the
     start of the message, set the MDA_external
-    parameter 
+    parameter
     <span class="file">unixfrom</span>
     to True:
 </p>
@@ -1231,9 +1361,9 @@ path = /path/to/procmail
 unixfrom = True
 </pre>
 <p>
-	To supply the 
-   	<span class="file">-f</span>
-   	option to procmail, do something like this:
+    To supply the
+    <span class="file">-f</span>
+    option to procmail, do something like this:
 </p>
 <pre class="example">
 [destination]
@@ -1309,16 +1439,41 @@ type = Filter_TMDA
   return (&quot;&lt;%s at 0x%x: %r&gt;&quot;
 </pre>
 <p>
-    This warning is a bug in Python 2.3.4's 
+    This warning is a bug in Python 2.3.4's
     <span class="file">optparse.py</span>
     module, not in getmail.  Feel free to report it to the Python team if the
     most recent release of Python hasn't fixed it.  I reported it in June, 2004.
 </p>
 
+<h3 id="faq-notabug-deprecationwarning-strict">DeprecationWarning: 'strict' argument is deprecated (and ignored)</h3>
+<p>
+    Various people have reported this &quot;bug&quot; in getmail, where they
+    see the following warning when getmail is run with Python version 2.4:
+</p>
+<pre class="example">
+/usr/local/lib/python2.4/email/__init__.py:43: DeprecationWarning: 'strict' argument is deprecated (and ignored)
+  return Parser(*args, **kws).parsestr(s)
+/usr/local/lib/python2.4/email/__init__.py:52: DeprecationWarning: 'strict' argument is deprecated (and ignored)
+  return Parser(*args, **kws).parse(fp)
+</pre>
+<p>
+    This is a warning (not an error).  This likely should have been added in
+    Python as a FutureWarning before it became a DeprecationWarning.  In any
+    case, getmail still needs to unset the strict option with earlier versions
+    of Python.  If you see this warning, and would like to disable it,
+    you can add the option
+    <span class="file"></span>
+    to the invocation of Python by changing the first line of the getmail
+    script to be:
+</p>
+<pre class="example">
+ #!/path/to/python2.4 -Wignore:.:DeprecationWarning:.:0
+</pre>
+
 <h3 id="faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</h3>
 <p>
     Various people have reported this &quot;bug&quot; in getmail &mdash; it's
-    actually a bug in some versions of Python 2.3.X.  It was fixed in Python 
+    actually a bug in some versions of Python 2.3.X.  It was fixed in Python
     version 2.3.3.  getmail 4 detects problematic versions of Python and refuses
     to run, but you can still encounter this problem with getmail version 3
     if you try to run it with a broken Python version.

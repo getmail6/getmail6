@@ -574,12 +574,78 @@ arguments = ("+inbox", )
    like the following will make getmail retrieve mail every hour:
 0 * * * * /usr/local/bin/getmail --quiet
 
+  How do I make getmail stop after retrieving X messages so that the server
+  actually flushes deleted messages?
+  
+   Use the max_messages_per_session option to limit the number of
+   messages getmail will process in a single session. Some users with
+   flaky servers use this option to reduce the chances of seeing messages
+   more than once if the server dies in mid-session.
+   
   How do I make getmail retrieve mail from Hotmail?
   
    Well, you could write a retriever that speaks Hotmail's proprietary,
    undocumented, and unsupported access protocol (or pay me to write
    one), or simply set up the POP3 proxy from the httpmail package, and
    have getmail retrieve mail from that POP3 proxy.
+   
+  I'm using getmail. How do I make it ...
+  
+   These are supplementary questions I occasionally see about doing
+   various things to enhance a getmail setup. The solution to many of
+   them is to use a standard Unix technique of some sort to make the
+   system behave in a certain manner, or otherwise change the behaviour
+   of something that's actually outside of getmail proper.
+   
+    I'm running getmail from cron. How do I temporarily stop it?
+    
+   Some people ask about temporarily stopping getmail from running from a
+   cron job, possibly because the mail server is down and they don't want
+   to see the warnings cron mails them.
+   
+   The easiest method is to comment out getmail from your crontab file:
+    1. Run
+$ crontab -e
+       to edit your crontab file.
+    2. Place a # (pound) character at the start of the line containing
+       the call to getmail.
+    3. Save the changed file.
+       
+   When you want to re-enable getmail, edit the file again and un-do the
+   above change.
+   
+   If you need to do this on a regular basis, you can instead use a "flag
+   file" to tell the system whether or not to run getmail:
+   
+   Change your cron job or shellscript that normally launches getmail to
+   check for the presence of a certain file first, and have it not run
+   getmail if that file is present. For example, your crontab entry could
+   be changed to do this:
+    [ -f ~/.getmail/do-not-run ] || /path/to/getmail
+
+   When you don't want getmail to run, touch that file:
+    $ touch ~/.getmail/do-not-run
+
+   When you want getmail to run again, delete it:
+    $ rm -f ~/.getmail/do-not-run
+
+   This is even safe for scripting, as creating and removing the file are
+   atomic operations under Unix.
+   
+    How do I stop multiple instances of getmail from running at the same time?
+    
+   getmail has no problems running multiple instances in parallel, though
+   you shouldn't attempt to use the same getmail rc file from two
+   different instances at the same time. If you need to prevent two
+   instances of getmail from running simultaneously, use any standard
+   Unix method of providing a mutex for this purpose. One example would
+   be to run getmail under a program like setlock (part of the
+   daemontools package). Change your script or crontab file to invoke
+   getmail like this:
+/path/to/setlock -n /path/to/lockfile /path/to/getmail [getmail options]
+
+   There are other programs that provide functionality similar to
+   setlock.
    
 Using getmail with other software
 
@@ -787,6 +853,25 @@ will return a signed string in Python 2.4 and up
    getmail. Feel free to report it to the Python team if the most recent
    release of Python hasn't fixed it. I reported it in June, 2004.
    
+  DeprecationWarning: 'strict' argument is deprecated (and ignored)
+  
+   Various people have reported this "bug" in getmail, where they see the
+   following warning when getmail is run with Python version 2.4:
+/usr/local/lib/python2.4/email/__init__.py:43: DeprecationWarning: 'strict' arg
+ument is deprecated (and ignored)
+  return Parser(*args, **kws).parsestr(s)
+/usr/local/lib/python2.4/email/__init__.py:52: DeprecationWarning: 'strict' arg
+ument is deprecated (and ignored)
+  return Parser(*args, **kws).parse(fp)
+
+   This is a warning (not an error). This likely should have been added
+   in Python as a FutureWarning before it became a DeprecationWarning. In
+   any case, getmail still needs to unset the strict option with earlier
+   versions of Python. If you see this warning, and would like to disable
+   it, you can add the option to the invocation of Python by changing the
+   first line of the getmail script to be:
+ #!/path/to/python2.4 -Wignore:.:DeprecationWarning:.:0
+
   AttributeError: 'module' object has no attribute 'fsync'
   
    Various people have reported this "bug" in getmail -- it's actually a
