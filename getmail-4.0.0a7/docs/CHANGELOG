@@ -1,3 +1,12 @@
+Version 4.0.0a7
+17 June 2004
+
+  -debug and rewrite POP3-over-SSL functionality.  Involved writing around
+  some ugly limitations and kludges in Python's socket.ssl and poplib.POP3
+  code.  But POP3-over-SSL actually works now, and is fairly clean.
+  Let me know if it hangs; I might need to change the way blocking mode is
+  handled on the underlying socket.
+
 Version 4.0.0a6
 16 June 2004
 

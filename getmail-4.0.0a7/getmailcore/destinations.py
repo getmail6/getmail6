@@ -18,7 +18,6 @@ import signal
 
 from exceptions import *
 from utilities import is_maildir, deliver_maildir, mbox_from_escape, mbox_timestamp, lock_file, unlock_file
-from logging import logger
 from baseclasses import ConfigurableBase
 
 #######################################

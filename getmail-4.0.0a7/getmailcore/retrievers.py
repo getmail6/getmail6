@@ -31,7 +31,6 @@ import imaplib
 from exceptions import *
 from constants import *
 from utilities import updatefile, address_no_brackets
-from logging import logger
 from pop3ssl import POP3SSL, POP3_ssl_port
 from baseclasses import ConfigurableBase
 
@@ -76,7 +75,7 @@ class RetrieverSkeleton(ConfigurableBase):
                                     header should be retrieved, if possible.  It should
                                     be returned in the same format.
 
-      showconf(self) - should invoke logger().info() to display the configuration of
+      showconf(self) - should invoke self.log.info() to display the configuration of
                        the class instance.
 
     Sub-classes may also wish to extend or over-ride the following base class
