@@ -3,7 +3,7 @@
                                        
 Frequently Asked Questions about getmail
 
-27 January 2000
+6 Febuary 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -17,22 +17,21 @@ Frequently Asked Questions about getmail
           + 1.3 Where can I get getmail?
           + 1.4 How do I install and use getmail?
           + 1.5 How can I specify default options?
-          + 1.6 Is it safe to run more than one getmail at once?
-          + 1.7 Does getmail need special (root) privileges to run?
-          + 1.8 Can getmail retrieve mail from an IMAP server?
-          + 1.9 Can getmail deliver by re-injecting messages via SMTP
+          + 1.6 What does this error message mean?
+          + 1.7 Is it safe to run more than one getmail at once?
+          + 1.8 Does getmail need special (root) privileges to run?
+          + 1.9 Can getmail retrieve mail from an IMAP server?
+          + 1.10 Can getmail deliver by re-injecting messages via SMTP
             like fetchmail?
-          + 1.10 How do I make getmail be less verbose?
-          + 1.11 How do I report a bug, or request a feature?
-          + 1.12 I have a question about getmail that isn't answered
+          + 1.11 How do I make getmail be less verbose?
+          + 1.12 How does getmail determine the recipient of a message in
+            a domain mailbox?
+          + 1.13 How do I report a bug, or request a feature?
+          + 1.14 I have a question about getmail that isn't answered
             here...
      * 2 Other Questions
           + 2.1 Do you have any other software available?
      _________________________________________________________________
-   
-   @paragraphindent 5
-   
-   @ifinfo Copyright © 2000 Charles Cazabon
    
    These are a few of the questions I get asked about installing,
    configuring, and using getmail.
@@ -100,7 +99,24 @@ Frequently Asked Questions about getmail
    deleting retrieved mail from the POP3 server:
 export GETMAILOPTS="--verbose --delete"
 
-1.6 Is it safe to run more than one getmail at once?
+1.6 What does this error message mean?
+
+     * `Error: failed writing oldmail file'
+       getmail failed while trying to record a message ID for a message
+       it retrieved. It tries to write to a file in your
+       configuration/data directory. Either the directory you specified
+       didn't exist, didn't have write permissions, or some other error.
+       If you didn't specify a directory with the commandline option,
+       getmail tries to use the directory `.getmail' in your home
+       directory.
+     * `Warning: no Return-Path: header in message'
+       You are trying to deliver to an `mbox' file, and the retrieved
+       message did not contain a `Return-Path:' header, which getmail
+       puts in the standard `mbox' delimiter line. This is not a fatal
+       error; it just means the system you are retrieving mail from is
+       old or not standards-compliant.
+       
+1.7 Is it safe to run more than one getmail at once?
 
    Short answer: yes, mostly.
    
@@ -111,18 +127,18 @@ export GETMAILOPTS="--verbose --delete"
    each instance of getmail has a different set of accounts to retrieve
    from, all is fine.
    
-1.7 Does getmail need special (root) privileges to run?
+1.8 Does getmail need special (root) privileges to run?
 
    No. getmail only has to have write access to the destinations
    (`Maildir's or `mbox' files) that it tries to deliver to. This can be
    done with group-writable permissions rather than running getmail as
    root.
    
-1.8 Can getmail retrieve mail from an IMAP server?
+1.9 Can getmail retrieve mail from an IMAP server?
 
    No. Maybe in the future.
    
-1.9 Can getmail deliver by re-injecting messages via SMTP like fetchmail?
+1.10 Can getmail deliver by re-injecting messages via SMTP like fetchmail?
 
    No. Maybe in the future.
    
@@ -139,19 +155,36 @@ destination = /home/username/Maildir # default Maildir
 popusername-extension1@isp.net = /home/username/Mail/list1
 popusername-extension2@isp.net = /home/username/Mail/list2
 
-1.10 How do I make getmail be less verbose?
+1.11 How do I make getmail be less verbose?
 
    Well, you could avoid supplying the `--verbose' or `-v' options. If
    you've specified one of these in the environment variable
    `GETMAILOPTS' and want to override it on the commandline, use the
    `--quiet' or `-q' option.
    
-1.11 How do I report a bug, or request a feature?
+1.12 How does getmail determine the recipient of a message in a domain mailbox?
+
+   getmail examines the headers messages retrieved from domain mailboxes.
+   The algorithm works as follows:
+     * If it finds the first header is a qmail-style `Delivered-To: '
+       header, it will use the email address found in that header as the
+       recipient.
+     * If there is no `Delivered-To: ' header, it will use any address
+       found in a `Envelope-To: ' header.
+     * If there is no `Delivered-To: ' or `Envelope-To: ' header, it will
+       use any address found in a `X-Envelope-To: ' header.
+     * If there is no `Delivered-To: ', `Envelope-To: ', or `X-Envelope-
+       To: ' header, it will use any address(es) found in `Resent-To: ',
+       `Resent-cc: ', or `Resent-bcc: ' headers.
+     * As a last resort, getmail will fall back to using any email
+       address(es) found in `To: ', `cc: ', or `bcc: ' headers.
+       
+1.13 How do I report a bug, or request a feature?
 
    To report a bug, make a feature request, or get support with getmail,
    please send email to me at <getmail @ discworld.dyndns.org>.
    
-1.12 I have a question about getmail that isn't answered here...
+1.14 I have a question about getmail that isn't answered here...
 
    Have you read the documentation? Have you looked at the
    `example.getmailrc' file? Then write to me, so you can get help, and
@@ -166,5 +199,5 @@ popusername-extension2@isp.net = /home/username/Mail/list2
    http://www.qcc.sk.ca/~charlesc/software/.
      _________________________________________________________________
    
-   This document was generated on 27 January 2000 using the texi2html
+   This document was generated on 6 Febuary 2000 using the texi2html
    translator version 1.51a.

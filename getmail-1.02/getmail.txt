@@ -3,7 +3,7 @@
                                        
 POP3 mail retriever with reliable Maildir delivery
 
-27 January 2000
+6 Febuary 2000
 
    
     Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -13,15 +13,17 @@ POP3 mail retriever with reliable Maildir delivery
                                        
      * 1 About getmail
      * 2 The getmail FAQ
-     * 3 Using getmail
-          + 3.1 Installing getmail
-          + 3.2 Running getmail
-               o 3.2.1 Retrieving mail on a one-time basis
-               o 3.2.2 Retrieving mail on a regular basis
-               o 3.2.3 Commandline Options for getmail
-     * 4 Support for Domain Mailboxes
-     * 5 Current Version
-     * 6 Reporting bugs, feature requests, and support requests
+     * 3 Getting getmail
+     * 4 Using getmail
+          + 4.1 Installing getmail
+          + 4.2 Running getmail
+               o 4.2.1 Retrieving mail on a one-time basis
+               o 4.2.2 Retrieving mail on a regular basis
+          + 4.3 Commandline Options for getmail
+          + 4.4 Configuration File Options for getmail
+     * 5 Support for Domain Mailboxes
+     * 6 Current Version
+     * 7 Reporting bugs, feature requests, and support requests
      _________________________________________________________________
    
                                 1 About getmail
@@ -41,9 +43,14 @@ POP3 mail retriever with reliable Maildir delivery
                                        
    There is now a FAQ available about getmail. Read it here.
    
-                                3 Using getmail
+                               3 Getting getmail
                                        
-3.1 Installing getmail
+   There are links to download getmail at the bottom of this document.
+   You can skip directly to them by clicking here.
+   
+                                4 Using getmail
+                                       
+4.1 Installing getmail
 
    getmail is a Python script. Ensure the Python interpreter is installed
    (version 1.5.1 or higher is recommended; at the time of this writing,
@@ -62,11 +69,11 @@ getmail.main ()
    want this, you can make it a symbolic link, or invoke getmail as
    getmail.py, or rename the main script.
    
-3.2 Running getmail
+4.2 Running getmail
 
    Run getmail with the `-h' or `--help' options for help.
    
-  3.2.1 Retrieving mail on a one-time basis
+  4.2.1 Retrieving mail on a one-time basis
   
    To retrieve mail for accounts on a one-time basis, run with arguments
    as follows:
@@ -93,7 +100,7 @@ host2.com,$HOME/user2mbox
    Note in this case, `mailhost2' is on the standard POP3 port and the
    user will be prompted only for user2's password.
    
-  3.2.2 Retrieving mail on a regular basis
+  4.2.2 Retrieving mail on a regular basis
   
    To use getmail to retrieve from the same accounts on a regular basis,
    and to be able to retrieve only mail messages which getmail has not
@@ -145,29 +152,139 @@ readall=value
        login in your `.bash_profile' or `.bashrc' file if you use the
        bash shell.
        
-  3.2.3 Commandline Options for getmail
-  
-   To be added at a later date.
-   
-                        4 Support for Domain Mailboxes
+4.3 Commandline Options for getmail
+
+   getmail understands the following commandline options.
+     * Commandline options which apply to all operations:
+          + `-v' or `--verbose'
+            Output more information during operation.
+          + `-q' or `--quiet'
+            Output less information during operation.
+          + `-h' or `--help'
+            Output basic usage information.
+          + `-r' or `--rcfile <file>'
+            Use `file' instead of the default `.getmailrc' configuration
+            file.
+          + `-c' or `--configdir <dir>'
+            Use `dir' as the configuration/data directory instead of the
+            default `$HOME/.getmail' configuration/data directory.
+          + `-i' or `--ignoreconfig'
+            Do not read any configuration file.
+          + `--dump'
+            Do not fetch mail; just dump configuration and commandline
+            information for debugging.
+     * Commandline options which apply only to mail retrieval for
+       accounts specified on the commandline:
+          + `-a' or `--all'
+            Retrieve all messages, including messages getmail has
+            previously retrieved.
+          + `-n' or `--new'
+            Retrieve only messages getmail has not previously retrieved.
+          + `-d' or `--delete'
+            Delete mail from the POP3 server after retrieving.
+          + `-l' or `--dont-delete'
+            Leave mail on the POP3 server after retrieving.
+       
+4.4 Configuration File Options for getmail
+
+   getmail understands the following options in it's configuration file
+   (e.g. `.getmailrc').
+     * Section Name
+       A unique identifier for one POP3 account to retrieve mail from,
+       enclosed in square brackets.
+       e.g.
+[Joe's home account]
+     * POP3 Account Type
+       The identifier `type', followed by `=' and one of `mailbox' or
+       `domainbox'.
+       This indicates whether getmail should deliver all mail from this
+       account into a single destination (type `mailbox'), or deliver to
+       various destinations based on the contents of the headers of each
+       retrieved emssage (type `domainbox'). This is optional and may be
+       omitted for `mailbox' account types.
+       e.g.
+type=domainbox
+     * POP3 Account Name
+       The identifier `account', followed by `=' and the actual account
+       name.
+       e.g.
+account=joe.smith
+     * POP3 Hostname
+       The identifier `host', followed by `=' and the actual POP3
+       hostname.
+       e.g.
+host=mailhost.isp.net
+     * Port Number
+       The identifier `port', followed by `=' and the POP3 port number to
+       use.
+       It may be omitted if the POP3 server runs on the standard port
+       (110).
+       e.g.
+port=8110
+     * Destination Maildir or mbox
+       The identifier `destination', followed by `=' and a complete path
+       to a `Maildir' or `mbox' file to which messages will be delivered
+       for the associated account.
+       If the POP3 mailbox is a domain mailbox, this specifies the
+       default delivery destination which will be used when none of the
+       supplied user addresses are found in a retrieved email.
+       e.g.
+destination=/home/username/Maildir/
+destination=/users/a-f/username/mboxfile
+     * POP3 Account Password
+       The identifier `password', followed by `=' and the actual account
+       password.
+       This is optional. If omitted, getmail will prompt for the password
+       when run.
+       e.g.
+password=mypoppassword
+     * Delete Option
+       The identifier `delete', followed by `=' and one of `yes' or `no'.
+       This indicates whether getmail should delete the mail from the
+       POP3 server after retrieving it. This is optional, and defaults to
+       `no'.
+       e.g.
+delete=yes
+     * Read All Option
+       The identifier `readall', followed by `=' and one of `yes' or
+       `no'.
+       This indicates whether getmail should retrieve all mail from this
+       account, or just messages which it has not previously seen. This
+       is optional, and defaults to `no'. Note that this option is
+       meaningless if getmail is deleting mail after retrieving it.
+       e.g.
+readall=yes
+     * Domain Mailbox Destinations
+       All other `option=value' pairs in a given section will be treated
+       as destinations in a domain mailbox, in the form of email address,
+       `=', and a destination path which is a `Maildir' or `mbox' file.
+       e.g.
+john.smith-lists-weasel-farming@isp.net=/users/jsmith/Mail/list-weasels
+john.smith-lists-perl@isp.net=/users/jsmith/Mail/list-perl
+john.smith-home@isp.net=/users/jsmith/Mail/personal
+info@mycompany.com=/users/rharrington/Mail/info-requests/
+       
+                        5 Support for Domain Mailboxes
                                        
-   I have added experimental support for domain (multidrop) mailboxes. A
-   domain mailbox is a POP3 mailbox which receives mail for multiple
-   users. For example, all mail for anyone at `mycompany.com' might be
-   delivered to a single POP3 mailbox named `mycompany@isp.com'.
+   I have added support for domain (multidrop) mailboxes. A domain
+   mailbox is a POP3 mailbox which receives mail for multiple users. For
+   example, all mail for anyone at `mycompany.com' might be delivered to
+   a single POP3 mailbox named `mycompany@isp.com'.
    
    getmail can be configured to retrieve mail from a domain mailbox, and
    deliver each message separately, to the user it was originally
-   addressed to. This type of operation is not supported in a standard
-   way by the majority of the email infrastructure, so the support is
-   experimental for now. I would appreciate feedback on how this works
-   for you if you use it. Feedback to date has been very positive, so
-   don't let its experimental status deter you.
+   addressed to. This type of operation is not 100% reliable,
+   unfortunately, because of the way many MTAs implement domain
+   mailboxes. getmail tries to work around this by supporting (among
+   other methods) the `Delivered-To: ' header implemented by more
+   reliable MTAs (like qmail).
    
    getmail tries to determine who each message was originally intended
    for by looking at the message headers. If the first valid header is a
    qmail-style `Delivered-To:' header, it will use that as the recipient.
    If that header does not exist, it will look for recipients in
+   `Envelope-To:'. If that header does not exist, it will check
+   `X-Envelope-To:'. If that header does not exist, it will look in
    `Resent-To:', `Resent-cc:', and `Resent-bcc:' headers. If none of
    those headers exist, it will look for recipients in `To:', `cc:', and
    `bcc:' headers.
@@ -207,16 +324,16 @@ info@smallcompany.com=/home/paula/inbox
    
    More details are available in the file `USAGE'.
    
-                               5 Current Version
+                               6 Current Version
                                        
    The current version of getmail should be available at
    www.qcc.sk.ca/~charlesc/software/getmail/.
    
-           6 Reporting bugs, feature requests, and support requests
+           7 Reporting bugs, feature requests, and support requests
                                        
    To report a bug, make a feature request, or get support with getmail,
    please send email to me at <getmail @ discworld.dyndns.org>.
      _________________________________________________________________
    
-   This document was generated on 27 January 2000 using the texi2html
+   This document was generated on 6 Febuary 2000 using the texi2html
    translator version 1.51a.

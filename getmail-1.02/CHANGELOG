@@ -1,6 +1,10 @@
 Changes for getmail:
 ====================
 
+v.1.02 6 February 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+    -Added checking for 'Envelope-To: ' and 'X-Envelope-To: ' headers for
+    domain mailboxes.  Updated documentation.
+
 v.1.01 27 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
     -Added the --quiet/-q option to override the --verbose/-v option when
     supplied GETMAILOPTS.

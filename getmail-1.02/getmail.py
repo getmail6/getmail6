@@ -49,7 +49,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '1.01.01'
+VERSION = '1.02'
 
 #
 # Imports
@@ -353,6 +353,18 @@ def domainbox_find_recipients (message):
     f.writelines (message)
     f.seek (0)
     m = rfc822.Message (f)
+
+    if not recipients:
+        # Try Envelope-To: next
+        addrlist = m.getaddrlist ('envelope-to')
+        for item in addrlist:
+            recipients.append (item [1])    # Get email address
+
+    if not recipients:
+        # Try X-Envelope-To: next
+        addrlist = m.getaddrlist ('x-envelope-to')
+        for item in addrlist:
+            recipients.append (item [1])    # Get email address
 
     if not recipients:
         # Try Resent-To:, Resent-cc:, and Resent-bcc: next

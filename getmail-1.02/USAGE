@@ -119,7 +119,7 @@ Options that getmail currently recognizes are:
 
   -q or --quiet              output less information.
     To override the --verbose/-v options.
-    
+
   -h or --help               basic usage information.
 
   -i or --ignoreconfig       Don't read the default .getmailrc file.
@@ -153,6 +153,8 @@ appreciate feedback on how this works for you if you try it.
 getmail tries to determine who each message was originally intended for
 by looking at the message headers.  If the first valid header is a
 qmail-style "Delivered-To: " header, it will use that as the recipient.
+If that header does not exist, it will look for recipients in "Envelope-To: ".
+If that header does not exist, it will look for recipients in "X-Envelope-To: ".
 If that header does not exist, it will look for recipients in "Resent-To: ",
 "Resent-cc: ", and "Resent-bcc: " headers.  If none of those headers exist,
 it will look for recipients in "To: ", "cc: ", and "bcc: " headers.
