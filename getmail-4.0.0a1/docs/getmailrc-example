@@ -1,0 +1,9 @@
+[retriever]
+type = SimplePOP3Retriever
+server = pop.example.net
+user = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = Maildir
+path = ~tracyk/Maildir/

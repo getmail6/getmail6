@@ -1,0 +1,19 @@
+TODO
+====
+
+-documentation
+-RPM package
+-allow command delivery in MultiSorter?
+  -how to include arguments, replacements, etc. without having to parse
+  a string into separate argv values?
+-flush out getmailrc-example
+-test, test, test
+-do something about the #! line in the scripts?  env is an ugly hack I've
+  never liked for this, but many people still have Python<=2.2 as "python",
+  and I can't rely on /usr/bin/python2.3 or anything like that being
+  present either.
+
+DONE
+====
+
+-distutils setup script

@@ -1,0 +1,14 @@
+WARNING:  getmail version 4 is presently alpha-quality software.  That means it 
+is not feature-complete and almost certainly contains bugs, perhaps even some 
+that could eat your mail.  It is recommended that you only test getmail v. 4 
+with mail accounts which you can afford to lose messages from, test accounts set 
+up expressly for this purpose, or that you retrieve all your mail with a stable 
+retriever first (i.e. getmail v.3).
+
+If you find a bug, please report it to the alpha-testing mailing list.
+All alpha testers should be members of the mailing list set up for this
+test; if you are not a member of the mailing list, please send mail to
+<getmail4alpha@discworld.dyndns.org> asking to be added to the list.
+
+Please include the output of `getmail.py [options] --dump` with any
+bug reports.

@@ -1,0 +1,380 @@
+This is the temporary configuration/usage documentation for getmail
+version 4 and is intended only for alpha-testers.
+
+getmail version 4 is licensed under the GNU General Public License version
+2 (only).  A copy of this license is included in the file COPYING.
+If you wish to obtain a license for getmail with different terms,
+please contact me.  The GPL grants you the right (among others) to redistribute
+the software under the same conditions, but I would appreciate it if you
+did not distribute this alpha-test software.  Please wait at least until
+getmail v.4 is in beta-state, is feature complete, and contains complete
+documentation.
+
+All alpha testers should be members of the mailing list set up for this
+test; if you are not a member of the mailing list, please send mail to
+<getmail4alpha@discworld.dyndns.org> asking to be added to the list.
+
+Instructions for use, questions regarding the same, bug reports, and general
+user discussion of getmail v. 4 are all appropriate for the mailing list.
+The list address (members only) is <getmail-alpha@discworld.dnsalias.org>.
+No HTML; please configure your MUA to send plain-text only.  Please do not
+send questions regarding getmail verison 4 to the main getmail users' mailing
+list; it will only confuse things.
+
+WARNING:  getmail version 4 is presently alpha-quality software.  That means it 
+is not feature-complete and almost certainly contains bugs, perhaps even some 
+that could eat your mail.  It is recommended that you only test getmail v. 4 
+with mail accounts which you can afford to lose messages from, test accounts set 
+up expressly for this purpose, or that you retrieve all your mail with a stable 
+retriever first (i.e. getmail v.3).
+
+Major Changes since v.3
+=======================
+
+Each getmail rc file can only contain one account to retrieve mail from.  If you 
+are currently retrieving mail from multiple accounts, you will need multiple rc 
+files.  They can all reside in the same data/configuration directory, and 
+getmail can be invoked with multiple rc files in a single run, so you can still 
+retrieve mail from multiple accounts without having to run getmail multiple 
+times.
+
+The rc file format is slightly different.  getmail is now modular and 
+extensible; each rc file contains an optional [options] section, one [retriever] 
+section, zero or more [filterX] sections, and one [destination] section.
+
+The message logging feature of version 3 is not yet re-implemented for v.4.
+
+Invoking getmail
+================
+
+getmail v.4 is invoked as follows:
+
+    usage: getmail.py [options]
+    
+    options:
+      --version             show program's version number and exit
+      -h, --help            show this help message and exit
+      -gDIR, --getmaildir=DIR
+                            look in DIR for config/data files
+      -rFILE, --rcfile=FILE
+                            load configuration from FILE (may be given
+                            multiple times)
+      --dump                dump configuration and exit (debugging)
+      --trace               print extended debugging information
+    
+      Overrides:
+        The following options override those specified in any getmailrc file.
+        -v, --verbose       print informational messages
+        -q, --quiet         do not print informational messages
+        -d, --delete        delete messages from server after retrieving
+        -l, --dont-delete   do not delete messages from server after retrieving
+        -a, --all           retrieve all messages
+        -n, --new           retrieve only unread messages
+
+getmail can be invoked with no options; --getmaildir defaults to 
+"$HOME/.getmail/", and --rcfile defaults to "getmailrc".  A simple invocation
+reading two rc files might be:
+
+  ./getmail.py --rcfile getmailrc1 --rcfile getmailrc2
+
+If you are using ~/data/getmail as your data/configuration directory instead
+of the default ~/.getmail/, the above command would become:
+
+  ./getmail.py --getmaildir ~/data/getmail/ --rcfile getmailrc1 --rcfile getmailrc2
+
+Configuring getmail
+===================
+
+A getmail rc file consists of sections of name, value pairs.  Each section
+is preceded by a section header like:
+
+  [section name]
+
+The section's name, value pairs are specified like this:
+
+  name = value
+
+They can also be specified as "name : value", but that's ugly and confuses
+the issue.
+
+Any line beginning with a "#" or ";" character is a comment, and it's contents
+are ignored.  Values can be broken across lines; the second and subsequent
+lines must start with whitespace to indicate the continuation, rfc2822-style.
+
+The sections [retriever] and [destination] are required.  The [options]
+section can be omitted.  Filters are specified with section titles beginning
+with "filter" and are applied in collating order; for instance, to apply
+three filters, you would have the following sections:
+
+  [filter1]
+  ...
+  [filter2]
+  ...
+  [filter3]
+  ...
+
+The simplest possible getmail rc file consists of a [retriever] section
+and a [destination] section.
+
+Options
+-------
+
+getmail global defaults can be configured in the [options] section of the
+getmail rc file.  At the moment, the only option available for this section
+is the "verbose" directive:
+
+  verbose = 0
+  verbose = 1
+
+This controls whether getmail operates verbosely or not, and can be overridden
+from the commandline with the --verbose/--quiet options.
+  
+Retriever
+---------
+
+A getmail retriever is a message source.  It is configured with the [retriever]
+section of the rc file.
+  
+The current retrievers are:
+
+    SimplePOP3Retriever - single-drop POP3 retriever with optional APOP support.
+                        Does not provide recipient information about retrieved
+                        messages.
+    MultidropPOP3Retriever - multi-drop (domain mailbox) retriever with 
+                           optional APOP support.  Provides recipient
+                           information about retrieved messages.
+    MultidropSPDSRetriever - multi-drop (domain mailbox) retriever for use with
+                           demon.co.uk SPDS mailboxes.  Provides recipient
+                           information about retrieved messages.
+    SimpleIMAPv4Retriever - not yet complete.
+
+SimplePOP3Retriever takes the following configuration parameters:
+
+    server - server name or IP address of the POP3 server.
+    port (optional) - TCP port to connect to.  Defaults to the standard POP3
+                      port (110).
+    username - POP3 username.
+    password (optional) - POP3 password.  If not supplied, getmail will prompt
+                          you to enter it.
+    use_apop (optional) - whether to use APOP for POP3 login.  Defaults to False.
+    timeout (optional) - defaults to 180 seconds.
+
+    example:
+
+        [retriever]
+        type = SimplePOP3Retriever
+        server = pop.example.net
+        user = jeff.plotzky
+        password = mailpassword
+    
+    
+MultidropPOP3Retriever takes the same configuration parameters as 
+SimplePOP3Retriever, plus one additional parameter:
+
+    envelope_recipient - indicates which message header field holds the address
+                         of the message recipient.  This is given in the format
+                         "header_fieldname:number".  A value of
+                         "delivered-to:3" indicates getmail should extract the
+                         envelope recipient address from the third (from the
+                         top) Delivered-To: header field.
+
+    example:
+
+        [retriever]
+        type = MultidropPOP3Retriever
+        server = pop.example.net
+        user = exampledotorg
+        password = mailpassword
+        envelope_recipient = delivered-to:2
+        
+                         
+MultidropSPDSRetriever takes the same configuration parameters as 
+SimplePOP3Retriever, except that it does not take the use_apop parameter.
+
+    example:
+
+        [retriever]
+        type = MultidropSPDSRetriever
+        server = pop.demon.co.uk
+        user = exampledotcom
+        password = mailpassword
+
+Destinations
+------------
+
+A getmail destination is a method of delivering messages to one or more
+recipients.  Some destinations require recipient information about the messages
+they handle to be able to deliver to the correct user or mailbox; these
+destinations will only work with a retriever capable of providing that
+information.
+
+The current destinations are:
+
+  Maildir - deliver all retrieved messages to a Maildir.  Does not require
+            recipient information.
+  Mboxrd - deliver all retrieved messages to an mboxrd file with fcntl-style
+           locking.  Does not require recipient information.
+  MDA_qmaillocal - deliver messages by invoking qmail-local, obeying .qmail
+                   files, extension addressing, etc.
+  MDA_external - deliver messages by invoking an arbitrary command.  Use this
+                 for delivering through procmail, maildrop, etc.
+  MultiSorter - deliver messages to an assortment of Maildirs and Mboxrd files
+                by matching the recipient address against regular expressions.
+                Requires recipient information.  This is similar to getmail
+                v.3's "postmaster" and "local" directives, with the exception
+                that command deliveries are not yet supported.
+
+Maildir takes the following configuration parameters:
+
+    path - path to the maildir.  This will be expanded for leading "~/" or
+    "~user/".
+    
+    example:
+
+        [destination]
+        type = Maildir
+        path = ~tracyk/Maildir/
+        
+
+Mboxrd takes the following configuration parameters:
+
+    path - path to the mboxrd file.  This will be expanded for leading "~/" or
+    "~user/".  Note that unlike v.3, getmail v.4 will create the specified
+    mboxrd file if it does not exist.
+    
+    example:
+
+        [destination]
+        type = Mboxrd
+        path = /var/spool/mail/georgel
+
+MDA_qmaillocal is complicated and currently in flux.  If you want to try
+delivering mail using qmail-local as an MDA, please ask on the list first.
+
+MDA_external takes the following configuration parameters:
+
+    path - path to the command to use an an MDA.  This will be expanded for 
+           leading "~/" or "~user/".
+    
+    arguments (optional) - arguments to be supplied to the command, expressed as 
+                           a valid Python tuple.  If available from the message
+                           retriever, the following string replacements can be
+                           specified:
+                            %(sender) - envelope return path
+                            %(recipient) - recipient address
+                            %(domain) - domain-part of recipient address
+                            %(local) - local-part of recipient address
+    
+    unixfrom (optional) - whether to include a From_ line before the message.
+                          Defaults to False.
+                          
+    example:
+
+        [destination]
+        type = MDA_external
+        path = /usr/local/bin/mymda
+        arguments = ("--strip-attachments", "-f%(sender)", "--fast")
+
+MultiSorter takes the following configuration parameters:
+
+    default - path to maildir or mbox file which takes all mail not 
+              otherwise matched by locals (see below).  This will be expanded 
+              for leading "~/" or "~user/".
+    
+    locals - a list of (regular expression, destination) pairs, one per line.
+             Lines after the first must start with whitespace to indicate
+             they are a continuation of the previous line.
+             If the message recipient matches a given regular expression,
+             it will be delivered to the corresponding destination maildir or
+             mbox file.  A given message may match multiple regular expressions
+             and be delivered to multiple destinations.
+
+    Note that to use the "locals" capability, the message retriever must supply
+    message recipient information.
+
+    example:
+
+        [destination]
+        type = MultiSorter
+        default = ~joe/Maildir/
+        locals = jeff@example.net ~jeff/Maildir/
+                 sam@example.net ~sam/Mail/inbox
+
+Filters
+-------
+
+Filters are optional programs which can cause getmail to drop (ignore) certain 
+messages, or change the content of messages before delivering them to a 
+destination.  Each filter is specified in its own section in the getmail rc file 
+(i.e. [filter1], [filter2], etc) and is applied in collating order.  A filter 
+can return None instead of the message to cause getmail to drop the message.
+
+The only currently supported filter type is Filter_external, which passes the 
+message through an arbitrary external command.  This command /must/ read the 
+message from stdin and write the (possibly modified) message to stdout.  If the 
+command exits 99 or 100, the message will be dropped (i.e. not delivered to any 
+destination).  Otherwise, if the command exits nonzero or writes 
+to stderr, it is considered an error.
+
+Filter_external takes the following configuration parameters:
+
+    path - path to the command to use an a filter.  This will be expanded for 
+           leading "~/" or "~user/".
+    
+    arguments (optional) - arguments to be supplied to the command, expressed as 
+                           a valid Python tuple.  If available from the message
+                           retriever, the following string replacements can be
+                           specified:
+                            %(sender) - envelope return path
+                            %(recipient) - recipient address
+                            %(domain) - domain-part of recipient address
+                            %(local) - local-part of recipient address
+    
+    unixfrom (optional) - whether to include a From_ line before the message.
+                          Defaults to False.
+
+    example:
+
+        [filter1]
+        type = Filter_external
+        path = /usr/local/bin/mailfilter
+        arguments = ("--strip-attachment-type=exe,scr",)
+
+Example configurations
+======================
+
+The simplest getmail 4 configuration is a SimplePOP3Retriever which delivers all 
+mail to a single Maildir or Mboxrd destination.  Such a getmail rc file might 
+look like this:
+
+        [retriever]
+        type = SimplePOP3Retriever
+        server = pop.example.net
+        user = jeff.plotzky
+        password = mailpassword
+
+        [destination]
+        type = Maildir
+        path = ~tracyk/Maildir/
+
+The simplest domain-mailbox configuration involves a MultidropPOP3Retriever 
+which delivers mail to an assortment of maildirs or mbox files with a 
+MultiSorter destination.  Such a getmail rc file might 
+look like this:
+
+        [retriever]
+        type = MultidropPOP3Retriever
+        server = pop.example.net
+        user = exampledotorg
+        password = mailpassword
+        envelope_recipient = delivered-to:2
+
+        [destination]
+        type = MultiSorter
+        default = ~joe/Maildir/
+        locals = ^jeff@.* ~jeff/Maildir/
+                 ^sam@.*  ~sam/Mail/inbox
+                 ^sue@.*  ~sue/Maildir/
+
+Other, more complex configurations are possible.  If you need help setting
+one up, please ask on the alpha-testing mailing list.

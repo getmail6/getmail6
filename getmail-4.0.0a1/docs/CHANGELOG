@@ -1,0 +1,23 @@
+Changes since getmail version 3
+-------------------------------
+
+-complete rewrite
+-switch to Python version 2.3.3:
+  -increased code readability (augmented assignment, list comprehensions,
+    string methods, etc)
+  -eliminate external modules (ConfParser, timeoutsocket)
+  -use standard library modules which have come up to reasonable levels
+    of quality and functionality over old custom code (optparse,
+    ConfigParser)
+  -no longer require workarounds for older, broken standard library modules/
+    functions
+-modular, object-oriented framework for retrievers, destinations allows
+  extensibility
+-make more platform-agnostic (transparently support system EOL convention,
+  etc)
+-support for multiple retriever/account types:
+  -POP (simple, multidrop, SPDS)
+  -IMAPv4 (incomplete)
+-configuration (rc) file format changes:
+  -support multiple rc files per invocation
+  -one retriever, one destination per file
