@@ -13,28 +13,28 @@ Bugs, questions, feature requests, and comments should be directed to me
 In a nutshell:
 --------------
 
-Ensure Python is installed.  See http://www.python.org/ for details.
+1.  Ensure Python is installed.  See http://www.python.org/ for details.
 
-Install the script 'getmail.py' somewhere with executable permissions (0755).
+2.  Install the script 'getmail.py' somewhere with executable permissions (0755).
 
-Optionally set up a symbolic link named 'getmail' pointing to the script.
+3.  Optionally set up a symbolic link named 'getmail' pointing to the script.
 
-Create a .getmail/ directory in your home directory.
+4.  Create a .getmail/ directory in your home directory.
 
-Create the environment variable GETMAIL, containing the path to the above
+5.  Create the environment variable GETMAIL, containing the path to the above
 directory.  You can automate this in your logon by putting
   export GETMAIL=$HOME/.getmail
 in your .bash_profile or .bashrc file if you use the bash shell.
 
-Create a file .getmailrc in the above directory.  In it, place one line for each
-mail account you wish to retrieve mail for.  The line is in this format:
+6.  Create a file .getmailrc in the above directory.  In it, place one line for
+each mail account you wish to retrieve mail for.  The line is in this format:
 	username@popmailhost[:port],maildir[,password]
 For example, to retrieve mail for account 'joe' on mailhost 'popmail.isp.com'
 on the default POP3 port (110), and deliver the mail into a maildir in joe's
 home directory named 'Maildir', with password 'poppass', enter the following:
 	joe@popmail.isp.com,/home/joe/Maildir,poppass
 
-Run getmail with no options to retrieve all mail for joe.
+7.  Run getmail with no options to retrieve all mail for joe.
 Use option -n or --new for only unread mail.  Use option -v or --verbose to
 see what's going on.
 
@@ -75,6 +75,11 @@ variable 'GETMAIL', if it exists.  Specifying a config file on the commandline
 overrides the environment variable.  An alternate configuration directory can
 also be specified on the commandline.
 
+You can specify your own defaults by setting the environment variable
+'GETMAILOPTS' with the options you like.  For instance, setting it to
+"--verbose --new" will enable these two options by default.  These types of
+default options can be overridden on the commandline.
+
 Options that getmail currently recognizes are:
 
   -a or --all                retrieve all messages.
@@ -99,3 +104,6 @@ Options that getmail currently recognizes are:
   -c or --configdir <dir>    Store data in <dir> instead of the default, which
     is taken from the environment variable 'GETMAIL' if it exists.
 
+  --dump                     Output debugging information on your usage.  If
+    you have problems with getmail, invoke it with the options you normally
+    use, plus --dump and send the output to me at <getmail@discworld.dyndns.org>.

@@ -1,0 +1,17 @@
+Yet to be done:
+===============
+
+-Write some more documentation.  A real man page, and some better user
+  documentation.  Possibly a good, solid overview document for first timers
+  and technophiles who don't like long documentation.
+
+-Allow delivery to mbox files, and possibly mh folders.
+
+-Possibly allow delivery to various maildirs based on headers in received
+  messages, to allow the use of mailbox-per-domain.  I believe 'fetchmail'
+  calls this 'multidrop'.
+
+-Distribute a Makefile with an 'install' target with the program.  This will
+  become a higher priority once there is a proper manpage, etc to install.
+
+

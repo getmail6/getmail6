@@ -1,7 +1,0 @@
-Yet to be done:
-===============
-
--Write some more documentation.
-
--Possibly allow delivery to various maildirs based on headers in received
-  messages, to allow the use of mailbox-per-domain.

@@ -1,6 +1,21 @@
 Changes for getmail:
 ====================
 
+v.0.93 4 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Changed method of generating emergency save filenames to reduce
+	  collisions when multiple failures occur rapidly.
+
+v.0.92 4 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
+	-Added GETMAILOPS environment variable, where default options can be
+	  placed.
+	-Added a --dump option for debugging purposes.
+	-Added checking to ensure we're actually trying to deliver to a Maildir,
+	  and not an mbox or other structure.
+	-Made safer; if Maildir delivery fails for any reason, getmail will
+	  write the message to a temporary file in the current directory.  This
+	  should only happen if you try to deliver to a non-existant or non-
+	  writable Maildir.
+
 v.0.91 3 January 2000 Charles Cazabon <getmail@discworld.dyndns.org>
 	-Fixed bug in option parsing for --configdir longopt.
 	-Some cleanups for future options.

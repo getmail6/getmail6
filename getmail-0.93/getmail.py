@@ -43,7 +43,7 @@
 # on the Maildir format, see http://cr.yp.to/proto/maildir.html.
 #
 
-VERSION = '0.91'
+VERSION = '0.93'
 
 #
 # Imports
@@ -65,7 +65,8 @@ DEF_READ_ALL =			1				# Retrieve all mail (1) or just new (0)
 DEF_RCFILE =			'.getmailrc'	# Default.getmailrc filename
 ENV_GETMAIL =			'GETMAIL'		# Env. variable to get configuration/
 										#  data directory name from
-
+ENV_GETMAILOPTS =		'GETMAILOPTS'	# Default options can be put in this
+										#  environment variable
 
 #
 # Options
@@ -81,6 +82,7 @@ opt_maildir =			[]
 opt_verbose =			0
 opt_rcfile =			None
 opt_configdir =			None
+opt_dump =				0
 
 
 #
@@ -116,7 +118,18 @@ def main ():
 						 opt_verbose)
 
 		for msg in mail:
-			maildirdeliver (opt_maildir[i], pop3_unescape (msg))
+			try:
+				maildirdeliver (opt_maildir[i], pop3_unescape (msg))
+			except:
+				stderr ('Error encountered during Maildir delivery\n')
+
+				t = 'tmpmail.%s:%s:%s' % (time.time ()), os.getpid (),
+										  len (msg))
+				f = open (t, 'w')
+				f.writelines (pop3_unescape (msg))
+				f.close ()
+				stderr ('Message saved to file "%s"\n' % t)
+				time.sleep (1)
 
 	sys.exit (deliverycount)
 
@@ -251,6 +264,12 @@ def maildirdeliver (maildir, message):
 	fname_tmp = os.path.join (maildir, 'tmp', filename)
 	fname_new = os.path.join (maildir, 'new', filename)
 
+	# Verify we're trying to deliver to a maildir
+	if not (os.path.isdir (os.path.join (maildir, 'tmp'))
+		and os.path.isdir (os.path.join (maildir, 'new'))):
+		stderr ('Error:  "%s" is not a Maildir\n' % maildir)
+		raise 'Error:  "%s" is not a Maildir' % maildir
+
 	# Try to open file for reading first
 	try:
 		f = open (fname_tmp, 'rb')
@@ -330,6 +349,7 @@ def usage ():
 	'  -r or --rcfile <file>      use <file> instead of default .getmailrc\n'
 	'  -c or --configdir <dir>    use <dir> as config/data directory,\n'
 	'      Default configdir is directory set in "%s" environment variable\n'
+	'  --dump                     dump configuration for debugging\n'
 	'\n'
 	'For multiple account retrieval, multiple user@mailhost[:port],maildir[,password]\n'
 	'options can be used.  If not supplied, port defaults to %i.  Passwords not\n'
@@ -342,24 +362,38 @@ def parse_options (argv):
 	'''Parse commandline options.  Options handled:
 	--delete -d, --dont-delete -l, --all -a, --new -n, --verbose -v,
 	--help -h, --rcfile -r <configfile>, --configdir -c <configdir>
+	--dump
 	'''
 	#
 	global opt_delete_retrieved, opt_retrieve_read, \
 		opt_port, opt_host, opt_account, opt_password, opt_maildir, \
-		opt_verbose, opt_rcfile, opt_configdir
+		opt_verbose, opt_rcfile, opt_configdir, opt_dump
 
 	error = 0
 
+	# If the environment variable is set, set the default config/data dir
 	try:
 		opt_configdir = os.environ[ENV_GETMAIL]
 	except KeyError:
 		opt_configdir = ''
 
+	# If the environment variable is set, get default options from it
+	try:
+		oldargv = argv
+		newargs = [argv[0]]
+		for a in string.split (os.environ[ENV_GETMAILOPTS]):
+			newargs.append (a)
+		for a in argv[1 : ]:
+			newargs.append (a)
+		argv = newargs
+	except KeyError:
+		pass
+
 	optslist, args = [], []
 
 	opts = 'c:dlanvh'
 	longopts = ['delete', 'dont-delete', 'all', 'new', 'verbose', 'configdir=',
-		'help']
+		'help', 'dump']
 
 	try:
 		global optslist, args
@@ -403,6 +437,14 @@ def parse_options (argv):
 				error = 1
 			else:
 				opt_configdir = value
+
+		elif option == '--dump':
+			opt_dump = 1
+
+		else:
+			# ? Can't happen
+			stderr ('Error:  unrecognized option %s\n' % option)
+			error = 1
 
 	# Check for data directory
 	if not opt_configdir:
@@ -494,6 +536,37 @@ def parse_options (argv):
 			finally:
 				termios.tcsetattr (fd, TERMIOS.TCSADRAIN, oldattr)
 			print
+
+	if opt_dump:
+		# Debugging aid, dumps current option config.
+		print '\ngetmail (%s) version %s debugging dump\n' % (oldargv[0], VERSION)
+		if os.environ.has_key (ENV_GETMAIL):
+			print 'ENV_GETMAIL = "%s", contains "%s"' % (ENV_GETMAIL, os.environ[ENV_GETMAIL])
+		if os.environ.has_key (ENV_GETMAILOPTS):
+			print 'ENV_GETMAILOPTS = "%s", contains "%s"' % (ENV_GETMAILOPTS, os.environ[ENV_GETMAILOPTS])
+		print 'In-script defaults:\n' \
+			'  DEF_PORT     = "%s"\n' \
+			'  DEF_DELETE   = "%s"\n' \
+			'  DEF_READ_ALL = "%s"\n' \
+			'  DEF_RCFILE   = "%s"' \
+			% (DEF_PORT, DEF_DELETE, DEF_READ_ALL, DEF_RCFILE)
+		print 'Commandline:\n  ',
+		for a in oldargv:
+			print '%s' % a,
+		print
+		print 'Option status:\n' \
+			'  opt_delete_retrieved = "%s"\n' \
+			'  opt_retrieve_read = "%s"\n' \
+			'  opt_verbose = "%s"\n' \
+			'  opt_rcfile = "%s"\n' \
+			'  opt_configdir = "%s"\n' \
+			% (opt_delete_retrieved, opt_retrieve_read, opt_verbose,
+			   opt_rcfile, opt_configdir)
+		print 'Accounts:'
+		for i in range (len (opt_account)):
+			print '  %s,%s,%s,%s' % (opt_account[i], opt_host[i], opt_port[i],
+									 opt_maildir[i])
+		sys.exit (OK)
 
 	if error:
 		usage ()
