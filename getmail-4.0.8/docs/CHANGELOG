@@ -1,3 +1,12 @@
+Version 4.0.8
+6 August 2004
+
+  -add an extra error message if you ask getmail to deliver to a maildir,
+  but getmail can't check the contents of it due to permissions.
+  Thanks: Clemens Buschmann.
+  -fix breakage introduced in 4.0.7: getmail would forget a message was "seen"
+  after a cycle of not retrieving it.  Thanks: Payal Rathod.
+
 Version 4.0.7
 5 August 2004
 

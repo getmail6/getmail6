@@ -298,7 +298,8 @@ class RetrieverSkeleton(ConfigurableBase):
         wrote = 0
         try:
             f = updatefile(self.oldmail_filename)
-            for msgid in self.__delivered:
+            msgids = self.__delivered.keys() + self.oldmail.keys()
+            for msgid in msgids:
                 self.log.debug('msgid %s ...' % msgid)
                 if msgid in self.deleted:
                     # Already deleted, don't remember this one

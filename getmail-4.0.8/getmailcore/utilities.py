@@ -143,7 +143,11 @@ def is_maildir(d):
     '''Verify a path is a maildir.
     '''
     for sub in ('', 'tmp', 'cur', 'new'):
-        if not os.path.isdir(os.path.join(d, sub)):
+        subdir = os.path.join(d, sub)
+        if not os.access(subdir, os.F_OK):
+            raise getmailConfigurationError('cannot read contents of maildir '
+                '%s - check permissions and ownership' % d)
+        if not os.path.isdir(subdir):
             return False
     return True
 
