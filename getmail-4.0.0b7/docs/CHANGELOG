@@ -1,3 +1,14 @@
+Version 4.0.0b7
+17 July 2004
+
+  -changes to an "impossible" error handler in _child_handler(), just in case.
+  -move some code from destinations.MultiSorter() into new MultiDestinationBase
+  base class.
+  -fix MultiDestinationBase._get_destination() 
+  -add MultiDestination class to deliver messages to multiple destinations
+  unconditionally.
+  -cosmetic fixes to output
+
 Version 4.0.0b6
 15 July 2004
 

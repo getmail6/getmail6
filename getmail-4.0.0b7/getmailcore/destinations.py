@@ -18,6 +18,8 @@ __all__ = [
     'Mboxrd',
     'MDA_qmaillocal',
     'MDA_external',
+    'MultiDestinationBase',
+    'MultiDestination',
     'MultiSorter',
 ]
 
@@ -536,7 +538,119 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         return 'MDA_external command %s (%s)' % (self.conf['command'], out)
 
 #######################################
-class MultiSorter(DeliverySkeleton):
+class MultiDestinationBase(DeliverySkeleton):
+    '''Base class for destinations which hand messages off to other
+    destinations.
+
+    Sub-classes must provide the following attributes and methods:
+
+      conf - standard ConfigurableBase configuration dictionary
+
+      log - getmailcore.logging.logger() instance
+
+    In addition, sub-classes must populate the following list provided by
+    this base class:
+
+      _destinations - a list of all destination objects messages could be
+                      handed to by this class.
+    '''
+
+    def _get_destination(self, path):
+        p = expand_user_vars(path)
+        if p.startswith('[') and p.endswith(']'):
+            destsectionname = p[1:-1]
+            if not destsectionname in self.conf['configparser'].sections():
+                raise getmailConfigurationError('destination specifies section name %s which does not exist' % path)
+            # Construct destination instance
+            self.log.debug('  getting destination for %s\n' % path)
+            destination_type = self.conf['configparser'].get(destsectionname, 'type')
+            self.log.debug('    type="%s"\n' % destination_type)
+            destination_func = globals().get(destination_type, None)
+            if not callable(destination_func):
+                raise getmailConfigurationError('configuration file section %s specifies incorrect destination type (%s)' % (destsectionname, destination_type))
+            destination_args = {'configparser' : self.conf['configparser']}
+            for (name, value) in self.conf['configparser'].items(destsectionname):
+                if name in ('type', 'configparser'): continue
+                self.log.debug('    parameter %s="%s"\n' % (name, value))
+                destination_args[name] = value
+            self.log.debug('    instantiating destination %s with args %s\n' % (destination_type, destination_args))
+            dest = destination_func(**destination_args)
+        elif (p.startswith('/') or p.startswith('.')) and p.endswith('/'):
+            dest = Maildir(path=p)
+        elif (p.startswith('/') or p.startswith('.')):
+            dest = Mboxrd(path=p)
+        else:
+            raise getmailConfigurationError('specified destination %s not of recognized type' % p)
+        return dest
+
+    def initialize(self):
+        self.log.trace()
+        self.hostname = socket.getfqdn()
+        self._destinations = []
+
+    def retriever_info(self, retriever):
+        '''Override base class to pass this to the encapsulated destinations.
+        '''
+        self.log.trace()
+        DeliverySkeleton.retriever_info(self, retriever)
+        # Pass down to all destinations
+        for destination in self._destinations:
+            destination.retriever_info(retriever)
+
+#######################################
+class MultiDestination(MultiDestinationBase):
+    '''Send messages to one or more other destination objects unconditionally.
+
+    Parameters:
+
+      destinations - a tuple of strings, each specifying a destination that
+                messages should be delivered to.  These strings will be expanded
+                for leading "~/" or "~user/" and environment variables,
+                then interpreted as maildir/mbox/other-destination-section.
+    '''
+    _confitems = (
+        {'name' : 'destinations', 'type' : tuple},
+    )
+
+    def initialize(self):
+        self.log.trace()
+        MultiDestinationBase.initialize(self)
+        dests = [expand_user_vars(item) for item in self.conf['destinations']]
+        for item in dests:
+            try:
+                dest = self._get_destination(item)
+            except getmailConfigurationError, o:
+                raise getmailConfigurationError('%s destination error %s' % (item, o))
+            self._destinations.append(dest)
+        if not self._destinations:
+            raise getmailConfigurationError('no destinations specified')
+
+    def _confstring(self):
+        '''Override the base class implementation.
+        '''
+        self.log.trace()
+        confstring = ''
+        for dest in self._destinations:
+            if confstring:
+                confstring += ', '
+            confstring += '%s' % dest
+        return confstring
+
+    def __str__(self):
+        self.log.trace()
+        return 'MultiDestination (%s)' % self._confstring()
+
+    def showconf(self):
+        self.log.info('MultiDestination(%s)\n' % self._confstring())
+
+    def _deliver_message(self, msg, delivered_to, received):
+        self.log.trace()
+        for dest in self._destinations:
+            dest.deliver_message(msg, delivered_to, received)
+        return self
+
+#######################################
+class MultiSorter(MultiDestinationBase):
     '''Multiple maildir/mboxrd destination with recipient address matching.
 
     Parameters:
@@ -578,38 +692,11 @@ class MultiSorter(DeliverySkeleton):
         {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
-    def _get_destination(self, path):
-        p = expand_user_vars(path)
-        if p.startswith('[') and p.endswith(']'):
-            destsectionname = p[1:-1]
-            if not destsectionname in self.conf['configparser'].sections():
-                raise getmailConfigurationError('destination specifies section name %s which does not exist' % path)
-            # Construct destination instance
-            log.debug('  getting destination for %s\n' % path)
-            destination_type = self.conf['configparser'].get(destsectionname, 'type')
-            log.debug('    type="%s"\n' % destination_type)
-            destination_func = getattr(globals(), destination_type)
-            if not callable(destination_func):
-                raise getmailConfigurationError('configuration file section %s specifies incorrect destination type (%s)' % (destsectionname, destination_type))
-            destination_args = {'configparser' : self.conf['configparser']}
-            for (name, value) in self.conf['configparser'].items(destsectionname):
-                if name in ('type', 'configparser'): continue
-                log.debug('    parameter %s="%s"\n' % (name, value))
-                destination_args[name] = value
-            log.debug('    instantiating destination %s with args %s\n' % (destination_type, destination_args))
-            dest = destination_func(**destination_args)
-        elif (p.startswith('/') or p.startswith('.')) and p.endswith('/'):
-            dest = Maildir(path=p)
-        elif (p.startswith('/') or p.startswith('.')):
-            dest = Mboxrd(path=p)
-        else:
-            raise getmailConfigurationError('specified destination %s not of recognized type' % p)
-        return dest
-
     def initialize(self):
         self.log.trace()
-        self.hostname = socket.getfqdn()
+        MultiDestinationBase.initialize(self)
         self.default = self._get_destination(self.conf['default'])
+        self._destinations.append(self.default)
         self.targets = []
         try:
             for (pattern, path) in [line.strip().split(None, 1) for line in self.conf['locals'].split(os.linesep) if line.strip()]:
@@ -618,6 +705,7 @@ class MultiSorter(DeliverySkeleton):
                 except getmailConfigurationError, o:
                     raise getmailConfigurationError('pattern %s destination error %s' % (pattern, o))
                 self.targets.append( (re.compile(pattern.replace('\\', '\\\\'), re.IGNORECASE), dest) )
+                self._destinations.append(dest)
         except re.error, o:
             raise getmailConfigurationError('invalid regular expression %s' % o)
         except ValueError, o:
@@ -628,7 +716,7 @@ class MultiSorter(DeliverySkeleton):
         self.log.trace()
         confstring = 'default=%s' % self.default
         for (pattern, destination) in self.targets:
-            confstring += ',%s->%s' % (pattern.pattern, destination)
+            confstring += ', %s->%s' % (pattern.pattern, destination)
         return confstring
 
     def __str__(self):
@@ -637,15 +725,6 @@ class MultiSorter(DeliverySkeleton):
 
     def showconf(self):
         self.log.info('MultiSorter(%s)\n' % self._confstring())
-
-    def retriever_info(self, retriever):
-        '''Override base class to pass this to the encapsulated destinations.
-        '''
-        self.log.trace()
-        DeliverySkeleton.retriever_info(self, retriever)
-        self.default.retriever_info(retriever)
-        for (unused, destination) in self.targets:
-            destination.retriever_info(retriever)
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()

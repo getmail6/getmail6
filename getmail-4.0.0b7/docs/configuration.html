@@ -80,6 +80,7 @@
                 <li><a href="configuration.html#destination-maildir">Maildir</a></li>
                 <li><a href="configuration.html#destination-mboxrd">Mboxrd</a></li>
                 <li><a href="configuration.html#destination-mdaexternal">MDA_external</a></li>
+                <li><a href="configuration.html#destination-multidestination">MultiDestination</a></li>
                 <li><a href="configuration.html#destination-multisorter">MultiSorter</a></li>
                 <li><a href="configuration.html#destination-mdaqmaillocal">MDA_qmaillocal</a></li>
                 </ul>
@@ -868,6 +869,11 @@ envelope_recipient = delivered-to:1
         and others.
     </li>
     <li>
+        <a href="#destination-multidestination">MultiDestination</a>
+        &mdash; unconditionally deliver messages to multiple destinations
+        (maildirs, mbox files, external MDAs, or other destinations).
+    </li>
+    <li>
         <a href="#destination-multisorter">MultiSorter</a>
         &mdash; sort messages according to the envelope recipient
         (requires a domain mailbox retriever) and deliver to a variety of
@@ -1079,30 +1085,23 @@ group = mail
 arguments = (&quot;--strip-forbidden-attachments&quot;, &quot;--recipient=%(recipient)&quot;)
 </pre>
 
-<h4 id="destination-multisorter">MultiSorter</h4>
+<h4 id="destination-multidestination">MultiDestination</h4>
 <p>
-    MultiSorter compares the envelope recipient address of messages against a
-    list of user-supplied regular expressions and delivers the message to the
-    destination (maildir, mboxrd file, or other) associated with any matching
-    patterns.  A message can match multiple patterns and therefore be delivered
-    to multiple matching destinations.  Any message which matches none of the
-    patterns is delivered to a default destination for the postmaster.
+    MultiDestination doesn't do any message deliveries itself; instead,
+    it lets you specify a list of one or more other destinations which
+    it will pass each message to.  You can use this to deliver each message
+    to several different destinations.
 </p>
 <p>
-    Because MultiSorter requires the envelope recipient to operate, it must be
-    used with a domain mailbox retriever.
-</p>
-<p>
-    The MultiSorter destination takes one required parameter:
+    The MultiDestination destination takes one required parameter:
 </p>
 <ul>
     <li>
-        default 
-        (<a href="#parameter-string">string</a>) 
-        &mdash; the destination for messages which aren't matched by any of the 
-        &quot;locals&quot; regular expressions.  The destination can be a 
-        maildir, mboxrd file, or other destination.  The string is first 
-        expanded for leading
+        destinations 
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>) 
+        &mdash; the destinations which the messages will be passed to.
+        The destination can be a maildir, mboxrd file, or other destination.  
+        The string is first expanded for leading
         <span class="file">~</span>
         or
         <span class="file">~<span class="meta">USER</span></span>
@@ -1148,24 +1147,24 @@ arguments = (&quot;--strip-forbidden-attachments&quot;, &quot;--recipient=%(reci
                 <span class="file">jeff</span>:
 <pre class="example">
 [destination]
-type = MultiSorter
-default = ~jeff/Maildir/
+type = MultiDestination
+destinations = (&quot;~jeff/Maildir/&quot;, )
 </pre>
             </li>
             <li>
                 To deliver to an mboxrd file:
 <pre class="example">
 [destination]
-type = MultiSorter
-default = /var/spool/mail/alice
+type = MultiDestination
+destinations = (&quot;/var/spool/mail/alice&quot;, )
 </pre>
             </li>
             <li>
                 To deliver with an external MDA:
 <pre class="example">
 [destination]
-type = MultiSorter
-default = [procmail-as-bob]
+type = MultiDestination
+destinations = (&quot;[procmail-as-bob]&quot;, )
 
 [procmail-as-bob]
 type = MDA_external
@@ -1175,6 +1174,54 @@ user = bob
 </pre>
             </li>
         </ul>
+    </li>
+</ul>
+<p>
+	Of course, the whole point of MultiDestination is to allow you to specify
+	multiple destinations, like this:
+</p>
+<pre class="example">
+[destination]
+type = MultiDestination
+destinations = (
+    &quot;~jeff/Mail/inbox&quot;,
+    &quot;[procmail-as-jeff]&quot;, 
+    &quot;/var/mail-archive/incoming&quot;
+    )
+
+[procmail-as-jeff]
+type = MDA_external
+path = /path/to/procmail
+arguments = ('~jeff/.procmailrc', )
+user = jeff
+</pre>
+
+<h4 id="destination-multisorter">MultiSorter</h4>
+<p>
+    MultiSorter compares the envelope recipient address of messages against a
+    list of user-supplied regular expressions and delivers the message to the
+    destination (maildir, mboxrd file, or other) associated with any matching
+    patterns.  A message can match multiple patterns and therefore be delivered
+    to multiple matching destinations.  Any message which matches none of the
+    patterns is delivered to a default destination for the postmaster.
+</p>
+<p>
+    Because MultiSorter requires the envelope recipient to operate, it must be
+    used with a domain mailbox retriever.
+</p>
+<p>
+    The MultiSorter destination takes one required parameter:
+</p>
+<ul>
+    <li>
+        default 
+        (<a href="#parameter-string">string</a>) 
+        &mdash; the destination for messages which aren't matched by any of the 
+        &quot;locals&quot; regular expressions.  The destination can be a 
+        maildir, mboxrd file, or other destination.  See
+        <a href="#destination-multidestination">MultiDestination</a>
+        for an explanation of how the type of destination is interpreted from 
+        this value.
     </li>
 </ul>
 <p>

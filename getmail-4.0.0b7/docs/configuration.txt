@@ -51,6 +51,7 @@
                     # Maildir
                     # Mboxrd
                     # MDA_external
+                    # MultiDestination
                     # MultiSorter
                     # MDA_qmaillocal
                o Creating the [options] section
@@ -438,6 +439,9 @@ envelope_recipient = delivered-to:1
      * MDA_external -- use an external message delivery agent (MDA) to
        deliver messages. Typical MDAs include maildrop, procmail, and
        others.
+     * MultiDestination -- unconditionally deliver messages to multiple
+       destinations (maildirs, mbox files, external MDAs, or other
+       destinations).
      * MultiSorter -- sort messages according to the envelope recipient
        (requires a domain mailbox retriever) and deliver to a variety of
        maildirs, mbox files, external MDAs, or other destinations based
@@ -541,6 +545,64 @@ user = fred
 group = mail
 arguments = ("--strip-forbidden-attachments", "--recipient=%(recipient)")
 
+    MultiDestination
+    
+   MultiDestination doesn't do any message deliveries itself; instead, it
+   lets you specify a list of one or more other destinations which it
+   will pass each message to. You can use this to deliver each message to
+   several different destinations.
+   
+   The MultiDestination destination takes one required parameter:
+     * destinations (tuple of quoted strings) -- the destinations which
+       the messages will be passed to. The destination can be a maildir,
+       mboxrd file, or other destination. The string is first expanded
+       for leading ~ or ~USER and environment variables in the form
+       $VARNAME or ${VARNAME}. Then:
+          + if the string starts with a dot . or slash /, and ends with a
+            slash /, it is assumed to be the path to a maildir
+          + if the string starts with a dot . or slash /, and does not
+            end with a slash /, it is assumed to be the path to an mboxrd
+            file
+          + if the string is surrounded by square brackets [ and ], it is
+            assumed to be the name of another section in the
+            configuration file specifying a destination.
+       Some examples:
+          + To deliver to a maildir named Maildir in the home directory
+            of user jeff:
+[destination]
+type = MultiDestination
+destinations = ("~jeff/Maildir/", )
+          + To deliver to an mboxrd file:
+[destination]
+type = MultiDestination
+destinations = ("/var/spool/mail/alice", )
+          + To deliver with an external MDA:
+[destination]
+type = MultiDestination
+destinations = ("[procmail-as-bob]", )
+
+[procmail-as-bob]
+type = MDA_external
+path = /path/to/procmail
+arguments = ('~bob/.procmailrc', )
+user = bob
+       
+   Of course, the whole point of MultiDestination is to allow you to
+   specify multiple destinations, like this:
+[destination]
+type = MultiDestination
+destinations = (
+    "~jeff/Mail/inbox",
+    "[procmail-as-jeff]",
+    "/var/mail-archive/incoming"
+    )
+
+[procmail-as-jeff]
+type = MDA_external
+path = /path/to/procmail
+arguments = ('~jeff/.procmailrc', )
+user = jeff
+
     MultiSorter
     
    MultiSorter compares the envelope recipient address of messages
@@ -558,36 +620,8 @@ arguments = ("--strip-forbidden-attachments", "--recipient=%(recipient)")
      * default (string) -- the destination for messages which aren't
        matched by any of the "locals" regular expressions. The
        destination can be a maildir, mboxrd file, or other destination.
-       The string is first expanded for leading ~ or ~USER and
-       environment variables in the form $VARNAME or ${VARNAME}. Then:
-          + if the string starts with a dot . or slash /, and ends with a
-            slash /, it is assumed to be the path to a maildir
-          + if the string starts with a dot . or slash /, and does not
-            end with a slash /, it is assumed to be the path to an mboxrd
-            file
-          + if the string is surrounded by square brackets [ and ], it is
-            assumed to be the name of another section in the
-            configuration file specifying a destination.
-       Some examples:
-          + To deliver to a maildir named Maildir in the home directory
-            of user jeff:
-[destination]
-type = MultiSorter
-default = ~jeff/Maildir/
-          + To deliver to an mboxrd file:
-[destination]
-type = MultiSorter
-default = /var/spool/mail/alice
-          + To deliver with an external MDA:
-[destination]
-type = MultiSorter
-default = [procmail-as-bob]
-
-[procmail-as-bob]
-type = MDA_external
-path = /path/to/procmail
-arguments = ('~bob/.procmailrc', )
-user = bob
+       See MultiDestination for an explanation of how the type of
+       destination is interpreted from this value.
        
    The MultiSorter destination also takes one optional parameter:
      * locals (string) -- one or more regular expression - destination

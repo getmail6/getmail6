@@ -433,7 +433,7 @@ def main():
             tblist = [tblist]
         for line in tblist:
             log.critical('  %s\n' % line.rstrip())
-        log.critical('\n\Please also include configuration information from running getmail\n')
+        log.critical('\nPlease also include configuration information from running getmail\n')
         log.critical('with your normal options plus "--dump".\n')
         sys.exit(4)
 

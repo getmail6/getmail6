@@ -86,11 +86,12 @@ class ConfigurableBase(object):
         names = self.conf.keys()
         names.sort()
         for name in names:
-            if confstring:  confstring += ', '
+            if name.lower() == 'configparser':
+                continue
+            if confstring:  
+                confstring += ', '
             if name.lower() == 'password':
                 confstring += '%s="*"' % name
-            elif name.lower() == 'configparser':
-                continue
             else:
                 confstring += '%s="%s"' % (name, self.conf[name])
         return confstring
@@ -111,6 +112,8 @@ class ForkingBase(object):
         except OSError, o:
             # No children on SIGCHLD.  Can't happen?
             self.log.warning('handler called, but no children (%s)' % o)
+            return
+        signal.signal(signal.SIGCHLD, self.__orig_handler)
         self.__child_pid = pid
         self.__child_status = r
         self.log.trace('handler reaped child %s with status %s' % (pid, r))
@@ -132,7 +135,6 @@ class ForkingBase(object):
         if self.__child_pid != childpid:
             #self.log.error('got child pid %d, not %d' % (pid, childpid))
             raise getmailOperationError('got child pid %d, not %d' % (self.__child_pid, childpid))
-        signal.signal(signal.SIGCHLD, self.__orig_handler)
 
         if os.WIFSTOPPED(self.__child_status):
             raise getmailOperationError('child pid %d stopped by signal %d' % (self.__child_pid, os.WSTOPSIG(self.__child_status)))
