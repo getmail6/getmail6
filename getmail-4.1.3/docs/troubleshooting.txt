@@ -145,3 +145,16 @@ Unexpected Behaviour
    replaced if the message is retrieved with a multidrop retriever class;
    otherwise, getmail does not "know" the recipient address of the
    message, and therefore cannot perform this replacement.
+   
+  getmail seems to take longer than expected to initialize
+  
+   If getmail takes more than a few seconds to initialize, run the
+   following command to test:
+python -c "import socket; print socket.getfqdn()"
+
+   If this seems to take a similar amount of time to complete, the delay
+   is in finding the fully-qualified hostname of your system. The fix is
+   to ensure you have a valid mapping of address-to-hostname for all the
+   addresses in your system. You can do this in your /etc/hosts file, in
+   your authoritative content DNS server, or in another system-specific
+   manner.

@@ -20,13 +20,12 @@ Place - Suite 330, Boston, MA  02111-1307, USA.
 '''
 import sys
 import os
-import socket
 
 from getmailcore.message import Message
 from getmailcore.utilities import *
 from getmailcore.exceptions import *
 
-hostname = socket.getfqdn()
+hostname = localhostname()
 
 verbose = False
 path = None

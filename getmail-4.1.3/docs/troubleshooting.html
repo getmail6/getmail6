@@ -105,6 +105,7 @@
                 <li><a href="troubleshooting.html#unexpected-hostname">getmail uses the wrong hostname for my machine</a></li>
                 <li><a href="troubleshooting.html#unexpected-delivered-to">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> header field</a></li>
                 <li><a href="troubleshooting.html#unexpected-recipient">getmail isn't replacing my command argument &quot;%(recipient)&quot; with the message recipient address</a></li>
+                <li><a href="troubleshooting.html#unexpected-slow-startup">getmail seems to take longer than expected to initialize</a></li>
                 </ul>
             </li>
             </ul>
@@ -302,6 +303,24 @@
     a multidrop retriever class; otherwise, getmail does not &quot;know&quot;
     the recipient address of the message, and therefore cannot perform this
     replacement.
+</p>
+
+<h3 id="unexpected-slow-startup">getmail seems to take longer than expected to initialize</h3>
+<p>
+    If getmail takes more than a few seconds to initialize, run the following
+    command to test:
+</p>
+<pre class="example">
+python -c &quot;import socket; print socket.getfqdn()&quot;
+</pre>
+<p>	
+	If this seems to take a similar amount of time to complete, the delay is in 
+	finding the fully-qualified hostname of your system.  The fix is to ensure 
+	you have a valid mapping of address-to-hostname for all the addresses in 
+	your system.  You can do this in your 
+	<span class="file">/etc/hosts</span>
+	file, in your authoritative content DNS server, or in another
+	system-specific manner.
 </p>
 
 <!--#include virtual="footer.html"-->

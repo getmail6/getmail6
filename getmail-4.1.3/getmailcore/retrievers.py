@@ -29,7 +29,6 @@ __all__ = [
     'MultidropIMAPSSLRetriever',
 ]
 
-import socket
 import poplib
 import imaplib
 import types
@@ -61,7 +60,7 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
     )
     received_from = None
     received_with = 'POP3'
-    received_by = socket.getfqdn()
+    received_by = localhostname()
 
     def __str__(self):
         self.log.trace()
@@ -94,7 +93,7 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
     )
     received_from = None
     received_with = 'POP3-SSL'
-    received_by = socket.getfqdn()
+    received_by = localhostname()
 
     def __str__(self):
         self.log.trace()
@@ -126,7 +125,7 @@ class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
     )
     received_from = None
     received_with = 'POP3'
-    received_by = socket.getfqdn()
+    received_by = localhostname()
 
     def __str__(self):
         self.log.trace()
@@ -160,7 +159,7 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
     )
     received_from = None
     received_with = 'POP3-SSL'
-    received_by = socket.getfqdn()
+    received_by = localhostname()
 
     def __str__(self):
         self.log.trace()
@@ -200,7 +199,7 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
 
     received_from = None
     received_with = 'SDPS'
-    received_by = socket.getfqdn()
+    received_by = localhostname()
 
     def __str__(self):
         self.log.trace()
@@ -254,7 +253,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
     )
     received_from = None
     received_with = 'IMAP4'
-    received_by = socket.getfqdn()
+    received_by = localhostname()
 
     def __str__(self):
         self.log.trace()
@@ -295,7 +294,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
     )
     received_from = None
     received_with = 'IMAP4-SSL'
-    received_by = socket.getfqdn()
+    received_by = localhostname()
 
     def __str__(self):
         self.log.trace()
@@ -334,7 +333,7 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
     )
     received_from = None
     received_with = 'IMAP4'
-    received_by = socket.getfqdn()
+    received_by = localhostname()
 
     def __str__(self):
         self.log.trace()
@@ -377,7 +376,7 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
     )
     received_from = None
     received_with = 'IMAP4-SSL'
-    received_by = socket.getfqdn()
+    received_by = localhostname()
 
     def __str__(self):
         self.log.trace()

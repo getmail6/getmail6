@@ -9,6 +9,7 @@ __all__ = [
     'eval_bool',
     'expand_user_vars',
     'is_maildir',
+    'localhostname',
     'lock_file',
     'logfile',
     'mbox_from_escape',
@@ -18,6 +19,7 @@ __all__ = [
 
 
 import os
+import socket
 import signal
 import time
 import glob
@@ -142,13 +144,22 @@ def alarm_handler(*unused):
 def is_maildir(d):
     '''Verify a path is a maildir.
     '''
-    for sub in ('', 'tmp', 'cur', 'new'):
+    dir_parent = os.path.dirname(d.endswith('/') and d[:-1] or d)
+    if not os.access(dir_parent, os.X_OK):
+        raise getmailConfigurationError('cannot read contents of parent '
+            'directory of %s - check permissions and ownership' % d)
+    if not os.path.isdir(d):
+        return False
+    if not os.access(d, os.X_OK):
+        raise getmailConfigurationError('cannot read contents of '
+            'directory %s - check permissions and ownership' % d)
+    for sub in ('tmp', 'cur', 'new'):
         subdir = os.path.join(d, sub)
-        if not os.access(subdir, os.F_OK):
-            raise getmailConfigurationError('cannot read contents of maildir '
-                '%s - check permissions and ownership' % d)
         if not os.path.isdir(subdir):
             return False
+        if not os.access(subdir, os.W_OK):
+            raise getmailConfigurationError('cannot write to maildir '
+                '%s - check permissions and ownership' % d)
     return True
 
 #######################################
@@ -355,3 +366,12 @@ def expand_user_vars(s):
     environment variables in the form "$varname" or "${varname}".
     '''
     return os.path.expanduser(os.path.expandvars(s))
+
+#######################################
+def localhostname():
+    '''Return a name for localhost which is (hopefully) the "correct" FQDN.
+    '''
+    n = socket.gethostname()
+    if '.' in n:  
+        return n
+    return socket.getfqdn()

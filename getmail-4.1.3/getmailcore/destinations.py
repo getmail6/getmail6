@@ -25,7 +25,6 @@ __all__ = [
 ]
 
 import os
-import socket
 import re
 import types
 import email.Utils
@@ -119,7 +118,7 @@ class Maildir(DeliverySkeleton):
 
     def initialize(self):
         self.log.trace()
-        self.hostname = socket.getfqdn()
+        self.hostname = localhostname()
         self.dcount = 0
         self.conf['path'] = expand_user_vars(self.conf['path'])
         if not self.conf['path'].endswith('/'):
@@ -280,7 +279,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
             effective user ID.
 
       localdomain - supplied to qmail-local as the "domain" argument.  Defaults
-            to socket.getfqdn().
+            to localhostname().
 
       defaultdelivery - supplied to qmail-local as the "defaultdelivery"
             argument.  Defaults to "./Maildir/".
@@ -320,7 +319,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
         {'name' : 'user', 'type' : str, 'default' : pwd.getpwuid(os.geteuid()).pw_name},
         {'name' : 'group', 'type' : str, 'default' : None},
         {'name' : 'homedir', 'type' : str, 'default' : pwd.getpwuid(os.geteuid()).pw_dir},
-        {'name' : 'localdomain', 'type' : str, 'default' : socket.getfqdn()},
+        {'name' : 'localdomain', 'type' : str, 'default' : localhostname()},
         {'name' : 'defaultdelivery', 'type' : str, 'default' : './Maildir/'},
         {'name' : 'conf-break', 'type' : str, 'default' : '-'},
         {'name' : 'localpart_translate', 'type' : tuple, 'default' : ('', '')},
