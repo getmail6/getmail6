@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.2'
+__version__ = '2.3.3'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -155,11 +155,27 @@ defs = {
 getmailobj = None
 
 # Options recognized in configuration getmailrc file
-intoptions = ('verbose', 'readall', 'delete', 'timeout', 'use_apop',
-    'no_delivered_to', 'no_received', 'eliminate_duplicates',
-    'max_message_size', 'max_messages_per_session', 'delete_after',
-    'extension_depth')
-stringoptions = ('message_log', 'recipient_header', 'extension_sep')
+intoptions = (
+    'delete',
+    'delete_after',
+    'eliminate_duplicates',
+    'extension_depth',
+    'log_level',
+    'max_message_size',
+    'max_messages_per_session',
+    'no_delivered_to',
+    'no_received',
+    'port',
+    'readall',
+    'timeout',
+    'use_apop',
+    'verbose'
+)
+stringoptions = (
+    'extension_sep',
+    'message_log',
+    'recipient_header'
+)
 
 # For these headers, only the first will be parsed
 envelope_recipient_headers = ('delivered-to', 'envelope-to', 'x-envelope-to')
@@ -589,9 +605,9 @@ class getmail:
             if not mess822.has_key (header_type):
                 continue
             self.logfunc (TRACE, 'parsing header "%s"\n' % header_type)
-            # Handle Received: headers specially
             if string.lower (header_type) == 'received':
-                recips = extract_recipients_recieved (mess822)
+	            # Handle Received: headers specially
+                recips = self.extract_recipients_received (mess822)
             elif string.lower (header_type) in envelope_recipient_headers:
                 # Handle envelope recipient headers differently; only
                 # look at first matching header
@@ -1325,19 +1341,19 @@ def read_configfile (filename, default_config):
 
         # Read options from config file
         options = default_config.copy ()
-        for key in intoptions + stringoptions:
-            try:
-                if key in intoptions:
-                    options[key] = conf.getint ('default', key)
-                    if key == 'verbose':
-                        if options[key]:
-                            options['log_level'] = INFO
-                        else:
-                            options['log_level'] = WARN
-                else:
-                    options[key] = conf.get ('default', key)
-            except ConfParser.NoOptionError:
-                options[key] = defs[key]
+        for key in conf.options ('default'):
+            if key in intoptions:
+                options[key] = conf.getint ('default', key)
+                if key == 'verbose':
+                    if options[key]:
+                        options['log_level'] = INFO
+                    else:
+                        options['log_level'] = WARN
+            elif key in stringoptions:
+                options[key] = conf.get ('default', key)
+            else:
+                log (TRACE, 'unrecognized option "%s" in section "default"\n'
+                    % key, options)
 
         # Remainder of sections are accounts to retrieve mail from.
         for section in sections:
@@ -1367,18 +1383,21 @@ def read_configfile (filename, default_config):
                     log (INFO, '\nUser aborted.  Exiting...\n', options)
                     raise SystemExit
 
-            # Read integer options
-            for item in intoptions:
-                account[item] = conf.getint (section, item)
-                if item == 'verbose':
-                    if account[item]:
-                        account['log_level'] = INFO
-                    else:
-                        account['log_level'] = WARN
-
-            # Read string options
-            for item in stringoptions:
-                account[item] = conf.get (section, item)
+            for key in conf.options (section):
+                if key in ('server', 'port', 'username', 'password'):
+                    continue
+                if key in intoptions:
+                    account[key] = conf.getint (section, key)
+                    if key == 'verbose':
+                        if account[key]:
+                            account['log_level'] = INFO
+                        else:
+                            account['log_level'] = WARN
+                elif key in stringoptions:
+                    account[key] = conf.get (section, key)
+                else:
+                    log (TRACE, 'unrecognized option "%s" in section "%s"\n'
+                        % (key, section), options)
 
             # Read local user regex strings and delivery targets
             try:

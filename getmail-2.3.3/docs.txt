@@ -11,12 +11,6 @@ About this document
    navigation, all headings in the HTML version of this document are links to
    their parent heading.
 
-User-contributed documentation
-
-   Fredrik Steen, maintainer of the Debian package for getmail, has written a
-   man page for getmail. It is available at
-   http://people.debian.org/~stone/getmail/manpage/getmail.1.
-
                                Table of Contents
 
    1. Installing getmail

@@ -1,6 +1,15 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.3
+18 March 2002
+
+  -fix typo bug calling extract_recipients_received().  Thanks to
+  Richard Luckhurst and Geoffrey Swift for the reports.
+  -last (ha!) fixups for quiet/verbose issues.
+  -this should be the last cleanups necessary for 2.3.x, and make it
+  the best version of getmail yet :)
+
 Version 2.3.2
 18 March 2002
 
