@@ -18,7 +18,7 @@ TODO
   and I can't rely on /usr/bin/python2.3 or anything like that being
   present either.  "#!/usr/bin/env python2.3" will have to do for now.
 
--message_log, max_messages_per_session
+-message_log
 
 DONE
 ====
@@ -33,3 +33,5 @@ DONE
   (not tested yet)
 -max_message_size
 -fix --quiet (first two lines output)
+-max_messages_per_session
+-make output cleaner when hitting max_messages_per_session

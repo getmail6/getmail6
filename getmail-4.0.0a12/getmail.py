@@ -24,6 +24,7 @@ defaults = {
     'delete' : False,
     'max_message_size' : 0,
     'delete_after' : 0,
+    'max_messages_per_session' : 0,
 }
 
 #######################################
@@ -32,60 +33,70 @@ def go(configs):
     log.info('Copyright (C) 1998-2004 Charles Cazabon.  Licensed under the GNU GPL version 2.\n')
     for (retriever, _filters, destination, options) in configs:
         now = int(time.time())
+        retrieved_messages = 0
         log.debug('initializing retriever %s\n' % retriever)
         retriever.initialize()
-        for msgid in retriever:
-            retrieve = False
-            delete = False
-            timestamp = retriever.oldmail.get(msgid, None)
-            size = retriever.getmsgsize(msgid)
-
-            log.info('Message %s (%d bytes) ... ' % (msgid, size))
-
-            if options['read_all'] or timestamp is None:
-                retrieve = True
-
-            if options['max_message_size'] and size > options['max_message_size']:
-                log.info('message size (%d) > max_message_size %d, not retrieving ... ' % (size, options['max_message_size']))
+        try:
+            for msgid in retriever:
                 retrieve = False
-
-            try:    
-                if retrieve:
-                    msg = retriever.getmsg(msgid)
-                    log.info('from <%s> ... ' % msg.sender)
-
-                    for mail_filter in _filters:
-                        log.debug('passing to filter %s ... ' % mail_filter)
-                        msg = mail_filter.filter_message(msg)
-                        if msg is None:
-                            log.info('dropped by filter %s ... ' % mail_filter)
-                            break
-                    
-                    if msg is not None:
-                        r = destination.deliver_message(msg)
-                        log.info('delivered to %s ... ' % r)
-                    if options['delete']:
+                delete = False
+                timestamp = retriever.oldmail.get(msgid, None)
+                size = retriever.getmsgsize(msgid)
+    
+                log.info('Message %s (%d bytes) ... ' % (msgid, size))
+    
+                if options['read_all'] or timestamp is None:
+                    retrieve = True
+    
+                if options['max_message_size'] and size > options['max_message_size']:
+                    log.info('message size (%d) > max_message_size %d, not retrieving ... ' % (size, options['max_message_size']))
+                    retrieve = False
+    
+                try:    
+                    if retrieve:
+                        msg = retriever.getmsg(msgid)
+                        retrieved_messages += 1
+                        log.info('from <%s> ... ' % msg.sender)
+    
+                        for mail_filter in _filters:
+                            log.debug('passing to filter %s ... ' % mail_filter)
+                            msg = mail_filter.filter_message(msg)
+                            if msg is None:
+                                log.info('dropped by filter %s ... ' % mail_filter)
+                                break
+                        
+                        if msg is not None:
+                            r = destination.deliver_message(msg)
+                            log.info('delivered to %s ... ' % r)
+                        if options['delete']:
+                            delete = True
+                    else:
+                        log.info('not retrieving (timestamp %s)' % timestamp)
+    
+                    if options['delete_after'] and timestamp and (now - timestamp)/86400 >= options['delete_after']:
+                        log.debug('message older than %d days (%s seconds), will delete ... ' % (options['delete_after'], (now - timestamp)))
                         delete = True
-                else:
-                    log.info('not retrieving (timestamp %s)' % timestamp)
+        
+                    if not retrieve and timestamp is None:
+                        # We haven't retrieved this message.  Don't delete it.
+                        log.debug('message not yet retrieved, not deleting ... ')
+                        delete = False
+        
+                    if delete:
+                        retriever.delmsg(msgid)
+                        log.info('deleted')
+        
+                except getmailDeliveryError, o:
+                    log.error('Delivery error (%s)\n' % o)
+    
+                log.info('\n')
 
-                if options['delete_after'] and timestamp and (now - timestamp)/86400 >= options['delete_after']:
-                    log.debug('message older than %d days (%s seconds), will delete ... ' % (options['delete_after'], (now - timestamp)))
-                    delete = True
-    
-                if not retrieve and timestamp is None:
-                    # We haven't retrieved this message.  Don't delete it.
-                    log.debug('message not yet retrieved, not deleting ... ')
-                    delete = False
-    
-                if delete:
-                    retriever.delmsg(msgid)
-                    log.info('deleted')
-    
-            except getmailDeliveryError, o:
-                log.error('Delivery error (%s)\n' % o)
+                if options['max_messages_per_session'] and retrieved_messages >= options['max_messages_per_session']:
+                    log.info('hit max_messages_per_session (%d), breaking\n' % options['max_messages_per_session'])
+                    raise StopIteration('max_messages_per_session %d' % options['max_messages_per_session'])
 
-            log.info('\n')
+        except StopIteration:
+            pass
 
         retriever.quit()
 
@@ -185,7 +196,7 @@ def main():
                         log.debug('not found')
                     log.debug('\n')
 
-                for option in ('delete_after', 'max_message_size'):
+                for option in ('delete_after', 'max_message_size', 'max_messages_per_session'):
                     log.debug('  looking for option %s ... ' % option)
                     if configparser.has_option('options', option):
                         log.debug('got "%s"' % configparser.get('options', option))

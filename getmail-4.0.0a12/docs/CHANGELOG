@@ -1,3 +1,14 @@
+Version 4.0.0a12
+21 June 2004
+
+  -slight change to quit() to ensure old connections are closed
+  and garbage-collected before trying to make new ones.  Thanks:  Frankye.
+  -move default documentation directory to /usr/local/share/doc/ .
+  -filters.py now checks that the filtered message is at least basically
+  sane in that it has a header no shorter than the message it was supplied.
+  Let me know if this causes problems.
+  -add and document max_messages_per_session
+
 Version 4.0.0a11
 21 June 2004
 

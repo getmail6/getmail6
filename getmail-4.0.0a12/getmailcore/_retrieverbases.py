@@ -271,7 +271,6 @@ class POP3RetrieverBase(RetrieverSkeleton):
         #self.log.debug('configuration: %s\n' % self.conf)
 
     def __del__(self):
-        self.quit()
         RetrieverSkeleton.__del__(self)
 
     def _getmsgnumbyid(self, msgid):
@@ -425,7 +424,6 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         #self.log.debug('configuration: %s\n' % self.conf)
 
     def __del__(self):
-        self.quit()
         RetrieverSkeleton.__del__(self)
 
     def _getmboxuidbymsgid(self, msgid):

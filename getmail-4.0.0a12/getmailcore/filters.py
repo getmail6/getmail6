@@ -67,6 +67,13 @@ class FilterSkeleton(ConfigurableBase):
         elif exitcode or err:
             raise getmailOperationError('filter %s returned %d (%s)\n' % (self, exitcode, err))
 
+        # Check the filter was sane
+        if len(newmsg) < len(msg):
+            # Kind of a hack, but one user tried to use an MDA as a filter (instead of
+            # having getmail use it as an external MDA), and ended up having getmail
+            # deliver 0-byte messages after the MDA had already done it.
+            raise getmailOperationError('filter %s returned fewer headers than supplied (%d)\n' % (self, len(newmsg), len(msg)))
+        
         # Copy envelope info from original message
         if hasattr(msg, 'sender'):
             newmsg.sender = msg.sender
