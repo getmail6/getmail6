@@ -1,10 +1,24 @@
 #!/usr/bin/python
 
+import os
 import string
+import cStringIO
 import rfc822
+import poplib
 
-# FIXME: add version here, and add it to getmail's info output
-# Maybe rename this file and move independant functions, data here?
+# Try importing timeoutsocket.  If it does not exist, just skip it.
+try:
+    import timeoutsocket
+    Timeout = timeoutsocket.Timeout
+except ImportError:
+    # Prevent errors later for references to timeoutsocket
+    Timeout = None
+    class null_timeoutsocket:
+        def getDefaultSocketTimeout (self):
+            return 0
+        def setDefaultSocketTimeout (self, val):
+            pass
+    timeoutsocket = null_timeoutsocket ()
 
 #
 # Exception classes
@@ -26,7 +40,7 @@ class getmailNetworkError (getmailException):
 
 class getmailDataFormatException (getmailException):
     pass
-    
+
 class getmailUnhandledException (Exception):
     pass
 
@@ -35,15 +49,42 @@ class getmailUnhandledException (Exception):
 #
 
 #######################################
+class updatefile:
+    def __init__ (self, filename):
+        self.closed = 0
+        self.filename = filename
+        self.tmpname = filename + '.tmp.%d' % os.getpid ()
+        try:
+            file = open (self.tmpname, 'w')
+        except IOError, (code, msg):
+            raise IOError, "%s, opening output file '%s'" % (msg, self.tmpname)
+        self.file = file
+        self.write = file.write
+        self.flush = file.flush
+
+    def __del__ (self):
+        self.close ()
+
+    def close (self):
+        if self.closed:
+            return
+        self.file.flush ()
+        self.file.close ()
+        os.rename (self.tmpname, self.filename)
+        self.closed = 1
+
+#######################################
 class getmailMessage (rfc822.Message):
     '''Provide a way of obtaining a specific header field (i.e. the first
     Delivered-To: field, or the second Received: field, etc).
     It's an enormous oversight that the Python standard library doesn't
-    provide this type of functionality.
+    provide this type of functionality.  Also change the constructor to take
+    a string, as it's far more useful this way.
     '''
     ###################################
-    def __init__ (self, file, seekable=0):
-        rfc822.Message.__init__ (self, file, seekable)
+    def __init__ (self, msg):
+        f = cStringIO.StringIO (msg)
+        rfc822.Message.__init__ (self, f, 1)
         self._parsed_headers = 0
         self.getmailheaders = {}
 
@@ -58,12 +99,12 @@ class getmailMessage (rfc822.Message):
         if len (self.getmailheaders[name]) < num:
             raise getmailConfigException, 'not enough matching header fields (%s:%i)' % (name, num)
         return self.getmailheaders[name][num - 1]
-        
+
     ###################################
     def getmail_parse_headers (self):
         if self._parsed_headers:
             return
-        
+
         current = ''
         for line in self.headers:
             if not line:
@@ -100,65 +141,27 @@ class getmailMessage (rfc822.Message):
         self._parsed_headers = 1
 
 #######################################
-class getmailAddressList (rfc822.AddressList):
-    '''Override buggy function in rfc822.py implementation of AddrList.
+
+SPDS_error_proto = poplib.error_proto
+
+#######################################
+class SPDS (poplib.POP3):
+    '''Extend POP3 class to include support for Demon's protocol extensions,
+    known as SPDS.
+    See http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml
+    for details.  Requested by Paul Clifford.
     '''
     ###################################
-    def getaddress (self):
-        """Parse the next address."""
-        self.commentlist = []
-        self.gotonext()
-
-        oldpos = self.pos
-        oldcl = self.commentlist
-        plist = self.getphraselist()
-
-        self.gotonext()
-        returnlist = []
-
-        if self.pos >= len(self.field):
-            # Bad email address technically, no domain.
-            if plist:
-                returnlist = [(string.join(self.commentlist), plist[0])]
-
-        elif self.field[self.pos] in '.@':
-            # email address is just an addrspec
-            # this isn't very efficient since we start over
-            self.pos = oldpos
-            self.commentlist = oldcl
-            addrspec = self.getaddrspec()
-            returnlist = [(string.join(self.commentlist), addrspec)]
-
-        elif self.field[self.pos] == ':':
-            # address is a group
-            returnlist = []
-
-            self.pos = self.pos + 1
-            while self.pos < len(self.field):
-                if self.field[self.pos] == ';':
-                    self.pos = self.pos + 1
-                    break
-                returnlist = returnlist + self.getaddress()
-                self.gotonext()
-
-        elif self.field[self.pos] == '<':
-            # Address is a phrase then a route addr
-            routeaddr = self.getrouteaddr()
-
-            if self.commentlist:
-                returnlist = [(string.join(plist) + ' (' + \
-                         string.join(self.commentlist) + ')', routeaddr)]
-            else: returnlist = [(string.join(plist), routeaddr)]
-
-        else:
-            if plist:
-                returnlist = [(string.join(self.commentlist), plist[0])]
-            elif self.field[self.pos] in self.specials:
-                self.pos = self.pos + 1
-
-        self.gotonext()
-        if self.pos < len(self.field) and self.field[self.pos] == ',':
-            self.pos = self.pos + 1
-        return returnlist
-
+    def star_env (self, msgnum):
+        '''Implement *ENV command.
+        '''
+        try:
+            resp, lines, octets = self._longcmd ('*ENV %i' % msgnum)
+        except poplib.error_proto:
+            raise getmailConfigException, 'server does not support *ENV'
+        if len (lines) < 4:
+            raise SPDS_error_proto, 'short *ENV response (%s)' % lines
+        env_sender = lines[2]
+        env_recipient = lines[3]
+        return env_sender, env_recipient
                 

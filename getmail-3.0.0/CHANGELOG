@@ -1,0 +1,37 @@
+getmail changes since version 2.x:
+----------------------------------
+
+Version 3.0.0
+10 February 2003
+
+  -Updated to version 1.23 of Timothy O'Malley's timeoutsocket.py
+  from http://www.timo-tasi.org/python/timeoutsocket.py
+  -not all configuration errors were being caught in ConfParser.  Updated
+  ConfParser as a result; thanks to Christian Pelster for reporting and testing
+  this.
+  -Move lots of code around.  Much has been moved into separate files.
+  Much other code has been cleaned up.
+  -Add support for Demon's SPDS "*ENV" command for domain mailboxes.
+  Thanks to Paul Clifford for the request and the pointer to Demon's 
+  explanation of this protocol extension, submission of a patch to
+  getmail 2.3.x for this feature, and for a testing 3.0 in its pre-release
+  state.  Paul also submitted several patches during pre-release testing
+  which I accepted.
+  -Change main delivery loop; individual message delivery failures are
+  not considered fatal errors any more.  The messages will be left on the
+  server and retried.
+  -Remove mbox delivery code.  Use an external MDA for this; for safety
+  and reliability, all mbox-delivery programs on a system have to be compiled
+  to use the same method of mbox locking in any case.  I don't use mbox
+  files at all.
+  -Simplify handling of oldmail data files.
+  -Domain mailboxes are now only supported with explicit configuration of
+  a header field which records the envelope recipient address or with *ENV.
+  This removes a lot of code and makes the logic simpler.
+  -Remove duplicate filtering option.  Use an external MDA for this.
+  -Change maildir delivery algorithm; getmail will now try up to three times
+  to generate a valid, unique name in maildir/tmp/, sleeping two seconds
+  between tries as recommended by djb.  This code is also now moved into
+  an independant function in getmail_utilities.py for easier use by others.
+  The file naming convention has changed to djb's "modern delivery
+  identifiers".

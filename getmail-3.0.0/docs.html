@@ -1,0 +1,2247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+	   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=iso-8859-1" />
+	<title>getmail Documentation</title>
+	<style type="text/css" media="all">@import "getmail.css";</style>
+	<meta name="author" content="Charles Cazabon" />
+	
+	
+	
+	
+</head>
+<body id="top">
+
+
+<div class="body">
+	<h2 id="docs">getmail Documentation</h2>
+	<p>
+		This is the formal documentation for getmail.  If your question is not
+		answered here or in the <a href="faq.html#faq">Frequently Asked Questions</a>,
+		please subscribe to the <a href="getmail.html#maillist">mailing list</a>.
+	</p>
+
+	<h3 id="docs-about"><a href="#docs">About this document</a></h3>
+	<p>
+		The official location of this document is
+		<a href="http://www.qcc.ca/~charlesc/software/getmail-3.0/docs.html">http://www.qcc.ca/~charlesc/software/getmail-3.0/docs.html</a>.
+		For easy navigation, all headings in the HTML version of this document are
+		links to their parent heading.
+	</p>
+
+	<h3 id="toc"><a href="#docs">Table of Contents</a></h3>
+	<ol>
+		<li>
+			<a href="#install">Installing getmail</a>
+		</li>
+		<li>
+			<a href="#configure">Configuring getmail</a>
+			<ul>
+				<li>
+					<a href="#getmailrc">Configuration file</a>
+				</li>
+				<li>
+					<a href="#account-types">POP3 account types</a>
+					<ul>
+						<li>
+							<a href="#account-types-regular">Regular POP3 mailboxes</a>
+						</li>
+						<li>
+							<a href="#account-types-domain">POP3 domain mailboxes</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="#delivery-targets">Message delivery targets</a>
+				</li>
+			</ul>
+		</li>
+		<li>
+			<a href="#directives">getmailrc directives</a>
+		</li>
+		<li>
+			<a href="#run">Running getmail</a>
+		</li>
+		<li>
+			<a href="#commandline">Commandline options</a>
+		</li>
+	</ol>
+
+<!--
+	***********************************************************************
+-->
+
+	<h3 id="install"><a href="#toc">Installing getmail</a></h3>
+	<p>Follow these steps to install getmail:</p>
+	<ol>
+		<li>
+			<a href="download.html#download">Download</a> getmail.
+		</li>
+		<li>
+			Unpack the tarball.
+			<pre class="sample">tar xzf getmail-<em>version</em>.tar.gz</pre>
+		</li>
+		<li>
+			Copy the contents to a suitable location:
+			<pre class="sample">mkdir /usr/lib/getmail
+cp -a getmail-<em>version</em>/* /usr/lib/getmail/
+			</pre>
+			You can install getmail in your home directory or elsewhere
+			if you prefer.
+		</li>
+		<li>
+			Copy the getmail helper script to a location in your <span class="sample">PATH</span>, and
+			ensure it is executable:
+			<pre class="sample">cp -a getmail-<em>version</em>/getmail /usr/bin/
+chmod 755 /usr/bin/getmail</pre>
+			If you used an installation path other than that in step 3 above,
+			edit the value of <span class="sample">GETMAILDIR</span> in this file.
+		</li>
+	</ol>
+
+
+<!--
+	***********************************************************************
+-->
+
+	<h3 id="configure"><a href="#toc">Configuring getmail</a></h3>
+	<ol>
+		<li>
+			Create a getmail configuration/data directory in your
+			home directory:
+			<pre class="sample">mkdir ~/.getmail</pre>
+			You can use another path or directory name, but getmail
+			assumes this name by default.  If you choose something
+			different, you will need to specify its name on the getmail
+			command line with the <a href="#cmdline-getmaildir">--getmaildir</a>
+			option.
+		</li>
+		<li>
+			Create a configuration file named <span class="sample">getmailrc</span> in the directory you
+			created in step 1 above (see the section <a href="#getmailrc">Configuration file</a> below
+			for details).  You can use another file name or path, but
+			getmail assumes this name by default.  If you choose something
+			different, you will need to specify its name on the getmail command
+			line with the <a href="#cmdline-rcfile">--rcfile</a> option.
+		</li>
+	</ol>
+
+	<h4 id="getmailrc"><a href="#configure">Configuration file</a></h4>
+	<p>
+		A getmail configuration file (typically named <span class="sample">getmailrc</span>,
+		and located in <span class="sample">$HOME/.getmail/</span>) looks similar to an MS-Windows <span class="sample">.INI</span>
+		file.  For security reasons, your getmailrc file must not be group- or world-writable.
+		getmail will refuse to run if it finds your getmailrc file is writable by
+		others.
+	</p>
+	<p>
+		The file is broken into sections.  Each section starts with an arbitrary label surrounded by square brackets:
+	</p>
+	<pre class="sample">[section name]</pre>
+	<p>
+		A section then contains one or more lines in <span class="sample">name = value</span> format.  Values containing whitespace
+		must be surrounded with single- or double-quotes.  The pound sign (<span class="sample">#</span>)
+		introduces a comment, which continues until the end of the line.
+	</p>
+	<pre class="sample">foo = 42
+bar = &quot;string value containing spaces&quot;
+baz = &quot;&quot;           # This is a comment; baz is an empty value
+</pre>
+	<p>
+		To include a pound sign in an option
+		value, quote it.  Percent signs (<span class="sample">%</span>) must be doubled; for example, if you
+		want to specify a password of <span class="sample">foo%bar</span>, use the following:
+	</p>
+	<pre class="sample">password = foo%%bar
+</pre>
+	<p>
+		The special section <span class="sample">[default]</span> must be the first section in the file; it supplies default values for
+		options in other sections.
+		For example, to set the option <span class="sample">verbose</span> to <span class="sample">1</span>
+		for all following sections, you could put it in the <span class="sample">[default]</span> section:
+	</p>
+	<pre class="sample">[default]
+verbose = 1
+
+[my home account]
+username = foobar
+password = &quot;my password&quot;
+&hellip;
+
+[my work account]
+username = foobar
+password = &quot;my password&quot;
+&hellip;
+</pre>
+	<p>
+		getmail ignores whitespace surrounding the <span class="sample">=</span> sign.  The following
+		lines are equivalent:
+	</p>
+	<pre class="sample">account = joe.bloggs
+account=joe.bloggs
+account=   joe.bloggs
+</pre>
+	<p>
+		Option values containing single or double quote characters can be quoted with
+		the other character:
+	</p>
+	<pre class="sample">password = &quot;this is a more 'secure' password&quot;</pre>
+	<p>
+		To un-set an option taking a string value, set it to the empty string:
+	</p>
+	<pre class="sample">message_log = &quot;&quot;         # Previously set to /var/log/getmail; turn it off for this account</pre>
+	<p>
+		Other sections in a getmail configuration file represent POP3 accounts
+		to retrieve mail from, one per account.  The section name is unimportant,
+		but must be unique.  An example account section might look like this:
+	</p>
+	<pre class="sample">[Home ISP account]
+server = mailhost.isp.tld
+username = brenda.bjorn
+password = &quot;my mail password&quot;
+postmaster = ~brendab/Maildir/  # Deliver all mail to the Maildir in my home directory</pre>
+	<p>
+		When getmail tries to determine the value of an option, it looks at the
+		following, in order, until it finds a match:
+	</p>
+	<ol>
+		<li>Options specified on the command line</li>
+		<li>Options specified in an account section of the getmail configuration file</li>
+		<li>Options specified in the [default] section of the getmail configuration file</li>
+		<li>getmail's built-in default value</li>
+	</ol>
+
+	<h4 id="account-types"><a href="#configure">POP3 Account types</a></h4>
+	<p>
+		There are two different types of POP3 email accounts:
+	</p>
+	<ul>
+		<li><a href="#account-types-regular">regular mailboxes</a></li>
+		<li><a href="#account-types-domain">domain mailboxes</a></li>
+	</ul>
+
+	<h5 id="account-types-regular"><a href="#account-types">Regular mailbox</a></h5>
+	<p>
+		This is a typical POP3 mailbox provided by an ISP for a single user.  It
+		receives mail addressed to a single user (say,
+		<span class="sample">shannon.fotheringham@aqua.myisp.tld</span>).
+		For this type of account, the minimum configuration would be something like
+		this:
+	</p>
+	<pre class="sample">[My Aqua Account]
+server = mailhost.aqua.myisp.tld
+username = shannon.fotheringham
+postmaster = ~shannonf/Maildir/</pre>
+	<p>
+		This <span class="sample">postmaster</span> directive tells getmail to deliver
+		all mail to Shannon's Maildir.  Since a password was not configured, getmail
+		will prompt the user for it when run.
+	</p>
+
+	<h5 id="account-types-domain"><a href="#account-types">Domain mailbox</a></h5>
+	<p>
+		This type of POP3 account is typically provided by an ISP to a small company
+		or organization.  It receives mail addressed to any user in a given domain.
+		For example, mail to <span class="sample">info@smallcompany.tld</span>,
+		<span class="sample">tgrieg@smallcompany.tld</span>, and
+		<span class="sample">sales@smallcompany.tld</span> all ends up in the same
+		POP3 domain mailbox.
+	</p>
+	<p>
+		getmail includes features to enable retrieval of mail from this type of
+		account, filter it according to who the mail was addressed to, and
+		deliver it to different destinations.  A minimal configuration with this
+		type of setup would be something like
+		this:
+	</p>
+	<pre class="sample">[Company domain mailbox]
+server = mailhost.largeisp.tld
+username = small.company
+password = RRt49slP32m
+recipient_header = delivered-to:1
+postmaster = ~tgrieg/Mail/postmaster-maildir/
+local = tgrieg@smallcompany.tld,~tgrieg/Mail/personal-maildir/
+local = info@smallcompany.tld,~bobf/Maildir/
+local = sales@smallcompany.tld,~darlab/mbox
+</pre>
+	<p>
+		The <span class="sample">local</span> directives tell getmail to deliver
+		mail for those users to their various mail spools on the system, and the
+		<span class="sample">postmaster</span> directive tells getmail to deliver any
+		mail which doesn't match any of the local directives somewhere else.
+	</p>
+
+	<h4 id="delivery-targets"><a href="#configure">Message Delivery Targets</a></h4>
+	<p>
+		In a getmailrc file, <a href="#directive-postmaster">postmaster</a> and
+		<a href="#directive-local">local</a> directives contain message delivery
+		targets, which instruct getmail to delivery messages in a particular manner.
+		A message delivery target may be a qmail-style Maildir or an arbitrary command
+		(such as an external Message Delivery Agent or MDA).
+	</p>
+	<table class="summary">
+		<tr>
+			<th>Target Type</th><th>Syntax</th><th>Notes</th>
+		</tr>
+		<tr>
+			<td>Maildir</td><td>/path/to/Maildir/</td><td>Maildir targets must have a trailing slash</td>
+		</tr>
+		<tr>
+			<td>Command</td><td>|/path/to/command [arguments]</td><td>Command deliveries must start with a pipe (|).  Remember to quote values containing whitespace.</td>
+		</tr>
+	</table>
+
+	<p>
+		For command deliveries, getmail provides the following environment variables.
+	</p>
+	<ul>
+		<li>
+			<span class="sample">SENDER</span> contains the envelope sender address
+			as extracted from the Return-Path: header field or *ENV results.
+		</li>
+		<li>
+			<span class="sample">RECIPIENT</span> contains the envelope recipient address
+			as extracted from the user-configured <a href="#directive-recipient-header" class="sample">recipient_header</a> header field or <a href="#directive-use-*env" class="sample">*ENV results</a>.
+		</li>
+		<li>
+			<span class="sample">EXT</span> contains the extension portion of <span class="sample">RECIPIENT</span>
+			calculated with the user-supplied values of <a class="sample" href="#directive-extension-sep">extension_sep</a> and
+			<a class="sample" href="#directive-extension-depth">extension_depth</a> directives.
+			This is primarily useful for external MDAs such as <a href="http://tmda.net/">TMDA</a>.
+		</li>
+	</ul>
+
+	<p>
+		Note the following restrictions:
+	</p>
+	<ul>
+		<li>getmail refuses to run external commands when running as root.</li>
+		<li>If an external command writes to stderr, getmail will consider
+			the delivery a failure.  If you know your MDA can write to stderr
+			on a successful delivery,
+			either supply a <span class="sample">--quiet</span> option to the
+			MDA (if it supports such), or throw away or redirect stderr
+			in one of the following manners:
+			<pre class="sample">postmaster = "|/path/to/mda [options] 2>/dev/null"
+postmaster = "|/path/to/mda [options] 2>&amp;1"
+</pre>
+			This will, of course, also work with delivery targets in
+			<span class="sample">local</span> directives.
+		</li>
+		<li>getmail will not create Maildirs if they do not exist.
+			You must create them prior to having getmail deliver mail to them.
+			Use maildirmake to create empty Maildirs.
+		</li>
+		<li>getmail requires write access to any Maildir you wish
+			to deliver mail to.  This can be done my making the Maildirs group-writable
+			by the group you run getmail under, for example.  There are other ways as well.
+		</li>
+	</ul>
+
+	<p>
+		Leading tilde characters (~) on paths will be expanded -- i.e. ~jason/Maildir/ likely
+		becomes /home/jason/Maildir/ on most systems.
+	</p>
+
+	<h4 id="directives"><a href="#run">getmailrc Directives</a></h4>
+	<p>
+		getmail understands the following getmailrc directives:
+	</p>
+
+	<table class="summary">
+		<tr>
+			<th>Directive</th><th>Optional?</th><th>Default</th><th>Summary</th>
+		</tr>
+		<tr>
+			<td colspan="4" class="subheader"><a href="#directive-server-config">POP3 Server Configuration</a></td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-server">server</a></td><td>No</td><td>None</td><td>POP3 server hostname</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-port">port</a></td><td>Yes</td><td>110</td><td>POP3 server TCP port number</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-timeout">timeout</a></td><td>Yes</td><td>180 seconds</td><td>POP3 server TCP timeout</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="subheader"><a href="#directive-account-config">Account Configuration</a></td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-username">username</a></td><td>No</td><td>None</td><td>POP3 account username</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-password">password</a></td><td>Yes</td><td>Prompt for password</td><td>POP3 account password</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-apop">use_apop</a></td><td>Yes</td><td>0 (No)</td><td>Use POP3 APOP authentication if available</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="subheader"><a href="#directive-message-format">Message Formatting</a></td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-no-delivered-to">no_delivered_to</a></td><td>Yes</td><td>0 (No)</td><td>Suppress addition of Delivered-To: header field</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-no-received">no_received</a></td><td>Yes</td><td>0 (No)</td><td>Suppress addition of Received: header field</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="subheader"><a href="#directive-delivery-targets">Message Delivery Targets</a></td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-postmaster">postmaster</a></td><td>No</td><td>None</td><td>Default message delivery target</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-local">local</a></td><td>Yes</td><td>None</td><td>Header field pattern-matching delivery target</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-recipient-header">recipient_header</a></td><td>Yes</td><td>None</td><td>Specify a header field the POP3 server records the envelope recipient address in.</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-use-*env">use_*env</a></td><td>Yes</td><td>0 (No)</td><td>Use Demon's SPDS *ENV POP3 extension to retrieve message envelopes.  Overrides recipient_header above.</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-extension-sep">extension_sep</a></td><td>Yes</td><td>-</td><td>User extension address separator character</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-extension-depth">extension_depth</a></td><td>Yes</td><td>1</td><td>User extension address base length</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="subheader"><a href="#directive-retrieval">Message Retrieval</a></td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-readall">readall</a></td><td>Yes</td><td>1 (Yes)</td><td>Retrieve all messages, or only previously unseen messages</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-max-message-size">max_message_size</a></td><td>Yes</td><td>0 (No limit)</td><td>Do not retrieve messages larger than this setting</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-max-messages-per-session">max_messages_per_session</a></td><td>Yes</td><td>0 (No limit)</td><td>Do not retrieve more than X messages</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-delete">delete</a></td><td>Yes</td><td>0 (No)</td><td>Delete messages after retrieval</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-delete-after">delete_after</a></td><td>Yes</td><td>0 (No)</td><td>Delete messages X days after retrieval</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="subheader"><a href="#directive-behaviour">getmail Behaviour</a></td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-verbose">verbose</a></td><td>Yes</td><td>1 (Yes)</td><td>Show status messages while running</td>
+		</tr>
+		<tr>
+			<td class="listitem"><a href="#directive-message-log">message_log</a></td><td>Yes</td><td>None</td><td>Log message retrieval and delivery to file</td>
+		</tr>
+	</table>
+
+	<h5 id="directive-server-config"><a href="#directives">POP3 Server Configuration</a></h5>
+	<p>
+		The following directives are used to configure which POP3 servers
+		getmail will retrieve mail from.
+	</p>
+
+	<h6 id="directive-server"><a href="#directive-server-config">POP3 Server Hostname</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify POP3 server to connect to.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				server = <span class="sample">hostname.domain.tld</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				No
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				server = pop3.isp.com
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-port"><a href="#directive-server-config">POP3 TCP Port</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify TCP port on POP3 server to connect to.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				port = <span class="sample">portnumber</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				110 (Default POP3 port)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				port = 8110
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-timeout"><a href="#directive-server-config">POP3 TCP timeout</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify the TCP timeout to use with an account.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				timeout = <span class="sample">value (seconds)</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				180
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				--timeout = <span class="sample">value (seconds)</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				timeout = 360
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Note
+			</td>
+			<td class="sample">
+				The TCP timeout capabilities are enabled by the <span class="sample">
+				timeoutsocket.py</span> module by Timothy O'Malley.  A copy of
+				timeoutsocket.py is included with getmail; however, getmail
+				will continue to function (without this capability) if
+				the timeoutsocket module is not present.
+				<pre>timeoutsocket.py Copyright 2000,2001 by Timothy O'Malley &lt;timo@alum.mit.edu&gt;
+
+All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software
+and its documentation for any purpose and without fee is hereby
+granted, provided that the above copyright notice appear in all
+copies and that both that copyright notice and this permission
+notice appear in supporting documentation, and that the name of
+Timothy O'Malley  not be used in advertising or publicity
+pertaining to distribution of the software without specific, written
+prior permission.
+
+Timothy O'Malley DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS, IN NO EVENT SHALL Timothy O'Malley BE LIABLE FOR
+ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.</pre>
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="directive-account-config"><a href="#directives">POP3 Account Configuration</a></h5>
+	<p>
+		The following directives are used to configure which POP3 accounts getmail will
+		retrieve mail from.
+	</p>
+
+	<h6 id="directive-username"><a href="#directive-account-config">POP3 account username</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify the account name for the POP3 server.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				username = <span class="sample">user</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				No
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				username = joe.bloggs<br />
+				username = joe.bloggs:vhost.example.net
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-password"><a href="#directive-account-config">POP3 account password</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify password to use with POP3 account
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				password = <span class="sample">password</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				Prompt for password
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				password = &quot;long password containing whitespace&quot;<br />
+				password = foo_bar
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-apop"><a href="#directive-account-config">POP3 APOP authentication</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Use POP3 APOP authentication if available.  Falls back to
+				USER/PASS authentication if not supported.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				use_apop = <span class="sample">bool</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				0 (USER/PASS authentication)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				use_apop = 1<br />
+				use_apop = 0
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="directive-message-format"><a href="#directives">Message Formatting</a></h5>
+	<p>
+		The following directives are specified in any getmailrc section, and are
+		used to configure how getmail will format messages that it retrieves.
+	</p>
+
+	<h6 id="directive-no-delivered-to"><a href="#directive-message-format">Delivered-To: header field suppression</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Suppress the addition of a Delivered-To: header field to messages
+				that getmail retrieves.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				no_delivered_to = <span class="sample">bool</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				0 (No)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				no_delivered_to = 1<br />
+				no_delivered_to = 0
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-no-received"><a href="#directive-message-format">Received: header field suppression</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Suppress the addition of a Received: header field to messages
+				that getmail retrieves.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				no_received = <span class="sample">bool</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				0 (No)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				no_received = 1<br />
+				no_received = 0
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="directive-delivery-targets"><a href="#directives">Message Delivery Targets</a></h5>
+	<p>
+		The following directives are specified in any getmailrc section, and are
+		used to configure where getmail will deliver retrieved messages.  Also see
+		the <a href="#delivery-targets">section on message delivery targets</a>.
+	</p>
+
+	<h6 id="directive-postmaster"><a href="#directive-delivery-targets">Default delivery target</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify the default delivery target for all retrieved messages which
+				are not handled by a matching <a href="#directive-local">local</a> directive.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				postmaster = <span class="sample">target</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				No
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				postmaster = /home/joe/Maildir/<br />
+				postmaster = ~brenda/mbox<br />
+				postmaster = &quot;|/usr/local/bin/my_mda -f foo -a all -b gone /home/postmaster/.mdarc&quot;
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-local"><a href="#directive-delivery-targets">Header field pattern matching delivery target</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify the destination for retrieved messages which appear to
+				be addressed to a given user.  getmail will match the specified
+				Perl-compatible extended regular expression against the
+				envelope recipient address found in the header field specified
+				with the <a href="#directive-recipient-header">recipient_header</a>
+				directive.  If a match is found, the message will be delivered
+				to the specified <a href="#delivery-targets">target</a>.
+				If multiple local directives contain matching patterns, each
+				matching target will receive a copy of the message.
+				If there are no local directives, or no match is found, the
+				message will be delivered according to the <a href="#directive-postmaster">default delivery target</a>.<br />
+				<br />
+				If you do not understand Perl-compatible regular expressions,
+				just use email addresses here.  They will work in virtually all
+				cases.<br />
+				<br />
+				Use multiple local directives to filter mail retrieved from a
+				domain mailbox to multiple local user accounts.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				local = <span class="sample">pattern,target</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				local = joe@isp.tld,~joe/Maildir/<br />
+				local = brenda@homeisp.tld,/home/brenda/Mail/personal/<br />
+				local = brenda@workisp.tld,/home/brenda/Mail/work/<br />
+				local = &quot;^(joe|fred)@company\.(tld|dom.tld)$,|/path/to/mda -opts&quot;
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-recipient-header"><a href="#directive-delivery-targets">Recipient header field specification</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Extract envelope recipient address from listed header field.<br />
+				<br />
+				This directive is mostly useful if the POP3 server records
+				envelope recipient addresses in a specific header field
+				(i.e. Delivered-To: or X-Envelope-To:), and you wish to process
+				mail from a domain mailbox, sorting and delivering it to
+				multiple local user accounts using <a href="#directive-local">local</a>
+				directives.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				recipient_header = <span class="sample">fieldname:fieldnum</span><br />
+				fieldnum refers to the occurrence of that header field; the value
+				<span class="sample">2</span> is the second occurrence of fieldname.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				recipient_header = Delivered-To:2<br />
+				recipient_header = X-Envelope-To:1
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-use-*env"><a href="#directive-delivery-targets">SPDS *ENV POP3 Extension</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Retrieve envelope sender and recipient addresses from the server using
+				Demon's SPDS *ENV POP3 extension (described at
+				<a href="http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml">http://www.demon.net/helpdesk/products/mail/sdps-tech.shtml</a>).<br />
+				<br />
+				This directive overrides the <span class="sample">recipient_header</span>
+				directive.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				use_*env = <span class="sample">bool</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				0 (No)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				use_*env = 1<br />
+				use_*env = 0
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-extension-sep"><a href="#directive-delivery-targets">User address extension separator character</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Determine which part of a recipient address is the extension
+				to the base address.<br />
+				<br />
+				This directive is mostly useful if the POP3 server records
+				envelope recipient addresses in a specific header field
+				(i.e. Delivered-To: or X-Envelope-To:), and you wish to deliver
+				mail using <a href="http://tmda.sourceforge.net/">TMDA</a> or
+				another filtering MDA.<br />
+				<br />
+				getmail will export the detected envelope recipient address in the environment
+				variable <span class="sample">RECIPIENT</span>.
+				It will then split the local-part of the address at the first
+				occurrence of this character (default: <span class="sample">-</span>), and
+				export anything after it as the environment variable
+				<span class="sample">EXT</span>.<br />
+				<br />
+				Note that you will still need a wrapper script around your
+				filtering MDA; getmail will consider a delivery failed if the
+				MDA returns non-zero. This is left as an excercise for the
+				reader/user of TMDA.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				extension_sep = <span class="sample">character</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				-
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				extension_sep = +<br />
+				extension_sep = -
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-extension-depth"><a href="#directive-delivery-targets">User address extension base length/depth</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Determine which part of a recipient address is the extension
+				to the base address.<br />
+				<br />
+				This directive is mostly useful if the POP3 server records
+				envelope recipient addresses in a specific header field
+				(i.e. Delivered-To: or X-Envelope-To:), and you wish to deliver
+				mail using <a href="http://tmda.sourceforge.net/">TMDA</a> or
+				another filtering MDA.<br />
+				<br />
+				If you are using a <a href="#directive-local">local
+				directive</a> to configure delivery of mail per-recipient,
+				getmail will export the detected envelope
+				recipient address in the environment variable <span class="sample">RECIPIENT</span>.
+				It will then remove the base part of the address at the
+				<span class="sample">extension_depth</span> occurrence of the
+				extension separator character.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				extension_depth = <span class="sample">count</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				1
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				extension_depth = 2
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="directive-retrieval"><a href="#directives">Message Retrieval</a></h5>
+	<p>
+		The following directives are specified in any getmailrc section, and are
+		used to configure how getmail will retrieve messages.
+	</p>
+
+	<h6 id="directive-readall"><a href="#directive-retrieval">Retrieve new messages / retrieve all messages</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Select whether to retrieve all messages, or only messages which
+				have previously not been seen by getmail.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				readall = <span class="sample">bool</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				1 (Retrieve all messages)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				--all (readall = 1)<br />
+				--new (readall = 0)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				readall = 1<br />
+				readall = 0
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-max-message-size"><a href="#directive-retrieval">Maximum message size to retrieve</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify a maximum message size to retrieve.  Messages larger
+				than this will be left on the server and not retrieved.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				max_message_size = <span class="sample">value (bytes)</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				0 (No limit)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				max_message_size = 2000000<br />
+				max_message_size = 150000
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-max-messages-per-session"><a href="#directive-retrieval">Maximum message size to retrieve</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify a maximum message size to retrieve.  Messages larger
+				than this will be left on the server and not retrieved.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				max_message_size = <span class="sample">value (bytes)</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				0 (No limit)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				max_message_size = 2000000<br />
+				max_message_size = 150000
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-delete"><a href="#directive-retrieval">Delete messages from server after retrieval</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Delete messages from the POP3 server after retrieval.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				delete = <span class="sample">bool</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				0 (Do not delete)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				--dont-delete (delete = 0)<br />
+				--delete (delete = 1)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				delete = 1<br />
+				delete = 0
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-delete-after"><a href="#directive-retrieval">Delete messages X days after retrieval</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Delete messages a specified number of days after they are first
+				retrieved.<br />
+				<br />
+				Note:  delete overrides delete_after.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				delete_after = <span class="sample">value (days)</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				0 (Do not use delete_after)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				delete_after = 3<br />
+				delete_after = 180
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="directive-behaviour"><a href="#directives">getmail Behaviour</a></h5>
+	<p>
+		The following directives are specified in any getmailrc section, and are
+		used to control other aspects of getmail's behaviour.
+	</p>
+
+	<h6 id="directive-verbose"><a href="#directive-behaviour">Verbosity</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify whether getmail writes status and informational messages
+				to stdout while running.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				verbose = <span class="sample">bool</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				1 (Verbose)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				--verbose (verbose = 1)<br />
+				--quiet (verbose = 0)
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				verbose = 1<br />
+				verbose = 0
+			</td>
+		</tr>
+	</table>
+
+	<h6 id="directive-message-log"><a href="#directive-behaviour">Message Logging</a></h6>
+	<table class="directive">
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Specify whether getmail writes message retrieval and delivery
+				information to a log file.  Set to the empty string to
+				disable logging.  This value is expanded for leading &quot;~&quot;
+				or &quot;~user&quot;.
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Syntax
+			</td>
+			<td class="rowdata">
+				message_log = <span class="sample">file</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Optional
+			</td>
+			<td class="rowdata">
+				Yes
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Default
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Commandline equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Examples
+			</td>
+			<td class="sample">
+				message_log = /var/log/getmail<br />
+				message_log = &quot;&quot;
+			</td>
+		</tr>
+	</table>
+
+<!--
+	***********************************************************************
+-->
+
+	<h3 id="run"><a href="#toc">Running getmail</a></h3>
+	<p>
+		Run the getmail helper script you installed earlier:
+	</p>
+	<pre class="sample">getmail</pre>
+	<p>
+		By default, getmail will read in the default getmailrc file
+		(<span class="sample">$HOME/.getmail/getmailrc</span>) and begin retrieving mail.
+	</p>
+	<p>
+		You can also supply <a href="#commandline">commandline options</a>.
+		For a brief summary of usage and commandline options, run:
+	</p>
+	<pre class="sample">getmail --help</pre>
+
+	<h4 id="commandline"><a href="#run">getmail Commandline Options</a></h4>
+	<p>getmail understands the following commandline options:</p>
+
+	<table class="summary">
+		<tr>
+			<th>Long Form</th><th>Short Form</th><th>Summary</th>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-help">--help</a></td><td><a href="#cmdline-help">-h</a></td><td>Display usage and default option values and exit</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-getmaildir">--getmaildir path</a></td><td><a href="#cmdline-getmaildir">-g path</a></td><td>Use path as getmail configuration/data directory</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-rcfile">--rcfile file</a></td><td><a href="#cmdline-rcfile">-r file</a></td><td>Use file as getmailrc configuration file</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-quiet">--quiet</a></td><td><a href="#cmdline-quiet">-q</a></td><td>No status output</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-verbose">--verbose</a></td><td><a href="#cmdline-verbose">-v</a></td><td>Verbose status output</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-message-log">--message-log file</a></td><td><a href="#cmdline-message-log">-m file</a></td><td>Log getmail operations to file</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-all">--all</a></td><td><a href="#cmdline-all">-a</a></td><td>Retrieve all messages</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-new">--new</a></td><td><a href="#cmdline-new">-n</a></td><td>Retrieve only new messages</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-delete">--delete</a></td><td><a href="#cmdline-delete">-d</a></td><td>Delete messages after retrieval</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-dont-delete">--dont-delete</a></td><td><a href="#cmdline-dont-delete">-l</a></td><td>Do not delete messages after retrieval</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-timeout">--timeout val</a></td><td><a href="#cmdline-timeout">-t val</a></td><td>Set socket timeout to val seconds</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-trace">--trace</a></td><td></td><td>Enable debugging output</td>
+		</tr>
+		<tr>
+			<td><a href="#cmdline-dump">--dump</a></td><td></td><td>Dump configuration and exit</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-help"><a href="#commandline">--help or -h</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--help
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-h
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Display usage information, then exit.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-getmaildir"><a href="#commandline">--getmaildir or -g</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--getmaildir <span class="sample">path</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-g <span class="sample">path</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Use <span class="sample">path</span> as getmail configuration/data
+				directory.  Defaults to <span class="sample">$HOME/.getmail/</span>
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-rcfile"><a href="#commandline">--rcfile or -r</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--rcfile <span class="sample">filename</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-r <span class="sample">filename</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Use <span class="sample">filename</span> as getmailrc file.
+				Defaults to <span class="sample">getmailrc</span> in the
+				<a href="#cmdline-getmaildir">getmaildir</a> directory.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-quiet"><a href="#commandline">--quiet or -q</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--quiet
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-q
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				verbose = 0
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Produce output only on error.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-verbose"><a href="#commandline">--verbose or -v</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--verbose
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-v
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				verbose = 1
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Write status and progress messages to stdout.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-message-log"><a href="#commandline">--message-log</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--message-log <span class="sample">file</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				message_log = <span class="sample">file</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Log message retrieval and delivery information to <span class="sample">file</span>.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-all"><a href="#commandline">--all or -a</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--all
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-a
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				readall = 1
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Retrieve all messages.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-new"><a href="#commandline">--new or -n</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--new
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-n
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				readall = 0
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Retrieve only previously unseen messages.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-delete"><a href="#commandline">--delete or -d</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--delete
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-d
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				delete = 1
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Delete messages from server after retrieval.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-dont-delete"><a href="#commandline">--dont-delete or -l</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--dont-delete
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-l
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				delete = 0
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Leave messages on server after retrieval.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-timeout"><a href="#commandline">--timeout or -t</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--timeout <span class="sample">value (seconds)</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				-t <span class="sample">value (seconds)</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				timeout = <span class="sample">value (seconds)</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Set TCP timeout to <span class="sample">value</span> seconds.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-trace"><a href="#commandline">--trace</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--trace
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Write verbose debugging information to stdout.
+			</td>
+		</tr>
+	</table>
+
+	<h5 id="cmdline-dump"><a href="#commandline">--dump</a></h5>
+	<table class="cmdlineopt">
+		<tr>
+			<td class="rowlabel">
+				Long Option
+			</td>
+			<td class="rowdata">
+				--dump
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Short Option
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				getmailrc equivalent
+			</td>
+			<td class="rowdata">
+				None
+			</td>
+		</tr>
+		<tr>
+			<td class="rowlabel">
+				Function
+			</td>
+			<td class="rowdata">
+				Do not retrieve mail; read getmailrc file and commandline options,
+				then print configuration on stdout.  This information should
+				be included in all bug reports or support requests.
+			</td>
+		</tr>
+	</table>
+</div>
+
+
+
+</body>
+</html>

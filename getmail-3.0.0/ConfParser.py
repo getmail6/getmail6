@@ -3,7 +3,7 @@
 Meant as a replacement for the broken ConfigParser module in the Python
 standard library.
 
-Copyright (C) 2000 Charles Cazabon <getmail @ discworld.dyndns.org>
+Copyright (C) 2000-2003 Charles Cazabon <getmail @ discworld.dyndns.org>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of version 2 of the GNU General Public License
@@ -37,11 +37,9 @@ This module is similar, except:
         option values are gone, except that '#' is forbidden (because it
         starts a comment), and option names cannot contain '=' (because that
         starts a value).
-
-I welcome questions and comments at <software @ discworld.dyndns.org>.
 '''
 
-__version__ = '3.1'
+__version__ = '3.2'
 __author__ = 'Charles Cazabon <software @ discworld.dyndns.org>'
 
 #
@@ -83,11 +81,6 @@ class NoOptionError (ConfParserException):
     '''
     pass
 
-class InterpolationError (ConfParserException):
-     '''Exception raised when problems occur performing string interpolation.
-     '''
-     pass
-
 class MissingSectionHeaderError (ConfParserException):
     '''Exception raised when attempting to parse a file which has no section
     headers.
@@ -99,6 +92,11 @@ class ParsingError (ConfParserException):
     Also raised if defaults is not a dictionary, or when reading a file fails.
     These errors are not covered by exceptions in the standard Python
     ConfigParser module.
+    '''
+    pass
+
+class ConversionError (ConfParserException):
+    '''Exception raised when a value conversion (i.e. to integer) fails.
     '''
     pass
 
@@ -384,8 +382,8 @@ class ConfParser:
         except KeyError, txt:
             raise NoOptionError, 'section [%s] missing option (%s)' \
                 % (section, option)
-        except TypeError, txt:
-            raise InterpolationError, 'invalid conversion or specification' \
+        except (TypeError, ValueError), txt:
+            raise ConversionError, 'invalid conversion or specification' \
                 ' for option %s (%s (%s))' % (option, rawval, txt)
 
     #######################################
@@ -396,9 +394,8 @@ class ConfParser:
         val = self.get (section, option)
         try:
             return int (val)
-        except ValueError:
-            raise InterpolationError, 'option %s not an integer (%s)' \
-                % (option, val)
+        except (TypeError, ValueError), txt:
+            raise ConversionError, 'option %s not an integer (%s)' % (option, val)
 
     #######################################
     def getfloat (self, section, option):
@@ -408,9 +405,8 @@ class ConfParser:
         val = self.get (section, option)
         try:
             return float (val)
-        except ValueError:
-            raise InterpolationError, 'option %s not a float (%s)' \
-                % (option, val)
+        except (TypeError, ValueError), txt:
+            raise ConversionError, 'option %s not a float (%s)' % (option, val)
 
     #######################################
     def getboolean (self, section, option):

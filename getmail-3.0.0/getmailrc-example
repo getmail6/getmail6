@@ -19,22 +19,32 @@ use_apop = 1                                    # Use APOP authentication for th
 postmaster = ~joeuser/Mail/default/             # Default delivery to this Maildir
 message_log = ""                                # Don't log for this account
                                                 # No "local" directives necessary.
-recipient_header = received                     # For this account, only look for recipient headers
-recipient_header = x-envelope-to                #   in "Received:" and "X-Envelope-To:" headers
 no_delivered_to = 1                             # Don't add a Delivered-To: header for this mailbox
 no_received = 1                                 # Don't add a Received: header for this mailbox
 
-[Company Maildrop]                              # Multidrop or domain mailbox configuration
+[Company1 Maildrop]                             # Domain mailbox configuration
 server = mail.isp.net
 username = getmailinc
 password = "password with trailing spaces   "
 delete = 0                                      # Don't delete messages immediately after retrieval
 delete_after = 10                               # Instead, delete them 10 days after first retrieving them
-postmaster = /var/spool/mail/postmaster         # mbox default destination if none of the "local" directives
-                                                #    match
+use_*env = 1                                    # Use Demon's SPDS *ENV POP3 extension to retrieve
+                                                #   envelope sender and recipient addresses.
+postmaster = /var/spool/mail/postmaster/        # default maildir destination if none of the "local" directives
+                                                #   match
                                                 # Use regular expression matching on the following addresses
 local = ^user1@isp.net$,~user1/Maildir/         # Mail for "user1@isp.net" is delivered to ~user1/Maildir/
-local = ^user2@isp.net$,~user2/mbox             # Mail for "user2@isp.net" is delivered to ~user1/mbox
-local = ^user3-list@isp.net$,~user3/Mail/list   # Handle this qmail-style extension address separately.
+local = ^user2-list@isp.net$,~user2/Mail/list/  # Handle this qmail-style extension address separately.
 local = "^user3@isp.net$,|/usr/bin/maildrop -a" # Deliver mail for "user3@isp.net" to /usr/bin/maildrop for
                                                 #    further processing
+
+[Company2 Maildrop]                             # Domain mailbox configuration
+server = pop.exmple.org
+username = getmailltd
+password = pass
+recipient_header = 'delivered-to:2'             # Retrieve the original envelope recipient address from the
+                                                #   second Delivered-To: header field in each message
+postmaster = /home/jeff/Mail/                   # default maildir destination if none of the "local" directives
+                                                #   match
+                                                # Use regular expression matching on the following addresses
+local = ^user1@getmailltd.tld$,~user1/Maildir/  # Mail for "user1@getmailltd.tld" is delivered to ~user1/Maildir/

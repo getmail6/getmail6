@@ -4,6 +4,7 @@
 GETMAILPATH="/usr/lib/getmail"
 
 PYTHONPATH="${GETMAILPATH}:${PYTHONPATH}"
+export PYTHONPATH
 
 # You can change this to point to your Python interpreter if you wish.
 PYTHON=`which python`
