@@ -134,7 +134,7 @@ second_parameter = value
    retriever, which tells getmail about the mail account to retrieve
    messages from. The second is destination, which tells getmail what to
    do with the retrieved messages. There is also an optional section
-   named options, which gives getmail general configuration information
+   named options , which gives getmail general configuration information
    (such as whether to log its actions to a file), and other sections can
    be used to tell getmail to filter retrieved messages through other
    programs, or to deliver messages for particular users in a particular
@@ -870,9 +870,9 @@ localpart_translate = ('mailhostaccount-', '')
 
   Creating the [options] section
   
-   The options section of the rc file (which is not required) can be used
-   to alter getmail's default behaviour. The parameters supported in this
-   section are as follows:
+   The optional options section of the rc file can be used to alter
+   getmail's default behaviour. The parameters supported in this section
+   are as follows:
      * verbose (boolean) -- if set, getmail prints messages about each of
        its actions. If unset, getmail will only print warnings and
        errors. Default: True.
@@ -914,6 +914,10 @@ localpart_translate = ('mailhostaccount-', '')
        of its actions using the system logger. Note that syslog is
        inherently unreliable and can lose log messages. Default: False.
        
+   Most users will want to either enable the delete option (to delete
+   mail after retrieving it), or disable the read_all option (to only
+   retrieve previously-unread mail).
+   
    The verbose, read_all, and delete parameters can be overridden at run
    time with commandline options.
    

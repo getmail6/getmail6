@@ -87,8 +87,8 @@ class ConfigurableBase(object):
         unknown_params = sets.ImmutableSet(self.conf.keys()).difference(
             sets.ImmutableSet([item['name'] for item in self._confitems]))
         for param in unknown_params:
-            self.log.warning('%s: ignoring unknown parameter %s\n' 
-                % (str(self), param))
+            self.log.warning('Warning: ignoring unknown parameter "%s" '
+                '(value: %s)\n' % (param, self.conf[param]))
         self.__confchecked = True
         self.log.trace('done\n')
 

@@ -149,7 +149,6 @@
 </ul>
 
 <!-- ********************************************************************** -->
-
 <h1 id="configuring">Configuring getmail</h1>
 <p>
     Once getmail is
@@ -181,7 +180,6 @@ mkdir -m 0700 $HOME/.getmail
 </ol>
 
 <!-- ********************************************************************** -->
-
 <h2 id="rcfile">Creating a getmail rc file</h2>
 <p>
     The configuration file format is designed to be easy to understand (both for
@@ -224,8 +222,10 @@ second_parameter = value
     second is
     <span class="file">destination</span>,
     which tells getmail what to do with the retrieved messages.  There is also
-    an optional section named
-    <span class="file">options</span>,
+    an 
+    <a href="#conf-options">optional section named
+    	<span class="file">options</span>
+    </a>,
     which gives getmail general configuration information (such as whether to
     log its actions to a file), and other sections can be used to tell getmail
     to filter retrieved messages through other programs, or to deliver messages
@@ -1673,11 +1673,10 @@ localpart_translate = ('mailhostaccount-', '')
 
 <h3 id="conf-options">Creating the <span class="file">[options]</span> section</h3>
 <p>
-    The
+    The optional
     <span class="file">options</span>
-    section of the rc file (which is not required) can be used to alter
-    getmail's default behaviour.  The parameters supported in this section are
-    as follows:
+    section of the rc file can be used to alter getmail's default behaviour.  
+    The parameters supported in this section are as follows:
 </p>
 <ul>
     <li>
@@ -1763,6 +1762,13 @@ localpart_translate = ('mailhostaccount-', '')
         Default: False.
     </li>
 </ul>
+<p>
+	Most users will want to either enable the
+	<span class="file">delete</span>
+	option (to delete mail after retrieving it), or disable the
+	<span class="file">read_all</span>
+	option (to only retrieve previously-unread mail).
+</p>
 <p>
     The verbose, read_all, and delete parameters can be overridden at run time
     with
@@ -2184,8 +2190,6 @@ type = Filter_TMDA
 </p>
 
 <!-- ********************************************************************** -->
-
-
 <h1 id="running">Running getmail</h1>
 <p>
     To use getmail, simply run the script
@@ -2202,6 +2206,7 @@ type = Filter_TMDA
     You can modify this behaviour by supplying commandline options to getmail.
 </p>
 
+<!-- ********************************************************************** -->
 <h2 id="running-commandline-options">Commandline options</h2>
 <p>
     getmail understands the following options:
@@ -2271,6 +2276,7 @@ $ getmail --rcfile getmailrc-account1 --rcfile getmailrc-account2
 $ getmail --getmaildir /path/to/otherdir --rcfile getmailrc-account1 --rcfile getmailrc-account2
 </pre>
 
+<!-- ********************************************************************** -->
 <h2 id="running-mda">Using getmail as an MDA</h2>
 <p>
     getmail includes helper scripts which allow you to use it to deliver mail

@@ -13,6 +13,55 @@
    (only). If you wish to obtain a license to distribute getmail under
    other terms, please contact me directly.
    
+                               Table of Contents
+                                       
+     * getmail documentation
+     *
+          + Features
+          + Differences from previous versions
+          + Requirements
+          + Obtaining getmail
+          + Installing getmail
+          +
+               o For the impatient
+               o Full installation instructions
+               o Installing from the RPM
+               o Installing from the MS Windows installer
+               o Installing directly from the source
+               o
+                    # Installing in the default location
+                    # Installing under an alternate prefix directory
+                    # Installing parts of the package to alternate
+                      directories
+               o Installing the getmailcore package in a non-standard
+                 location
+               o Building a binary package from the source
+          + getmail mailing lists
+          +
+               o getmail-users' mailing list
+               o
+                    # Archives of the getmail-users' mailing list
+               o Announcements List
+               o
+                    # Archives of the getmail announcements mailing list
+     * Configuring getmail
+     *
+          + Creating a getmail rc file
+     * Running getmail
+     *
+          + Commandline options
+          + Using getmail as an MDA
+     * Troubleshooting
+     *
+          + Error messages
+          + Unexpected Behaviour
+     * Frequently-Asked Questions (FAQs)
+     *
+          + About getmail
+          + Configuring getmail
+          + How do I ...
+          + Using getmail with other software
+       
 Features
 
    getmail is a mail retriever designed to allow you to get your mail

@@ -1,3 +1,9 @@
+Version 4.0.13
+19 August 2004
+
+  -unrecognized parameters could trigger a traceback instead of a warning.
+  Fixed.  Thanks: Frankye Fattarelli.
+
 Version 4.0.12
 19 August 2004
 
