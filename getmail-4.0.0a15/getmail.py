@@ -9,7 +9,7 @@ from optparse import OptionParser, OptionGroup
 
 from getmailcore import __version__, retrievers, destinations, filters, logging
 from getmailcore.exceptions import *
-from getmailcore.utilities import eval_bool
+from getmailcore.utilities import eval_bool, logfile
 
 log = logging.logger()
 log.addhandler(sys.stdout, logging.INFO, maxlevel=logging.INFO)
@@ -25,12 +25,19 @@ defaults = {
     'max_message_size' : 0,
     'delete_after' : 0,
     'max_messages_per_session' : 0,
+    'message_log' : None,
+    'logfile' : None,
 }
 
 #######################################
-def go(configs):
+def blurb():
     log.info('getmail version %s\n' % __version__)
     log.info('Copyright (C) 1998-2004 Charles Cazabon.  Licensed under the GNU GPL version 2.\n')
+
+#######################################
+def go(configs):
+    blurb()
+    summary = []
     for (retriever, _filters, destination, options) in configs:
         now = int(time.time())
         retrieved_messages = 0
@@ -42,6 +49,7 @@ def go(configs):
                 delete = False
                 timestamp = retriever.oldmail.get(msgid, None)
                 size = retriever.getmsgsize(msgid)
+                logline = 'MessageID %s, %d bytes' % (msgid, size)
     
                 log.info('Message %s (%d bytes) ... ' % (msgid, size))
     
@@ -57,21 +65,25 @@ def go(configs):
                         msg = retriever.getmsg(msgid)
                         retrieved_messages += 1
                         log.info('from <%s> ... ' % msg.sender)
+                        logline += ', sender <%s>' % msg.sender
     
                         for mail_filter in _filters:
                             log.debug('passing to filter %s ... ' % mail_filter)
                             msg = mail_filter.filter_message(msg)
                             if msg is None:
                                 log.info('dropped by filter %s ... ' % mail_filter)
+                                logline += ', dropped by filter %s' % mail_filter
                                 break
                         
                         if msg is not None:
                             r = destination.deliver_message(msg)
                             log.info('delivered to %s ... ' % r)
+                            logline += ', delivered to %s' % r
                         if options['delete']:
                             delete = True
                     else:
                         log.info('not retrieving (timestamp %s)' % timestamp)
+                        logline += ', not retrieved'
     
                     if options['delete_after'] and timestamp and (now - timestamp)/86400 >= options['delete_after']:
                         log.debug('message older than %d days (%s seconds), will delete ... ' % (options['delete_after'], (now - timestamp)))
@@ -85,11 +97,15 @@ def go(configs):
                     if delete:
                         retriever.delmsg(msgid)
                         log.info('deleted')
+                        logline += ', deleted'
         
                 except getmailDeliveryError, o:
                     log.error('Delivery error (%s)\n' % o)
+                    logline += ', delivery error (%s)' % o
     
                 log.info('\n')
+                if options['logfile']:
+                    options['logfile'].write(logline)
 
                 if options['max_messages_per_session'] and retrieved_messages >= options['max_messages_per_session']:
                     log.info('hit max_messages_per_session (%d), breaking\n' % options['max_messages_per_session'])
@@ -98,7 +114,12 @@ def go(configs):
         except StopIteration:
             pass
 
+        summary.append( (str(retriever), retrieved_messages) )
         retriever.quit()
+        del retriever
+
+    for (retriever, retrieved) in summary:
+        log.info('Retrieved %d messages from %s\n' % (retrieved, retriever))
 
 #######################################
 def main():
@@ -172,6 +193,8 @@ def main():
                 'delete_after' : defaults['delete_after'],
                 'max_message_size' : defaults['max_message_size'],
                 'max_messages_per_session' : defaults['max_messages_per_session'],
+                'logfile' : defaults['logfile'],
+                'message_log' : defaults['message_log'],
             }
             # Python's ConfigParser .getboolean() can't handle booleans in the defaults.
             # Submitted a patch; we'll see if they take it.  In the meantime, ugly hack....
@@ -210,7 +233,21 @@ def main():
                         log.debug('not found')
                     log.debug('\n')
 
-                # FIXME:  Add handling for message_log, ...
+                # Message log file
+                for option in ('message_log', ):
+                    log.debug('  looking for option %s ... ' % option)
+                    if configparser.has_option('options', option):
+                        log.debug('got "%s"' % configparser.get('options', option))
+                        config[option] = configparser.get('options', option)
+                        log.debug('-> %s' % config[option])
+                    else:
+                        log.debug('not found')
+                    log.debug('\n')
+                if config['message_log']:
+                    try:
+                        config['logfile'] = logfile(config['message_log'])
+                    except IOError, o:
+                        raise getmailConfigurationError('error opening message_log file %s (%s)' % (config['message_log'], o))
 
                 # Clear out the ConfigParser defaults before processing further sections
                 configparser._defaults = {}
@@ -287,10 +324,18 @@ def main():
                 log.clearhandlers()
                 log.addhandler(sys.stderr, logging.WARNING)
             
-            if options.dump_config:
+            configs.append( (retriever, _filters, destination, config.copy()) )
+
+        if options.dump_config:
+            blurb()
+            for (retriever, _filters, destination, config) in configs:
                 log.info('getmail configuration:\n')
                 log.info('  retriever:  ')
                 retriever.showconf()
+                if _filters:
+                    for _filter in _filters:
+                        log.info('  filter:  ')
+                        _filter.showconf()
                 log.info('  destination:  ')
                 destination.showconf()
                 log.info('  options:\n')
@@ -299,8 +344,7 @@ def main():
                 for name in names:
                     log.info('    %s : %s\n' % (name, config[name]))
                 log.info('\n')
-            else:
-                configs.append( (retriever, _filters, destination, config.copy()) )
+            sys.exit()
 
         go(configs)
 
@@ -314,6 +358,21 @@ def main():
         raise
         log.error('Error: %s\n' % o)
         sys.exit(3)
+    except StandardError, o:
+        log.critical('\nException:  please include the following information in any bug report:\n\n')
+        log.critical('  getmail version %s\n' % __version__)
+        log.critical('  Python version %s\n\n' % sys.version)
+        log.critical('Unhandled exception follows:\n')
+        exc_type, value, tb = sys.exc_info()
+        import traceback
+        tblist = traceback.format_tb(tb, None) + traceback.format_exception_only(exc_type, value)
+        if type(tblist) != list:
+            tblist = [tblist]
+        for line in tblist:
+            log.critical('  %s\n' % line.rstrip())
+        log.critical('\n\Please also include configuration information from running getmail\n')
+        log.critical('with your normal options plus "--dump".\n')
+        sys.exit(4)
 
 #######################################
 if __name__ == '__main__':

@@ -1,3 +1,16 @@
+Version 4.0.0a15
+22 June 2004
+
+  -add summary "Retrieved X messages for ..." for each rc file at program
+  close.  Thanks: Frankye.
+  -add explicit delete of retriever after quit() to try to force writing
+  oldmail file immediately instead of at garbage collection.  Python makes
+  no guarantees about when garbage collection takes place, so this won't be
+  perfect.  Thanks: Julian Gomez.
+  -add message_log
+  -add traceback formatting on exception
+  -change --dump to include filters.  Change order of operations.
+
 Version 4.0.0a14
 22 June 2004
 
@@ -140,13 +153,14 @@ Changes since getmail version 3
     ConfigParser)
   -no longer require workarounds for older, broken standard library modules/
     functions
--modular, object-oriented framework for retrievers, destinations allows
-  extensibility
+-modular, object-oriented framework for retrievers, destinations, filters
+  allows extensibility
 -make more platform-agnostic (transparently support system EOL convention,
   etc)
 -support for multiple retriever/account types:
   -POP (simple, multidrop, SPDS)
   -IMAPv4 (incomplete)
+-full native support for POP3-over-SSL and IMAP-over-SSL.
 -configuration (rc) file format changes:
   -support multiple rc files per invocation
   -one retriever, one destination per file

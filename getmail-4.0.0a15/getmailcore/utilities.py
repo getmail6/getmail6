@@ -10,6 +10,8 @@ import fcntl
 
 from exceptions import *
 
+logtimeformat = '%Y-%m-%d %H:%M:%S'
+
 #######################################
 class updatefile(object):
     '''A class for atomically updating files.
@@ -41,6 +43,42 @@ class updatefile(object):
         self.file.close()
         os.rename(self.tmpname, self.filename)
         self.closed = True
+
+#######################################
+class logfile(object):
+    '''A class for locking and appending timestamped data lines to a log file.
+    '''
+    def __init__(self, filename):
+        self.closed = False
+        self.filename = filename
+        try:
+            self.file = open(os.path.expanduser(self.filename), 'a')
+        except IOError, (code, msg):
+            raise IOError('%s, opening file "%s"' % (msg, self.filename))
+
+    def __del__(self):
+        self.close()
+
+    def __str__(self):
+        return 'logfile(filename="%s")' % self.filename
+
+    def close(self):
+        if self.closed:
+            return
+        self.file.flush()
+        self.file.close()
+        self.closed = True
+
+    def write(self, s):
+        try:
+            lock_file(self.file)
+            # Seek to end
+            self.file.seek(0, 2)
+            self.file.write(time.strftime(logtimeformat, time.localtime()) + ' ' + s + os.linesep)
+            self.file.flush()
+            self.file
+        finally:
+            unlock_file(self.file)
 
 ###################################
 def alarm_handler(*unused):

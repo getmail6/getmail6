@@ -129,6 +129,7 @@ are:
     delete_after (integer) - default: 0
     max_message_size (integer) - default: 0
     max_messages_per_session (integer) - default: 0
+    message_log (string filename) - default: None
 
 Boolean options can be set to True or False (case-insensitive).  They also
 accept "1", "on", "0", and "off" for compatibility.
@@ -155,6 +156,9 @@ The specific meaning of the options are:
     max_messages_per_session - retrieve and process a maximum of X messages
     before closing the mail retrieval session.  May help people with extremely
     unreliable servers avoid duplicate retrieved messages.
+
+	message_log - log activity to the specified file.  The specified file will
+	be expanded for leading "~/" or "~user/".
 
 Some parameter values (for destinations, etc) are specified as being a Python
 tuple.  This means (essentially) a non-mutable list of zero or more items

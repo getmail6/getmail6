@@ -19,6 +19,7 @@ To install:  getmail v.4 uses the standard Python distutils.  Do the following
 
   This will install the Python files under the site-packages directory of your
   Python installation (typically /usr/local/lib/pythonXXX or
-  /usr/lib/pythonXXX), and the documentation under /usr/local/doc/getmail-4/.
+  /usr/lib/pythonXXX), and the documentation under 
+  /usr/local/share/doc/getmail-4/ .
 
 getmail version 4 requires Python version 2.3.3 or later.
