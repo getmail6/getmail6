@@ -18,7 +18,7 @@
 # getmail returns the number of messages retrieved, or -1 on error.
 #
 
-VERSION = '0.2'
+VERSION = '0.3'
 
 #
 # Imports
@@ -82,10 +82,23 @@ def main ():
 	about ()
 	parse_options (sys.argv)
 	
-	shorthost = string.split (opt_host, '.') [0]
+	mail = get_mail (opt_host, opt_port, opt_account, opt_password)
+	
+	for msg in mail:
+		maildirdeliver (opt_maildir, unescape_lines (msg))
+		
+	sys.exit (deliverycount)
+
+
+#######################################
+def get_mail (host, port, account, password):
+	'Retrieve messages from a POP3 server for one account.'
+
+	messages, retrieved = [], 0
+	shorthost = string.split (host, '.') [0]
 	
 	try:
-		session = poplib.POP3 (opt_host, opt_port)
+		session = poplib.POP3 (host, port)
 		if opt_verbose:
 			print '%s:  POP3 session initiated' % shorthost
 		rc = session.getwelcome ()
@@ -93,21 +106,21 @@ def main ():
 			print '%s:  POP3 greeting:  %s' % (shorthost, rc)
 	except poplib.error_proto, response:
 		stderr ('%s:  returned greeting "%s"\n' % (shorthost, response))
-		sys.exit (ERROR)
+		return
 	except socket.error, txt:
 		stderr ('Exception connecting to %s:  %s\n' % (opt_host, txt))
-		sys.exit (ERROR)
+		return []
 
 	try:
-		rc = session.user (opt_account)
+		rc = session.user (account)
 		if opt_verbose:
 			print '%s:  POP3 user reponse:  %s' % (shorthost, rc)
-		rc = session.pass_ (opt_password)
+		rc = session.pass_ (password)
 		if opt_verbose:
 			print '%s:  POP3 password response:  %s' % (shorthost, rc)
 	except poplib.error_proto, response:
 		stderr ('%s:  returned "%s" during login\n' % (shorthost, response))
-		sys.exit (ERROR)
+		return []
 
 	# Retrieve message list
 	try:
@@ -131,23 +144,16 @@ def main ():
 			rc = result[0]
 			msg = result[1]
 
-			try:
-				maildirdeliver (opt_maildir, (unescape_lines (msg)))
-			except Error, reason:
-				stderr ('Error delivering msg %i len %i:  %s\n'
-						% (int (msgnum), int (msglen), reason))
-				continue
-				
-			if opt_verbose:
-				print 'delivered msg %i len %i' % (int (msgnum), int (msglen))
+			messages.append (msg)
+			retrieved = retrieved + 1
+
 			if opt_delete_retrieved:
 				rc = session.dele (int (msgnum))
+
 	except poplib.error_proto, response:
-		stderr ('%s:  exception "%s" during retrieval/delivery, resetting...\n'
+		stderr ('%s:  exception "%s" during retrieval, resetting...\n'
 				% (shorthost, response))
 		session.rset ()
-		session.quit ()
-		sys.exit (ERROR)
 
 	if opt_verbose:
 		print '%s:  POP3 session completed' % shorthost
@@ -156,10 +162,10 @@ def main ():
 
 	if opt_verbose:
 		print '%s:  POP3 connection closed' % shorthost
-		print '%i messages retrieved\n' % deliverycount
+		print '%i messages retrieved\n' % retrieved
 
-	sys.exit (deliverycount)
-	
+	return messages
+
 
 #######################################
 def maildirdeliver (maildir, message):
@@ -223,8 +229,7 @@ def unescape_lines (raw_lines):
 			continue
 		elif len (line) >= 2 and line[0:1] == '..':
 			line = line[1:]
-		line = '%s\n' % line
-		lines.append (line)
+		lines.append ('%s\n' % line)
 	return lines
 
 
