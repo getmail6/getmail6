@@ -28,4 +28,3 @@ class getmailDeliveryError(getmailOperationError):
     Subclass of getmailOperationError.
     '''
     pass
-                

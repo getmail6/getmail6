@@ -33,6 +33,7 @@
                     # boolean
                     # tuple of quoted strings
                     # tuple of integers
+                    # tuple of 2-tuples
                o Creating the [retriever] section
                o
                     # Common retriever parameters
@@ -146,6 +147,7 @@ second_parameter = value
      * boolean
      * tuple of quoted strings
      * tuple of integers
+     * tuple of 2-tuples
        
    Each parameter type has a specific format that must be used to
    represent it in the getmail rc file. They are explained below. Each
@@ -204,6 +206,21 @@ second_parameter = value
     parameter = (1, 2, 3, 4, 5)
     parameter = (37, )
     parameter = ()
+
+    tuple of 2-tuples
+    
+   This is a tuple of items, each of which is a 2-tuple of quoted
+   strings. You can think of this as a list of pairs of quoted strings.
+    # Three pairs
+    parameter = (
+        ("first-a", "first-b"),
+        ("second-a", "second-b"),
+        ("third-a", "third-b"),
+        )
+    # One pair
+    parameter = (
+        ("lone-a", "lone-b"),
+        )
 
   Creating the [retriever] section
   
@@ -555,9 +572,9 @@ arguments = ("--strip-forbidden-attachments", "--recipient=%(recipient)")
    The MultiDestination destination takes one required parameter:
      * destinations (tuple of quoted strings) -- the destinations which
        the messages will be passed to. The destination can be a maildir,
-       mboxrd file, or other destination. The string is first expanded
-       for leading ~ or ~USER and environment variables in the form
-       $VARNAME or ${VARNAME}. Then:
+       mboxrd file, or other destination. For each destination string,
+       the string is first expanded for leading ~ or ~USER and
+       environment variables in the form $VARNAME or ${VARNAME}. Then:
           + if the string starts with a dot . or slash /, and ends with a
             slash /, it is assumed to be the path to a maildir
           + if the string starts with a dot . or slash /, and does not
@@ -566,17 +583,18 @@ arguments = ("--strip-forbidden-attachments", "--recipient=%(recipient)")
           + if the string is surrounded by square brackets [ and ], it is
             assumed to be the name of another section in the
             configuration file specifying a destination.
-       Some examples:
-          + To deliver to a maildir named Maildir in the home directory
-            of user jeff:
+       
+   Some examples:
+     * To deliver to a maildir named Maildir in the home directory of
+       user jeff:
 [destination]
 type = MultiDestination
 destinations = ("~jeff/Maildir/", )
-          + To deliver to an mboxrd file:
+     * To deliver to an mboxrd file:
 [destination]
 type = MultiDestination
 destinations = ("/var/spool/mail/alice", )
-          + To deliver with an external MDA:
+     * To deliver with an external MDA:
 [destination]
 type = MultiDestination
 destinations = ("[procmail-as-bob]", )
@@ -624,13 +642,13 @@ user = jeff
        destination is interpreted from this value.
        
    The MultiSorter destination also takes one optional parameter:
-     * locals (string) -- one or more regular expression - destination
-       pairs, each on a separate line. Messages will be delivered to each
-       destination for which the envelope recipient matches the given
-       regular expression. The regular expression and destination are
-       supplied on the same line and separated by whitespace.
-       Destinations are specified in the same manner as with the
-       "default" parameter, above.
+     * locals (tuple of 2-tuples) -- zero or more regular expression -
+       destination pairs. Messages will be delivered to each destination
+       for which the envelope recipient matches the given regular
+       expression. The regular expression and destination are supplied as
+       two quoted strings in a tuple; locals is then a tuple of such
+       pairs of strings. Destinations are specified in the same manner as
+       with the "default" parameter, above.
        
    Note that if you don't understand regular expressions, you don't need
    to worry about it. In general, an email address is a regular
@@ -661,9 +679,10 @@ user = jeff
 [destination]
 type = MultiSorter
 default = ~bob/Maildir/
-locals =
-    jeff@example.net ~jeff/Maildir/
-    alice@ ~alice/inbox
+locals = (
+    ('jeff@example.net', '~jeff/Maildir/'),
+    ('alice@', '~alice/inbox')
+    )
      *
           + Deliver mail for jeff, bob, and alice to maildirs in their
             home directories
@@ -675,12 +694,13 @@ locals =
 [destination]
 type = MultiSorter
 default = doesn't matter, this won't be used, as locals will always match
-locals =
-    ^jeff@ ~jeff/Maildir/
-    ^bob@ ~bob/Maildir/
-    ^alice@ ~alice/Maildir/
-    . ~samantha/Mail/archive/copies/
-    . [info]
+locals = (
+    ('^jeff@'), '~jeff/Maildir/'),
+    ('^bob@'), '~bob/Maildir/'),
+    ('^alice@'), '~alice/Maildir/'),
+    ('.'), '~samantha/Mail/archive/copies/'),
+    ('.'), '[info]')
+    )
 
 [info]
 type = MDA_external

@@ -88,7 +88,7 @@ class ConfigurableBase(object):
         for name in names:
             if name.lower() == 'configparser':
                 continue
-            if confstring:  
+            if confstring:
                 confstring += ', '
             if name.lower() == 'password':
                 confstring += '%s="*"' % name

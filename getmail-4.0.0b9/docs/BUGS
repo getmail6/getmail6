@@ -6,7 +6,7 @@ None.
 Reporting bugs
 --------------
 
-Please include the output of `getmail [options] --dump` with any
+IMPORTANT:  Please include the output of `getmail [options] --dump` with any
 bug report.
 
 If you find a bug in getmail, please either join the getmail users' mailing

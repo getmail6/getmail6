@@ -389,6 +389,7 @@ def main():
             blurb()
             for (retriever, _filters, destination, config) in configs:
                 log.info('getmail configuration:\n')
+                log.info('  Python version %s\n' % sys.version)
                 log.info('  retriever:  ')
                 retriever.showconf()
                 if _filters:

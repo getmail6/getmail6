@@ -610,6 +610,7 @@ class MultiDestination(MultiDestinationBase):
     '''
     _confitems = (
         {'name' : 'destinations', 'type' : tuple},
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
     def initialize(self):
@@ -658,28 +659,33 @@ class MultiSorter(MultiDestinationBase):
       default - the default maildir destination path.  Messages not matching any
                 "local" patterns (see below) will be delivered here.
 
-      locals - an optional list of regular expression and maildir/mbox path pairs (whitespace-separated).
-               In the general case, an email address is a valid regular expression.
-               Each pair is on a separate line; the second and subsequent lines need
-               to have leading whitespace to be considered a continuation of the "locals"
-               configuration.  If the recipient address matches a given pattern, it will
-               be delivered to the corresponding destination.  A destination is assumed to
-               be a maildir if it starts with a dot or slash and ends with a slash.
-               A destination is assumed to be an mboxrd file if it starts with a dot or
-               a slash and does not end with a slash.  A destination may also be specified
-               by section name, i.e. "[othersectionname]".
-               Multiple patterns may match a given recipient address; the
-               message will be delivered to /all/ maildirs with matching
-               patterns.  Patterns are matched case-insensitively.
+      locals - an optional tuple of items, each being a 2-tuple of quoted strings.
+               Each quoted string pair is a regular expression
+               and a maildir/mbox/other destination. In the general case, an email
+               address is a valid regular expression. Each pair is on a separate
+               line; the second and subsequent lines need to have leading
+               whitespace to be considered a continuation of the "locals"
+               configuration.  If the recipient address matches a given pattern,
+               it will be delivered to the corresponding destination.  A
+               destination is assumed to be a maildir if it starts with a dot or
+               slash and ends with a slash. A destination is assumed to be an
+               mboxrd file if it starts with a dot or a slash and does not end
+               with a slash.  A destination may also be specified by section
+               name, i.e. "[othersectionname]". Multiple patterns may match a
+               given recipient address; the message will be delivered to /all/
+               maildirs with matching patterns.  Patterns are matched case-
+               insensitively.
 
                example:
 
                  default = /home/kellyw/Mail/postmaster/
-                 locals = jason@example.org             /home/jasonk/Maildir/
-                   sales@example.org                    /home/karlyk/Mail/sales
-                   abuse@(example.org|example.net)      /home/kellyw/Mail/abuse/
-                   ^(jeff|jefferey)(\.s(mith)?)?@.*$    [jeff-mail-delivery]
-                   ^.*@(mail.)?rapinder.example.org$    /home/rapinder/Maildir/
+                 locals = (
+                   ("jason@example.org", "/home/jasonk/Maildir/"),
+                   ("sales@example.org", "/home/karlyk/Mail/sales"),
+                   ("abuse@(example.org|example.net)", "/home/kellyw/Mail/abuse/"),
+                   ("^(jeff|jefferey)(\.s(mith)?)?@.*$", "[jeff-mail-delivery]"),
+                   ("^.*@(mail.)?rapinder.example.org$", "/home/rapinder/Maildir/")
+                   )
 
                In it's simplest form, locals is merely a list of pairs of
                email addresses and corresponding maildir/mbox paths.  Don't worry
@@ -688,7 +694,7 @@ class MultiSorter(MultiDestinationBase):
     '''
     _confitems = (
         {'name' : 'default', 'type' : str},
-        {'name' : 'locals', 'type' : str, 'default' : ''},
+        {'name' : 'locals', 'type' : tuple, 'default' : ()},
         {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
     )
 
@@ -699,7 +705,14 @@ class MultiSorter(MultiDestinationBase):
         self._destinations.append(self.default)
         self.targets = []
         try:
-            for (pattern, path) in [line.strip().split(None, 1) for line in self.conf['locals'].split(os.linesep) if line.strip()]:
+            locals = self.conf['locals']
+            # Special case for convenience if user supplied one base 2-tuple
+            if len(locals) == 2 and type(locals[0]) == str and type(locals[1]) == str:
+                locals = (locals, )
+            for item in locals:
+                if not (type(item) == tuple and len(item) == 2 and type(item[0]) == str and type(item[1]) == str):
+                    raise getmailConfigurationError('invalid syntax for locals ; see documentation')
+            for (pattern, path) in locals:
                 try:
                     dest = self._get_destination(path)
                 except getmailConfigurationError, o:
@@ -708,8 +721,6 @@ class MultiSorter(MultiDestinationBase):
                 self._destinations.append(dest)
         except re.error, o:
             raise getmailConfigurationError('invalid regular expression %s' % o)
-        except ValueError, o:
-            raise getmailConfigurationError('invalid syntax for locals ; see documentation (%s)' % o)
 
     def _confstring(self):
         '''Override the base class implementation; locals isn't readable that way.'''

@@ -1,3 +1,13 @@
+Version 4.0.0b9
+19 July 2004
+
+  -change syntax of MultiSorter's locals parameter.  The previous syntax was 
+  fragile and was mostly a holdover from previous versions; it is now a tuple of 
+  items, each of which is a 2-tuple of quoted strings.
+  -add Python version to --dump output.
+  -eliminate redundant _confstring() method in _retrieverbases.py.
+  -small documentation updates.
+
 Version 4.0.0b8
 18 July 2004
 

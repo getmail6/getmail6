@@ -145,11 +145,12 @@ envelope_recipient = delivered-to:1
 [destination]
 type = MultiSorter
 default = ~joe/Mail/postmaster/
-locals =
-  jeffk@company.example.net        ~jeffp/Maildir/
-  martinh@company.example.net      ~martinh/Maildir/
-  sam@company.example.net          ~sam/Mail/inbox
-  c.fellowes@company.example.net   [christina-procmail]
+locals = (
+  ("jeffk@company.example.net",      "~jeffp/Maildir/"),
+  ("martinh@company.example.net",    "~martinh/Maildir/"),
+  ("sam@company.example.net",        "~sam/Mail/inbox"),
+  ("c.fellowes@company.example.net", "[christina-procmail]")
+  )
 
 [christina-procmail]
 type = MDA_external

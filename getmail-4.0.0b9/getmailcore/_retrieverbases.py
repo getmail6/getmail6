@@ -275,19 +275,6 @@ class RetrieverSkeleton(ConfigurableBase):
         except IOError, o:
             self.log.error('failed writing oldmail file for %s (%s)\n' % (self, o))
 
-    def _confstring(self):
-        self.log.trace()
-        confstring = ''
-        names = self.conf.keys()
-        names.sort()
-        for name in names:
-            if confstring:  confstring += ', '
-            if name.lower() == 'password':
-                confstring += '%s="*"' % name
-            else:
-                confstring += '%s="%s"' % (name, self.conf[name])
-        return confstring
-
     def initialize(self):
         self.log.trace()
         self.checkconf()

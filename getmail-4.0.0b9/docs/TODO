@@ -1,15 +1,10 @@
 TODO
 ====
 
--RPM package, if the Python distutils can be made to do it right
-
 -additional documentation on extending getmail's capabilities
 
 -remove the raise statements in the outermost exception handlers from
   the main script (when leaving beta)
-
--rewrite the distutils setup script to properly allow the user to specify
-  alternate installation directories for types of files
 
 DONE
 ====
@@ -39,3 +34,6 @@ DONE
 -man pages
 -flush out getmailrc-example
 -Filter_TMDA filter class
+-RPM package
+-rewrite the distutils setup script to properly allow the user to specify
+  alternate installation directories for types of files
