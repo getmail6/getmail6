@@ -304,6 +304,27 @@ How do I ...
    If you still think you need to, you can use getmail's external MDA
    support to do so.
    
+  How do I make getmail deliver messages to an mh folder?
+  
+   mh clients (and nmh, or "new mh" clients) include a command for
+   delivering a message into your mh folder. In nmh, this command is
+   called rcvstore. You use it as an external message delivery agent
+   (MDA) with getmail's MDA_external destination. Ensure your
+   $HOME/.mh_profile file is configured properly; getmail user Frankye
+   Fattarelli suggests a line like the following is necessary to indicate
+   the path to your mh mail root:
+Path: Mail
+
+   Then use MDA_external like this (which, after adjusting the path of
+   the command to reflect your mh/nmh installation, should work with
+   either mh or nmh):
+[destination]
+type = MDA_external
+path = /usr/local/libexec/nmh/rcvstore
+arguments = ("+inbox", )
+
+   Thanks to Frankye Fattarelli for contributing this answer.
+   
   How do I run getmail in "daemon" mode?
   
    Use your system's cron utility to run getmail periodically if you wish
@@ -476,6 +497,13 @@ arguments = ("-f", "%(sender)")
 type = MDA_external
 path = /path/to/maildrop
 unixfrom = True
+
+   If you want to specify a maildrop rc file as one of its arguments,
+   that would be something like:
+[destination]
+type = MDA_external
+path = /path/to/maildrop
+arguments = ("-f", "%(sender)", "~/.maildroprc")
 
   How do I use TMDA with getmail?
   

@@ -1,3 +1,10 @@
+Version 4.0.0
+22 July 2004
+
+  -exit beta; final release of version 4.0.0, with approximately four thousand
+  lines (~150 kbytes) of Python code and five thousand lines (~180 kbytes) of 
+  documentation.
+
 Version 4.0.0b10
 21 July 2004
 
