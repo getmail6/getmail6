@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.19'
+__version__ = '2.0.20'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -154,26 +154,8 @@ exitcodes = {
 # Names for output logging levels
 (TRACE, DEBUG, INFO, WARN, ERROR, FATAL) = range (1, 7)
 
-# Headers which are parsed looking for local recipient email addresses
-RECIPIENT_HEADERS = (
-	'Delivered-To',
-	'Envelope-To',
-	'Apparently-To',
-	'X-Envelope-To',
-	'Resent-To',
-	'Resent-cc',
-	'Resent-bcc',
-	'To',
-	'cc',
-	'bcc',
-	'Received',
-	)
-
 # Simple re to determine if a string might be an email address
 re_mailaddr = re.compile ('.+@.+\..+')
-
-# RE for finding timestamp in a POP3 welcome banner, for APOP use
-re_bannertimestamp = re.compile ('^.*(?P<timestamp>\<.+\>).*$')
 
 # Count of deliveries for getmail; used in Maildir delivery
 deliverycount = 0
@@ -196,8 +178,6 @@ re_escapefrom = re.compile (r'^(?P<gts>\>*)From ', re.MULTILINE)
 re_eol = re.compile (r'\r?\n\s*', re.MULTILINE)
 # Regular expression to do POP3 leading-dot unescapes
 re_leadingdot = re.compile (r'^\.\.', re.MULTILINE)
-
-#options = defs.copy ()						# Start as a copy of defaults
 
 #
 # Utility functions

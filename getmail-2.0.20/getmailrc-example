@@ -15,7 +15,7 @@ readall = 0
 username = joeuser
                                                 # no password specified; prompt for it when getmail is run
 postmaster = ~joeuser/Mail/default/             # Default delivery to this Maildir
-message_log =                                   # Don't log for this account
+message_log = ""                                # Don't log for this account
                                                 # No "local" directives necessary.
 recipient_header = received						# For this account, only look for recipient headers
 recipient_header = x-envelope-to				#   in "Received:" and "X-Envelope-To:" headers

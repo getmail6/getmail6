@@ -1,6 +1,14 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.0.20
+20 June 2001
+
+  -remove dead code
+  -fix bug in example getmailrc file.  Thanks to John Gennard for spotting this.
+  There was an instance of an empty option value left over from before this was
+  an issue.
+
 Version 2.0.19
 18 April 2001
 

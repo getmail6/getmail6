@@ -86,6 +86,15 @@ getmail FAQ
    What version of Python are you running? Versions earlier than 1.5.2
    can cause this problem. Upgrade to Python 1.5.2 or later.
    
+  When I start getmail, I get the error "SyntaxWarning: name 'timeoutsocket' is
+  assigned to before global declaration". What's wrong?
+  
+   Nothing. This is a check for certain possible problems by the Python
+   interpreter in Python version 2.0 and above. In this case, the test is
+   wrong. To skip the test, add "-W ignore" to the invocation of Python.
+   Change the wrapper script included with getmail to do this. Thanks to
+   Errol Casey for the tip on this.
+   
   I've got a simple POP3 account. Do I need "local=..." configuration
   variables?
   
@@ -195,3 +204,8 @@ getmail FAQ
    configure and use than fetchmail. Perhaps most importantly, getmail
    cannot lose retrieved mail, while fetchmail (in its default
    configuration) can.
+   In addition, all fetchmail versions released before 20 June 2001
+   contain a buffer overflow, which can be remotely exploited (see
+   www.securityfocus.com/bid/2877 for details). getmail is not vulnerable
+   to buffer overflows, because strings in Python are dynamically sized
+   and do not rely on ASCII NUL to terminate them.
