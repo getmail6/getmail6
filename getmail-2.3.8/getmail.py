@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.3.7'
+__version__ = '2.3.8'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -213,7 +213,7 @@ res = {
     'eol' : re.compile (r'\r?\n\s*', re.MULTILINE),
     # Regular expression to do POP3 leading-dot unescapes
     'leadingdot' : re.compile (r'^\.\.', re.MULTILINE),
-    # Regular expression to extract addresses from 'for' clauses in 
+    # Regular expression to extract addresses from 'for' clauses in
     # Received: header fields
     'received_for' : re.compile (r'\s+for\s+<(?P<addr>.*?(?=>))', re.IGNORECASE),
     # Percent sign escapes
@@ -441,7 +441,7 @@ class getmail:
 
         if self.conf['message_log']:
             try:
-                filename = os.path.join (self.conf['getmaildir'], 
+                filename = os.path.join (self.conf['getmaildir'],
                     os.path.expanduser (self.conf['message_log']))
                 self.logfile = open (filename, 'a')
             except IOError, txt:
@@ -563,7 +563,7 @@ class getmail:
             try:
                 msgnum = int (msgnum)
             except ValueError, txt:
-                self.logfunc (ERROR, 
+                self.logfunc (ERROR,
                     '  Error:  POP3 server violates RFC1939 ("%s"), skipping line...\n' % s)
                 continue
             # Keep track of length of message
@@ -572,7 +572,7 @@ class getmail:
             except:
                 msglen = 0
             msglist.append (list ((msgnum, msglen)))
-        
+
         try:
             rc = self.session.uidl ()
             self.logfunc (TRACE, 'UIDL response "%s"\n' % rc[0])
@@ -582,7 +582,7 @@ class getmail:
                     % (len (uidls), len (msglist)))
                 uidls = [(None, None)] * len (msglist)
         except poplib.error_proto, txt:
-            self.logfunc (WARN, 
+            self.logfunc (WARN,
                 'POP3 server failed UIDL command, will retrieve all messages (%s)'
                 % txt)
             uidls = [(None, None)] * len (msglist)
@@ -630,7 +630,7 @@ class getmail:
                 else:
                     # Hmmm, bogus
                     self.logfunc (TRACE, 'not an address: "%s"\n' % address)
-                
+
         self.logfunc (TRACE, 'found %i recipients\n' % len (recipients.keys ()))
 
         return recipients.keys ()
@@ -756,7 +756,7 @@ class getmail:
 
             if not do_delivery:
                 continue
-                
+
             if self.conf['eliminate_duplicates']:
                 if not self.msgs_delivered.has_key (digest):
                     # First recipient of this message, keep track
@@ -1059,11 +1059,11 @@ class getmail:
                     exitsignal = ''
                 raise getmailDeliveryException, 'command "%s" %s %s (%s)' \
                      % (command, exitcode, exitsignal, err)
-            
+
             elif err:
                 raise getmailDeliveryException, 'command "%s" exited 0 but wrote to stderr (%s)' \
                      % (command, err)
-            
+
             if out:
                 # Command wrote something to stdout
                 self.logfunc (INFO, '  command "%s" said "%s"\n' % (command, out))
@@ -1205,6 +1205,9 @@ class getmail:
                 % self.info)
             self.msglog ('Finished')
 
+        except SystemExit:
+            raise
+
         except MemoryError:
             self.logfunc (ERROR, '  Memory exhausted\n')
             self.abort ('Out of memory')
@@ -1223,7 +1226,7 @@ class getmail:
             txt = 'Socket error (%s)' % txt
             self.logfunc (ERROR, '  %s\n' % txt)
             self.abort (txt)
-            
+
         except getmailConfigException, txt:
             txt = 'Configuration error (%s)' % txt
             self.logfunc (ERROR, '  %s\n' % txt)
@@ -1244,7 +1247,7 @@ class getmail:
             self.logfunc (WARN, '  %s\n' % txt)
             self.abort (txt)
             raise SystemExit
-            
+
         except getmailUnhandledException, txt:
             txt = 'Unknown error (%s)' % txt
             self.logfunc (FATAL, '  %s\n' % txt)
@@ -1380,13 +1383,9 @@ def read_configfile (filename, default_config):
             try:
                 account['password'] = conf.get (section, 'password')
             except ConfParser.NoOptionError, txt:
-                try:
-                    account['password'] = getpass.getpass (
-                        'Enter password for %(username)s@%(server)s:%(port)s :  '
-                        % account)
-                except KeyboardInterrupt:
-                    log (INFO, '\nUser aborted.  Exiting...\n', options)
-                    raise SystemExit
+                account['password'] = getpass.getpass (
+                    'Enter password for %(username)s@%(server)s:%(port)s :  '
+                    % account)
 
             for key in conf.options (section):
                 if key in ('server', 'port', 'username', 'password'):
@@ -1452,7 +1451,7 @@ def parse_options (args):
 
     if args:
         for arg in args:
-            log (FATAL, '\nError:  unknown argument (%s)\n' % arg, defs)
+            log (FATAL, 'Error:  unknown argument (%s)\n' % arg, defs)
         help ()
 
     for option, value in opts:
@@ -1532,7 +1531,6 @@ def main ():
     '''Main entry point for getmail.
     '''
     config = defs.copy ()
-    
     cmdline_opts = parse_options (sys.argv[1:])
     config.update (cmdline_opts)
 
@@ -1544,10 +1542,13 @@ def main ():
 
     try:
         config, mail_configs = read_configfile (filename, config)
+        # Need to re-apply commandline overrides here
+        config.update (cmdline_opts)
+
         for (account, _locals) in mail_configs:
             # Apply commandline overrides to options
             account.update (cmdline_opts)
-
+    
         if not mail_configs:
             log (FATAL,
                 '\nError:  no POP3 account configurations found in getmailrc file (%s)\n'
@@ -1558,7 +1559,7 @@ def main ():
         if config['log_level'] < WARN:
             blurb ()
             version ()
-    
+
         if config['dump']:
             dump_config (config, mail_configs)
             sys.exit (exitcodes['OK'])
@@ -1569,28 +1570,30 @@ def main ():
 
             except getmailNetworkError, txt:
                 log (WARN, '%s\n' % txt, config)
-        
+
+    except SystemExit:
+        raise
+
     except getmailConfigException, txt:
         txt = 'Configuration error (%s)' % txt
         log (FATAL, '  %s\n' % txt, config)
         sys.exit (exitcodes['ERROR'])
 
-    except getmailUnhandledException, txt:
+    except:
         log (FATAL,
             '\ngetmail bug:  please include the following information in any bug report:\n\n',
             config)
-        log (FATAL, 'getmail version %s\n' % __version__, config)
-        log (FATAL, 'ConfParser version %s\n' % ConfParser.__version__, config)
-        log (FATAL, 'Python version %s\n\n' % sys.version, config)
-        log (FATAL, 'Unhandled exception "%s"\n\n' % txt, config)
-        log (FATAL, 'Exception follows:\n', config)
+        log (FATAL, '  getmail version %s\n' % __version__, config)
+        log (FATAL, '  ConfParser version %s\n' % ConfParser.__version__, config)
+        log (FATAL, '  Python version %s\n\n' % sys.version, config)
+        log (FATAL, 'Unhandled exception follows:\n', config)
         exc_type, value, tb = sys.exc_info ()
         tblist = traceback.format_tb (tb, None) + \
                traceback.format_exception_only (exc_type, value)
         if type (tblist) != ListType:
             tblist = [tblist]
         for line in tblist:
-            log (FATAL, string.rstrip (line) + '\n', config)
+            log (FATAL, '  ' + string.rstrip (line) + '\n', config)
 
         log (FATAL, '\n\Please also include configuration information from running getmail\n',
             config)

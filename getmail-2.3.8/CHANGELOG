@@ -1,6 +1,15 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.3.8
+7 June 2002
+
+  -bugfix:  commandline options were not always overriding options specified
+  in the getmailrc file.  Thanks to Melanie Büsing for the bug report which
+  got me looking at this, and Ruprecht Helms for a similar report which 
+  helped me track down the cause.
+  -slight changes to exception handling and error message formatting.
+
 Version 2.3.7
 16 April 2002
 
@@ -74,7 +83,7 @@ Version 2.3.0
   Edmund Evans for noticing this.
   -change to retrieve all UIDs in one command, instead of individually.
   getmail should run significantly faster if you tend to have a POP3 mailbox
-  with lots (dozens or hundreds) of messages in it.  Thanks to Edmund Evans for 
+  with lots (dozens or hundreds) of messages in it.  Thanks to Edmund Evans for
   the feature request and testing.
   -change oldmail file naming convention to account for slashes in the
   POP3 username.  Thanks to marct for the bug report.
@@ -108,11 +117,11 @@ Version 2.2.4
   Bob Ernst for noting this.
   -remove duplicated code in extract_recipients()
   -deliver_command() wouldn't properly note when an MDA exited on a signal.
-  It would instead log that the command failed to exit, but would still 
+  It would instead log that the command failed to exit, but would still
   properly consider the delivery failed.  Fixed.  Thanks to TMDA user
   Tim Legant for the bug report.
   -clean up some code.
-  
+
 Version 2.2.3
 24 February 2002
 
@@ -147,12 +156,12 @@ Version 2.2.0
   naming convention (see below) has changed; getmail will ignore previous
   oldmail files.  This means that previously-seen messages on the POP3 server
   will be downloaded the first time you run this new version of getmail.
-  -add extension_sep and extension_depth directives and environment variables 
-  SENDER, RECIPIENT, and EXT for command deliveries.  This will allow the 
-  creation of a wrapper script for use with TMDA.  Caveat emptor: this is only 
-  reliable if the MTA on the POP3 server records the envelope recipient address 
-  in a header field, and you configure getmail to only look at that header 
-  field.  Users retrieving mail from a qmail server have nothing to worry about 
+  -add extension_sep and extension_depth directives and environment variables
+  SENDER, RECIPIENT, and EXT for command deliveries.  This will allow the
+  creation of a wrapper script for use with TMDA.  Caveat emptor: this is only
+  reliable if the MTA on the POP3 server records the envelope recipient address
+  in a header field, and you configure getmail to only look at that header
+  field.  Users retrieving mail from a qmail server have nothing to worry about
   :).
   -update to version 3.1 of ConfParser module -- small code cleanups.
   -update to version 1.21 of timeoutsocket.py module by Timothy O'Malley.
@@ -169,14 +178,14 @@ Version 2.2.0
   -remove dead code.
   -update example getmailrc file.
   -change oldmail file naming scheme; include port number and use '-' instead
-  of ':' for separator, for those people using getmail under Cygwin.  Thanks to 
-  Jody Hietpas for the report.  You can delete any remaining 'oldmail:*' files 
+  of ':' for separator, for those people using getmail under Cygwin.  Thanks to
+  Jody Hietpas for the report.  You can delete any remaining 'oldmail:*' files
   in your .getmail directory.
   -report message count and mailbox size prior to retrieving messages.  Thanks
   to Prahlad Vaidyanathan for the request and a patch.  I implemented the code
   differently, but the idea is the same.
   -remove long-fixed bug from the known bugs list in BUGS.
-  
+
 Version 2.1.9
 27 December 2001
 
@@ -195,7 +204,7 @@ Version 2.1.7
 
   -Fix the message delivery logic to prevent multiple deliveries of the
   same message in certain domain mailbox configurations.  Note this is not
-  the same as duplicate-message suppression.  Thanks to Jay ? for the 
+  the same as duplicate-message suppression.  Thanks to Jay ? for the
   initial report which reminded me I wasn't happy with the way it was
   currently working.
 
@@ -230,7 +239,7 @@ Version 2.1.4
   discussion, this is now fixed.  Note that the previous behaviour would not
   have resulted in the loss of mail in any case, but the new behaviour is
   more predictable in some circumstances.
-  
+
 Version 2.1.0
 23 June 2001
 
@@ -279,16 +288,16 @@ Version 2.0.18
 Version 2.0.17 (release codename:  "Dan")
 15 February 2001
 
-  -fix typo in output of login() while printing the response to the USER 
+  -fix typo in output of login() while printing the response to the USER
   command.  I had "reponse".  Thanks to Dan Reish for the patch.
   -change a contraction to two words in the docstring for deliver_msg().
   Emacs apparently doesn't like apostrophes in a triple-quoted docstring if
   the apostrophe isn't on the first line.  Funny, my editor does the same
   thing :).  Again, thanks to Dan Reish.
-  -add workaround for servers which violate RFC1939 in their response to the 
-  LIST command.  getmail will print a warning and try to gracefully continue. 
-  Dan Reish reported this; it appears to have been a temporary problem with the 
-  POP3 service of a webmail site.  Please let me know if other servers trigger 
+  -add workaround for servers which violate RFC1939 in their response to the
+  LIST command.  getmail will print a warning and try to gracefully continue.
+  Dan Reish reported this; it appears to have been a temporary problem with the
+  POP3 service of a webmail site.  Please let me know if other servers trigger
   this.
   -fix APOP.  Was misinterpreting an earlier POP3 RFC.  getmail will fall back
   to normal USER/PASS authentication if you configure it to use APOP for a
@@ -325,7 +334,7 @@ Version 2.0.15
   -optimize process_msg()
   -remove obsolete "options" global
   -update documentation, FAQ, and example getmailrc file
-  
+
 Version 2.0.14
 8 February 2001
 
@@ -385,7 +394,7 @@ Version 2.0.9
   and his patience while I tracked this one down.
   -two small changes to handle timeouts and other exceptions.  Thanks to
   Stephen Morrison and Dave Seidel for bug reports on this.
-  
+
 Version 2.0.8
 14 January 2001
 
@@ -424,7 +433,7 @@ Version 2.0.2
   -fix bug where getmail would throw an exception when supplied the --help
   commandline option.  Changed behaviour of --help slightly.
   -add additional documentation.  Not 100% complete yet, but better.
-  -packaging changes.  Separate files are now included for getmail.txt, 
+  -packaging changes.  Separate files are now included for getmail.txt,
   docs.txt, and faq.txt.
   -updated website.
 
