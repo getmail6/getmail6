@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.2.2'
+__version__ = '3.2.3'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -400,9 +400,13 @@ class getmail:
         'Deliver a mail message to a command.'
         global deliverycount
 
-        # At least some security...
-        if os.geteuid () == 0:
-            raise getmailDeliveryException, 'refuse to deliver to commands as root'
+        try:
+            # At least some security...
+            if os.geteuid () == 0:
+                raise getmailDeliveryException, 'refuse to deliver to commands as root'
+        except AttributeError:
+            # Windows -- modules os doesn't have geteuid().  Ignore on Windows.
+            pass
 
         # Construct mboxrd-style 'From_' line
         fromline = 'From %s %s\n' % (env_sender or '<>', time.asctime (time.gmtime (int (time.time ()))))

@@ -234,7 +234,7 @@ postmaster = "|/path/to/mda [options] 2>&1"
        create  them  prior  to  having  getmail deliver mail to them. Use
        maildirmake to create empty Maildirs.
      * getmail  requires  write access to any Maildir you wish to deliver
-       mail to. This can be done my making the Maildirs group-writable by
+       mail to. This can be done by making the Maildirs group-writable by
        the group you run getmail under, for example. There are other ways
        as well.
 

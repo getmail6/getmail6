@@ -1,6 +1,14 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.2.3
+29 April 2004
+
+  -change to allow external command delivery when running on Windows.
+  Thanks to Andrey Belousov for the report.
+  -fix typo in docs ("my" instead of "by").  Thanks to Tom Cosgrove for
+  spotting it.
+
 Version 3.2.2
 23 March 2004
 
