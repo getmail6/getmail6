@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.12'
+__version__ = '2.0.13'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -819,7 +819,7 @@ class getmail:
 					msgid = string.strip (string.split (rc, ' ', 2)[2])
 					# Append msgid to list of current inbox contents
 					inbox.append (msgid)
-				except pop3lib.error_proto, txt:
+				except poplib.error_proto, txt:
 					msgid = None
 					self.logfunc (WARN, 'POP3 server failed UIDL command' \
 						' (%s), retrieving message ... ' % txt, self.opts)

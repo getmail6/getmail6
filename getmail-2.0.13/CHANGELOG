@@ -1,5 +1,12 @@
 getmail changes since version 1.11:
 
+Version 2.0.13
+6 February 2001
+
+  -fix typo bug in getmail.go() which threw an exception if the POP3 server
+  doesn't support the UIDL command.  Thanks to Andrew Medico for the bug
+  report.
+
 Version 2.0.12
 5 February 2001
 
