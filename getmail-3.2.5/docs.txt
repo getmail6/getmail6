@@ -1,6 +1,4 @@
 
-   #Charles Cazabon's Pages
-
 getmail Documentation
 
    This  is the formal documentation for getmail. If your question is not
@@ -202,6 +200,9 @@ Message Delivery Targets
    Maildir /path/to/Maildir/ Maildir targets must have a trailing slash
    Command  |/path/to/command  [arguments]  Command deliveries must start
    with a pipe (|). Remember to quote values containing whitespace.
+
+   Note the following restrictions:
+     * getmail refuses to deliver to maildirs as root.
 
    For  command  deliveries,  getmail  provides the following environment
    variables.

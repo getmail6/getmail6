@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.2.4'
+__version__ = '3.2.5'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -365,6 +365,10 @@ class getmail:
             dest = dest[1:]
             return self.deliver_command (dest, msg, env_sender)
 
+        # Not as root
+        if os.name == 'posix' and (os.geteuid() == 0 or os.getegid() == 0):
+            raise getmailDeliveryException, 'refuse to deliver mail as root'
+
         # If destination ends with '/', assume Maildir delivery
         if dest and dest[-1] == '/':
             deliverycount = deliverycount + 1
@@ -402,7 +406,7 @@ class getmail:
 
         try:
             # At least some security...
-            if os.geteuid () == 0:
+            if os.geteuid() == 0 or os.getegid() == 0:
                 raise getmailDeliveryException, 'refuse to deliver to commands as root'
         except AttributeError:
             # Windows -- modules os doesn't have geteuid().  Ignore on Windows.
@@ -465,68 +469,6 @@ class getmail:
 
         deliverycount = deliverycount + 1
         return 'command "%s"' % command
-
-    #######################################
-    def filter_message (self, msg, command):
-        '''Filter a mail message through a command.
-        '''
-        self.logfunc (TRACE, 'filtering through command "%s"\n' % command)
-        try:
-            import popen2
-        except ImportError:
-            raise getmailDeliveryException, 'popen2 module not found'
-
-        # Set a 30-second alarm for this filter
-        signal.signal (signal.SIGALRM, alarm_handler)
-        signal.alarm (30)
-
-        try:
-            try:
-                popen2._cleanup()
-                cmd = popen2.Popen3 (command, 1, bufsize=-1)
-                cmdout, cmdin, cmderr = cmd.fromchild, cmd.tochild, cmd.childerr
-                cmdin.write (string.replace (msg, line_end['pop3'], line_end['mbox']))
-                # Add trailing blank line
-                cmdin.write ('\n')
-                cmdin.flush ()
-                cmdin.close ()
-
-                r = cmd.wait ()
-                err = string.strip (cmderr.read ())
-                cmderr.close ()
-                out = cmdout.read ()
-                cmdout.close ()
-
-                if not r:
-                    # Exited 0, no signal
-                    rc = 0
-                else:
-                    if os.WIFSIGNALED (r):
-                        raise getmailDeliveryException, 'command "%s" exited on signal %s' % (command, os.WTERMSIG (r))
-                    elif os.WIFSTOPPED (r):
-                        raise getmailDeliveryException, 'command "%s" stopped' % command
-                    elif not os.WIFEXITED (r):
-                        raise getmailDeliveryException, 'command "%s" did not exit' % command
-                    rc = os.WEXITSTATUS (r)
-
-                if err:
-                    self.logfunc (WARN, '\n  filter command "%s":  %s\n' % (command, err))
-
-                if not out:
-                    raise getmailDeliveryException, 'command "%s" did not produce output' % command
-
-            except StandardError, txt:
-                # DEBUG
-                raise
-                #    raise getmailDeliveryException, 'failure filtering message through command "%s" (%s)' % (command, txt)
-
-        finally:
-            # Filter done, cancel alarm
-            signal.alarm (0)
-            signal.signal (signal.SIGALRM, signal.SIG_DFL)
-
-        self.logfunc (TRACE, 'filtered through command "%s"\n' % command)
-        return rc, out
 
     ###################################
     def abort (self, txt):

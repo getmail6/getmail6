@@ -1,6 +1,20 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.2.5
+17 September 2004
+
+  -SECURITY: previous versions of getmail were vulnerable if the administrator 
+  chose to run getmail as root and deliver to maildirs under the 
+  control of a local malicious user.  By exploiting a race condition, getmail 
+  could be made to create files in a directory of the local user's choosing. Not 
+  exploitable if root did not deliver messages to maildirs/mboxes under the 
+  control of an untrusted user.  Not exploitable remotely.  Thanks: David 
+  Watson.  My gratitude to David for his work on finding this problem.
+  Version 3.2.5 will now refuse to deliver as root.  If you need to deliver to 
+  untrusted local users, do it with groups or upgrade to getmail 4.2.0, which 
+  delivers messages in child processes after dropping privileges.
+
 Version 3.2.4
 6 May 2004
 

@@ -27,7 +27,7 @@ This module is similar, except:
     o Leading and trailing whitespace is ignored.
     o Whitespace surrounding the '=' sign is ignored.
     o Option values can be quoted with single or double quotes, to preserve
-        leading or trailing whitespace, or if they contain a whitespace or the 
+        leading or trailing whitespace, or if they contain a whitespace or the
         "#" symbol which would otherwise mark the start of a comment.
     o Empty option values must be quoted; use the empty string ("" or '')
     o Option values are returned as either:
@@ -39,7 +39,7 @@ This module is similar, except:
         starts a value).
 '''
 
-__version__ = '3.3'
+__version__ = '3.3.1'
 __author__ = 'Charles Cazabon <software @ discworld.dyndns.org>'
 
 #
@@ -59,35 +59,35 @@ from types import *
 #
 
 # Base class for all ConfParser exceptions
-class ConfParserException (Exception):
+class ConfParserException(Exception):
     pass
 
 # Specific exceptions
-class NoSectionError (ConfParserException):
+class NoSectionError(ConfParserException):
     '''Exception raised when a specified section is not found.
     '''
     pass
 
-class DuplicateSectionError (ConfParserException):
-    '''Exception raised when mutliple sections with the same name are found, or 
-    if add_section() is called with the name of a section that is already 
+class DuplicateSectionError(ConfParserException):
+    '''Exception raised when mutliple sections with the same name are found, or
+    if add_section() is called with the name of a section that is already
     present.
     '''
     pass
 
-class NoOptionError (ConfParserException):
-    '''Exception raised when a specified option is not found in the specified 
+class NoOptionError(ConfParserException):
+    '''Exception raised when a specified option is not found in the specified
     section.
     '''
     pass
 
-class MissingSectionHeaderError (ConfParserException):
+class MissingSectionHeaderError(ConfParserException):
     '''Exception raised when attempting to parse a file which has no section
     headers.
     '''
     pass
 
-class ParsingError (ConfParserException):
+class ParsingError(ConfParserException):
     '''Exception raised when errors occur attempting to parse a file.
     Also raised if defaults is not a dictionary, or when reading a file fails.
     These errors are not covered by exceptions in the standard Python
@@ -95,7 +95,7 @@ class ParsingError (ConfParserException):
     '''
     pass
 
-class ConversionError (ConfParserException):
+class ConversionError(ConfParserException):
     '''Exception raised when a value conversion (i.e. to integer) fails.
     '''
     pass
@@ -112,45 +112,45 @@ debug = 0
 #
 
 #######################################
-def log (msg):
+def log(msg):
     if not debug:  return
-    sys.stderr.write (msg + '\n')
-    sys.stderr.flush ()
+    sys.stderr.write(msg + '\n')
+    sys.stderr.flush()
 
 #
 # ConfParser SmartDict class
 #
 
 #######################################
-class SmartDict (UserDict.UserDict):
+class SmartDict(UserDict.UserDict):
     '''Dictionary class which handles lists and singletons intelligently.
     '''
     #######################################
-    def __init__ (self, initialdata = {}):
+    def __init__(self, initialdata = {}):
         '''Constructor.
         '''
-        UserDict.UserDict.__init__ (self, {})
-        for (key, value) in initialdata.items ():
-            self.__setitem (key, value)
+        UserDict.UserDict.__init__(self, {})
+        for (key, value) in initialdata.items():
+            self.__setitem(key, value)
 
     #######################################
-    def __getitem__ (self, key):
+    def __getitem__(self, key):
         '''
         '''
         try:
             value = self.data[key]
-            if len (value) == 1:
+            if len(value) == 1:
                 return value[0]
             return value
         except KeyError, txt:
-            raise KeyError, txt
+            raise KeyError(txt)
 
     #######################################
-    def __setitem__ (self, key, value):
+    def __setitem__(self, key, value):
         '''
         '''
-        if type (value) in (ListType, TupleType):
-            self.data[key] = list (value)
+        if type(value) in (ListType, TupleType):
+            self.data[key] = list(value)
         else:
             self.data[key] = [value]
 
@@ -165,286 +165,281 @@ class ConfParser:
     ConfigParser.py, but without the dictionary formatting options either.
     '''
     #######################################
-    def __init__ (self, defaults = {}):
+    def __init__(self, defaults = {}):
         '''Constructor.
         '''
         self.__rawdata = []
         self.__sectionlist = []
         self.__sections = []
-        self.__defaults = SmartDict ()
+        self.__defaults = SmartDict()
 
         try:
-            for key in defaults.keys ():
+            for key in defaults.keys():
                 self.__defaults[key] = defaults[key]
 
         except AttributeError:
-            raise ParsingError, 'defaults not a dictionary (%s)' % defaults
+            raise ParsingError('defaults not a dictionary (%s)' % defaults)
 
     #######################################
-    def read (self, filelist):
+    def read(self, filelist):
         '''Read configuration file(s) from list of 1 or more filenames.
         '''
-        if type (filelist) not in (ListType, TupleType):
+        if type(filelist) not in (ListType, TupleType):
             filelist = [filelist]
 
         try:
             for filename in filelist:
-                log ('Reading configuration file "%s"' % filename)
-                f = open (filename, 'r')
-                self.__rawdata = self.__rawdata + f.readlines ()
-                f.close ()
-    
-        except IOError, txt:
-            raise ParsingError, 'error reading configuration file (%s)' % txt
+                log('Reading configuration file "%s"' % filename)
+                f = open(filename, 'r')
+                self.__rawdata = self.__rawdata + f.readlines()
+                f.close()
 
-        self.__parse ()
+        except IOError, txt:
+            raise ParsingError('error reading configuration file (%s)' % txt)
+
+        self.__parse()
         return self
 
     #######################################
-    def __parse (self):
+    def __parse(self):
         '''Parse the read-in configuration file.
         '''
-        config = string.join (self.__rawdata, '\n')
-        f = cStringIO.StringIO (config)
-        lex = shlex.shlex (f)
+        config = string.join(self.__rawdata, '\n')
+        f = cStringIO.StringIO(config)
+        lex = shlex.shlex(f)
         lex.wordchars = lex.wordchars + '|/.,$^\\():;@-+?<>!%&*`~'
         section_name = ''
         option_name = ''
         option_value = ''
-        
+
         while 1:
-            token = lex.get_token ()
+            token = lex.get_token()
             if token == '':
                 break
 
-            if not (section_name):
+            if not section_name:
                 if token != '[':
-                    raise ParsingError, 'expected section start, got %s' % token
+                    raise ParsingError('expected section start, got %s' % token)
                 section_name = ''
                 while 1:
-                    token = lex.get_token ()
+                    token = lex.get_token()
                     if token == ']':
                         break
                     if token == '':
-                        raise ParsingError, 'expected section end, hit EOF'
+                        raise ParsingError('expected section end, hit EOF')
                     if section_name:
                         section_name = section_name + ' '
                     section_name = section_name + token
                 if not section_name:
-                    raise ParsingError, 'expected section name, got nothing'
+                    raise ParsingError('expected section name, got nothing')
 
-                section = SmartDict ()
+                section = SmartDict()
                 # Collapse case on section names
-                section_name = string.lower (section_name)
+                section_name = string.lower(section_name)
                 if section_name in self.__sectionlist:
-                    raise DuplicateSectionError, \
-                        'duplicate section (%s)' % section_name
+                    raise DuplicateSectionError('duplicate section (%s)' % section_name)
                 section['__name__'] = section_name
                 continue
 
             if token == '=':
-                raise ParsingError, 'expected option name, got ='
+                raise ParsingError('expected option name, got =')
 
             if token == '[':
                 # Start new section
-                lex.push_token (token)
+                lex.push_token(token)
                 if section_name in self.__sectionlist:
-                    raise DuplicateSectionError, \
-                        'duplicate section (%s)' % section_name
+                    raise DuplicateSectionError, ('duplicate section (%s)' % section_name)
                 if section['__name__'] == 'default':
-                    self.__defaults.update (section)
-                self.__sectionlist.append (section_name)
-                self.__sections.append (section.copy ())
+                    self.__defaults.update(section)
+                self.__sectionlist.append(section_name)
+                self.__sections.append(section.copy())
                 section_name = ''
                 continue
 
             if not option_name:
                 option_name = token
-                token = lex.get_token ()
+                token = lex.get_token()
                 if token != '=':
-                    raise ParsingError, 'Expected =, got %s' % token
+                    raise ParsingError('Expected =, got %s' % token)
 
-                token = lex.get_token ()
+                token = lex.get_token()
                 if token in ('[', '='):
-                    raise ParsingError, 'expected option value, got %s' % token
+                    raise ParsingError('expected option value, got %s' % token)
                 option_value = token
 
                 if option_value[0] in ('"', "'") and option_value[0] == option_value[-1]:
                     option_value = option_value[1:-1]
-                                  
-                if section.has_key (option_name):
-                    if type (section[option_name]) == ListType:
-                        section[option_name].append (option_value)
+
+                if section.has_key(option_name):
+                    if type(section[option_name]) == ListType:
+                        section[option_name].append(option_value)
                     else:
                         section[option_name] = [section[option_name], option_value]
                 else:
                     section[option_name] = option_value
-                
+
                 option_name = ''
-                
-        # Done parsing        
+
+        # Done parsing
         if section_name:
             if section_name in self.__sectionlist:
-                raise DuplicateSectionError, \
-                    'duplicate section (%s)' % section_name
+                raise DuplicateSectionError, ('duplicate section (%s)' % section_name)
             if section['__name__'] == 'default':
-                self.__defaults.update (section)
-            self.__sectionlist.append (section_name)
-            self.__sections.append (section.copy ())
-        
+                self.__defaults.update(section)
+            self.__sectionlist.append(section_name)
+            self.__sections.append(section.copy())
+
         if not self.__sectionlist:
-            raise MissingSectionHeaderError, 'no section headers in file'
+            raise MissingSectionHeaderError('no section headers in file')
 
     #######################################
-    def defaults (self):
+    def defaults(self):
         '''Return a dictionary containing the passed-in instance-wide defaults.
         '''
-        return self.__defaults.copy ()
+        return self.__defaults.copy()
 
     #######################################
-    def has_section (self, section):
-        '''Indicates whether the named section is present in the configuration. 
+    def has_section(self, section):
+        '''Indicates whether the named section is present in the configuration.
         The default section is not acknowledged.
         '''
-        section = string.lower (section)
-        if section not in self.sections ():
+        section = string.lower(section)
+        if section not in self.sections():
             return 0
         return 1
-        
+
     #######################################
-    def sections (self):
+    def sections(self):
         '''Return a list of sections in the configuration file.
         '''
         s = self.__sectionlist[:]
         try:
             # Remove 'default' section from returned list
-            i = s.index ('default')
+            i = s.index('default')
             del s[i]
         except ValueError:
             # No default section
             pass
-        
+
         return s
 
     #######################################
-    def options (self, section):
+    def options(self, section):
         '''Return list of options in section.
         '''
         try:
-            s = self.__sectionlist.index (string.lower (section))
+            s = self.__sectionlist.index(string.lower(section))
 
         except ValueError:
-            raise NoSectionError, 'missing section:  "%s"' % section
+            raise NoSectionError('missing section:  "%s"' % section)
 
-        return self.__sections[s].keys ()
+        return self.__sections[s].keys()
 
     #######################################
-    def get (self, section, option, raw=0, _vars={}):
-        '''Get an option value for the provided section. All the "%" 
-        interpolations are expanded in the return values, based on the defaults 
-        passed into the constructor, as well as the options _vars provided, 
+    def get(self, section, option, raw=0, _vars={}):
+        '''Get an option value for the provided section. All the "%"
+        interpolations are expanded in the return values, based on the defaults
+        passed into the constructor, as well as the options _vars provided,
         unless the raw argument is true.  __vars contents must be lists.
         '''
 
         try:
-            s = self.__sectionlist.index (string.lower (section))
+            s = self.__sectionlist.index(string.lower(section))
             options = self.__sections[s]
         except ValueError:
-            raise NoSectionError, 'missing section (%s)' % section
+            raise NoSectionError('missing section (%s)' % section)
 
-        expand = self.__defaults.copy ()
-        expand.update (_vars)
-        
-        if not options.has_key (option):
-            if expand.has_key (option):
+        expand = self.__defaults.copy()
+        expand.update(_vars)
+
+        if not options.has_key(option):
+            if expand.has_key(option):
                 return expand[option]
-            raise NoOptionError, 'section [%s] missing option (%s)' \
-                % (section, option)
+            raise NoOptionError('section [%s] missing option (%s)' % (section, option))
 
         rawval = options[option]
-        
+
         if raw:
             return rawval
 
         try:
             value = []
-            if type (rawval) != ListType:
+            if type(rawval) != ListType:
                 rawval = [rawval]
             for part in rawval:
                 try:
                     part = part % expand
                 except:
                     raise
-                value.append (part)
-            if len (value) == 1:
+                value.append(part)
+            if len(value) == 1:
                 return value[0]
-            return value                
+            return value
         except KeyError, txt:
-            raise NoOptionError, 'section [%s] missing option (%s)' \
-                % (section, option)
+            raise NoOptionError('section [%s] missing option (%s)' % (section, option))
         except (TypeError, ValueError), txt:
-            raise ConversionError, 'invalid conversion or specification' \
-                ' for option %s (%s (%s))' % (option, rawval, txt)
+            raise ConversionError('invalid conversion or specification'
+                ' for option %s (%s (%s))' % (option, rawval, txt))
 
     #######################################
-    def getint (self, section, option):
+    def getint(self, section, option):
         '''A convenience method which coerces the option in the specified
         section to an integer.
         '''
-        val = self.get (section, option)
+        val = self.get(section, option)
         try:
-            return int (val)
+            return int(val)
         except (TypeError, ValueError), txt:
-            raise ConversionError, 'option %s not an integer (%s)' % (option, val)
+            raise ConversionError('option %s not an integer (%s)' % (option, val))
 
     #######################################
-    def getfloat (self, section, option):
+    def getfloat(self, section, option):
         '''A convenience method which coerces the option in the specified
         section to a floating point number.
         '''
-        val = self.get (section, option)
+        val = self.get(section, option)
         try:
-            return float (val)
+            return float(val)
         except (TypeError, ValueError), txt:
-            raise ConversionError, 'option %s not a float (%s)' % (option, val)
+            raise ConversionError('option %s not a float (%s)' % (option, val))
 
     #######################################
-    def getboolean (self, section, option):
+    def getboolean(self, section, option):
         '''A convenience method which coerces the option in the specified
         section to a boolean value. Note that the only accepted values for the
         option are "0" and "1", any others will raise ValueError.
         '''
-        val = self.getint (section, option)
-        return val != 0     
-        
+        val = self.getint(section, option)
+        return val != 0
+
     #######################################
-    def getstring (self, section, option):
-        '''A convenience method which enforces that the option value is a 
+    def getstring(self, section, option):
+        '''A convenience method which enforces that the option value is a
         single string.  Multiple values will raise ValueError.
         '''
-        val = self.get (section, option)
-        if type (val) == ListType:
-            raise ConversionError, 'expected single value, got list ([%s] %s == "%s")' % (section, option, val)
+        val = self.get(section, option)
+        if type(val) == ListType:
+            raise ConversionError('expected single value, got list ([%s] %s == "%s")' % (section, option, val))
         return val
 
     #######################################
-    def dump (self):
+    def dump(self):
         '''Dump the parsed contents of the configuration file.
         '''
-        sys.stderr.write ('ConfParser dump:\n\n')
+        sys.stderr.write('ConfParser dump:\n\n')
         sections = self.__sectionlist[:]
-        sections.sort ()
+        sections.sort()
         for section in sections:
-            sys.stderr.write ('  Section [%s]:\n' % section)
-            options = self.options (section)
-            options.sort ()
+            sys.stderr.write('  Section [%s]:\n' % section)
+            options = self.options(section)
+            options.sort()
             for option in options:
-                values = self.get (section, option)
-                if type (values) == ListType:
-                    sys.stderr.write ('    %s:\n' % option)
+                values = self.get(section, option)
+                if type(values) == ListType:
+                    sys.stderr.write('    %s:\n' % option)
                     for value in values:
-                        sys.stderr.write ('         %s\n' % value)
+                        sys.stderr.write('         %s\n' % value)
                 else:
-                    sys.stderr.write ('    %s:  %s\n' % (option, values))
-            sys.stderr.write ('\n')
+                    sys.stderr.write('    %s:  %s\n' % (option, values))
+            sys.stderr.write('\n')
             

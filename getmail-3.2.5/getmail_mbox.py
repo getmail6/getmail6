@@ -41,82 +41,82 @@ res = {
     # Regular expression object to escape "From ", ">From ", ">>From ", ...
     # with ">From ", ">>From ", ... in mbox deliveries.  This is for mboxrd format
     # mboxes.
-    'escapefrom' : re.compile (r'^(?P<gts>\>*)From ', re.MULTILINE),
+    'escapefrom' : re.compile(r'^(?P<gts>\>*)From ', re.MULTILINE),
 }
 
 #######################################
-class DeliveryException (Exception):
+class DeliveryException(Exception):
     pass
 
 #######################################
-def mbox_timestamp ():
+def mbox_timestamp():
     '''Return the current time in the format expected in an mbox From_ line.'''
-    return time.asctime (time.gmtime (int (time.time ())))
+    return time.asctime(time.gmtime(int(time.time())))
 
 #######################################
-def lock_file (file):
+def lock_file(file):
     '''Do fcntl file locking
     '''
-    fcntl.flock (file.fileno (), fcntl.LOCK_EX)
+    fcntl.flock(file.fileno(), fcntl.LOCK_EX)
 
 #######################################
-def unlock_file (file):
+def unlock_file(file):
     '''Do fcntl file unlocking
     '''
-    fcntl.flock (file.fileno (), fcntl.LOCK_UN)
+    fcntl.flock(file.fileno(), fcntl.LOCK_UN)
 
 #######################################
-def deliver_mbox (mbox, msg, env_sender, quiet=0):
+def deliver_mbox(mbox, msg, env_sender, quiet=0):
     'Deliver a mail message into an mbox file.'
     try:
         # When orig_length is None, we haven't opened the file yet
         orig_length = None
         # Open mbox file
-        f = open (mbox, 'ab+')
-        lock_file (f)
-        status_old = os.fstat (f.fileno())
+        f = open(mbox, 'ab+')
+        lock_file(f)
+        status_old = os.fstat(f.fileno())
         orig_length = status_old[stat.ST_SIZE]  # Save original length
         # Check if it _is_ an mbox file
         # mbox files must start with "From " in their first line, or
         # are 0-length files.
-        f.seek (0, 0)                   # Seek to start
-        first_line = f.readline ()
+        f.seek(0, 0)                   # Seek to start
+        first_line = f.readline()
         if first_line != '' and first_line[:5] != 'From ':
             # Not an mbox file; abort here
-            unlock_file (f)
-            f.close ()
-            raise DeliveryException, 'destination "%s" is not an mbox file' % mbox
+            unlock_file(f)
+            f.close()
+            raise DeliveryException('destination "%s" is not an mbox file' % mbox)
         # Add mboxrd-style 'From_' line if not already present
         if msg[:5] != 'From ':
-            f.write ('From %s %s\n' % (env_sender, mbox_timestamp ()))
+            f.write('From %s %s\n' % (env_sender, mbox_timestamp()))
         else:
-            first_line, remainder = string.split (msg, '\n', 1)
-            f.write ('%s\n' % first_line)
+            first_line, remainder = string.split(msg, '\n', 1)
+            f.write('%s\n' % first_line)
             msg = remainder
         # Replace lines beginning with "From ", ">From ", ">>From ", ...
         # with ">From ", ">>From ", ">>>From ", ...
-        msg = res['escapefrom'].sub ('>\g<gts>From ', msg)
+        msg = res['escapefrom'].sub('>\g<gts>From ', msg)
         # Add trailing newline if last line incomplete
         if msg[-1] != '\n':  msg = msg + '\n'
         # Write out message
-        f.write (msg)
+        f.write(msg)
         # Add trailing blank line
-        f.write ('\n')
-        f.flush ()
-        os.fsync (f.fileno())
+        f.write('\n')
+        f.flush()
+        os.fsync(f.fileno())
         # Unlock and close file
-        status_new = os.fstat (f.fileno())
-        unlock_file (f)
-        f.close ()
+        status_new = os.fstat(f.fileno())
+        unlock_file(f)
+        f.close()
         # Reset atime
         try:
-            os.utime (mbox, (status_old[stat.ST_ATIME], status_new[stat.ST_MTIME]))
+            os.utime(mbox, (status_old[stat.ST_ATIME], status_new[stat.ST_MTIME]))
         except OSError, txt:
             # Not root or owner; readers will not be able to reliably
             # detect new mail.  But you shouldn't be delivering to
             # other peoples' mboxes unless you're root, anyways.
             if not quiet:
-                sys.stderr.write ('Warning:  failed to update atime/mtime of mbox file (%s)...\n' % txt)
+                sys.stderr.write('Warning:  failed to update atime/mtime of mbox file (%s)...\n' % txt)
 
     except IOError, txt:
         try:
@@ -125,9 +125,9 @@ def deliver_mbox (mbox, msg, env_sender, quiet=0):
                 # try to truncate it back to that length
                 # If it's already closed, or the error occurred at close(),
                 # then there's not much we can do.
-                f.truncate (orig_length)
-            unlock_file (f)
-            f.close ()
+                f.truncate(orig_length)
+            unlock_file(f)
+            f.close()
         except:
             pass
-        raise DeliveryException, 'failure writing message to mbox file "%s" (%s)' % (mbox, txt)
+        raise DeliveryException('failure writing message to mbox file "%s" (%s)' % (mbox, txt))

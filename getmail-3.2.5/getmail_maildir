@@ -1,6 +1,6 @@
 #!/usr/bin/python
-'''getmail_mbox
-Reads a message from stdin and delivers it to an mbox file specified as
+'''getmail_maildir
+Reads a message from stdin and delivers it to a maildir specified as
 a commandline argument.  Expects the envelope sender address to be in the
 environment variable SENDER.
 Copyright (C) 2001-2003 Charles Cazabon <getmail @ discworld.dyndns.org>
@@ -22,26 +22,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '''
 import sys
 import os
+import socket
+import string
 
-sys.path.insert (1, '/usr/lib/getmail')
-import getmail_mbox
+sys.path.insert(1, '/usr/lib/getmail')
+import getmail_utilities
 
-sender = os.environ.get ('SENDER', 'unknown')
-mbox = None
-quiet = 0
-for arg in sys.argv[1:]:
-	if arg in ('-q', '--quiet'):
-		quiet = 1
-	elif not mbox:
-		mbox = arg
-	else:
-	    sys.stderr.write ('Error: mbox specified twice (was %s, now %s)\n' % (mbox, arg))
-	    raise SystemExit, 1
-if not mbox:		
-    sys.stderr.write ('Error: no mbox specified\n')
+sender = os.environ.get('SENDER', 'unknown')
+hostname = string.split(socket.gethostname(), '.')[0]
+
 try:
-    getmail_mbox.deliver_mbox (mbox, sys.stdin.read (), sender, quiet)
-except getmail_mbox.DeliveryException, error:
-    sys.stderr.write ('Error delivering to mbox "%s" (%s)\n' % (mbox, error))
-    raise SystemExit, 1
-sys.stdout.write ('Delivered to mbox "%s"\n' % mbox)
+    maildir = sys.argv[1]
+except IndexError:
+    sys.stderr.write('Error: no maildir specified\n')
+    raise SystemExit(1)
+try:
+    msg = sys.stdin.read()
+    if msg[:12] != 'Return-Path:':
+        msg = 'Return-Path: <%s>\n%s' %(sender, msg)
+    getmail_utilities.deliver_maildir(maildir, msg, hostname)
+except getmail_utilities.getmailDeliveryException, error:
+    sys.stderr.write('Error delivering to maildir "%s" (%s)\n' % (maildir, error))
+    raise SystemExit(1)
+sys.stdout.write('Delivered to maildir "%s"\n' % maildir)

@@ -6,7 +6,7 @@ import re
 exitcodes = {
     'OK' : 0,
     'ERROR' : -1
-    }
+}
 
 # Components of stack trace (indices to tuple)
 FILENAME, LINENO, FUNCNAME = 0, 1, 2        #SOURCELINE = 3 ; not used
@@ -21,7 +21,7 @@ loglevels = {
     'FATAL' : 6,
 }
 
-(TRACE, DEBUG, INFO, WARN, ERROR, FATAL) = range (1, 7)
+(TRACE, DEBUG, INFO, WARN, ERROR, FATAL) = range(1, 7)
 
 # Options recognized in configuration getmailrc file
 intoptions = (
@@ -59,10 +59,9 @@ line_end = {
 
 res = {
     # Regular expression object to find line endings
-    'eol' : re.compile (r'\r?\n\s*', re.MULTILINE),
+    'eol' : re.compile(r'\r?\n\s*', re.MULTILINE),
     # Regular expression to do POP3 leading-dot unescapes
-    'leadingdot' : re.compile (r'^\.\.', re.MULTILINE),
+    'leadingdot' : re.compile(r'^\.\.', re.MULTILINE),
     # Percent sign escapes
-    'percent' : re.compile (r'%(?!\([\S]+\)[si])'),
+    'percent' : re.compile(r'%(?!\([\S]+\)[si])'),
 }
-

@@ -299,7 +299,13 @@ local = sales@smallcompany.tld,~darlab/Maildir/
 			<td>Command</td><td>|/path/to/command [arguments]</td><td>Command deliveries must start with a pipe (|).  Remember to quote values containing whitespace.</td>
 		</tr>
 	</table>
-
+	<p>
+		Note the following restrictions:
+	</p>
+	<ul>
+		<li>getmail refuses to deliver to maildirs as root.</li>
+    </ul>
+    
 	<p>
 		For command deliveries, getmail provides the following environment variables.
 	</p>

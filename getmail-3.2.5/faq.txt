@@ -360,6 +360,13 @@ How do I run getmail in "daemon" mode?
    $PATH  or  change  the  wrapper  to  point  explicitly  to  the Python
    interpreter.
 
+How do I use SpamAssassin (or another spam-filtering solution) with getmail?
+
+   Use  it  as  an  external  MDA,  which  getmail supports. getmail user
+   "Frankye"  contributed  a  working  SpamAssassin  setup  in  this list
+   message. Also see his (and others') contributions in this thread about
+   spam filtering.
+
 How do I use TMDA with getmail?
 
    TMDA  is the Tagged Message Delivery Agent, an excercise in preventing
