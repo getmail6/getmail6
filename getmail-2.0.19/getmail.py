@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.17'
+__version__ = '2.0.19'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -270,6 +270,68 @@ def pop3_unescape (msg):
 #
 # Classes
 #
+
+#######################################
+class getmailAddressList (rfc822.AddressList):
+	'''Override buggy function in rfc822.py implementation of AddrList.
+	'''
+	###################################
+	def getaddress (self):
+		"""Parse the next address."""
+		self.commentlist = []
+		self.gotonext()
+		
+		oldpos = self.pos
+		oldcl = self.commentlist
+		plist = self.getphraselist()
+		
+		self.gotonext()
+		returnlist = []
+		
+		if self.pos >= len(self.field):
+			# Bad email address technically, no domain.
+			if plist:
+				returnlist = [(string.join(self.commentlist), plist[0])]
+			
+		elif self.field[self.pos] in '.@':
+			# email address is just an addrspec
+			# this isn't very efficient since we start over
+			self.pos = oldpos
+			self.commentlist = oldcl
+			addrspec = self.getaddrspec()
+			returnlist = [(string.join(self.commentlist), addrspec)]
+			
+		elif self.field[self.pos] == ':':
+			# address is a group
+			returnlist = []
+			
+			self.pos = self.pos + 1
+			while self.pos < len(self.field):
+				if self.field[self.pos] == ';':
+					self.pos = self.pos + 1
+					break
+				returnlist = returnlist + self.getaddress()
+				self.gotonext()
+			
+		elif self.field[self.pos] == '<':
+			# Address is a phrase then a route addr
+			routeaddr = self.getrouteaddr()
+			
+			if self.commentlist:
+				returnlist = [(string.join(plist) + ' (' + \
+						 string.join(self.commentlist) + ')', routeaddr)]
+			else: returnlist = [(string.join(plist), routeaddr)]
+			
+		else:
+			if plist:
+				returnlist = [(string.join(self.commentlist), plist[0])]
+			elif self.field[self.pos] in self.specials:
+				self.pos = self.pos + 1
+		
+		self.gotonext()
+		if self.pos < len(self.field) and self.field[self.pos] == ',':
+			self.pos = self.pos + 1
+		return returnlist
 
 #######################################
 class getmail:
@@ -544,7 +606,7 @@ class getmail:
 
 				# Process each reconstructed Received: header
 				for line in received:
-					recips = rfc822.AddressList (line).addresslist
+					recips = getmailAddressList (line).addresslist
 					for (name, address) in recips:
 						if address and re_mailaddr.search (address):
 							# Looks like an email address, keep it
@@ -589,13 +651,19 @@ class getmail:
 		self.logfunc (TRACE, 'process_msg():  found envelope sender "%s"\n'
 			% env_sender, self.opts)
 
-		# Extract possible recipients
-		recipients = self.extract_recipients (mess)
+		if len (self.users):
+			# Extract possible recipients
+			recipients = self.extract_recipients (mess)
+			msglog ('new message "%s": from <%s>, to: %s'
+				% (msgid, env_sender, string.join (recipients, ', ')[:80]),
+				self.opts)
 
-		msglog ('new message "%s": from <%s>, to: %s'
-			% (msgid, env_sender, string.join (recipients, ', ')[:80]),
-			self.opts)
-
+		else:
+			# No local configurations, just send to postmaster
+			recipients = []
+			msglog ('new message "%s": from <%s>' % (msgid, env_sender),
+				self.opts)
+			
 		count = self.do_deliveries (recipients, msg, msgid, env_sender)
 
 		if count == 0:
@@ -727,8 +795,13 @@ class getmail:
 		self.info['deliverycount'] = deliverycount
 		filename = '%(time)s.%(pid)s_%(deliverycount)s.%(hostname)s' % self.info
 		
-		fname_tmp = os.path.join (maildir, 'tmp', filename)
-		fname_new = os.path.join (maildir, 'new', filename)
+		dir_tmp = os.path.join (maildir, 'tmp')
+		dir_new = os.path.join (maildir, 'new')
+		if not (os.path.isdir (dir_tmp) and os.path.isdir (dir_new)):
+			raise getmailDeliveryException, 'not a Maildir (%s)' % maildir
+			
+		fname_tmp = os.path.join (dir_tmp, filename)
+		fname_new = os.path.join (dir_new, filename)
 	
 		# File must not already exist
 		if os.path.exists (fname_tmp):
@@ -883,6 +956,7 @@ class getmail:
 
 				try:
 					rc = self.session.uidl (msgnum)
+					self.logfunc (TRACE, 'UIDL response "%s" ... ' % rc, self.opts)
 					msgid = string.strip (string.split (rc, ' ', 2)[2])
 					# Append msgid to list of current inbox contents
 					inbox.append (msgid)
@@ -958,6 +1032,19 @@ class getmail:
 					% self.account + ' (%s)\n' % txt, self.opts)
 			self.abort (txt)
 
+		except poplib.error_proto, txt:
+			# Server isn't speaking POP3?
+			self.logfunc (WARN, 'POP3 protocol error; possible POP3 server bug, skipping user "%(username)s"'
+					% self.account + ' (%s)\n' % txt, self.opts)
+			self.abort (txt)
+
+		except socket.error, txt:
+			txt = 'Socket error during session with %(server)s' % self.account \
+				+ ' (%s)' % txt
+			self.logfunc (WARN, txt + '\n', self.opts)
+			msglog ('socket error during session for %(username)s on %(server)s:%(port)i'
+				% self.account + ' (%s)' % txt, self.opts)
+			self.abort (txt)
 
 #
 # Main script code and helper functions

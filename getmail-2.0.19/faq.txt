@@ -72,8 +72,13 @@ getmail FAQ
   getmail complains about "incomplete format string" ...
   
    Double any percent signs you have in your getmailrc file -- i.e., if
-   your password is "foo&pcnt;bar", then actually specify it as
-   "foo&pcnt;&pcnt;bar".
+   your password is "foo%bar", then actually specify it as "foo%%bar".
+   
+  getmail doesn't work if I specify an empty option value ...
+  
+   Empty option values are not allowed. If you want to specify an empty
+   string as an option value, you have to quote it:
+   foo = ""
    
   getmail says it can't find my default config file (getmailrc) file, but I've
   checked everything and it's fine. What's wrong?

@@ -141,10 +141,13 @@ getmailrc Directives
    directive value, quote the value with single (') or double (") quotes.
    Quoting can also be used to preserve a "#" symbol in a directive
    value, which would otherwise be considered the beginning of a comment.
-   Note: if an option value contains a percent sign (&pcnt;), it must be
-   escaped by doubling the percent sign. For example, if your want to
-   specify a password of "foo&pcnt;bar", specify it in the configuration
-   file as "foo&pcnt;&pcnt;bar".
+   Notes: The option value cannot be blank. If you want an empty string
+   as an option value, quote it:
+   foo = ""
+   If an option value contains a percent sign (%), it must be escaped by
+   doubling the percent sign. For example, if your want to specify a
+   password of "foo%bar", specify it in the configuration file as
+   "foo%%bar".
      _________________________________________________________________
    
     Account Configurations

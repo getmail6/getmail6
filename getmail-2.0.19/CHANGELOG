@@ -1,6 +1,29 @@
 getmail changes since version 1.11:
 -----------------------------------
 
+Version 2.0.19
+18 April 2001
+
+  -add additional exception handling for POP3 protocol errors (server bugs) and
+  socket errors after connect (network errors).  Thanks to Jesper Andersen for
+  the bug report.
+  -add additional log message to make diagnosis of server problems easier.
+  Apparently Mandrake Linux v.7.2 ships with a very broken POP3 server;
+  several users sent me traces which I tracked down to gross violations of
+  the POP3 protocol (RFC1939).
+
+Version 2.0.18
+20 February 2001
+
+  -add better error output when a Maildir delivery target is not a Maildir
+  -fix documentation bug regarding percent signs.  Thanks to Niall O'Higgins
+  for the bug report.
+  -add subclass of rfc822.AddressList to work around bug in standard library.
+  Thanks to Alex Kramarox and Dan Reish for both being hit by this bug and
+  informing me of it.
+  -don't parse recipient addresses if no local user configurations.  Thanks
+  to Alex Kramarov for reminding me about this.
+
 Version 2.0.17 (release codename:  "Dan")
 15 February 2001
 
