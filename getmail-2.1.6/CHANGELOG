@@ -1,7 +1,20 @@
 getmail changes since version 1.11:
 -----------------------------------
 
-Version 2.1.5pre
+Version 2.1.6
+20 October 2001
+
+  -correct an error in the documentation about the default installation
+  path.  Thanks to Frank Tegtmeyer for the report.
+  -change mbox delivery to reset atime after delivery.  This lets MUAs know
+  there is new mail in the mbox.  Thanks to Roman Neuhauser for the report.
+  -new token-based version 3.0 of ConfParser replaces the previous regex-based
+  version.  Most users will see no difference, but users with large
+  getmailrc file (hundreds or thousands of lines) will see a significant
+  speed improvement.  Thanks to Clemens Hermann for the initial report of
+  slow processing with large getmailrc files.
+
+Version 2.1.5
 4 September 2001
 
   -add exception handling for out-of-memory during message retrieval and

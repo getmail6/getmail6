@@ -11,15 +11,14 @@ getmail Documentation
     2. Unpack the tarball:
        tar xzf getmail-version.tar.gz
     3. Copy the contents to a suitable location:
-       mkdir /usr/local/lib/getmail cp -a getmail-version/*
-       /usr/local/lib/getmail/
+       mkdir /usr/lib/getmail cp -a getmail-version/* /usr/lib/getmail/
        You can install getmail in your home directory or elsewhere if you
        prefer.
     4. Copy the getmail helper script to a location in your PATH, and
        ensure it is executable:
-       cp -a getmail-version/getmail /usr/local/bin/ chmod 755
-       /usr/local/bin/getmail If you used an installation path other than
-       that in step 3 above, edit the value of GETMAILDIR in this file.
+       cp -a getmail-version/getmail /usr/bin/ chmod 755 /usr/bin/getmail
+       If you used an installation path other than that in step 3 above,
+       edit the value of GETMAILDIR in this file.
        
   Configuring getmail
   

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.1.5'
+__version__ = '2.1.6'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -924,6 +924,7 @@ class getmail:
             # Open mbox file
             f = open (mbox, 'rb+')
             lock_file (f)
+            status_old = os.fstat (f.fileno())
             # Check if it _is_ an mbox file
             # mbox files must start with "From " in their first line, or
             # are 0-length files.
@@ -952,8 +953,11 @@ class getmail:
             f.flush ()
             os.fsync (f.fileno())
             # Unlock and close file
+            status_new = os.fstat (f.fileno())
             unlock_file (f)
             f.close ()
+            # Reset atime
+            os.utime (mbox, (status_old[stat.ST_ATIME], status_new[stat.ST_MTIME]))
     
         except IOError, txt:
             try:
