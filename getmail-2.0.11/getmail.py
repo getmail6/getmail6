@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '2.0.10'
+__version__ = '2.0.11'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -138,17 +138,17 @@ exitcodes = {
 
 # First-try headers to parse for recipient addresses
 RECIPIENT_HEADERS = (
-	'delivered-to',
-	'envelope-to',
-	'apparently-to',
-	'x-envelope-to',
+	'Delivered-To',
+	'Envelope-To',
+	'Apparently-To',
+	'X-Envelope-To',
 	)
 
 # If the above fail, the first matching set of the following headers are used
 EXTRA_RECIPIENT_HEADERS = (
-	('received', ),
-	('resent-to', 'resent-cc', 'resent-bcc'),
-	('to', 'cc', 'bcc'),
+	('Resent-To', 'Resent-cc', 'Resent-bcc'),
+	('To', 'cc', 'bcc'),
+	('Received', ),
 	)
 
 # Count of deliveries for getmail; used in Maildir delivery
@@ -1293,8 +1293,8 @@ def main ():
 			for line in tblist:
 				log (FATAL, string.rstrip (line) + '\n')
 
-			log (FATAL, '\n\ngetmail configuration information:\n')
-			dump_config (overrides, mail_configs)
+			log (FATAL, '\n\Please also include configuration information from running getmail\n')
+			log (FATAL, 'with your normal options plus "--dump".\n')
 
 			sys.exit (exitcodes['ERROR'])
 

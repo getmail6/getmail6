@@ -1,5 +1,15 @@
 getmail changes since version 1.11:
 
+Version 2.0.11
+1 February 2001
+
+  -changed the getmail helper script to be more efficient.
+  -began releasing an RPM of getmail in addition to the raw tarball.  The RPM
+  is a noarch RPM with default paths changed to match the Linux Filesystem
+  Specification.
+  -changes to the way way headers are parsed for matching local recipients.
+  -added to the FAQ.
+
 Version 2.0.10
 31 January 2001
 

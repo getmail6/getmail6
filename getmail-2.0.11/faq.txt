@@ -24,6 +24,23 @@ getmail FAQ
    it. As an additional bonus, your question may be answered by another
    member of the list.
    
+  I think I found a bug! How do I report it?
+  
+   Ideally, you should join the mailing list. Send your bug report there.
+   You should include the following information:
+     * getmail version
+     * Python version
+     * any error message which getmail displayed
+     * the output from running getmail with your normal options plus
+       "--dump"
+     * if your problem is getmail not determining the proper local
+       recipient, please include the output of running getmail with your
+       normal options plus "--trace", showing the retrieval of one
+       problematic message.
+       
+   If you cannot sign up for the mailing list, send the report to me
+   directly.
+   
   What is a "domain mailbox"?
   
    A domain (or multidrop) mailbox is a POP3 mailbox which holds mail for
@@ -81,13 +98,23 @@ getmail FAQ
        
   How do I make getmail deliver messages by re-injecting with SMTP?
   
-   You don't. getmail doesn't do this, to prevent mail loops and bounces
-   if getmail or your Mail Transfer Agent is misconfigured.
+   You don't. getmail doesn't do this, to prevent lost mail, mail loops,
+   and bounces if getmail or your Mail Transfer Agent is misconfigured.
    getmail has native support for delivering to qmail-style Maildirs and
    mboxrd-format mbox files, and therefore you shouldn't need to
    re-inject retrieved messages. If you want to re-inject messages to run
    procmail, search freshmeat.net for "procbox"; it was written by
    getmail user Jeff Clement for this purpose.
+   Another alternative, if you absolutely have to do this, is:
+     * Deliver all your messages into a specific Maildir with your
+       postmaster configuration directive.
+     * Run getmail.
+     * Run a shellscript on the Maildir which feeds each message to
+       maildrop, procmail, /usr/bin/sendmail, or whatever.
+       
+   I will not provide support for this idea; if you're smart enough to
+   anticipate and handle the possible problems, you're smart enough to
+   write the script to do it.
    
   My 'net connection is via PPP/SLIP/modem, and when it's down, my cron'd
   getmail throws a "error: host not found" exception.
