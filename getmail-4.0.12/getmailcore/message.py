@@ -61,6 +61,7 @@ class Message(object):
     '''
     __slots__ = (
         '__msg',
+        '__raw',
         #'log',
         'sender',
         'received_by',

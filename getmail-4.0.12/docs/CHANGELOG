@@ -1,3 +1,9 @@
+Version 4.0.12
+19 August 2004
+
+  -forgot to add the new Message attribute (from 4.0.11) to its slots 
+  declaration.  Fixed.
+
 Version 4.0.11
 18 August 2004
 
