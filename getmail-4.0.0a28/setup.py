@@ -37,6 +37,12 @@ GETMAILDOCDIR = os.path.join(
     'getmail-%s' % __version__
 )
 
+GETMAILMANDIR = os.path.join(
+    prefix,
+    'man',
+    'man1'
+)
+
 setup(
     name='getmail',
     version=__version__,
@@ -93,7 +99,10 @@ setup(
             'docs/getmaildocs.css',
             'docs/getmailrc-example',
         ]),
-        #('/etc/', [])
+        (GETMAILMANDIR, [
+            'docs/getmail.1',
+            'docs/getmail_maildir.1',
+            'docs/getmail_mbox.1',
+        ]),
     ],
 )
-      

@@ -21,7 +21,7 @@
           + Requirements
           + Obtaining getmail
           + Installing getmail
-     * getmail documentation
+          + getmail mailing lists
      * Configuring getmail
      *
           + Creating a getmail rc file
@@ -60,15 +60,24 @@
                o
                     # [filter-something] examples
      * Running getmail
-     * getmail documentation
+     *
+          + Using getmail as an MDA
+          +
+               o Using the getmail_maildir MDA
+               o
+                    # Example
+               o Using the getmail_mbox MDA
+               o
+                    # Example
      * Troubleshooting
      *
           + Error messages
           + Unexpected Behaviour
-     * getmail documentation
      * Frequently-Asked Questions (FAQs)
      *
           + About getmail
+          + Configuring getmail
+          + How do I ...
           + Using getmail with other software
        
                               Configuring getmail
@@ -198,8 +207,8 @@ second_parameter = value
    section header line as follows:
 [retriever]
 
-   Then, include a type parameter to tell getmail what type of mail
-   retriever to use to retrieve mail from this account. The possible
+   Then, include a type string parameter to tell getmail what type of
+   mail retriever to use to retrieve mail from this account. The possible
    values are:
      * SimplePOP3Retriever -- for single-user POP3 mail accounts.
      * SimpleIMAPRetriever -- for single-user IMAP mail accounts.
@@ -230,16 +239,16 @@ type = typename
     Common retriever parameters
     
    All retriever types take several common required parameters:
-     * server (string) -- the name or IP address of the server to
+     * server ( string ) -- the name or IP address of the server to
        retrieve mail from
-     * username (string) -- username to provide when logging in to the
+     * username ( string ) -- username to provide when logging in to the
        mail server
        
    All retriever types also take several optional parameters:
-     * port (integer) -- the TCP port number to connect to. If not
+     * port ( integer ) -- the TCP port number to connect to. If not
        provided, the default is a port appropriate for the protocol (110
        for POP3, etc.)
-     * password (string) -- password to use when logging in to the mail
+     * password ( string ) -- password to use when logging in to the mail
        server. If not provided, getmail will prompt you to enter the
        password when run.
        
@@ -247,11 +256,11 @@ type = typename
     
    The SimplePOP3Retriever class takes the common retriever parameters
    above, plus the following optional parameter:
-     * use_apop (boolean) -- if set to True, getmail will use APOP-style
-       authentication to log in to the server instead of normal USER/PASS
-       authentication. This is not supported by many POP3 servers. The
-       default is False.
-     * timeout (integer) -- how long (in seconds) to wait for socket
+     * use_apop ( boolean ) -- if set to True, getmail will use
+       APOP-style authentication to log in to the server instead of
+       normal USER/PASS authentication. This is not supported by many
+       POP3 servers. The default is False.
+     * timeout ( integer ) -- how long (in seconds) to wait for socket
        operations to complete before considering them failed. If not
        specified, the default is 180 seconds. You may need to increase
        this value in particularly poor networking conditions.
@@ -260,29 +269,30 @@ type = typename
     
    The SimpleIMAPRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
-     * timeout (integer) -- see SimplePOP3Retriever for definition.
-     * mailboxes (tuple of quoted strings) -- a list of mailbox paths to
-       retrieve mail from, expressed as a Python tuple. If not specified,
-       the default is to retrieve mail from the mail folder named INBOX.
-       You might want to retrieve messages from several different mail
-       folders, using a configuration like this:
+     * timeout ( integer ) -- see SimplePOP3Retriever for definition.
+     * mailboxes ( tuple of quoted strings ) -- a list of mailbox paths
+       to retrieve mail from, expressed as a Python tuple. If not
+       specified, the default is to retrieve mail from the mail folder
+       named INBOX. You might want to retrieve messages from several
+       different mail folders, using a configuration like this:
 mailboxes = ("INBOX", "INBOX.spam",
     "mailing-lists.model-railroading")
 
-     * move_on_delete (string) -- if set, messages are moved to the named
-       mail folder before being deleted from their original location.
-       Note that if you configure getmail not to delete retrieved
-       messages (the default behaviour), they will not be moved at all.
+     * move_on_delete ( string ) -- if set, messages are moved to the
+       named mail folder before being deleted from their original
+       location. Note that if you configure getmail not to delete
+       retrieved messages (the default behaviour), they will not be moved
+       at all.
        
     SimplePOP3SSLRetriever
     
    The SimplePOP3SSLRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
-     * use_apop (boolean) -- see SimplePOP3Retriever for definition.
-     * keyfile (string) -- use the specified PEM-formatted key file in
+     * use_apop ( boolean ) -- see SimplePOP3Retriever for definition.
+     * keyfile ( string ) -- use the specified PEM-formatted key file in
        the SSL negotiation. Note that no certificate or key validation is
        done.
-     * certfile (string) -- use the specified PEM-formatted certificate
+     * certfile ( string ) -- use the specified PEM-formatted certificate
        file in the SSL negotiation. Note that no certificate or key
        validation is done.
        
@@ -290,74 +300,77 @@ mailboxes = ("INBOX", "INBOX.spam",
     
    The SimpleIMAPSSLRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
-     * mailboxes (tuple of quoted strings) -- see SimpleIMAPRetriever for
+     * mailboxes ( tuple of quoted strings ) -- see SimpleIMAPRetriever
+       for definition.
+     * move_on_delete ( string ) -- see SimpleIMAPRetriever for
        definition.
-     * move_on_delete (string) -- see SimpleIMAPRetriever for definition.
-     * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
-     * certfile (string) -- see SimplePOP3SSLRetriever for definition.
+     * keyfile ( string ) -- see SimplePOP3SSLRetriever for definition.
+     * certfile ( string ) -- see SimplePOP3SSLRetriever for definition.
        
     MultidropPOP3Retriever
     
    The MultidropPOP3Retriever class takes the common retriever parameters
    above, plus the following required parameter:
-     * envelope_recipient (string) -- the name and position of the header
-       field which records the envelope recipient address. This is set to
-       a value of the form field_name : field_position . The first
+     * envelope_recipient ( string ) -- the name and position of the
+       header field which records the envelope recipient address. This is
+       set to a value of the form field_name : field_position . The first
        (topmost) Delivered-To: header field would be specified as:
 envelope_recipient = delivered-to:1
 
    The MultidropPOP3Retriever also takes the following optional
    parameters:
-     * use_apop (boolean) -- see SimplePOP3Retriever for definition.
-     * timeout (integer) -- see SimplePOP3Retriever for definition.
+     * use_apop ( boolean ) -- see SimplePOP3Retriever for definition.
+     * timeout ( integer ) -- see SimplePOP3Retriever for definition.
        
     MultidropPOP3SSLRetriever
     
    The MultidropPOP3SSLRetriever class takes the common retriever
    parameters above, plus the following required parameter:
-     * envelope_recipient (string) -- see MultidropPOP3Retriever for
+     * envelope_recipient ( string ) -- see MultidropPOP3Retriever for
        definition.
        
    The MultidropPOP3SSLRetriever class alo takes the following optional
    parameters:
-     * use_apop (boolean) -- see SimplePOP3Retriever for definition.
-     * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
-     * certfile (string) -- see SimplePOP3SSLRetriever for definition.
+     * use_apop ( boolean ) -- see SimplePOP3Retriever for definition.
+     * keyfile ( string ) -- see SimplePOP3SSLRetriever for definition.
+     * certfile ( string ) -- see SimplePOP3SSLRetriever for definition.
        
     MultidropSPDSRetriever
     
    The MultidropSPDSRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
-     * timeout (integer) -- see SimplePOP3Retriever for definition.
+     * timeout ( integer ) -- see SimplePOP3Retriever for definition.
        
     MultidropIMAPRetriever
     
    The MultidropIMAPRetriever class takes the common retriever parameters
    above, plus the following required parameter:
-     * envelope_recipient (string) -- see MultidropPOP3Retriever for
+     * envelope_recipient ( string ) -- see MultidropPOP3Retriever for
        definition.
        
    The MultidropIMAPRetriever class also takes the following optional
    parameters:
-     * timeout (integer) -- see SimplePOP3Retriever for definition.
-     * mailboxes (tuple of quoted strings) -- see SimpleIMAPRetriever for
+     * timeout ( integer ) -- see SimplePOP3Retriever for definition.
+     * mailboxes ( tuple of quoted strings ) -- see SimpleIMAPRetriever
+       for definition.
+     * move_on_delete ( string ) -- see SimpleIMAPRetriever for
        definition.
-     * move_on_delete (string) -- see SimpleIMAPRetriever for definition.
        
     MultidropIMAPSSLRetriever
     
    The MultidropIMAPSSLRetriever class takes the common retriever
    parameters above, plus the following required parameter:
-     * envelope_recipient (string) -- see MultidropPOP3Retriever for
+     * envelope_recipient ( string ) -- see MultidropPOP3Retriever for
        definition.
        
    The MultidropIMAPSSLRetriever class also takes following optional
    parameters:
-     * mailboxes (tuple of quoted strings) -- see SimpleIMAPRetriever for
+     * mailboxes ( tuple of quoted strings ) -- see SimpleIMAPRetriever
+       for definition.
+     * move_on_delete ( string ) -- see SimpleIMAPRetriever for
        definition.
-     * move_on_delete (string) -- see SimpleIMAPRetriever for definition.
-     * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
-     * certfile (string) -- see SimplePOP3SSLRetriever for definition.
+     * keyfile ( string ) -- see SimplePOP3SSLRetriever for definition.
+     * certfile ( string ) -- see SimplePOP3SSLRetriever for definition.
        
   Retriever examples
   
@@ -439,7 +452,7 @@ envelope_recipient = delivered-to:1
    the maildir are owned by the owner of the maildir.
    
    The Maildir destination takes one parameter:
-     * path (string) -- the path to the maildir, ending in slash (/).
+     * path ( string ) -- the path to the maildir, ending in slash (/).
        This value will be expanded for leading ~ or ~USER. You might want
        to deliver messages to a maildir named Maildir in your home
        directory; you could do this with a configuration like this:
@@ -463,7 +476,7 @@ path = ~/Maildir/
    with any MDA.
    
    The Mboxrd destination takes one parameter:
-     * path (string) -- the path to the mbox file. This value will be
+     * path ( string ) -- the path to the mbox file. This value will be
        expanded for leading ~ or ~USER. You might want to deliver
        messages to an mbox file named inbox in your home directory; you
        could do this with a configuration like this:
@@ -475,37 +488,38 @@ path = ~/inbox
     
    MDA_external delivers messages by running an external program (known
    as a message delivery agent, or MDA). Some typical MDAs include
-   maildrop and procmail.
+   maildrop and procmail .
    
    The MDA_external destination takes one required parameter:
-     * path (string) -- the path to the command to run. This value will
+     * path ( string ) -- the path to the command to run. This value will
        be expanded for leading ~ or ~USER.
        
    The MDA_external destination also takes several optional parameters:
-     * arguments (tuple of quoted strings) -- arguments to be supplied to
-       the command. The following substrings will be substituted with the
-       equivalent values from the message, if availble:
+     * arguments ( tuple of quoted strings ) -- arguments to be supplied
+       to the command. The following substrings will be substituted with
+       the equivalent values from the message, if availble:
           + %(sender) -- envelope return-path address
           + %(recipient) -- envelope recipient address
           + %(local) -- local-part of the envelope recipient address
           + %(domain) -- domain-part of the envelope recipient address
        The default value is (), so no arguments are supplied to the
        command.
-     * unixfrom (boolean) -- whether to include a Unix-style mbox From_
+     * unixfrom ( boolean ) -- whether to include a Unix-style mbox From_
        line at the beginning of the message supplied to the command.
-       Defaults to false.
-     * user (string) -- if supplied, getmail will change the effective
+       Defaults to false. Some MDAs expect such a line to be present and
+       will fail to operate if it is missing.
+     * user ( string ) -- if supplied, getmail will change the effective
        UID to that of the named user. Note that this typically requires
        root privileges.
-     * group (string) -- if supplied, getmail will change the effective
+     * group ( string ) -- if supplied, getmail will change the effective
        GID to that of the named group. Note that this typically requires
        root privileges.
-     * allow_root_commands (boolean) -- if set, getmail will run external
-       commands even if it is currently running with root privileges. The
-       default is false, which causes getmail to raise an exception if it
-       is asked to run an external command as root. Note that setting
-       this option has serious security implications. Don't use it if you
-       don't know what you're doing.
+     * allow_root_commands ( boolean ) -- if set, getmail will run
+       external commands even if it is currently running with root
+       privileges. The default is false, which causes getmail to raise an
+       exception if it is asked to run an external command as root. Note
+       that setting this option has serious security implications. Don't
+       use it if you don't know what you're doing.
        
    A basic invocation of an external MDA might look like this:
 [destination]
@@ -535,8 +549,8 @@ arguments = ("--strip-forbidden-attachments", "--recipient=%(recipient)")
    Because MultiSorter requires the envelope recipient to operate, it
    must be used with a domain mailbox retriever.
    
-   The MDA_external destination takes one required parameter:
-     * default (string) -- the destination for messages which aren't
+   The MultiSorter destination takes one required parameter:
+     * default ( string ) -- the destination for messages which aren't
        matched by any of the "locals" regular expressions. The
        destination can be a maildir, mboxrd file, or other destination.
        The string is first expanded for leading ~ or ~USER. Then:
@@ -570,7 +584,7 @@ arguments = ('~bob/.procmailrc', )
 user = bob
        
    The MultiSorter destination also takes one optional parameter:
-     * locals (string) -- one or more regular expression - destination
+     * locals ( string ) -- one or more regular expression - destination
        pairs, each on a separate line. Messages will be delivered to each
        destination for which the envelope recipient matches the given
        regular expression. The regular expression and destination are
@@ -643,26 +657,27 @@ user = log
    need to use this destination class.
    
    The MDA_qmaillocal destination takes several optional parameters:
-     * qmaillocal (string) -- path to the qmail-local program. The
+     * qmaillocal ( string ) -- path to the qmail-local program. The
        default value is /var/qmail/bin/qmail-local.
-     * user (string) -- supplied to qmail-local, and also tells getmail
+     * user ( string ) -- supplied to qmail-local, and also tells getmail
        to change the current effective UID to that of the named user
        before running qmail-local. Note that this typically requires root
        privileges. The default value is the account name of the current
        effective UID.
-     * group (string) -- if supplied, getmail will change the effective
+     * group ( string ) -- if supplied, getmail will change the effective
        GID to that of the named group before running qmail-local. Note
        that this typically requires root privileges.
-     * homedir (string) -- supplied to qmail-local. The default value is
-       the home directory of the account with the current effective UID.
-     * localdomain (string) -- supplied to qmail-local as its domain
+     * homedir ( string ) -- supplied to qmail-local. The default value
+       is the home directory of the account with the current effective
+       UID.
+     * localdomain ( string ) -- supplied to qmail-local as its domain
        argument. The default value is the fully-qualified domain name of
        the local host.
-     * defaultdelivery (string) -- supplied to qmail-local as its
+     * defaultdelivery ( string ) -- supplied to qmail-local as its
        defaultdelivery argument. The default value is ./Maildir/.
-     * conf-break (string) -- supplied to qmail-local as its dash
+     * conf-break ( string ) -- supplied to qmail-local as its dash
        argument. The default value is -.
-     * localpart_translate (2-tuple of quoted strings) -- if supplied,
+     * localpart_translate ( 2-tuple of quoted strings ) -- if supplied,
        the recipient address of the message (which is used to construct
        the local argument (among others) to qmail-local) will have any
        leading instance of the first string replaced with the second
@@ -670,14 +685,14 @@ user = log
        extraneous prefixes (such as the qmail virtualdomain prepend
        value), or perform other tasks. The default value is ('', '')
        (i.e., no translation).
-     * strip_delivered_to (boolean) -- if set, Delivered-To: header
+     * strip_delivered_to ( boolean ) -- if set, Delivered-To: header
        fields will be removed from the message before handing it to
        qmail-local. This may be necessary to prevent qmail-local falsely
        detecting a looping message if (for instance) the system
        retrieving messages otherwise believes it has the same domain name
-       as the retrieval server. Inappropriate use, however, may cause
-       message loops. The default value is False.
-     * allow_root_commands (boolean) -- if set, getmail will run
+       as the retrieval server. Inappropriate use of this option may
+       cause message loops. The default value is False.
+     * allow_root_commands ( boolean ) -- if set, getmail will run
        qmail-local even if it is currently running with root privileges.
        The default is false, which causes getmail to raise an exception
        if it is asked to run an external command as root. Note that
@@ -704,42 +719,42 @@ localpart_translate = ('mailhostaccount-', '')
    The options section of the rc file (which is not required) can be used
    to alter getmail's default behaviour. The parameters supported in this
    section are as follows:
-     * verbose (boolean) -- if set, getmail prints messages about each of
-       its actions. If unset, getmail will only print warnings and
+     * verbose ( boolean ) -- if set, getmail prints messages about each
+       of its actions. If unset, getmail will only print warnings and
        errors. Default: True.
-     * read_all (boolean) -- if set, getmail retrieves all available
+     * read_all ( boolean ) -- if set, getmail retrieves all available
        messages. If unset, getmail only retrieves messages it has not
        seen before. Default: True.
-     * delete (boolean) -- if set, getmail will delete messages after
+     * delete ( boolean ) -- if set, getmail will delete messages after
        retrieving and successfully delivering them. If unset, getmail
        will leave messages on the server after retrieving them. Default:
        False.
-     * delete_after (integer) -- if set, getmail will delete messages
+     * delete_after ( integer ) -- if set, getmail will delete messages
        this number of days after first seeing them, if they have been
        retrieved and delivered. This, in effect, leaves messages on the
        server for a configurable number of days after retrieving them.
        Note that the delete parameter has higher priority; if both are
        set, the messages will be deleted immediately. Default: 0, which
        means not to enable this feature.
-     * max_message_size (integer) -- if set, getmail will not retrieve
+     * max_message_size ( integer ) -- if set, getmail will not retrieve
        messages larger than this number of bytes. Default: 0, which means
        not to enable this feature.
-     * max_messages_per_session (integer) -- if set, getmail will process
-       a maximum of this number of messages before closing the session
-       with the server. This can be useful if your network or the server
-       is particuarly unreliable. Default: 0, which means not to enable
-       this feature.
-     * delivered_to (boolean) -- if set, getmail adds a Delivered-To:
+     * max_messages_per_session ( integer ) -- if set, getmail will
+       process a maximum of this number of messages before closing the
+       session with the server. This can be useful if your network or the
+       server is particuarly unreliable. Default: 0, which means not to
+       enable this feature.
+     * delivered_to ( boolean ) -- if set, getmail adds a Delivered-To:
        header field to the message. If unset, it will not do so. Default:
        True.
-     * received (boolean) -- if set, getmail adds a Received: header
+     * received ( boolean ) -- if set, getmail adds a Received: header
        field to the message. If unset, it will not do so. Default: True.
-     * message_log (string) -- if set, getmail will record a log of its
+     * message_log ( string ) -- if set, getmail will record a log of its
        actions to the named file. The value will be expanded for leading
        ~ or ~USER. Default: '' (the empty string), which means not to
        enable this feature.
-     * message_log_syslog (boolean) -- if set, getmail will record a log
-       of its actions using the system logger. Note that syslog is
+     * message_log_syslog ( boolean ) -- if set, getmail will record a
+       log of its actions using the system logger. Note that syslog is
        inherently unreliable and can lose log messages. Default: False.
        
    The verbose, read_all, and delete parameters can be overridden at run
@@ -793,38 +808,38 @@ message_log = ~/.getmail/log
        
    Both of these filter types take the same parameters. The required
    parameter is:
-     * path (string) -- the path to the command to run. This value will
+     * path ( string ) -- the path to the command to run. This value will
        be expanded for leading ~ or ~USER.
        
    In addition, they take the following optional parameters:
-     * arguments (tuple of quoted strings) -- arguments to be supplied to
-       the command. The following substrings will be substituted with the
-       equivalent values from the message, if availble:
+     * arguments ( tuple of quoted strings ) -- arguments to be supplied
+       to the command. The following substrings will be substituted with
+       the equivalent values from the message, if availble:
           + %(sender) -- envelope return-path address
           + %(recipient) -- envelope recipient address
           + %(local) -- local-part of the envelope recipient address
           + %(domain) -- domain-part of the envelope recipient address
        The default value is (), so no arguments are supplied to the
        command.
-     * unixfrom (boolean) -- whether to include a Unix-style mbox From_
+     * unixfrom ( boolean ) -- whether to include a Unix-style mbox From_
        line at the beginning of the message supplied to the command.
        Defaults to false.
-     * user (string) -- if supplied, getmail will change the effective
+     * user ( string ) -- if supplied, getmail will change the effective
        UID to that of the named user. Note that this typically requires
        root privileges.
-     * group (string) -- if supplied, getmail will change the effective
+     * group ( string ) -- if supplied, getmail will change the effective
        GID to that of the named group. Note that this typically requires
        root privileges.
-     * allow_root_commands (boolean) -- if set, getmail will run external
-       commands even if it is currently running with root privileges. The
-       default is false, which causes getmail to raise an exception if it
-       is asked to run an external command as root. Note that setting
-       this option has serious security implications. Don't use it if you
-       don't know what you're doing.
-     * exitcodes_drop (tuple of integers) -- if the filter returns an
+     * allow_root_commands ( boolean ) -- if set, getmail will run
+       external commands even if it is currently running with root
+       privileges. The default is false, which causes getmail to raise an
+       exception if it is asked to run an external command as root. Note
+       that setting this option has serious security implications. Don't
+       use it if you don't know what you're doing.
+     * exitcodes_drop ( tuple of integers ) -- if the filter returns an
        exit code in this list, the message will be dropped. The default
        is (99, 100).
-     * exitcodes_keep (tuple of integers) -- if the filter returns an
+     * exitcodes_keep ( tuple of integers ) -- if the filter returns an
        exit code other than those in exitcodes_drop and exitcodes_keep,
        getmail assumes the filter encountered an error. getmail will then
        not proceed, so that the message is not lost. The default is (0,
@@ -894,3 +909,52 @@ $ getmail --rcfile getmailrc-account1 --rcfile getmailrc-account2
    you could run getmail as follows:
 $ getmail --getmaildir /path/to/otherdir --rcfile getmailrc-account1 --rcfile g
 etmailrc-account2
+
+Using getmail as an MDA
+
+   getmail includes helper scripts which allow you to use it to deliver
+   mail from other programs to maildirs or mboxrd files.
+   
+  Using the getmail_maildir MDA
+  
+   The getmail_maildir script can be used as an MDA from other programs
+   to deliver mail to maildirs. It reads the mail message from stdin, and
+   delivers it to a maildir path provided as an argument on the
+   commandline. This path must (after expansion by the shell, if
+   applicable) start with a dot or slash and end with a slash.
+   
+   If the environment variable SENDER is set, getmail_maildir will record
+   it in a new Return-Path: header field at the top of the message.
+   
+   getmail_maildir also accepts the options --verbose or -v which tell it
+   to print a status message on success. The default is to operate
+   silently unless an error occurs.
+   
+    Example
+    
+   You could deliver a message to a maildir named Maildir located in your
+   home directory by running the following command with the message on
+   stdin:
+$ getmail_maildir $HOME/Maildir/
+
+  Using the getmail_mbox MDA
+  
+   The getmail_mbox script can be used as an MDA from other programs to
+   deliver mail to mboxrd-format mbox files. It reads the mail message
+   from stdin, and delivers it to an mbox path provided as an argument on
+   the commandline. This path must (after expansion by the shell, if
+   applicable) start with a dot or slash and not end with a slash.
+   
+   getmail_mbox will use the contents of the environment variable SENDER
+   , if set, to construct the From_ line for the message.
+   
+   getmail_mbox also accepts the options --verbose or -v which tell it to
+   print a status message on success. The default is to operate silently
+   unless an error occurs.
+   
+    Example
+    
+   You could deliver a message to an mboxrd-format mbox file named inbox
+   located in a directory named mail in your home directory by running
+   the following command with the message on stdin:
+$ getmail_mbox $HOME/mail/inbox

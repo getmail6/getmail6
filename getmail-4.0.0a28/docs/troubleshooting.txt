@@ -12,60 +12,12 @@
    (only). If you wish to obtain a license to use getmail under other
    terms, please contact me directly.
    
-                               Table of Contents
-                                       
-     * getmail documentation
-     *
-          + Features
-          + Differences from previous versions
-          + Requirements
-          + Obtaining getmail
-          + Installing getmail
-     * getmail documentation
-     * Configuring getmail
-     *
-          + Creating a getmail rc file
-     * Running getmail
-     * getmail documentation
-     * Troubleshooting
-     *
-          + Error messages
-          +
-               o ImportError: getmail version 4 requires Python version
-                 2.3.3 or later
-               o Configuration error: ...
-               o
-                    # Configuration error: missing required configuration
-                      parameter name
-                    # Configuration error: configuration value name
-                      (value) not of required type type (why)
-                    # Configuration error: maildir path missing trailing
-                      /
-                    # Configuration error: not a maildir (path)
-                    # Configuration error: not a mboxrd file (path)
-                    # Configuration error: the fieldname header field
-                      does not record the envelope recipient address
-                    # Configuration error: refuse to invoke external
-                      commands as root by default
-                    # Configuration error: no such command path
-                    # Configuration error: path not executable
-                    # Configuration error: destination specifies section
-                      name section which does not exist
-                    # Configuration error: 
-               o Error: ...
-          + Unexpected Behaviour
-          +
-               o getmail uses the wrong hostname for my machine
-     * getmail documentation
-     * Frequently-Asked Questions (FAQs)
-     *
-          + About getmail
-          + Using getmail with other software
-       
                                 Troubleshooting
                                        
    This section of the documentation is to be added to as getmail version
-   4 progresses through beta testing to release state.
+   4 progresses through beta testing to release state. If you have
+   suggestions for additions or changes to this documentation, please
+   send them to the mailing list or me.
    
 Error messages
 
@@ -97,6 +49,9 @@ Error messages
    supplied value value does not appear to be of that type. Further
    information may be present in why.
    
+   The getmail documentation contains descriptions of the syntax for each
+   parameter type.
+   
     Configuration error: maildir path missing trailing /
     
    Maildir paths must start with dot or slash and end with a slash.
@@ -104,11 +59,15 @@ Error messages
     Configuration error: not a maildir (path)
     
    The specified maildir path path does not appear to be a valid maildir.
+   Check to ensure that it is a valid maildir, and that getmail has
+   permission to write to it.
    
     Configuration error: not a mboxrd file (path)
     
    The specified mboxrd path path does not appear to be a valid mboxrd
-   file.
+   file. To avoid corrupting files in the event of a user typo, getmail
+   will not deliver messages to files that do not appear to be valid
+   mboxrd files.
    
     Configuration error: the fieldname header field does not record the
     envelope recipient address
@@ -139,8 +98,6 @@ Error messages
    A destination in the getmail rc file refers to another rc file section
    named section, but that section was not found in the file.
    
-    Configuration error:
-    
   Error: ...
   
    getmail detected an operational error. getmail will do its best to

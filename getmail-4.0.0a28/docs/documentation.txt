@@ -6,41 +6,13 @@
    please refer to the documentation included with that version of the
    software.
    
-   getmail is Copyright © 1998-2004 Charles Cazabon.
+   getmail is Copyright © 1998-2004 Charles Cazabon. <getmail @
+   discworld.dyndns.org>
    
    getmail is licensed under the GNU General Public License version 2
    (only). If you wish to obtain a license to use getmail under other
    terms, please contact me directly.
    
-                               Table of Contents
-                                       
-     * getmail documentation
-     *
-          + Features
-          + Differences from previous versions
-          + Requirements
-          + Obtaining getmail
-          + Installing getmail
-          +
-               o Installing directly from the source
-               o Installing in a non-standard location
-               o Building a binary package from the source
-     * getmail documentation
-     * Configuring getmail
-     *
-          + Creating a getmail rc file
-     * Running getmail
-     * getmail documentation
-     * Troubleshooting
-     *
-          + Error messages
-          + Unexpected Behaviour
-     * getmail documentation
-     * Frequently-Asked Questions (FAQs)
-     *
-          + About getmail
-          + Using getmail with other software
-       
 Features
 
    getmail is a mail retriever designed to allow you to get your mail
@@ -93,20 +65,23 @@ Differences from previous versions
      * the getmail rc file (configuration file) format has changed. If
        you are upgrading from version 3, you will need to write a new
        configuration file based on the contents of your old one. The new
-       file format closely resembles the old in many ways. Each account
-       you retrieve mail from will require a separate rc file, but
-       getmail can operate with several rc files simultaneously.
+       file format resembles the old in many ways. Each account you
+       retrieve mail from will require a separate rc file, but getmail
+       can operate with multiple rc files simultaneously if you wish to
+       retrieve mail from multiple accounts.
      * support for protocols other than POP3/SPDS. IMAP support is now
        included, and other protocols can be added with relative ease.
-     * support for SSL-encrypted protocols. Both POP3 and IMAP feature
-       SSL support.
+     * support for SSL-encrypted protocols. The included POP3 and IMAP
+       retriever classes are complemented by SSL-enabled counterparts.
      * messages can be filtered or annotated by external programs like
        spam filters and anti-Microsoft-worm programs. Filters can cause
        messages to be dropped completely.
      * a flexible, extensible architecture. Additional classes for
        handling new mail protocols, filter types, or destination
        mailstores can be added without needing to modify the main script
-       at all.
+       at all. Feel free to contact me if you need a custom retriever,
+       filter, or destination class written, or if you want commercial
+       support for getmail.
        
 Requirements
 
@@ -115,6 +90,16 @@ Requirements
    latest version without disturbing your current version, or use getmail
    version 3, which requires only Python version 1.5.2 or later.
    
+   At the time of this writing, the current stable version of Python is
+   2.3.4. You can download that version from the page at
+   http://www.python.org/2.3.4/ . Binary packages are typically available
+   for Windows and RPM-based Linux systems, or building Python from
+   source is typically as easy as unpacking the source tarball, and
+   running the following commands:
+./configure
+make
+make install
+
 Obtaining getmail
 
    Download getmail 4 from the official website main page at
@@ -216,15 +201,46 @@ $ python setup.py bdist --format=package-format
    distribution" binary package in a subdirectory named dist which can
    then be installed using the appropriate system-specific tool. If you
    have problems with this process, please do not ask me for assistance;
-   ask your OS vendor. The install-directory-from-source process above is
-   the only one I can support, and it should work on all platforms.
-     _________________________________________________________________
+   ask your OS vendor or the comp.lang.python newsgroup. The
+   install-directory-from-source process above is the only one I can
+   support, and it should work on all platforms.
    
-   © 2004 Charles Cazabon; all rights reserved. May not be reproduced in
-   any form without the prior written consent of the author.
+   You can discuss issues with building binary packages on the getmail
+   users' mailing list.
    
-   [up to Charles Cazabon's Writings]
+getmail mailing lists
+
+  getmail-users' mailing list
+  
+   A mailing list has been set up to discuss getmail. Send a blank email
+   to <getmail-subscribe @ discworld.dnsalias.org> to subscribe to the
+   list.
    
-   [up to Charles Cazabon's Pages]
+   Similarly, to unsubscribe, send mail from the same address you
+   subscribed with to <getmail-unsubscribe @ discworld.dnsalias.org>.
    
-   Valid XHTML 1.1 
+   There is a browsable archive of the list at
+   http://marc.theaimsgroup.com/?l=getmail&r=1&w=2 .
+   
+   The list is available for free getmail support from me and other
+   users, for discussions of bugs, configuration issues, documentation,
+   and other technical issues related to getmail.
+   
+   Note: you are expected to have read the documentation and Frequently
+   Asked Questions, and browsed/searched the mailing list archives before
+   posting a question to the mailing list.
+   
+  Announcements List
+  
+   If you only want to be notified of new releases of getmail, an
+   announce-only list has been set up. Send a blank email to
+   <getmail-announce-subscribe @ discworld.dnsalias.org> to subscribe to
+   the list. The list is very low-volume; you can expect a handful of
+   messages per year.
+   
+   Similarly, to unsubscribe, send mail from the same address you
+   subscribed with to <getmail-announce-unsubscribe @
+   discworld.dnsalias.org>.
+   
+   All announcements will be sent to both lists, so there is no need to
+   subscribe to the announcements list if you are on the discussion list.

@@ -12,7 +12,7 @@
 </head>
 <body id="top">
 
-<h1 id="title">getmail documentation</h1>
+<!----><h1 id="title">getmail documentation</h1>
 <p class="introduction">
     This is the documentation for getmail version 4.  Version 4 includes
     numerous changes from version 3.x; if you are using getmail version 3,
@@ -39,9 +39,9 @@
         <li><a href="documentation.html#requirements">Requirements</a></li>
         <li><a href="documentation.html#obtaining">Obtaining getmail</a></li>
         <li><a href="documentation.html#installing">Installing getmail</a></li>
+        <li><a href="documentation.html#mailing-lists">getmail mailing lists</a></li>
         </ul>
     </li>
-    <li><a href="configuration.html#title">getmail documentation</a></li>
     <li><a href="configuration.html#configuring">Configuring getmail</a></li>
     <li>
         <ul>
@@ -49,7 +49,11 @@
         </ul>
     </li>
     <li><a href="configuration.html#running">Running getmail</a></li>
-    <li><a href="troubleshooting.html#title">getmail documentation</a></li>
+    <li>
+        <ul>
+        <li><a href="configuration.html#running-mda">Using getmail as an MDA</a></li>
+        </ul>
+    </li>
     <li><a href="troubleshooting.html#troubleshooting">Troubleshooting</a></li>
     <li>
         <ul>
@@ -57,7 +61,6 @@
         <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
         </ul>
     </li>
-    <li><a href="faq.html#title">getmail documentation</a></li>
     <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
     <li>
         <ul>
@@ -73,6 +76,22 @@
             <li><a href="faq.html#faq-about-rewrite">Does getmail rewrite mail headers when it retrieves mail?</a></li>
             <li><a href="faq.html#faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4?  What about my &quot;oldmail&quot; files?</a></li>
             <li><a href="faq.html#faq-about-why">Why did you write getmail?  Why not just use fetchmail?</a></li>
+            </ul>
+        </li>
+        <li><a href="faq.html#faq-configuring">Configuring getmail</a></li>
+        <li>
+            <ul>
+            <li><a href="faq.html#faq-configuring-domain-mailbox">What is a &quot;domain mailbox&quot;?</a></li>
+            <li><a href="faq.html#faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</a></li>
+            </ul>
+        </li>
+        <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
+        <li>
+            <ul>
+            <li><a href="faq.html#faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</a></li>
+            <li><a href="faq.html#faq-how-no-received">How do I stop getmail adding a Received: header to messages?</a></li>
+            <li><a href="faq.html#faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</a></li>
+            <li><a href="faq.html#faq-how-daemon">How do I run getmail in &quot;daemon&quot; mode?</a></li>
             </ul>
         </li>
         <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
@@ -136,7 +155,7 @@
 <p>
 	If you still haven't found an answer to your question, please subscribe to 
 	the 
-	<a href="getmail.html#maillist">mailing list</a> 
+	<a href="documentation.html#mailing-list-users">getmail users' mailing list</a> 
 	by sending a blank email to 
 	&lt;getmail-subscribe @ discworld.dnsalias.org&gt;
 	. If you post your question there, I will see it.  As an additional bonus, 
@@ -146,8 +165,9 @@
 <h3 id="faq-about-bug">I think I found a bug!  How do I report it?</h3>
 <p>
 	Ideally, you should join the 
-	<a href="getmail.html#maillist">mailing list</a>. 
-	Send your bug report there.  You should include the following information:
+	<a href="documentation.html#mailing-list-users">mailing list</a>
+	and send your bug report there.  You should include the following 
+	information:
 </p>
 <ul>
 	<li>getmail version</li>
@@ -179,12 +199,20 @@
 	external virus scanning program, or invoke your virus scanning program 
 	during delivery with getmail's support for external MDAs.
 </p>
+<p>
+	Also see the FAQ about
+	<a href="#faq-integrating-clamav">using getmail with the ClamAV program</a>.
+</p>
 
 <h3 id="faq-about-spam">Does getmail support spam filtering of retrieved messages?</h3>
 <p>
 	Yes.  You can use getmail message filtering options to do this with an 
 	external spam filtering program, or invoke your spam filtering program 
 	during delivery with getmail's support for external MDAs.
+</p>
+<p>
+	Also see the FAQ about
+	<a href="#faq-integrating-spamassassin">using getmail with the SpamAssassin program</a>.
 </p>
 
 <h3 id="faq-about-ssl">Does getmail support SSL?</h3>
@@ -365,6 +393,81 @@
 </p>
 <p>
 	getmail users have not had to worry about any of these security holes.
+</p>
+
+<h2 id="faq-configuring">Configuring getmail</h2>
+
+<h3 id="faq-configuring-domain-mailbox">What is a &quot;domain mailbox&quot;?</h3>
+<p>
+	A domain (or multidrop) mailbox is a POP3 mailbox which receives mail for 
+	all users in a given domain.  Normal mailboxes contain mail for a single 
+	user (like 
+	<span class="file">jason@myisp.co.uk</span>
+	); some Internet Service Providers which provide webhosting or other 
+	services will provide a POP3 mailbox which receives mail for all addresses 
+	in a given domain (i.e. mail for
+	<span class="file">service@smallcompany.net</span>,
+	<span class="file">sales@smallcompany.net</span>,
+	and indeed anything
+	<span class="file">@smallcompany.net</span>
+	ends up in the same POP3 mailbox).
+</p>
+<p>
+	getmail provides a method of retrieving mail from a domain mailbox and 
+	distributing it among the various users automatically.  The retriever 
+	classes
+	<a href="configuration.html#retriever-multidroppop3">MultidropPOP3Retriever</a>
+	,
+	<a href="configuration.html#retriever-multidroppop3ssl">MultidropPOP3SSLRetriever</a>
+	,
+	<a href="configuration.html#retriever-multidropspds">MultidropSPDSRetriever</a>
+	,
+	<a href="configuration.html#retriever-multidropimap">MultidropIMAPRetriever</a>
+	, and
+	<a href="configuration.html#retriever-multidropimapssl">MultidropIMAPSSLRetriever</a>
+	provide this capability.
+</p>
+
+<h3 id="faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</h3>
+<p>
+	No.  getmail delivers directly to maildirs, mboxrd files, or via arbitrary 
+	MDAs, and never injects mail via SMTP, so no MTA is necessary.
+</p>
+
+<h2 id="faq-how">How do I &hellip;</h2>
+
+<h3 id="faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</h3>
+<p>
+	Use the 
+	<a href="configuration.html#conf-options">delivered_to</a>
+	<span class="file">[options]</span>
+	parameter.
+</p>
+
+<h3 id="faq-how-no-received">How do I stop getmail adding a Received: header to messages?</h3>
+<p>
+	Use the 
+	<a href="configuration.html#conf-options">received</a>
+	<span class="file">[options]</span>
+	parameter.
+</p>
+
+<h3 id="faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</h3>
+<p>
+	You don't need to.  getmail can deliver to maildirs, mboxrd files, or 
+	through arbitrary external MDAs.
+</p>
+<p>
+	If you still think you need to, you can use getmail's external MDA
+	support to do so.
+</p>
+
+<h3 id="faq-how-daemon">How do I run getmail in &quot;daemon&quot; mode?</h3>
+<p>
+	Use your system's cron utility to run getmail periodically if you wish to 
+	have mail retrieved automatically at intervals.  This is precisely what cron 
+	is designed to do; there's no need to add special code to getmail to do 
+	this.
 </p>
 
 <h2 id="faq-integrating">Using getmail with other software</h2>
@@ -550,6 +653,8 @@ arguments = (&quot;-R&quot;, &quot;X-getmail-filter-classifier:&quot;,
     as the second filter (or immediately after the ClamAV filter, if it is
     the second, third, etc. filter).
 </p>
+
+<!--#include virtual="footer.html"-->
 
 </body>
 </html>

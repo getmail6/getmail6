@@ -12,7 +12,7 @@
 </head>
 <body id="top">
 
-<h1 id="title">getmail documentation</h1>
+<!----><h1 id="title">getmail documentation</h1>
 <p class="introduction">
     This is the documentation for getmail version 4.  Version 4 includes
     numerous changes from version 3.x; if you are using getmail version 3,
@@ -39,9 +39,9 @@
         <li><a href="documentation.html#requirements">Requirements</a></li>
         <li><a href="documentation.html#obtaining">Obtaining getmail</a></li>
         <li><a href="documentation.html#installing">Installing getmail</a></li>
+        <li><a href="documentation.html#mailing-lists">getmail mailing lists</a></li>
         </ul>
     </li>
-    <li><a href="configuration.html#title">getmail documentation</a></li>
     <li><a href="configuration.html#configuring">Configuring getmail</a></li>
     <li>
         <ul>
@@ -49,7 +49,11 @@
         </ul>
     </li>
     <li><a href="configuration.html#running">Running getmail</a></li>
-    <li><a href="troubleshooting.html#title">getmail documentation</a></li>
+    <li>
+        <ul>
+        <li><a href="configuration.html#running-mda">Using getmail as an MDA</a></li>
+        </ul>
+    </li>
     <li><a href="troubleshooting.html#troubleshooting">Troubleshooting</a></li>
     <li>
         <ul>
@@ -70,7 +74,6 @@
                 <li><a href="troubleshooting.html#errmsg-config-no-command">Configuration error: no such command <span class="meta">path</span></a></li>
                 <li><a href="troubleshooting.html#errmsg-config-command-not-executable">Configuration error: <span class="meta">path</span> not executable</a></li>
                 <li><a href="troubleshooting.html#errmsg-config-missing-section">Configuration error: destination specifies section name <span class="meta">section</span> which does not exist</a></li>
-                <li><a href="troubleshooting.html#errmsg-config-">Configuration error: </a></li>
                 </ul>
             </li>
             <li><a href="troubleshooting.html#errmsg-operation-">Error: &hellip;</a></li>
@@ -84,11 +87,12 @@
         </li>
         </ul>
     </li>
-    <li><a href="faq.html#title">getmail documentation</a></li>
     <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
     <li>
         <ul>
         <li><a href="faq.html#faq-about">About getmail</a></li>
+        <li><a href="faq.html#faq-configuring">Configuring getmail</a></li>
+        <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
         <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
         </ul>
     </li>
@@ -101,7 +105,9 @@
 <h1 id="troubleshooting">Troubleshooting</h1>
 <p>
     This section of the documentation is to be added to as getmail version 4
-    progresses through beta testing to release state.
+    progresses through beta testing to release state.  If you have 
+    suggestions for additions or changes to this documentation, please
+    send them to the mailing list or me.
 </p>
 
 <h2 id="error-messages">Error messages</h2>
@@ -128,16 +134,24 @@
 <h4 id="errmsg-config-missing-parameter" class="errmsg">Configuration error: missing required configuration parameter <span class="meta">name</span></h4>
 <p>
     A class object in your getmail rc file requires the parameter
-    <span class="meta">name</span>, but it was not found in the
-    appropriate section of the file.
+    <span class="meta">name</span>,
+    but it was not found in the appropriate section of the file.
 </p>
 
 <h4 id="errmsg-config-parameter-wrong-type" class="errmsg">Configuration error: configuration value <span class="meta">name</span> (<span class="meta">value</span>) not of required type <span class="meta">type</span> (<span class="meta">why</span>)</h4>
 <p>
-    The configuration parameter <span class="meta">name</span> must be of
-    type <span class="meta">type</span>, but the supplied value
-    <span class="meta">value</span> does not appear to be of that type.
-    Further information may be present in <span class="meta">why</span>.
+    The configuration parameter
+    <span class="meta">name</span>
+    must be of type
+    <span class="meta">type</span>,
+    but the supplied value
+    <span class="meta">value</span>
+    does not appear to be of that type. Further information may be present in 
+    <span class="meta">why</span>.
+</p>
+<p>
+	The getmail documentation contains 
+	<a href="configuration.html#parametertypes">descriptions of the syntax for each parameter type</a>.
 </p>
 
 <h4 id="errmsg-config-maildir-slash" class="errmsg">Configuration error: maildir path missing trailing /</h4>
@@ -147,14 +161,19 @@
 
 <h4 id="errmsg-config-maildir-not" class="errmsg">Configuration error: not a maildir (<span class="meta">path</span>)</h4>
 <p>
-    The specified maildir path <span class="meta">path</span> does not appear
-    to be a valid maildir.
+    The specified maildir path 
+    <span class="meta">path</span>
+    does not appear to be a valid maildir.  Check to ensure that it is a valid
+    maildir, and that getmail has permission to write to it.
 </p>
 
 <h4 id="errmsg-config-mboxrd-not" class="errmsg">Configuration error: not a mboxrd file (<span class="meta">path</span>)</h4>
 <p>
-    The specified mboxrd path <span class="meta">path</span> does not appear
-    to be a valid mboxrd file.
+    The specified mboxrd path 
+    <span class="meta">path</span>
+    does not appear to be a valid mboxrd file.  To avoid corrupting files in
+    the event of a user typo, getmail will not deliver messages to files that
+    do not appear to be valid mboxrd files.
 </p>
 
 <h4 id="errmsg-config-envelope-recipient" class="errmsg">Configuration error: the <span class="meta">fieldname</span> header field does not record the envelope recipient address</h4>
@@ -192,9 +211,9 @@
     but that section was not found in the file.
 </p>
 
-<h4 id="errmsg-config-" class="errmsg">Configuration error: </h4>
+<!--h4 id="errmsg-config-" class="errmsg">Configuration error: </h4>
 <p>
-</p>
+</p-->
 
 <h3 id="errmsg-operation-" class="errmsg">Error: &hellip;</h3>
 <p>
@@ -219,6 +238,7 @@
     listed for any of the addresses of the machine.
 </p>
 
+<!--#include virtual="footer.html"-->
 
 </body>
 </html>

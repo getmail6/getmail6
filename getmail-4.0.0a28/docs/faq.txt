@@ -12,50 +12,6 @@
    (only). If you wish to obtain a license to use getmail under other
    terms, please contact me directly.
    
-                               Table of Contents
-                                       
-     * getmail documentation
-     *
-          + Features
-          + Differences from previous versions
-          + Requirements
-          + Obtaining getmail
-          + Installing getmail
-     * getmail documentation
-     * Configuring getmail
-     *
-          + Creating a getmail rc file
-     * Running getmail
-     * getmail documentation
-     * Troubleshooting
-     *
-          + Error messages
-          + Unexpected Behaviour
-     * getmail documentation
-     * Frequently-Asked Questions (FAQs)
-     *
-          + About getmail
-          +
-               o What is getmail?
-               o How can I get support for getmail?
-               o I think I found a bug! How do I report it?
-               o Does getmail support virus scanning of retrieved
-                 messages?
-               o Does getmail support spam filtering of retrieved
-                 messages?
-               o Does getmail support SSL?
-               o Does getmail rewrite mail headers when it retrieves
-                 mail?
-               o Can I upgrade from getmail 3 to getmail 4? What about my
-                 "oldmail" files?
-               o Why did you write getmail? Why not just use fetchmail?
-          + Using getmail with other software
-          +
-               o How do I use getmail with spamassassin?
-               o How do I use getmail with ClamAV?
-               o
-                    # Getting prettier output from ClamAV
-       
                        Frequently-Asked Questions (FAQs)
                                        
    The following questions about getmail come up more-or-less frequently.
@@ -86,15 +42,15 @@ About getmail
    archives at http://marc.theaimsgroup.com/?l=getmail&r=1&w=2 .
    
    If you still haven't found an answer to your question, please
-   subscribe to the mailing list by sending a blank email to
-   <getmail-subscribe @ discworld.dnsalias.org> . If you post your
+   subscribe to the getmail users' mailing list by sending a blank email
+   to <getmail-subscribe @ discworld.dnsalias.org> . If you post your
    question there, I will see it. As an additional bonus, your question
    may be answered by another member of the list.
    
   I think I found a bug! How do I report it?
   
-   Ideally, you should join the mailing list. Send your bug report there.
-   You should include the following information:
+   Ideally, you should join the mailing list and send your bug report
+   there. You should include the following information:
      * getmail version
      * Python version
      * any error message which getmail displayed
@@ -115,11 +71,15 @@ About getmail
    external virus scanning program, or invoke your virus scanning program
    during delivery with getmail's support for external MDAs.
    
+   Also see the FAQ about using getmail with the ClamAV program.
+   
   Does getmail support spam filtering of retrieved messages?
   
    Yes. You can use getmail message filtering options to do this with an
    external spam filtering program, or invoke your spam filtering program
    during delivery with getmail's support for external MDAs.
+   
+   Also see the FAQ about using getmail with the SpamAssassin program.
    
   Does getmail support SSL?
   
@@ -219,6 +179,55 @@ About getmail
    http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724 .
    
    getmail users have not had to worry about any of these security holes.
+   
+Configuring getmail
+
+  What is a "domain mailbox"?
+  
+   A domain (or multidrop) mailbox is a POP3 mailbox which receives mail
+   for all users in a given domain. Normal mailboxes contain mail for a
+   single user (like jason@myisp.co.uk ); some Internet Service Providers
+   which provide webhosting or other services will provide a POP3 mailbox
+   which receives mail for all addresses in a given domain (i.e. mail for
+   service@smallcompany.net, sales@smallcompany.net, and indeed anything
+   @smallcompany.net ends up in the same POP3 mailbox).
+   
+   getmail provides a method of retrieving mail from a domain mailbox and
+   distributing it among the various users automatically. The retriever
+   classes MultidropPOP3Retriever , MultidropPOP3SSLRetriever ,
+   MultidropSPDSRetriever , MultidropIMAPRetriever , and
+   MultidropIMAPSSLRetriever provide this capability.
+   
+  Do I have to run sendmail or another MTA to use getmail?
+  
+   No. getmail delivers directly to maildirs, mboxrd files, or via
+   arbitrary MDAs, and never injects mail via SMTP, so no MTA is
+   necessary.
+   
+How do I ...
+
+  How do I stop getmail adding a Delivered-To: header to messages?
+  
+   Use the delivered_to [options] parameter.
+   
+  How do I stop getmail adding a Received: header to messages?
+  
+   Use the received [options] parameter.
+   
+  How do I make getmail deliver messages by re-injecting with SMTP?
+  
+   You don't need to. getmail can deliver to maildirs, mboxrd files, or
+   through arbitrary external MDAs.
+   
+   If you still think you need to, you can use getmail's external MDA
+   support to do so.
+   
+  How do I run getmail in "daemon" mode?
+  
+   Use your system's cron utility to run getmail periodically if you wish
+   to have mail retrieved automatically at intervals. This is precisely
+   what cron is designed to do; there's no need to add special code to
+   getmail to do this.
    
 Using getmail with other software
 

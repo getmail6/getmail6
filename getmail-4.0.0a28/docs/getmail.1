@@ -1,0 +1,69 @@
+.TH getmail "1" "July 2004" "getmail 4" "User Commands"
+.SH NAME
+getmail \- retrieve messages from one or more POP3, IMAP4, or SPDS mailboxes and deliver to a maildir, mboxrd-format mbox file, or external MDA
+.SH SYNOPSIS
+.B getmail
+[\fIOPTION\fR] ...
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+getmail can retrieve messages from POP3, IMAP4, and SPDS mailboxes.  SSL-wrapped 
+POP3 and IMAP are also supported.  Single-user and domain (multi\-drop) 
+mailboxes are supported.
+.PP
+getmail has built-in support for delivering to maildirs, mboxrd-format mbox
+files, and external MDAs.
+.SH OPTIONS
+.TP
+\fB\-\-version\fR
+show program's version number and exit
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show a short usage summary and exit
+.TP
+\fB\-gDIR\fR, \fB\-\-getmaildir\fR=\fIDIR\fR
+look in DIR for config/data files
+.TP
+\fB\-rFILE\fR, \fB\-\-rcfile\fR=\fIFILE\fR
+load configuration from FILE (may be given multiple
+times)
+.TP
+\fB\-\-dump\fR
+dump configuration and exit (debugging)
+.TP
+\fB\-\-trace\fR
+print extended debugging information
+.PP
+The following options override any in the configuration file(s).
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+print informational messages
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+do not print informational messages
+.TP
+\fB\-d\fR, \fB\-\-delete\fR
+delete messages from server after retrieving
+.TP
+\fB\-l\fR, \fB\-\-dont\-delete\fR
+do not delete messages from server after retrieving
+.TP
+\fB\-a\fR, \fB\-\-all\fR
+retrieve all messages
+.TP
+\fB\-n\fR, \fB\-\-new\fR
+retrieve only unread messages
+.SH AUTHOR
+Written by Charles Cazabon.
+.SH "REPORTING BUGS"
+Report bugs to <getmail-bugs@discworld.dyndns.org>.
+.SH COPYRIGHT
+Copyright \(co 2004 Charles Cazabon
+.br
+This is free software; see the file COPYING for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+The full documentation for
+.B getmail
+is maintained in HTML and plaintext formats.  See the included files for
+details.

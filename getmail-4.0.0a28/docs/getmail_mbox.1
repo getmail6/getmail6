@@ -1,0 +1,30 @@
+.TH getmail_mbox "1" "July 2004" "getmail 4" "User Commands"
+.SH NAME
+getmail_mbox \- read a message from stdin and deliver to a named mboxrd-format mbox file
+.SH SYNOPSIS
+.B getmail_mbox
+[\fIOPTION\fR] \fIPATH\fR
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+Deliver a mail message from standard input, to the mboxrd-format mbox file named 
+PATH.  PATH must start with a dot or a slash and must not end with a slash.
+.PP
+If SENDER is set, it's contents are used in creating the From_ line.
+.TP
+\fB\-\-verbose, \-v\fR
+print a status message on success\fR
+.SH AUTHOR
+Written by Charles Cazabon.
+.SH "REPORTING BUGS"
+Report bugs to <getmail-bugs@discworld.dyndns.org>.
+.SH COPYRIGHT
+Copyright \(co 2004 Charles Cazabon
+.br
+This is free software; see the file COPYING for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+The full documentation for
+.B getmail_mbox
+is maintained in HTML and plaintext formats.  See the included files for
+details.

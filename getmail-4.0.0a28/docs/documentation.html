@@ -21,6 +21,7 @@
 </p>
 <p class="about">
     getmail is Copyright &copy; 1998-2004 Charles Cazabon.
+    &lt;getmail @ discworld.dyndns.org&gt;
 </p>
 <p class="about">
     getmail is licensed under the
@@ -46,9 +47,15 @@
             <li><a href="documentation.html#installing-binary">Building a binary package from the source</a></li>
             </ul>
         </li>
+        <li><a href="documentation.html#mailing-lists">getmail mailing lists</a></li>
+        <li>
+            <ul>
+            <li><a href="documentation.html#mailing-list-users">getmail-users' mailing list</a></li>
+            <li><a href="documentation.html#mailing-list-announce">Announcements List</a></li>
+            </ul>
+        </li>
         </ul>
     </li>
-    <li><a href="configuration.html#title">getmail documentation</a></li>
     <li><a href="configuration.html#configuring">Configuring getmail</a></li>
     <li>
         <ul>
@@ -56,7 +63,11 @@
         </ul>
     </li>
     <li><a href="configuration.html#running">Running getmail</a></li>
-    <li><a href="troubleshooting.html#title">getmail documentation</a></li>
+    <li>
+        <ul>
+        <li><a href="configuration.html#running-mda">Using getmail as an MDA</a></li>
+        </ul>
+    </li>
     <li><a href="troubleshooting.html#troubleshooting">Troubleshooting</a></li>
     <li>
         <ul>
@@ -64,11 +75,12 @@
         <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
         </ul>
     </li>
-    <li><a href="faq.html#title">getmail documentation</a></li>
     <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
     <li>
         <ul>
         <li><a href="faq.html#faq-about">About getmail</a></li>
+        <li><a href="faq.html#faq-configuring">Configuring getmail</a></li>
+        <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
         <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
         </ul>
     </li>
@@ -178,18 +190,19 @@
     <li>
         the getmail rc file (configuration file) format has changed.  If you are
         upgrading from version 3, you will need to write a new configuration
-        file based on the contents of your old one.  The new file format closely
+        file based on the contents of your old one.  The new file format
         resembles the old in many ways.  Each account you retrieve mail
         from will require a separate rc file, but getmail can operate with
-        several rc files simultaneously.
+        multiple rc files simultaneously if you wish to retrieve mail from
+        multiple accounts.
     </li>
     <li>
         support for protocols other than POP3/SPDS.  IMAP support is now
         included, and other protocols can be added with relative ease.
     </li>
     <li>
-        support for SSL-encrypted protocols.  Both POP3 and IMAP feature SSL
-        support.
+        support for SSL-encrypted protocols.  The included  POP3 and IMAP
+        retriever classes are complemented by SSL-enabled counterparts.
     </li>
     <li>
         messages can be filtered or annotated by external programs like
@@ -199,7 +212,9 @@
     <li>
     	a flexible, extensible architecture.  Additional classes for handling
     	new mail protocols, filter types, or destination mailstores can be
-    	added without needing to modify the main script at all.
+    	added without needing to modify the main script at all.  Feel free
+    	to contact me if you need a custom retriever, filter, or destination
+    	class written, or if you want commercial support for getmail.
     </li>
 </ul>
 
@@ -216,6 +231,19 @@
     current version, or use getmail version 3, which requires only Python
     version 1.5.2 or later.
 </p>
+<p>
+	At the time of this writing, the current stable version of Python is
+	2.3.4.  You can download that version from the page at
+	<a href="http://www.python.org/2.3.4/">http://www.python.org/2.3.4/</a>
+	.  Binary packages are typically available for Windows and RPM-based
+	Linux systems, or building Python from source is typically as easy
+	as unpacking the source tarball, and running the following commands:
+</p>
+<pre class="example">
+./configure
+make
+make install
+</pre>
 
 <!--
 ********************************************************************************
@@ -224,7 +252,7 @@
 <h2 id="obtaining">Obtaining getmail</h2>
 <p>
     Download getmail 4 from the official website main page at
-    <a href="http://www.qcc.ca/~charlesc/software/getmail-4/">http://www.qcc.ca/~charlesc/software/getmail-4/</a>
+    <a href="http://www.qcc.ca/~charlesc/software/getmail-4/#download">http://www.qcc.ca/~charlesc/software/getmail-4/</a>
     .
 </p>
 
@@ -256,7 +284,9 @@ $ tar xf getmail-<span class="meta">version</span>.tar
     to build and install getmail directly.  Alternatively, you can build a 
     binary package (i.e., an RPM or similar managed software package) for your 
     system from the source package and install the resulting package, but the 
-    Python distutils support for this is spotty at present.
+    Python distutils support for this is 
+    <a href="http://docs.python.org/dist/postinstallation-script.html">spotty</a>
+    at present.
 </p>
 
 <h3 id="installing-source">Installing directly from the source</h3>
@@ -316,7 +346,7 @@ $ python setup.py install --home=~/
 <p>
 	These alternate installations allow you to install the software without
 	root privileges (say, by installing under
-	<span class="file">$HOME/<span>
+	<span class="file">$HOME/</span>
 	).
 </p>
 
@@ -406,33 +436,73 @@ $ python setup.py bdist --format=<span class="meta">package-format</span>
 	<span class="file">dist</span>
 	which can then be installed using the appropriate system-specific tool.
 	If you have problems with this process, please do not ask me for assistance;
-	ask your OS vendor.  The install-directory-from-source process above
-	is the only one I can support, and it should work on all platforms.
+	ask your OS vendor or 
+	<a href="news:comp.lang.python">the comp.lang.python newsgroup</a>.
+	The install-directory-from-source process above is the only one I can 
+	support, and it should work on all platforms.
 </p>
-
-
-
-
-
+<p>
+	You can discuss issues with building binary packages on the
+	<a href="#mailing-list-users">getmail users' mailing list</a>.
+</p>
 
 <!--
 ********************************************************************************
 -->
 
-<hr class="divider" />
+<h2 id="mailing-lists">getmail mailing lists</h2>
+<h3 id="mailing-list-users">getmail-users' mailing list</h3>
+<p>
+	A mailing list has been set up to discuss getmail.  Send a blank email to
+	&lt;getmail-subscribe @ discworld.dnsalias.org&gt; to subscribe to the list.
+</p>
+<p>
+	Similarly, to unsubscribe, send mail from the same address you subscribed
+	with to &lt;getmail-unsubscribe @ discworld.dnsalias.org&gt;.
+</p>
+<p>
+	There is a browsable archive of the list at 
+	<a href="http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2">
+		http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2
+	</a>.
+</p>
+<p>
+	The list is available for free getmail support from me and other users,
+	for discussions of bugs, configuration issues, documentation,
+	and other technical issues related to getmail.
+</p>
+<p>
+	Note:  you are expected to have read the 
+	<a href="documentation.html">documentation</a>
+	and 
+	<a href="faq.html">Frequently Asked Questions</a>,
+	and browsed/searched the
+	<a href="http://marc.theaimsgroup.com/?l=getmail&amp;r=1&amp;w=2">mailing list archives</a>
+	before posting a question to the mailing list.
+</p>
 
-<p class="copyright">
-    &copy; 2004 Charles Cazabon; all rights reserved.  May not be reproduced in
-    any form without the prior written consent of the author.
+<h3 id="mailing-list-announce">Announcements List</h3>
+<p>
+	If you only want to be notified of new releases of getmail, an announce-only 
+	list has been set up.  Send a blank email to
+	&lt;getmail-announce-subscribe @ discworld.dnsalias.org&gt; to subscribe to 
+	the list.  The list is very low-volume; you can expect a handful of messages
+	per year.
 </p>
 <p>
-    [up to <a href="./">Charles Cazabon's Writings</a>]
+	Similarly, to unsubscribe, send mail from the same address you subscribed
+	with to &lt;getmail-announce-unsubscribe @ discworld.dnsalias.org&gt;.
 </p>
 <p>
-    [up to <a href="/~charlesc/">Charles Cazabon's Pages</a>]
+	All announcements will be sent to both lists, so there is no need to
+	subscribe to the announcements list if you are on the discussion list.
 </p>
-<p>
-    <a href="http://validator.w3.org/check/referer"><img src="../valid-xhtml11.png" alt="Valid XHTML 1.1" height="31" width="88" /></a>
-</p>
+
+<!--
+********************************************************************************
+-->
+
+<!--#include virtual="footer.html"-->
+
 </body>
 </html>
