@@ -101,6 +101,10 @@
 		<li>
 			January 2003: <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=3DCAN-2002-1365">More buffer overflows in fetchmail let attackers run arbitrary code</a>.
 		</li>
+		<li>
+			October 2003: <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2003-0792">Anyone can cause fetchmail to crash by sending you a message</a>.
+			Other problems are <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2003-0790">here</a>, and <a href="http://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=fetchmail">I might have missed some</a>.
+		</li>
 	</ul>
 	<p>I've given up even trying to stay abreast of the various security holes in fetchmail.</p>
 	<p>
@@ -239,6 +243,19 @@
 	<p>
 		The account configuration in question contains <a href="docs.html#directive-local"><span class="sample">local</span></a>
 		directives, but you haven't told getmail how to determine the original envelope recipient address of the message.
+		To use multidrop mode, you must either enable <a href="docs.html#directive-use-*env"><span class="sample">use_*env</span></a>
+		(if your mailhost supports it) or tell getmail which header field the envelope recipient address is recorded in by the
+		mailhost's MTA using the <a href="docs.html#directive-envelope-recipient"><span class="sample">envelope_recipient</span></a>
+		directive.
+	</p>
+
+	<h4 id="error-message-no-matching-headers">
+		<a href="#error-messages">getmail complains about &quot;<span class="error">Configuration error (no matching header fields (something))</span>&quot;.
+		What's wrong?</a>
+	</h4>
+	<p>
+		You've used the <a href="docs.html#directive-envelope-recipient"><span class="sample">envelope_recipient</span></a>
+		directive to enable domain mailbox operation, but a retrieved message didn't contain the header field you specified.
 		To use multidrop mode, you must either enable <a href="docs.html#directive-use-*env"><span class="sample">use_*env</span></a>
 		(if your mailhost supports it) or tell getmail which header field the envelope recipient address is recorded in by the
 		mailhost's MTA using the <a href="docs.html#directive-envelope-recipient"><span class="sample">envelope_recipient</span></a>
@@ -424,6 +441,13 @@ password = mypassword
 		Use your system's cron utility to run getmail periodically if you wish to have 
 		mail retrieved automatically at intervals.  This is precisely what cron is 
 		designed to do; there's no need to add special code to getmail to do this.
+	</p>
+	<p>
+		Keep in mind that cron usually runs user cron jobs in a simpler environment
+		than the user has in a login shell.  In particular, $PATH is frequently much 
+		shorter.  If your getmail shell script wrapper has `which python` or similar
+		in it, you might need to explicitly set $PATH or change the wrapper to point
+		explicitly to the Python interpreter.
 	</p>
 
 	<h4 id="how-tmda"><a href="#how">How do I use TMDA with getmail?</a></h4>

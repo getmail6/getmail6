@@ -63,6 +63,8 @@ Why did you write getmail? Why not just use fetchmail?
        configuration. See this advisory for details.
      * January 2003: More buffer overflows in fetchmail let attackers run
        arbitrary code.
+     * October 2003: Anyone can cause fetchmail to crash by sending you a
+       message. Other problems are here, and I might have missed some.
 
    I've  given  up  even  trying  to stay abreast of the various security
    holes in fetchmail.
@@ -182,6 +184,16 @@ wrong?
    either  enable use_*env (if your mailhost supports it) or tell getmail
    which  header  field  the envelope recipient address is recorded in by
    the mailhost's MTA using the envelope_recipient directive.
+
+getmail complains about "Configuration error (no matching header fields
+(something))". What's wrong?
+
+   You've  used the envelope_recipient directive to enable domain mailbox
+   operation, but a retrieved message didn't contain the header field you
+   specified.  To use multidrop mode, you must either enable use_*env (if
+   your  mailhost  supports  it)  or  tell getmail which header field the
+   envelope  recipient address is recorded in by the mailhost's MTA using
+   the envelope_recipient directive.
 
 getmail complains about "Delivery error (refuse to deliver to commands as
 root)". What's wrong?
@@ -340,6 +352,13 @@ How do I run getmail in "daemon" mode?
    to  have  mail retrieved automatically at intervals. This is precisely
    what  cron  is  designed to do; there's no need to add special code to
    getmail to do this.
+
+   Keep  in  mind  that  cron  usually  runs  user cron jobs in a simpler
+   environment  than  the user has in a login shell. In particular, $PATH
+   is  frequently  much shorter. If your getmail shell script wrapper has
+   `which  python`  or  similar  in  it, you might need to explicitly set
+   $PATH  or  change  the  wrapper  to  point  explicitly  to  the Python
+   interpreter.
 
 How do I use TMDA with getmail?
 

@@ -1,6 +1,14 @@
 getmail changes since version 2.x:
 ----------------------------------
 
+Version 3.2.2
+23 March 2004
+
+  -Add an error handler for the case where a POP3 server returns a message that 
+  isn't even close to valid 822 format, particularly one where the first line
+  in the message header is a continuation line (starts with whitespace).
+  Thanks to Alexandre Pauziès for the report.
+  
 Version 3.2.1
 13 October 2003
 

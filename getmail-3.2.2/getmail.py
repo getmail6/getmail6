@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
 
-__version__ = '3.2.1'
+__version__ = '3.2.2'
 __author__ = 'Charles Cazabon <getmail @ discworld.dyndns.org>'
 
 #
@@ -56,7 +56,7 @@ if sys.hexversion < 0x01060000:
     NEED_REMOVE_LEADING_DOTS = 1
 else:
     NEED_REMOVE_LEADING_DOTS = 0
-  
+
 #
 # Classes
 #
@@ -274,6 +274,9 @@ class getmail:
         else:
             try:
                 env_sender = address_no_brackets (mess.get_specific_header ('return-path', 1))
+            except getmailDataFormatException, txt:
+                self.logfunc (ERROR, 'message not in valid 822/2822 format, cannot determine envelope sender (%s)\n' % txt)
+                env_sender = ''
             except getmailConfigException, txt:
                 self.logfunc (DEBUG, 'no Return-Path: header in message (%s)\n' % txt)
                 env_sender = ''
@@ -510,7 +513,7 @@ class getmail:
 
             except StandardError, txt:
                 # DEBUG
-                raise   
+                raise
                 #    raise getmailDeliveryException, 'failure filtering message through command "%s" (%s)' % (command, txt)
 
         finally:
