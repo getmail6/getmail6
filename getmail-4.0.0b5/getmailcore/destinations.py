@@ -348,13 +348,12 @@ class MDA_qmaillocal(DeliverySkeleton):
         self._child_exited = False
         self._child_pid = None
         self._child_status = None
-        try:
-            msginfo = {
-                'sender' : msg.sender,
-                'local' : '@'.join(msg.recipient.lower().split('@')[:-1])
-            }
-        except AttributeError, o:
+        if msg.recipient == None:
             raise getmailConfigurationError('MDA_qmaillocal destination requires a message source that preserves the message envelope (%s)' % o)
+        msginfo = {
+            'sender' : msg.sender,
+            'local' : '@'.join(msg.recipient.lower().split('@')[:-1])
+        }
 
         self.log.debug('recipient: extracted local-part "%s"\n' % msginfo['local'])
         xlate_from, xlate_to = self.conf['localpart_translate']
@@ -486,7 +485,7 @@ class MDA_external(DeliverySkeleton):
 
     def __str__(self):
         self.log.trace()
-        return 'MDA_external %s %s' % (self.conf['command'], self.conf['arguments'])
+        return 'MDA_external %s (%s)' % (self.conf['command'], self._confstring())
 
     def showconf(self):
         self.log.info('MDA_external(%s)\n' % self._confstring())
@@ -538,7 +537,7 @@ class MDA_external(DeliverySkeleton):
         self._child_status = None
         msginfo = {}
         msginfo['sender'] = msg.sender
-        if msg.recipient is not None:
+        if msg.recipient != None:
             msginfo['recipient'] = msg.recipient
             msginfo['domain'] = msg.recipient.lower().split('@')[-1]
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
@@ -687,7 +686,7 @@ class MultiSorter(DeliverySkeleton):
 
     def __str__(self):
         self.log.trace()
-        return 'MultiSorter %s' % self._confstring()
+        return 'MultiSorter (%s)' % self._confstring()
 
     def showconf(self):
         self.log.info('MultiSorter(%s)\n' % self._confstring())
@@ -704,19 +703,18 @@ class MultiSorter(DeliverySkeleton):
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
         matched = []
-        try:
-            for (pattern, dest) in self.targets:
-                self.log.debug('checking recipient %s against pattern %s\n' % (msg.recipient, pattern.pattern))
-                if pattern.search(msg.recipient):
-                    self.log.debug('recipient %s matched target %s\n' % (msg.recipient, dest))
-                    dest.deliver_message(msg, delivered_to, received)
-                    matched.append(str(dest))
-            if not matched:
-                if self.targets:
-                    self.log.debug('recipient %s not matched; using default %s\n' % (msg.recipient, self.default))
-                else:
-                    self.log.debug('using default %s\n' % self.default)
-                return 'MultiSorter (default %s)' % self.default.deliver_message(msg, delivered_to, received)
-            return 'MultiSorter (%s)' % matched
-        except AttributeError, o:
+        if msg.recipient == None and self.targets:
             raise getmailConfigurationError('MultiSorter recipient matching requires a retriever (message source) that preserves the message envelope (%s)' % o)
+        for (pattern, dest) in self.targets:
+            self.log.debug('checking recipient %s against pattern %s\n' % (msg.recipient, pattern.pattern))
+            if pattern.search(msg.recipient):
+                self.log.debug('recipient %s matched target %s\n' % (msg.recipient, dest))
+                dest.deliver_message(msg, delivered_to, received)
+                matched.append(str(dest))
+        if not matched:
+            if self.targets:
+                self.log.debug('recipient %s not matched; using default %s\n' % (msg.recipient, self.default))
+            else:
+                self.log.debug('using default %s\n' % self.default)
+            return 'MultiSorter (default %s)' % self.default.deliver_message(msg, delivered_to, received)
+        return 'MultiSorter (%s)' % matched

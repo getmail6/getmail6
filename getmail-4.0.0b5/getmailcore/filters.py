@@ -170,7 +170,7 @@ class Filter_external(FilterSkeleton):
 
     def __str__(self):
         self.log.trace()
-        return 'Filter_external %s %s' % (self.conf['command'], self.conf['arguments'])
+        return 'Filter_external %s (%s)' % (self.conf['command'], self._confstring())
 
     def showconf(self):
         self.log.trace()
@@ -223,7 +223,7 @@ class Filter_external(FilterSkeleton):
         self._child_status = None
         msginfo = {}
         msginfo['sender'] = msg.sender
-        if msg.recipient is not None:
+        if msg.recipient != None:
             msginfo['recipient'] = msg.recipient
             msginfo['domain'] = msg.recipient.lower().split('@')[-1]
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
@@ -281,7 +281,7 @@ class Filter_classifier(Filter_external):
     '''
     def __str__(self):
         self.log.trace()
-        return 'Filter_classifier %s %s' % (self.conf['command'], self.conf['arguments'])
+        return 'Filter_classifier %s (%s)' % (self.conf['command'], self._confstring())
 
     def showconf(self):
         self.log.trace()
@@ -289,9 +289,12 @@ class Filter_classifier(Filter_external):
 
     def _filter_message(self, msg):
         self.log.trace()
+        self._child_exited = False
+        self._child_pid = None
+        self._child_status = None
         msginfo = {}
         msginfo['sender'] = msg.sender
-        if msg.recipient is not None:
+        if msg.recipient != None:
             msginfo['recipient'] = msg.recipient
             msginfo['domain'] = msg.recipient.lower().split('@')[-1]
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
@@ -301,8 +304,7 @@ class Filter_classifier(Filter_external):
         if os.geteuid() == 0 and not self.conf['allow_root_commands'] and self.conf['user'] == None:
             raise getmailConfigurationError('refuse to invoke external commands as root by default')
 
-        orighandler = signal.getsignal(signal.SIGCHLD)
-        signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        signal.signal(signal.SIGCHLD, self._child_handler)
 
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -314,16 +316,15 @@ class Filter_classifier(Filter_external):
         self.log.debug('spawned child %d\n' % childpid)
 
         # Parent
-        try:
-            pid, r = os.waitpid(childpid, 0)
-        except OSError, o:
-            if o.errno == errno.ECHILD:
-                # Child already exited, reap it
-                pid, r = os.wait()
-            else:
-                raise getmailDeliveryError('failed waiting for command %s %d (%s)' % (self.conf['command'], childpid, o))
+        while not self._child_exited:
+            self.log.trace('waiting for child %d' % childpid)
+            time.sleep(1.0)
+            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)' % (self.conf['command'], childpid, o))
 
-        signal.signal(signal.SIGCHLD, orighandler)
+        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+        pid = self._child_pid
+        r = self._child_status
+
         stdout.seek(0)
         stderr.seek(0)
         err = stderr.read().strip()

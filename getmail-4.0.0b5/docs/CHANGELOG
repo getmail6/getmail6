@@ -1,3 +1,14 @@
+Version 4.0.0b5
+15 July 2004
+
+  -apply the child fix from b3 to Filter_classifier; I missed this in the
+  update.  Thanks: Dave.
+  -cosmetic fix for output describing filters and destination objects.  
+  Thanks: Dave.
+  -catch configuration error of non-multidrop retriever with multidrop-only
+  destination.  This broke when I cleaned up the message attribute interface
+  in alpha 29.  Thanks: Dominik Kacprzak.
+
 Version 4.0.0b4
 14 July 2004
 
