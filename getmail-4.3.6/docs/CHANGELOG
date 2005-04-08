@@ -1,3 +1,9 @@
+Version 4.3.6
+8 April 2005
+
+  -broke BrokenUIDLPOP3Retriever when I added the forget_deleted parameter
+  to the retrievers base class; now fixed.  Thanks: Georg Neis.
+
 Version 4.3.5
 3 April 2005
 
