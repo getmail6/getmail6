@@ -226,6 +226,12 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
     def initialize(self):
         self.log.trace()
         self.conf['path'] = expand_user_vars(self.conf['path'])
+        if not os.path.exists(self.conf['path']):
+            raise getmailConfigurationError('mboxrd does not exist (%s)'
+                % self.conf['path'])
+        if not os.path.isfile(self.conf['path']):
+            raise getmailConfigurationError('not an mboxrd file (%s)'
+                % self.conf['path'])
 
     def __str__(self):
         self.log.trace()

@@ -12,6 +12,123 @@ getmail documentation
    (only). If you wish to obtain a license to distribute getmail under
    other terms, please contact me directly.
    
+Table of Contents
+
+     * getmail documentation
+     *
+          + getmail documentation
+          +
+               o Features
+               o Differences from previous versions
+               o Requirements
+               o Obtaining getmail
+               o Installing getmail
+               o getmail mailing lists
+     * getmail configuration
+     *
+          + Configuring getmail
+          +
+               o Creating a getmail rc file
+          + Running getmail
+          +
+               o Commandline options
+               o Using getmail as an MDA
+     * getmail troubleshooting
+     *
+          + Troubleshooting problems
+          +
+               o Error messages
+               o Warning messages
+               o Unexpected Behaviour
+     * getmail frequently-asked questions (FAQs)
+     *
+          + Frequently-Asked Questions (FAQs)
+          +
+               o About getmail
+               o
+                    # What is getmail?
+                    # What platforms/machines does getmail run on?
+                    #
+                         @ Does getmail run on MS Windows?
+                         @ Does getmail run on Macintosh systems?
+                         @ Does getmail require Unix/Linux?
+                    # How can I get support for getmail?
+                    # I think I found a bug! How do I report it?
+                    # I have a neat idea for random feature "foo" ... how
+                      do I get you to implement it?
+                    # Why won't you implement random feature "foo"?
+                    # Does getmail support virus scanning of retrieved
+                      messages?
+                    # Does getmail support spam filtering of retrieved
+                      messages?
+                    # Does getmail support SSL?
+                    # Does getmail rewrite mail headers when it retrieves
+                      mail?
+                    # Can I upgrade from getmail 3 to getmail 4? What
+                      about my "oldmail" files?
+                    # Why did you write getmail? Why not just use
+                      fetchmail?
+               o Configuring getmail
+               o
+                    # What is a "domain mailbox"?
+                    # Do I have to run sendmail or another MTA to use
+                      getmail?
+                    # Will getmail deliver mail as root?
+                    # What's a maildir?
+                    # What's "mboxrd" format?
+                    # What's this "envelope sender" and "envelope
+                      recipient" stuff?
+                    #
+                         @ Message header vs. message envelope
+                         @ Receiving messages without your address in the
+                           message header
+                         @ Responsibility for recording the message
+                           envelope
+                         @ How this relates to domain or multidrop
+                           mailboxes
+                    # This rc stuff seems complicated. Does it have to
+                      be?
+               o How do I ...
+               o
+                    # How do I retrieve mail from multiple accounts?
+                    # How do I stop getmail adding a Delivered-To: header
+                      to messages?
+                    # How do I stop getmail adding a Received: header to
+                      messages?
+                    # How do I make getmail deliver messages by
+                      re-injecting with SMTP?
+                    # How do I make getmail deliver messages to an mh
+                      folder?
+                    # How do I run getmail in "daemon" mode?
+                    # How do I make getmail stop after retrieving X
+                      messages so that the server actually flushes
+                      deleted messages?
+                    # How do I make getmail retrieve mail from Hotmail?
+                    # I'm using getmail. How do I make it ...
+                    #
+                         @ I'm running getmail from cron. How do I
+                           temporarily stop it?
+                         @ How do I stop multiple instances of getmail
+                           from running at the same time?
+               o Using getmail with other software
+               o
+                    # How do I use SpamAssassin with getmail?
+                    # How do I use ClamAV with getmail?
+                    #
+                         @ Getting prettier output from ClamAV
+                    # How do I use F-Prot with getmail?
+                    # How do I use procmail with getmail?
+                    # How do I use maildrop with getmail?
+                    # How do I use TMDA with getmail?
+               o I think I found this bug in getmail ...
+               o
+                    # FutureWarning: %u/%o/%x/%X of negative int will
+                      return a signed string in Python 2.4 and up
+                    # DeprecationWarning: 'strict' argument is deprecated
+                      (and ignored)
+                    # AttributeError: 'module' object has no attribute
+                      'fsync'
+       
 Frequently-Asked Questions (FAQs)
 
    The following questions about getmail are answered more-or-less
@@ -224,6 +341,22 @@ Why did you write getmail? Why not just use fetchmail?
    
      The punchline is that fetchmail sucks, even if it does have
      giddily-engineered whizbang configurator apps.
+     
+   As an example, Dan Bernstein, author of qmail and other software
+   packages, once noted to the qmail list:
+   
+     Last night, root@xxxxxxxxxxxxxxxxx reinjected thirty old messages
+     from various authors to qmail@xxxxxxxxxxxxxx
+     
+     This sort of idiocy happens much more often than most subscribers
+     know, thanks to a broken piece of software by Eric Raymond called
+     fetchmail. Fortunately, qmail and ezmlm have loop-prevention
+     mechanisms that stop these messages before they are distributed to
+     subscribers. The messages end up bouncing to the wrong place,
+     thanks to another fetchmail bug, but at least the mailing list is
+     protected.
+     
+     --D. J. Bernstein
      
    The maintainer also ignored dozens of complaints about fetchmail's
    behaviour, stating (by fiat) that fetchmail was bug-free and had
