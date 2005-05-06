@@ -465,6 +465,12 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self._getmsglist()
             self.log.debug('msgids: %s' % self.msgids + os.linesep)
             self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
+            # Remove messages from state file that are no longer in mailbox
+            for msgid in self.oldmail.keys():
+                if not self.msgsizes.has_key(msgid):
+                    self.log.debug('removing vanished message id %s' % msgid 
+                        + os.linesep)
+                    del self.oldmail[msgid]
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
 
@@ -480,7 +486,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
     def quit(self):
         self.log.trace()
         self.write_oldmailfile()
-        if not hasattr(self, 'conn'):
+        if not getattr(self, 'conn', None):
             return
         try:
             self.conn.quit()
@@ -733,6 +739,12 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self._getmsglist()
             self.log.debug('msgids: %s' % self.msgids + os.linesep)
             self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
+            # Remove messages from state file that are no longer in mailbox
+            for msgid in self.oldmail.keys():
+                if not self.msgsizes.has_key(msgid):
+                    self.log.debug('removing vanished message id %s' % msgid 
+                        + os.linesep)
+                    del self.oldmail[msgid]
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
 
@@ -746,7 +758,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def quit(self):
         self.log.trace()
         self.write_oldmailfile()
-        if not hasattr(self, 'conn'):
+        if not getattr(self, 'conn', None):
             return
         try:
             self.conn.close()

@@ -1,3 +1,10 @@
+Version 4.3.8
+6 May 2005
+
+  -change (again) handling of deleted messages vs. connection that dies.
+  Inability to send QUIT to POP3 server should be less problematic now.
+  -improve housekeeping of old message state file.  Thanks: Thomas Schwinge.
+
 Version 4.3.7
 1 May 2005
 
