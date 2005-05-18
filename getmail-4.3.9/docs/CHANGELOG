@@ -1,3 +1,12 @@
+Version 4.3.9
+18 May 2005
+
+  -for multidrop retrievers, change the way the envelope recipient header
+  field is parsed, to prevent odd values from being interpreted as multiple
+  addresses when they look like an 822-style address group.  Thanks: "aal".
+  -try to avoid parsing message bodies, in case they're corrupt or invalid.
+  Thanks: Michael Gold.
+
 Version 4.3.8
 6 May 2005
 

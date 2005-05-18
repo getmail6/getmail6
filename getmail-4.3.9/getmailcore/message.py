@@ -79,27 +79,27 @@ class Message(object):
         self.received_from = None
         self.received_with = None
         self.__raw = None
-
+        parser = email.Parser.HeaderParser(strict=False)
+        
         # Message is instantiated with fromlines for POP3, fromstring for
         # IMAP (both of which can be badly-corrupted or invalid, i.e. spam,
         # MS worms, etc).  It's instantiated with fromfile for the output
         # of filters, etc, which should be saner.
         if fromlines:
             try:
-                self.__msg = email.message_from_string(os.linesep.join(
-                    fromlines), strict=False)
+                self.__msg = parser.parsestr(os.linesep.join(fromlines))
             except email.Errors.MessageError, o:
                 self.__msg = corrupt_message(o, fromlines=fromlines)
             self.__raw = os.linesep.join(fromlines)
         elif fromstring:
             try:
-                self.__msg = email.message_from_string(fromstring, strict=False)
+                self.__msg = parser.parsestr(fromstring)
             except email.Errors.MessageError, o:
                 self.__msg = corrupt_message(o, fromstring=fromstring)
             self.__raw = fromstring
         elif fromfile:
             try:
-                self.__msg = email.message_from_file(fromfile, strict=False)
+                self.__msg = parser.parse(fromfile)
             except email.Errors.MessageError, o:
                 # Shouldn't happen
                 self.__msg = corrupt_message(o, fromstring=fromfile.read())

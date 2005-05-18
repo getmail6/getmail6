@@ -445,8 +445,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
         self.log.trace()
         msgnum = self._getmsgnumbyid(msgid)
         response, headerlist, octets = self.conn.top(msgnum, 0)
-        parser = email.Parser.Parser(strict=False)
-        return parser.parsestr(os.linesep.join(headerlist), headersonly=True)
+        parser = email.Parser.HeaderParser(strict=False)
+        return parser.parsestr(os.linesep.join(headerlist))
 
     def initialize(self):
         self.log.trace()
@@ -546,12 +546,7 @@ class MultidropPOP3RetrieverBase(POP3RetrieverBase):
         except (KeyError, IndexError), unused:
             raise getmailConfigurationError('envelope_recipient specified'
                 ' header missing (%s)' % self.conf['envelope_recipient'])
-        msg.recipient = [address_no_brackets(address) for (name, address)
-            in email.Utils.getaddresses([line]) if address]
-        if len(msg.recipient) != 1:
-            raise getmailConfigurationError('extracted <> 1 envelope recipient'
-                ' address (%s)' % msg.recipient)
-        msg.recipient = msg.recipient[0]
+        msg.recipient = address_no_brackets(line.strip())
         return msg
 
 #######################################
@@ -818,10 +813,5 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         except (KeyError, IndexError), unused:
             raise getmailConfigurationError('envelope_recipient specified'
                 ' header missing (%s)' % self.conf['envelope_recipient'])
-        msg.recipient = [address_no_brackets(address) for (name, address)
-            in email.Utils.getaddresses([line]) if address]
-        if len(msg.recipient) != 1:
-            raise getmailConfigurationError('extracted <> 1 envelope recipient'
-                ' address (%s)' % msg.recipient)
-        msg.recipient = msg.recipient[0]
+        msg.recipient = address_no_brackets(line.strip())
         return msg
