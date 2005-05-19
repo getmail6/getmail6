@@ -13,6 +13,7 @@ import cStringIO
 import email
 import email.Errors
 import email.Utils
+import email.Parser
 from email.Generator import Generator
 
 from exceptions import *

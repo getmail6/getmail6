@@ -179,10 +179,14 @@ def go(configs):
                 except getmailDeliveryError, o:
                     log.error('Delivery error (%s)\n' % o)
                     info += ', delivery error (%s)' % o
+                    if options['logfile']:
+                        options['logfile'].write('Delivery error (%s)' % o)
 
                 except getmailFilterError, o:
                     log.error('Filter error (%s)\n' % o)
                     info += ', filter error (%s)' % o
+                    if options['logfile']:
+                        options['logfile'].write('Filter error (%s)' % o)
 
                 if (retrieve or delete or oplevel > 1):
                     log.info('  %s\n' % info)
@@ -211,22 +215,30 @@ def go(configs):
             if type(o) == tuple and len(o) > 1:
                 o = o[1]
             log.error('%s: timeout (%s)\n' % (configfile, o))
+            if options['logfile']:
+                options['logfile'].write('timeout error (%s)' % o)
 
         except socket.gaierror, o:
             retriever.write_oldmailfile(forget_deleted=False)
             if type(o) == tuple and len(o) > 1:
                 o = o[1]
             log.error('%s: error resolving name (%s)\n' % (configfile, o))
+            if options['logfile']:
+                options['logfile'].write('gaierror error (%s)' % o)
 
         except socket.error, o:
             retriever.write_oldmailfile(forget_deleted=False)
             if type(o) == tuple and len(o) > 1:
                 o = o[1]
             log.error('%s: socket error (%s)\n' % (configfile, o))
+            if options['logfile']:
+                options['logfile'].write('socket error (%s)' % o)
 
         except getmailOperationError, o:
             retriever.write_oldmailfile(forget_deleted=False)
             log.error('%s: operation error (%s)\n' % (configfile, o))
+            if options['logfile']:
+                options['logfile'].write('getmailOperationError error (%s)' % o)
 
         summary.append( (retriever, msgs_retrieved, msgs_skipped) )
 
@@ -237,6 +249,8 @@ def go(configs):
             retriever.quit()
         except getmailOperationError, o:
             log.debug('%s: operation error during quit (%s)\n' % (configfile, o))
+            if options['logfile']:
+                options['logfile'].write('%s: operation error during quit (%s)' % (configfile, o))
 
     if sum([i for (unused, i, unused) in summary]) and oplevel > 1:
         log.info('Summary:\n')
