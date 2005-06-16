@@ -301,12 +301,15 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
 #######################################
 def mbox_from_escape(s):
     '''Escape spaces, tabs, and newlines in the envelope sender address.'''
-    return ''.join([(c in (' ', '\t', '\n')) and '-' or c for c in s])
+    return ''.join([(c in (' ', '\t', '\n')) and '-' or c for c in s]) or '<>'
 
 #######################################
 def address_no_brackets(addr):
     '''Strip surrounding <> on an email address, if present.'''
-    return (addr.startswith('<') and addr.endswith('>')) and addr[1:-1] or addr
+    if addr.startswith('<') and addr.endswith('>'):
+        return addr[1:-1]
+    else:
+        return addr
 
 #######################################
 def eval_bool(s):

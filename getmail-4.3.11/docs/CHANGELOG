@@ -1,3 +1,9 @@
+Version 4.3.11
+16 June 2005
+
+  -getmail could previously record an envelope return path header of "<<>>".
+  Fixed.  Thanks: Fredrik Steen.
+
 Version 4.3.10
 19 May 2005
 
