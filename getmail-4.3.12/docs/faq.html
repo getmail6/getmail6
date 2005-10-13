@@ -170,7 +170,6 @@
             <li>
                 <ul>
                 <li><a href="faq.html#faq-notabug-futurewarning">FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up</a></li>
-                <li><a href="faq.html#faq-notabug-deprecationwarning-strict">DeprecationWarning: 'strict' argument is deprecated (and ignored)</a></li>
                 <li><a href="faq.html#faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</a></li>
                 </ul>
             </li>
@@ -607,8 +606,15 @@
 </p>
 <p>
     I've given up even trying to stay abreast of the various security holes in
-    fetchmail.
+    fetchmail, but others have noted continuing problems, including:
 </p>
+<ul>
+    <li>
+        <a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2005-2335">another
+        arbitrary code execution vulnerability</a>
+        announced on 21 July 2005.
+    </li>
+</ul>
 <p>
     But don't just take my word for it; see
     <a href="http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724">
@@ -1368,7 +1374,7 @@ path = /usr/local/bin/f-prot-wrapper.sh
 </pre>
 <p>
     The wrapper script
-    <span class="file">f-prot-wrapper.sh</span></file>
+    <span class="file">f-prot-wrapper.sh</span>
     is a small shellscript by Ali Onur Cinar, and 
     <a href="http://www.zdo.com/articles/res/f-prot-wrapper.sh">can be downloaded from his website</a>.
 </p>
@@ -1493,31 +1499,6 @@ type = Filter_TMDA
     module, not in getmail.  Feel free to report it to the Python team if the
     most recent release of Python hasn't fixed it.  I reported it in June, 2004.
 </p>
-
-<h3 id="faq-notabug-deprecationwarning-strict">DeprecationWarning: 'strict' argument is deprecated (and ignored)</h3>
-<p>
-    Various people have reported this &quot;bug&quot; in getmail, where they
-    see the following warning when getmail is run with Python version 2.4:
-</p>
-<pre class="example">
-/usr/local/lib/python2.4/email/__init__.py:43: DeprecationWarning: 'strict' argument is deprecated (and ignored)
-  return Parser(*args, **kws).parsestr(s)
-/usr/local/lib/python2.4/email/__init__.py:52: DeprecationWarning: 'strict' argument is deprecated (and ignored)
-  return Parser(*args, **kws).parse(fp)
-</pre>
-<p>
-    This is a warning (not an error).  This likely should have been added in
-    Python as a FutureWarning before it became a DeprecationWarning.  In any
-    case, getmail still needs to unset the strict option with earlier versions
-    of Python.  If you see this warning, and would like to disable it,
-    you can add the option
-    <span class="file"></span>
-    to the invocation of Python by changing the first line of the getmail
-    script to be:
-</p>
-<pre class="example">
- #!/path/to/python2.4 -Wignore:.:DeprecationWarning:.:0
-</pre>
 
 <h3 id="faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</h3>
 <p>

@@ -80,7 +80,7 @@ class Message(object):
         self.received_from = None
         self.received_with = None
         self.__raw = None
-        parser = email.Parser.HeaderParser(strict=False)
+        parser = email.Parser.HeaderParser()
         
         # Message is instantiated with fromlines for POP3, fromstring for
         # IMAP (both of which can be badly-corrupted or invalid, i.e. spam,

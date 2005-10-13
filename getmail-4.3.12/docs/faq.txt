@@ -295,8 +295,11 @@ Why did you write getmail? Why not just use fetchmail?
    details
    
    I've given up even trying to stay abreast of the various security
-   holes in fetchmail.
-   
+   holes in fetchmail, but others have noted continuing problems,
+   including:
+     * another arbitrary code execution vulnerability announced on 21
+       July 2005.
+       
    But don't just take my word for it; see
    http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724 and
    http://esr.1accesshost.com/.
@@ -883,25 +886,6 @@ will return a signed string in Python 2.4 and up
    getmail. Feel free to report it to the Python team if the most recent
    release of Python hasn't fixed it. I reported it in June, 2004.
    
-DeprecationWarning: 'strict' argument is deprecated (and ignored)
-
-   Various people have reported this "bug" in getmail, where they see the
-   following warning when getmail is run with Python version 2.4:
-/usr/local/lib/python2.4/email/__init__.py:43: DeprecationWarning: 'strict' arg
-ument is deprecated (and ignored)
-  return Parser(*args, **kws).parsestr(s)
-/usr/local/lib/python2.4/email/__init__.py:52: DeprecationWarning: 'strict' arg
-ument is deprecated (and ignored)
-  return Parser(*args, **kws).parse(fp)
-
-   This is a warning (not an error). This likely should have been added
-   in Python as a FutureWarning before it became a DeprecationWarning. In
-   any case, getmail still needs to unset the strict option with earlier
-   versions of Python. If you see this warning, and would like to disable
-   it, you can add the option to the invocation of Python by changing the
-   first line of the getmail script to be:
- #!/path/to/python2.4 -Wignore:.:DeprecationWarning:.:0
-
 AttributeError: 'module' object has no attribute 'fsync'
 
    Various people have reported this "bug" in getmail -- it's actually a

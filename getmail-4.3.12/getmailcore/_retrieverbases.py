@@ -445,7 +445,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         self.log.trace()
         msgnum = self._getmsgnumbyid(msgid)
         response, headerlist, octets = self.conn.top(msgnum, 0)
-        parser = email.Parser.HeaderParser(strict=False)
+        parser = email.Parser.HeaderParser()
         return parser.parsestr(os.linesep.join(headerlist))
 
     def initialize(self):

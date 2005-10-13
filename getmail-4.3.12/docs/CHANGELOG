@@ -1,3 +1,11 @@
+Version 4.3.12
+13 October 2005
+
+  -remove deprecated "strict" argument from message/header parsing calls.
+  While it was possible to suppress the warning that resulted when using
+  Python 2.4,  it appears many getmail users couldn't bother to do that 
+  and complained to me instead.
+
 Version 4.3.11
 16 June 2005
 
