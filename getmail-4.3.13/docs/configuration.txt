@@ -47,6 +47,7 @@ Table of Contents
                          @ BrokenUIDLPOP3Retriever
                          @ SimpleIMAPRetriever
                          @ SimplePOP3SSLRetriever
+                         @ BrokenUIDLPOP3SSLRetriever
                          @ SimpleIMAPSSLRetriever
                          @ MultidropPOP3Retriever
                          @ MultidropPOP3SSLRetriever
@@ -254,6 +255,8 @@ Creating the [retriever] section
      * SimpleIMAPRetriever -- for single-user IMAP mail accounts.
      * SimplePOP3SSLRetriever -- same as SimplePOP3Retriever, but uses
        SSL encryption.
+     * BrokenUIDLPOP3SSLRetriever -- same as BrokenUIDLPOP3Retriever, but
+       uses SSL encryption.
      * SimpleIMAPSSLRetriever -- same as SimpleIMAPRetriever, but uses
        SSL encryption.
      * MultidropPOP3Retriever -- for domain mailbox (multidrop) POP3 mail
@@ -394,6 +397,14 @@ SimplePOP3SSLRetriever
      * certfile (string) -- use the specified PEM-formatted certificate
        file in the SSL negotiation. Note that no certificate or key
        validation is done.
+       
+BrokenUIDLPOP3SSLRetriever
+
+   The BrokenUIDLPOP3SSLRetriever class takes the common retriever
+   parameters above, plus the following optional parameters:
+     * use_apop (boolean) -- see SimplePOP3Retriever for definition.
+     * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
+     * certfile (string) -- see SimplePOP3SSLRetriever for definition.
        
 SimpleIMAPSSLRetriever
 

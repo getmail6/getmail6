@@ -78,6 +78,7 @@
                     <li><a href="configuration.html#retriever-brokenpop3">BrokenUIDLPOP3Retriever</a></li>
                     <li><a href="configuration.html#retriever-simpleimap">SimpleIMAPRetriever</a></li>
                     <li><a href="configuration.html#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a></li>
+                    <li><a href="configuration.html#retriever-brokenpop3ssl">BrokenUIDLPOP3SSLRetriever</a></li>
                     <li><a href="configuration.html#retriever-simpleimapssl">SimpleIMAPSSLRetriever</a></li>
                     <li><a href="configuration.html#retriever-multidroppop3">MultidropPOP3Retriever</a></li>
                     <li><a href="configuration.html#retriever-multidroppop3ssl">MultidropPOP3SSLRetriever</a></li>
@@ -409,6 +410,10 @@ parameter = (
         &mdash; same as SimplePOP3Retriever, but uses SSL encryption.
     </li>
     <li>
+        <a href="#retriever-brokenpop3ssl">BrokenUIDLPOP3SSLRetriever</a>
+        &mdash; same as BrokenUIDLPOP3Retriever, but uses SSL encryption.
+    </li>
+    <li>
         <a href="#retriever-simpleimapssl">SimpleIMAPSSLRetriever</a>
         &mdash; same as SimpleIMAPRetriever, but uses SSL encryption.
     </li>
@@ -668,6 +673,36 @@ mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
         (<a href="#parameter-string">string</a>)
         &mdash; use the specified PEM-formatted certificate file in the SSL
         negotiation.  Note that no certificate or key validation is done.
+    </li>
+</ul>
+
+<h4 id="retriever-brokenpop3ssl">BrokenUIDLPOP3SSLRetriever</h4>
+<p class="note">
+    The BrokenUIDLPOP3SSLRetriever class takes the
+    <a href="#retriever-parameters">common retriever parameters</a>
+    above, plus the following optional parameters:
+</p>
+<ul>
+    <li>
+        use_apop
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; see
+        <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
+        for definition.
+    </li>
+    <li>
+        keyfile
+        (<a href="#parameter-string">string</a>)
+        &mdash; see
+        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        for definition.
+    </li>
+    <li>
+        certfile
+        (<a href="#parameter-string">string</a>)
+        &mdash; see
+        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        for definition.
     </li>
 </ul>
 

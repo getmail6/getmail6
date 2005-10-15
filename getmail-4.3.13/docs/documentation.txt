@@ -111,7 +111,8 @@ make install
    thousands of people who have downloaded getmail 4 from my website and
    from other archives), or may not implement the UIDL command at all,
    and limited support is available for such servers via the
-   BrokenUIDLPOP3Retriever retriever class.
+   BrokenUIDLPOP3Retriever and BrokenUIDLPOP3SSLRetriever retriever
+   classes.
    
 Obtaining getmail
 

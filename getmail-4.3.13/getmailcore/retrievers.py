@@ -6,6 +6,8 @@ Currently implemented:
 
   SimplePOP3Retriever
   SimplePOP3SSLRetriever
+  BrokenUIDLPOP3Retriever
+  BrokenUIDLPOP3SSLRetriever
   MultidropPOP3Retriever
   MultidropPOP3SSLRetriever
   MultidropSDPSRetriever
@@ -19,8 +21,9 @@ Currently implemented:
 
 __all__ = [
     'SimplePOP3Retriever',
-    'BrokenUIDLPOP3Retriever',
     'SimplePOP3SSLRetriever',
+    'BrokenUIDLPOP3Retriever',
+    'BrokenUIDLPOP3SSLRetriever',
     'MultidropPOP3Retriever',
     'MultidropPOP3SSLRetriever',
     'MultidropSDPSRetriever',
@@ -79,66 +82,6 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
             + os.linesep)
 
 #######################################
-class BrokenUIDLPOP3Retriever(POP3RetrieverBase, POP3initMixIn):
-    '''Retriever class for single-user POP3 mailboxes on servers that do not
-    properly assign unique IDs to messages.  Since with these broken servers
-    we cannot rely on UIDL, we have to use message numbers, which are unique
-    within a POP3 session, but which change across sessions.  This class
-    therefore can not be used to leave old mail on the server and download
-    only new mail.
-    '''
-    _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
-
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-    )
-    received_from = None
-    received_with = 'POP3'
-    received_by = localhostname()
-
-    def _read_oldmailfile(self):
-        '''Force list of old messages to be empty by making this a no-op, so
-        duplicated IDs are always treated as new messages.'''
-        self.log.trace()
-
-    def write_oldmailfile(self, **kwargs):
-        '''Short-circuit writing the oldmail file.'''
-        self.log.trace()
-
-    def _getmsglist(self):
-        '''Don't rely on UIDL; instead, use just the message number.'''
-        self.log.trace()
-        try:
-            response, msglist, octets = self.conn.list()
-            for line in msglist:
-                msgnum = int(line.split()[0])
-                msgsize = int(line.split()[1])
-                self.msgids.append(msgnum)
-                self.msgsizes[msgnum] = msgsize
-        except poplib.error_proto, o:
-            raise getmailOperationError('POP error (%s)' % o)
-        self.gotmsglist = True
-
-    def __str__(self):
-        self.log.trace()
-        return 'BrokenUIDLPOP3Retriever:%s@%s:%s' % (
-            self.conf.get('username', 'username'),
-            self.conf.get('server', 'server'),
-            self.conf.get('port', 'port')
-        )
-
-    def showconf(self):
-        self.log.trace()
-        self.log.info('BrokenUIDLPOP3Retriever(%s)' % self._confstring()
-            + os.linesep)
-
-#######################################
 class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
     '''Retriever class for single-user POP3-over-SSL mailboxes.
     '''
@@ -170,6 +113,103 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('SimplePOP3SSLRetriever(%s)' % self._confstring()
+            + os.linesep)
+
+#######################################
+class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
+    '''Retriever base class for single-user POP3 mailboxes on servers that do 
+    not properly assign unique IDs to messages.  Since with these broken servers 
+    we cannot rely on UIDL, we have to use message numbers, which are unique 
+    within a POP3 session, but which change across sessions.  This class 
+    therefore can not be used to leave old mail on the server and download only 
+    new mail.
+    '''
+    received_from = None
+    received_by = localhostname()
+
+    def _read_oldmailfile(self):
+        '''Force list of old messages to be empty by making this a no-op, so
+        duplicated IDs are always treated as new messages.'''
+        self.log.trace()
+
+    def write_oldmailfile(self, **kwargs):
+        '''Short-circuit writing the oldmail file.'''
+        self.log.trace()
+
+    def _getmsglist(self):
+        '''Don't rely on UIDL; instead, use just the message number.'''
+        self.log.trace()
+        try:
+            response, msglist, octets = self.conn.list()
+            for line in msglist:
+                msgnum = int(line.split()[0])
+                msgsize = int(line.split()[1])
+                self.msgids.append(msgnum)
+                self.msgsizes[msgnum] = msgsize
+        except poplib.error_proto, o:
+            raise getmailOperationError('POP error (%s)' % o)
+        self.gotmsglist = True
+
+#######################################
+class BrokenUIDLPOP3Retriever(BrokenUIDLPOP3RetrieverBase, POP3initMixIn):
+    '''For broken POP3 servers without SSL.
+    '''
+    _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : 110},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+        {'name' : 'use_apop', 'type' : bool, 'default' : False},
+    )
+    received_with = 'POP3'
+
+    def __str__(self):
+        self.log.trace()
+        return 'BrokenUIDLPOP3Retriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('BrokenUIDLPOP3Retriever(%s)' % self._confstring()
+            + os.linesep)
+
+#######################################
+class BrokenUIDLPOP3SSLRetriever(BrokenUIDLPOP3RetrieverBase, POP3SSLinitMixIn):
+    '''For broken POP3 servers with SSL.
+    '''
+    _confitems = (
+        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+
+        {'name' : 'timeout', 'type' : int, 'default' : 180},
+        {'name' : 'server', 'type' : str},
+        {'name' : 'port', 'type' : int, 'default' : 110},
+        {'name' : 'username', 'type' : str},
+        {'name' : 'password', 'type' : str, 'default' : None},
+        {'name' : 'use_apop', 'type' : bool, 'default' : False},
+        {'name' : 'keyfile', 'type' : str, 'default' : None},
+        {'name' : 'certfile', 'type' : str, 'default' : None},
+    )
+    received_with = 'POP3-SSL'
+
+    def __str__(self):
+        self.log.trace()
+        return 'BrokenUIDLPOP3SSLRetriever:%s@%s:%s' % (
+            self.conf.get('username', 'username'),
+            self.conf.get('server', 'server'),
+            self.conf.get('port', 'port')
+        )
+
+    def showconf(self):
+        self.log.trace()
+        self.log.info('BrokenUIDLPOP3SSLRetriever(%s)' % self._confstring()
             + os.linesep)
 
 #######################################
