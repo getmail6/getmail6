@@ -190,7 +190,7 @@ class BrokenUIDLPOP3SSLRetriever(BrokenUIDLPOP3RetrieverBase, POP3SSLinitMixIn):
 
         {'name' : 'timeout', 'type' : int, 'default' : 180},
         {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
+        {'name' : 'port', 'type' : int, 'default' : POP3_ssl_port},
         {'name' : 'username', 'type' : str},
         {'name' : 'password', 'type' : str, 'default' : None},
         {'name' : 'use_apop', 'type' : bool, 'default' : False},
