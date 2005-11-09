@@ -7,7 +7,8 @@ None of these classes can be instantiated directly.  In this module:
 Mix-in classes for SSL/non-SSL initialization:
 
   POP3initMixIn
-  POP3SSLinitMixIn
+  Py23POP3SSLinitMixIn
+  Py24POP3SSLinitMixIn
   IMAPinitMixIn
   IMAPSSLinitMixIn
 
@@ -33,6 +34,7 @@ __all__ = [
     'RetrieverSkeleton',
 ]
 
+import sys
 import os
 import socket
 import time
@@ -42,12 +44,12 @@ import poplib
 import imaplib
 import sets
 
-from exceptions import *
-from constants import *
-from message import *
-from utilities import *
-from _pop3ssl import POP3SSL, POP3_ssl_port
-from baseclasses import ConfigurableBase
+from getmailcore.exceptions import *
+from getmailcore.constants import *
+from getmailcore.message import *
+from getmailcore.utilities import *
+from getmailcore._pop3ssl import POP3SSL, POP3_ssl_port
+from getmailcore.baseclasses import ConfigurableBase
 
 NOT_ENVELOPE_RECIPIENT_HEADERS = (
     'to',
@@ -83,8 +85,56 @@ class POP3initMixIn(object):
             + os.linesep)
 
 #######################################
-class POP3SSLinitMixIn(object):
-    '''Mix-In class to do POP3 over SSL initialization.
+class Py24POP3SSLinitMixIn(object):
+    '''Mix-In class to do POP3 over SSL initialization with Python 2.4's
+    poplib.POP3_SSL class.
+    '''
+    def _connect(self):
+        self.log.trace()
+        if not hasattr(socket, 'ssl'):
+            raise getmailConfigurationError('SSL not supported by'
+                ' this installation of Python')
+        if (self.conf['keyfile'] is not None
+                and not os.path.isfile(self.conf['keyfile'])):
+            raise getmailConfigurationError('optional keyfile must be'
+                ' path to a valid file')
+        if (self.conf['certfile'] is not None
+                and not os.path.isfile(self.conf['certfile'])):
+            raise getmailConfigurationError('optional certfile must be'
+                ' path to a valid file')
+        if not (self.conf['certfile'] == self.conf['keyfile'] == None):
+            if self.conf['certfile'] is None or self.conf['keyfile'] is None:
+                raise getmailConfigurationError('optional certfile and keyfile'
+                    ' must be supplied together')
+        try:
+            if self.conf['certfile'] and self.conf['keyfile']:
+                self.log.trace('establishing POP3 SSL connection to %s:%d'
+                    ' with keyfile %s, certfile %s'
+                    % (self.conf['server'], self.conf['port'],
+                        self.conf['keyfile'], self.conf['certfile'])
+                    + os.linesep)
+                self.conn = poplib.POP3_SSL(self.conf['server'], self.conf['port'],
+                    self.conf['keyfile'], self.conf['certfile'])
+            else:
+                self.log.trace('establishing POP3 SSL connection to %s:%d'
+                    % (self.conf['server'], self.conf['port'])
+                    + os.linesep)
+                self.conn = poplib.POP3_SSL(self.conf['server'], self.conf['port'])
+        except poplib.error_proto, o:
+            raise getmailOperationError('POP error (%s)' % o)
+        except socket.timeout:
+            raise getmailOperationError('timeout during connect')
+        except socket.gaierror, o:
+            raise getmailOperationError('error resolving name %s during'
+                ' connect (%s)' % (self.conf['server'], o))
+
+        self.log.trace('POP3 connection %s established' % self.conn 
+            + os.linesep)
+
+#######################################
+class Py23POP3SSLinitMixIn(object):
+    '''Mix-In class to do POP3 over SSL initialization with custom-implemented
+    code to support SSL with Python 2.3's poplib.POP3 class.
     '''
     def _connect(self):
         self.log.trace()
@@ -815,3 +865,9 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
                 ' header missing (%s)' % self.conf['envelope_recipient'])
         msg.recipient = address_no_brackets(line.strip())
         return msg
+
+
+if sys.hexversion >= 0x02040000:
+    POP3SSLinitMixIn = Py24POP3SSLinitMixIn
+else:
+    POP3SSLinitMixIn = Py23POP3SSLinitMixIn

@@ -34,7 +34,7 @@ import fcntl
 import pwd
 import grp
 
-from exceptions import *
+from getmailcore.exceptions import *
 
 logtimeformat = '%Y-%m-%d %H:%M:%S'
 _bool_values = {

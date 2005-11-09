@@ -61,6 +61,7 @@ Table of Contents
           +
                o Commandline options
                o Using getmail as an MDA
+               o Using getmail_fetch to retrieve mail from scripts
      * getmail troubleshooting
      *
           + Troubleshooting problems
@@ -249,8 +250,8 @@ enter root password
    directory prefix, which is the directory that your Python installation
    was configured to install under (typically /usr/local/ or /usr/, but
    other values are sometimes used):
-     * the scripts getmail, getmail_maildir, and getmail_mbox will be
-       installed under prefix/bin/
+     * the scripts getmail, getmail_fetch, getmail_maildir, and
+       getmail_mbox will be installed under prefix/bin/
      * the Python package getmailcore (which implements all the
        protocol-, filter-, and destination-specific code for getmail,
        plus various other bits) will be installed under the site-specific
@@ -258,7 +259,7 @@ enter root password
        directory is prefix/lib/python-python-version/site-packages/.
      * The documentation directory getmail-getmail-version will be
        installed under prefix/doc/
-     * The manual pages for the three scripts will be installed under
+     * The manual pages for the four scripts will be installed under
        prefix/man/
        
    You can see a list of the default installation locations by running:
@@ -288,7 +289,7 @@ Installing parts of the package to alternate directories
        is installed under (i.e., it will be installed as path/getmailcore
        ). See the section Installing the getmailcore package in a
        non-standard location if you use this option.
-     * --install-scripts=path specifies the directory the three scripts
+     * --install-scripts=path specifies the directory the four scripts
        are installed under (i.e., they will be installed directly in
        path/ ).
      * --install-data=path specifies the directory the documentation is
@@ -314,12 +315,12 @@ Installing parts of the package to alternate directories
 Installing the getmailcore package in a non-standard location
 
    Note: if you use one of the above methods to install the getmailcore
-   package into a directory other than the default, the three scripts
-   (getmail, getmail_maildir, and getmail_mbox) will almost certainly be
-   unable to locate the required files from the getmailcore package,
-   because they will not be in a directory in the standard Python module
-   search path. You will need to do one of the following to make those
-   files available to the scripts:
+   package into a directory other than the default, the four scripts
+   (getmail, getmail_fetch, getmail_maildir, and getmail_mbox) will
+   almost certainly be unable to locate the required files from the
+   getmailcore package, because they will not be in a directory in the
+   standard Python module search path. You will need to do one of the
+   following to make those files available to the scripts:
      * set the environment variable PYTHONPATH to tell Python where to
        find the appropriate modules. See the documentation at the
        Python.org website for details.

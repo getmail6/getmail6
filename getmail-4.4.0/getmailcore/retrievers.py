@@ -38,11 +38,11 @@ import poplib
 import imaplib
 import types
 
-from exceptions import *
-from constants import *
-from utilities import *
-from baseclasses import ConfigurableBase
-from _retrieverbases import *
+from getmailcore.exceptions import *
+from getmailcore.constants import *
+from getmailcore.utilities import *
+from getmailcore.baseclasses import ConfigurableBase
+from getmailcore._retrieverbases import *
 
 
 #

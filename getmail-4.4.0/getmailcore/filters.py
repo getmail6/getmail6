@@ -16,10 +16,10 @@ import os
 import types
 import sets
 
-from exceptions import *
-from message import *
-from utilities import *
-from baseclasses import ConfigurableBase, ForkingBase
+from getmailcore.exceptions import *
+from getmailcore.message import *
+from getmailcore.utilities import *
+from getmailcore.baseclasses import ConfigurableBase, ForkingBase
 
 #######################################
 class FilterSkeleton(ConfigurableBase):

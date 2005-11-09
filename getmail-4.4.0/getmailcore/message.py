@@ -16,9 +16,9 @@ import email.Utils
 import email.Parser
 from email.Generator import Generator
 
-from exceptions import *
-from utilities import mbox_from_escape, format_header, address_no_brackets
-import logging
+from getmailcore.exceptions import *
+from getmailcore.utilities import mbox_from_escape, format_header, address_no_brackets
+import getmailcore.logging
 
 message_attributes = (
     'sender',

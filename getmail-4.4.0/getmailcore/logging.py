@@ -15,7 +15,7 @@ import sys
 import os.path
 import traceback
 
-from constants import *
+from getmailcore.constants import *
 
 __logger = None
 

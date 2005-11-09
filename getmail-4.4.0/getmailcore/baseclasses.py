@@ -13,9 +13,9 @@ import time
 import signal
 import sets
 
-from exceptions import *
-from logging import logger
-from utilities import eval_bool
+from getmailcore.exceptions import *
+from getmailcore.logging import logger
+from getmailcore.utilities import eval_bool
 
 #
 # Base classes

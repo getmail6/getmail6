@@ -85,6 +85,7 @@ Table of Contents
                     # Using the getmail_mbox MDA
                     #
                          @ Example
+               o Using getmail_fetch to retrieve mail from scripts
      * getmail troubleshooting
      *
           + Troubleshooting problems
@@ -1359,3 +1360,13 @@ Example
    located in a directory named mail in your home directory by running
    the following command with the message on stdin:
 $ getmail_mbox $HOME/mail/inbox
+
+Using getmail_fetch to retrieve mail from scripts
+
+   getmail includes the getmail_fetch helper script, which allows you to
+   retrieve mail from a POP3 server without the use of a configuration
+   file. It is primarily intended for use in automated or scripted
+   environments, but can be used to retrieve mail normally.
+   
+   See the getmail_fetch manual page for details on the use of
+   getmail_fetch.

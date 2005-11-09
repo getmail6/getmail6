@@ -1,0 +1,74 @@
+.TH getmail_fetch "1" "November 2005" "getmail 4" "User Commands"
+.SH NAME
+getmail_fetch \- retrieve messages from one or more POP3 or POP3-over-SSL mailboxes and deliver to a maildir, mboxrd-format mbox file, or external MDA
+.SH SYNOPSIS
+.B getmail_fetch
+[\fIOPTIONS\fR] \fISERVER\fR \fIUSERNAME\fR \fIPASSWORD\fR \fIDESTINATION\fR
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+getmail_fetch retrieves messages from POP3 or POP3-over-SSL mailboxes and delivers
+to a maildir, mboxrd, or external MDA.  This command is intended primarily for scripting,
+and as such does not require a client-side configuration file, and does not record any
+state.
+.PP
+The \fIDESTINATION\fR argument is interpreted as follows:
+.PP
+If it begins with a dot or a slash and ends with a slash, it is assumed to be a path to a maildir.
+.PP
+If it begins with a dot or a slash and does not end with a slash, it is assumed to be a path to an mboxrd file.
+.PP
+If it begins with a pipe, it is assumed to be a path to an external
+MDA command.  Note that arguments can be included in this string by separating
+them by whitespace; untrusted data \fBmust not\fR be used in constructing this string.
+.SH OPTIONS
+.TP
+\fB\-\-version\fR
+show program's version number and exit
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show a short usage summary and exit
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+output information messages while running
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+output only on error
+.TP
+\fB\-m\fIFILE\fR, \fB\-\-message\fR=\fIFILE\fR
+read well-formatted RFC822 message from FILE and deliver prior to connecting
+to POP server
+.TP
+\fB\-p\fIPORT\fR, \fB\-\-port\fR=\fIPORT\fR
+use port PORT instead of default (POP3: 110, POP3-over-SSL: 995)
+.TP
+\fB\-d\fR, \fB\-\-delete\fR
+delete messages from server after delivery
+.TP
+\fB\-t\fITIMEOUT\fR, \fB\-\-timeout\fR=\fITIMEOUT\fR
+use timeout of TIMEOUT seconds instead of default 180
+.TP
+\fB\-a\fR, \fB\-\-apop\fR
+use APOP authentication
+.TP
+\fB\-s\fR, \fB\-\-ssl\fR
+use POP3-over-SSL
+.SH AUTHOR
+Written by Charles Cazabon.
+.SH "REPORTING BUGS"
+Report bugs to <getmail-bugs@discworld.dyndns.org>.
+.PP
+\fBIMPORTANT:\fR
+include the output of
+.B getmail [options] --dump\fR
+with any bug report.
+.SH COPYRIGHT
+Copyright \(co 1998-2005 Charles Cazabon
+.br
+This is free software; see the file COPYING for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+The full documentation for
+.B getmail
+is maintained in HTML and plaintext formats.  See the included files for
+details.

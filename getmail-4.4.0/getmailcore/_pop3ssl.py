@@ -12,8 +12,8 @@ __all__ = [
 import socket
 from poplib import POP3, CR, LF, CRLF, error_proto
 
-from exceptions import *
-from logging import logger
+from getmailcore.exceptions import *
+from getmailcore.logging import logger
 log = logger()
 
 POP3_ssl_port = 995

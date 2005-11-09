@@ -1,3 +1,15 @@
+Version 4.4.0
+9 November 2005
+
+  -add new POP3-over-SSL initialization class, which is automatically used
+  when Python 2.4 or newer is in use.  This reduces the overhead involved
+  in retrieving messages from a POP3SSL server (reduces systime about 35%,
+  user time about 50%, wall time 10-30%).  Thanks: Jan Vereecke.
+  -add getmail_fetch configuration-less commandline POP retriever, perfect
+  for scripting use.  Development of getmail_fetch was sponsored by
+  Texas Communications.
+  -future proofing: eliminate relative imports within getmailcore package.
+
 Version 4.3.14
 2 November 2005
 

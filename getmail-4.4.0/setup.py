@@ -93,6 +93,7 @@ setup(
     ],
     scripts=[
     'getmail',
+    'getmail_fetch',
     'getmail_maildir',
     'getmail_mbox'
     ],
@@ -117,6 +118,7 @@ setup(
         ]),
         (GETMAILMANDIR, [
             'docs/getmail.1',
+            'docs/getmail_fetch.1',
             'docs/getmail_maildir.1',
             'docs/getmail_mbox.1',
         ]),

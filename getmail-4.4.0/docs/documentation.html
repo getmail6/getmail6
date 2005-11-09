@@ -103,6 +103,7 @@
             <ul>
             <li><a href="configuration.html#running-commandline-options">Commandline options</a></li>
             <li><a href="configuration.html#running-mda">Using getmail as an MDA</a></li>
+            <li><a href="configuration.html#running-fetch">Using getmail_fetch to retrieve mail from scripts</a></li>
             </ul>
         </li>
         </ul>
@@ -421,6 +422,7 @@ $ su
     <li>
         the scripts
         <span class="file">getmail</span>,
+        <span class="file">getmail_fetch</span>,
         <span class="file">getmail_maildir</span>,
         and
         <span class="file">getmail_mbox</span>
@@ -443,7 +445,7 @@ $ su
         <span class="file"><span class="meta">prefix</span>/doc/</span>
     </li>
     <li>
-        The manual pages for the three scripts will be installed under
+        The manual pages for the four scripts will be installed under
         <span class="file"><span class="meta">prefix</span>/man/</span>
     </li>
 </ul>
@@ -500,7 +502,7 @@ $ su
     </li>
     <li>
         <span class="file">--install-scripts=<span class="meta">path</span></span>
-        specifies the directory the three scripts are installed under  (i.e.,
+        specifies the directory the four scripts are installed under  (i.e.,
         they will be installed directly in
         <span class="file"><span class="meta">path</span>/</span>
         ).
@@ -552,8 +554,9 @@ $ su
 <p>
     Note:  if you use one of the above methods to install the
     <span class="file">getmailcore</span>
-    package into a directory other than the default, the three scripts
+    package into a directory other than the default, the four scripts
     (<span class="file">getmail</span>,
+    <span class="file">getmail_fetch</span>,
     <span class="file">getmail_maildir</span>,
     and
     <span class="file">getmail_mbox</span>)

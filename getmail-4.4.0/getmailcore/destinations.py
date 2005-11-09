@@ -31,9 +31,9 @@ import email.Utils
 
 import pwd
 
-from exceptions import *
-from utilities import *
-from baseclasses import ConfigurableBase, ForkingBase
+from getmailcore.exceptions import *
+from getmailcore.utilities import *
+from getmailcore.baseclasses import ConfigurableBase, ForkingBase
 
 #######################################
 class DeliverySkeleton(ConfigurableBase):
