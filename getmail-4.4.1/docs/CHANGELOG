@@ -1,3 +1,10 @@
+Version 4.4.1
+10 November 2005
+
+  -work around bug in Python which meant POP3-over-SSL with Python >= 2.4
+  could "hang" (it's exactly the same bug that affected getmail's initial
+  IMAP-over-SSL code).
+
 Version 4.4.0
 9 November 2005
 

@@ -617,6 +617,13 @@
     </li>
 </ul>
 <p>
+    The fetchmail authors' boneheaded decision to create a configuration-file
+    GUI editor (rather than actually giving fetchmail a sane configuration
+    syntax) also came back to bite them in the ass:  in October 2005, it
+    became known that fetchmailconf created its files in such a way that
+    <a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-3088">users' passwords could be read</a> during file creation.
+</p>
+<p>
     But don't just take my word for it; see
     <a href="http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724">
         http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724

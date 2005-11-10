@@ -128,6 +128,7 @@ class Py24POP3SSLinitMixIn(object):
             raise getmailOperationError('error resolving name %s during'
                 ' connect (%s)' % (self.conf['server'], o))
 
+	self.conn.sock.setblocking(1)
         self.log.trace('POP3 connection %s established' % self.conn 
             + os.linesep)
 
