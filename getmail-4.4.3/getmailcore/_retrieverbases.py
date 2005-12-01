@@ -791,8 +791,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     self.log.debug('removing vanished message id %s' % msgid 
                         + os.linesep)
                     del self.oldmail[msgid]
-        except poplib.error_proto, o:
-            raise getmailOperationError('POP error (%s)' % o)
+        except imaplib.IMAP4.error, o:
+            raise getmailOperationError('IMAP error (%s)' % o)
 
     def abort(self):
         self.log.trace()
