@@ -65,7 +65,7 @@ defaults = {
 #######################################
 def blurb():
     log.info('getmail version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2005 Charles Cazabon.  Licensed under the'
+    log.info('Copyright (C) 1998-2006 Charles Cazabon.  Licensed under the'
         ' GNU GPL version 2.\n')
 
 #######################################

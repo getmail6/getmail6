@@ -6,7 +6,7 @@ getmail documentation
    please refer to the documentation included with that version of the
    software.
    
-   getmail is Copyright © 1998-2005 Charles Cazabon. <getmail @
+   getmail is Copyright © 1998-2006 Charles Cazabon. <getmail @
    discworld.dyndns.org>
    
    getmail is licensed under the GNU General Public License version 2

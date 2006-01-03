@@ -655,18 +655,23 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         r = {}
         try:
             parts = line[line.index('(') + 1:line.rindex(')')].split()
-            if len(parts) % 2:
-                # Not zero -- i.e. an uneven number of parts
-                raise ValueError
             while parts:
-                # Interesting; RHS is evaluated first, breaking this
-                # expression...
-                # r[parts.pop(0).lower()] = parts.pop(0)
+                # Flags starts a parenthetical list of valueless flags
+                if parts[0].lower() == 'flags' and parts[1].startswith('('):
+                    while parts and not parts[0].endswith(')'):
+                        del parts[0]
+                    if parts:
+                        # Last one, ends with ")"
+                        del parts[0]
+                    continue
+                if len(parts) == 1:
+                    # Leftover part -- not name, value pair.
+                    raise ValueError
                 name = parts.pop(0).lower()
                 r[name] = parts.pop(0)
-        except ValueError:
+        except (ValueError, IndexError), o:
             raise getmailOperationError('IMAP error (failed to parse'
-                ' UID response line %s)' % line)
+                ' UID response line "%s")' % line)
         self.log.trace('got %s' % r + os.linesep)
         return r
 
