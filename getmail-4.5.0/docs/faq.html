@@ -138,6 +138,8 @@
                 <li><a href="faq.html#faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</a></li>
                 <li><a href="faq.html#faq-how-no-received">How do I stop getmail adding a Received: header to messages?</a></li>
                 <li><a href="faq.html#faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</a></li>
+                <li><a href="faq.html#faq-how-create-maildir">How do I create a maildir?</a></li>
+                <li><a href="faq.html#faq-how-create-mboxrd">How do I create an mboxrd file?</a></li>
                 <li><a href="faq.html#faq-how-mh">How do I make getmail deliver messages to an mh folder?</a></li>
                 <li><a href="faq.html#faq-how-daemon">How do I run getmail in &quot;daemon&quot; mode?</a></li>
                 <li><a href="faq.html#faq-how-maxpersession">How do I make getmail stop after retrieving X messages so that the server actually flushes deleted messages?</a></li>
@@ -993,6 +995,33 @@ path = ~/inbox
     <a href="configuration.html#destination-mdaexternal">external MDA support</a>
     to do so.
 </p>
+
+<h3 id="faq-how-create-maildir">How do I create a maildir?</h3>
+<p>
+    Use the
+    <span class="file">maildirmake</span>
+    command, if you have it installed.  Otherwise, run the following command
+    from your shell:
+</p>
+<pre class="example">
+$ mkdir -p /path/to/Maildir/{cur,new,tmp}
+</pre>
+<p>
+    Some other maildir-aware programs ship with their own maildir-creation
+    programs; you can use those, or make the above shell command a shellscript
+    or alias if you like.
+</p>
+
+<h3 id="faq-how-create-mboxrd">How do I create an mboxrd file?</h3>
+<p>
+    Create a completely empty (i.e. zero bytes long) file via your favourite
+    method.  The standard utility 
+    <span class="file">touch</span>
+    is commonly used:
+</p>
+<pre class="example">
+$ touch /path/to/mboxrd
+</pre>
 
 <h3 id="faq-how-mh">How do I make getmail deliver messages to an mh folder?</h3>
 <p>

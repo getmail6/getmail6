@@ -573,6 +573,13 @@ type = <span class="meta">typename</span>
         seconds.  You may need to increase this value in particularly poor
         networking conditions.
     </li>
+    <li>
+        delete_dup_msgids
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set to True, and the POP3 server identifies multiple messages
+        as having the same &quot;unique&quot; identifier, all but the first will
+        be deleted without retrieving them.
+    </li>
 </ul>
 
 <h4 id="retriever-brokenpop3">BrokenUIDLPOP3Retriever</h4>
@@ -658,6 +665,13 @@ mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
 <ul>
     <li>
         use_apop
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; see
+        <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
+        for definition.
+    </li>
+    <li>
+        delete_dup_msgids
         (<a href="#parameter-boolean">boolean</a>)
         &mdash; see
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>

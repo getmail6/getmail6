@@ -1,3 +1,16 @@
+Version 4.5.0
+1 February 2006
+
+  -add delete_dup_msgids option to non-multidrop POP3 retrievers.
+  Thanks: Matthias Andree.
+  -suppress stack trace in getmail_fetch error message when configuration error
+  detected.  Thanks: Dave Jarvis.
+  -documentation updates.
+  -build and development environment changes.  The plaintext versions of the 
+  documentation are now generated with links instead of lynx.
+  -explicitly log the reason for not retrieving a message (seen or oversized).
+  Thanks: Payal Rathod.
+
 Version 4.4.4
 3 January 2006
 

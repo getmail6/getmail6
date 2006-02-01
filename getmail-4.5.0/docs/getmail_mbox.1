@@ -1,6 +1,6 @@
-TH getmail_mbox "1" "July 2004" "getmail 4" "User Commands"
+.TH getmail_mbox "1" "July 2004" "getmail 4" "User Commands"
 .SH NAME
-getmail_mbox \- read a message from stdin and deliver to a named mboxrd-format mbox file
+getmail_mbox \- read a message from stdin and deliver to a named mboxrd-format mbox file with fcntl-style locking.
 .SH SYNOPSIS
 .B getmail_mbox
 [\fIOPTION\fR] \fIPATH\fR
@@ -9,6 +9,12 @@ getmail_mbox \- read a message from stdin and deliver to a named mboxrd-format m
 .PP
 Deliver a mail message from standard input, to the mboxrd-format mbox file named 
 PATH.  PATH must start with a dot or a slash and must not end with a slash.
+fcntl-type locking is used; if your system requires another type of locking
+(such as
+.B flock
+or
+.B dotlock
+), use an MDA configured for that style of locking instead.
 .PP
 .B getmail_mbox
 uses the SENDER environment variable to construct a 

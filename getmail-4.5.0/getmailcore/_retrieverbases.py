@@ -268,7 +268,8 @@ class RetrieverSkeleton(ConfigurableBase):
       __str__(self) - return a simple string representing the class instance.
 
       _getmsglist(self) - retieve a list of all available messages, and store
-                          unique message identifiers in the list self.msgids.
+                          unique message identifiers in the dict 
+                          self.msgnum_by_msgid.
                           Message identifiers must be unique and persistent
                           across instantiations.  Also store message sizes (in
                           octets) in a dictionary self.msgsizes, using the
@@ -306,7 +307,8 @@ class RetrieverSkeleton(ConfigurableBase):
 
     def __init__(self, **args):
         ConfigurableBase.__init__(self, **args)
-        self.msgids = []
+        self.msgnum_by_msgid = {}
+        self.msgid_by_msgnum = {}
         self.msgsizes = {}
         self.headercache = {}
         self.oldmail = {}
@@ -327,13 +329,13 @@ class RetrieverSkeleton(ConfigurableBase):
 
     def __len__(self):
         self.log.trace()
-        return len(self.msgids)
+        return len(self.msgnum_by_msgid)
 
     def __getitem__(self, i):
         self.log.trace('i == %d' % i)
         if not self.__initialized:
             raise getmailOperationError('not initialized')
-        return self.msgids[i]
+        return sorted(self.msgid_by_msgnum.items())[i][1]
 
     def _read_oldmailfile(self):
         '''Read contents of oldmail file.'''
@@ -442,9 +444,9 @@ class POP3RetrieverBase(RetrieverSkeleton):
 
     def _getmsgnumbyid(self, msgid):
         self.log.trace()
-        if not msgid in self.msgids:
+        if not msgid in self.msgnum_by_msgid:
             raise getmailOperationError('no such message ID %s' % msgid)
-        return self.msgids.index(msgid) + 1
+        return self.msgnum_by_msgid[msgid]
 
     def _getmsglist(self):
         self.log.trace()
@@ -452,21 +454,32 @@ class POP3RetrieverBase(RetrieverSkeleton):
             response, msglist, octets = self.conn.uidl()
             self.log.debug('UIDL response "%s", %d octets'
                 % (response, octets) + os.linesep)
-            for msgid in [line.split(None, 1)[1] for line in msglist]:
-                if msgid in self.msgids:
-                    raise getmailOperationError(
-                        '%s does not uniquely identify messages '
-                        '(got %s twice) -- use BrokenUIDLPOP3Retriever instead'
-                        % (self, msgid)
-                    )
+            for line in msglist:
+                msgnum, msgid = line.split(None, 1)
+                msgnum = int(msgnum)
+                if msgid in self.msgnum_by_msgid:
+                    if self.conf.get('delete_dup_msgids', False):
+                        self.log.debug('deleting message %s with duplicate '
+                                       'msgid %s' % (msgnum, msgid) 
+                                       + os.linesep)
+                        self.conn.dele(msgnum)
+                    else:
+                        raise getmailOperationError(
+                            '%s does not uniquely identify messages '
+                            '(got %s twice) -- see documentation or use '
+                            'BrokenUIDLPOP3Retriever instead'
+                            % (self, msgid)
+                        )
                 else:
-                    self.msgids.append(msgid)
-            self.log.debug('Message IDs: %s' % self.msgids + os.linesep)
+                    self.msgnum_by_msgid[msgid] = msgnum
+                    self.msgid_by_msgnum[msgnum] = msgid
+            self.log.debug('Message IDs: %s' 
+                           % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
             response, msglist, octets = self.conn.list()
             for line in msglist:
                 msgnum = int(line.split()[0])
                 msgsize = int(line.split()[1])
-                self.msgsizes[self.msgids[msgnum - 1]] = msgsize
+                self.msgsizes[self.msgid_by_msgnum[msgnum]] = msgsize
         except poplib.error_proto, o:
             raise getmailOperationError(
                 'POP error (%s) - if your server does not support the UIDL '
@@ -514,7 +527,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 self.conn.user(self.conf['username'])
                 self.conn.pass_(self.conf['password'])
             self._getmsglist()
-            self.log.debug('msgids: %s' % self.msgids + os.linesep)
+            self.log.debug('msgids: %s' 
+                           % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
             self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
             # Remove messages from state file that are no longer in mailbox
             for msgid in self.oldmail.keys():
@@ -615,7 +629,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def _getmboxuidbymsgid(self, msgid):
         self.log.trace()
-        if not msgid in self.msgids:
+        if not msgid in self.msgnum_by_msgid:
             raise getmailOperationError('no such message ID %s' % msgid)
         mailbox, uid = self._mboxuids[msgid]
         return mailbox, uid
@@ -697,7 +711,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def _getmsglist(self):
         self.log.trace()
-        self.msgids = []
+        self.msgnum_by_msgid = {}
         self._mboxuids = {}
         self.msgsizes = {}
         for mailbox in self.conf['mailboxes']:
@@ -713,7 +727,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                         msgid = ('%s/%s/%s'
                             % (self.uidvalidity, mailbox, r['uid']))
                         self._mboxuids[msgid] = (mailbox, r['uid'])
-                        self.msgids.append(msgid)
+                        self.msgnum_by_msgid[msgid] = None
                         self.msgsizes[msgid] = int(r['rfc822.size'])
             except imaplib.IMAP4.error, o:
                 raise getmailOperationError('IMAP error (%s)' % o)
@@ -788,7 +802,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     self.conf['password'])
             self.log.trace('logged in, getting message list' + os.linesep)
             self._getmsglist()
-            self.log.debug('msgids: %s' % self.msgids + os.linesep)
+            self.log.debug('msgids: %s' 
+                           % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
             self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
             # Remove messages from state file that are no longer in mailbox
             for msgid in self.oldmail.keys():

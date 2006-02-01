@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python
 
 import sys
 import os.path
@@ -94,6 +94,7 @@ def go(configs):
                 log.debug('  message %s ...\n' % msgid)
                 msgnum += 1
                 retrieve = False
+		reason = 'seen'
                 delete = False
                 timestamp = retriever.oldmail.get(msgid, None)
                 size = retriever.getmsgsize(msgid)
@@ -105,6 +106,7 @@ def go(configs):
                 if (options['max_message_size']
                         and size > options['max_message_size']):
                     retrieve = False
+		    reason = 'oversized'
                 try:
                     if retrieve:
                         msg = retriever.getmsg(msgid)
@@ -151,7 +153,7 @@ def go(configs):
                         log.debug('    not retrieving (timestamp %s)\n'
                             % timestamp)
                         if oplevel > 1:
-                            info += ' not retrieved'
+                            info += ' not retrieved (%s)' % reason
 
                     if (options['delete_after'] and timestamp
                             and (now - timestamp)/86400

@@ -63,6 +63,7 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
         {'name' : 'username', 'type' : str},
         {'name' : 'password', 'type' : str, 'default' : None},
         {'name' : 'use_apop', 'type' : bool, 'default' : False},
+        {'name' : 'delete_dup_msgids', 'type' : bool, 'default' : False},
     )
     received_from = None
     received_with = 'POP3'
@@ -95,6 +96,7 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
         {'name' : 'username', 'type' : str},
         {'name' : 'password', 'type' : str, 'default' : None},
         {'name' : 'use_apop', 'type' : bool, 'default' : False},
+        {'name' : 'delete_dup_msgids', 'type' : bool, 'default' : False},
         {'name' : 'keyfile', 'type' : str, 'default' : None},
         {'name' : 'certfile', 'type' : str, 'default' : None},
     )
@@ -144,7 +146,8 @@ class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
             for line in msglist:
                 msgnum = int(line.split()[0])
                 msgsize = int(line.split()[1])
-                self.msgids.append(msgnum)
+                self.msgnum_by_msgid[msgnum] = msgnum
+                self.msgid_by_msgnum[msgnum] = msgnum
                 self.msgsizes[msgnum] = msgsize
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
