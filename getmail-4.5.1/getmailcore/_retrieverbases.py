@@ -888,7 +888,14 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         return msg
 
 
+def _sorted(l):
+    # For Python 2.3, which lacks the sorted() builtin
+    l.sort()
+    return l
+
 if sys.hexversion >= 0x02040000:
     POP3SSLinitMixIn = Py24POP3SSLinitMixIn
 else:
     POP3SSLinitMixIn = Py23POP3SSLinitMixIn
+    sorted = _sorted
+    
