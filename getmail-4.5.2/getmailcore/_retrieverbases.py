@@ -713,6 +713,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.trace()
         self.msgnum_by_msgid = {}
         self._mboxuids = {}
+        self._mboxuidorder = []
         self.msgsizes = {}
         for mailbox in self.conf['mailboxes']:
             try:
@@ -727,12 +728,16 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                         msgid = ('%s/%s/%s'
                             % (self.uidvalidity, mailbox, r['uid']))
                         self._mboxuids[msgid] = (mailbox, r['uid'])
+                        self._mboxuidorder.append(msgid)
                         self.msgnum_by_msgid[msgid] = None
                         self.msgsizes[msgid] = int(r['rfc822.size'])
             except imaplib.IMAP4.error, o:
                 raise getmailOperationError('IMAP error (%s)' % o)
         self.gotmsglist = True
 
+    def __getitem__(self, i):
+	return self._mboxuidorder[i]
+    
     def _delmsgbyid(self, msgid):
         self.log.trace()
         try:
