@@ -6,6 +6,7 @@ __all__ = [
     'address_no_brackets',
     'change_usergroup',
     'change_uidgid',
+    'check_ssl_key_and_cert',
     'deliver_maildir',
     'eval_bool',
     'expand_user_vars',
@@ -420,3 +421,22 @@ def localhostname():
     if '.' in n:
         return n
     return socket.getfqdn()
+
+#######################################
+def check_ssl_key_and_cert(conf):
+    keyfile = conf['keyfile']
+    if keyfile is not None:
+        keyfile = expand_user_vars(keyfile)
+    certfile = conf['certfile']
+    if certfile is not None:
+        certfile = expand_user_vars(certfile)
+    if keyfile and not os.path.isfile(keyfile):
+        raise getmailConfigurationError('optional keyfile must be'
+            ' path to a valid file')
+    if certfile and not os.path.isfile(certfile):
+        raise getmailConfigurationError('optional certfile must be'
+            ' path to a valid file')
+    if (keyfile is None) ^ (certfile is None):
+        raise getmailConfigurationError('optional certfile and keyfile'
+            ' must be supplied together')
+    return keyfile, certfile

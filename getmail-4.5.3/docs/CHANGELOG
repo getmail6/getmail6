@@ -1,3 +1,10 @@
+Version 4.5.3
+8 February 2006
+
+  -keyfile and certfile parameters to SSL retrievers are now expanded for
+  leading "~/" and "~username/" as well as environment variables, just like
+  other path parameters.  Thanks:  Fredrik Steen.
+
 Version 4.5.2
 7 February 2006
 

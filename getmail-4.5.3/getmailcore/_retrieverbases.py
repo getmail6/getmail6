@@ -94,27 +94,15 @@ class Py24POP3SSLinitMixIn(object):
         if not hasattr(socket, 'ssl'):
             raise getmailConfigurationError('SSL not supported by'
                 ' this installation of Python')
-        if (self.conf['keyfile'] is not None
-                and not os.path.isfile(self.conf['keyfile'])):
-            raise getmailConfigurationError('optional keyfile must be'
-                ' path to a valid file')
-        if (self.conf['certfile'] is not None
-                and not os.path.isfile(self.conf['certfile'])):
-            raise getmailConfigurationError('optional certfile must be'
-                ' path to a valid file')
-        if not (self.conf['certfile'] == self.conf['keyfile'] == None):
-            if self.conf['certfile'] is None or self.conf['keyfile'] is None:
-                raise getmailConfigurationError('optional certfile and keyfile'
-                    ' must be supplied together')
+        (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
         try:
-            if self.conf['certfile'] and self.conf['keyfile']:
+            if keyfile:
                 self.log.trace('establishing POP3 SSL connection to %s:%d'
                     ' with keyfile %s, certfile %s'
-                    % (self.conf['server'], self.conf['port'],
-                        self.conf['keyfile'], self.conf['certfile'])
+                    % (self.conf['server'], self.conf['port'], keyfile, certfile)
                     + os.linesep)
                 self.conn = poplib.POP3_SSL(self.conf['server'], self.conf['port'],
-                    self.conf['keyfile'], self.conf['certfile'])
+                    keyfile, certfile)
             else:
                 self.log.trace('establishing POP3 SSL connection to %s:%d'
                     % (self.conf['server'], self.conf['port'])
@@ -142,27 +130,16 @@ class Py23POP3SSLinitMixIn(object):
         if not hasattr(socket, 'ssl'):
             raise getmailConfigurationError('SSL not supported by'
                 ' this installation of Python')
-        if (self.conf['keyfile'] is not None
-                and not os.path.isfile(self.conf['keyfile'])):
-            raise getmailConfigurationError('optional keyfile must be'
-                ' path to a valid file')
-        if (self.conf['certfile'] is not None
-                and not os.path.isfile(self.conf['certfile'])):
-            raise getmailConfigurationError('optional certfile must be'
-                ' path to a valid file')
-        if not (self.conf['certfile'] == self.conf['keyfile'] == None):
-            if self.conf['certfile'] is None or self.conf['keyfile'] is None:
-                raise getmailConfigurationError('optional certfile and keyfile'
-                    ' must be supplied together')
+        (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
         try:
-            if self.conf['certfile'] and self.conf['keyfile']:
+            if keyfile:
                 self.log.trace('establishing POP3 SSL connection to %s:%d'
                     ' with keyfile %s, certfile %s'
                     % (self.conf['server'], self.conf['port'],
-                        self.conf['keyfile'], self.conf['certfile'])
+                       keyfile, certfile)
                     + os.linesep)
                 self.conn = POP3SSL(self.conf['server'], self.conf['port'],
-                    self.conf['keyfile'], self.conf['certfile'])
+                    keyfile, certfile)
             else:
                 self.log.trace('establishing POP3 SSL connection to %s:%d'
                     % (self.conf['server'], self.conf['port'])
@@ -207,28 +184,16 @@ class IMAPSSLinitMixIn(object):
         if not hasattr(socket, 'ssl'):
             raise getmailConfigurationError('SSL not supported by'
                 ' this installation of Python')
-        if (self.conf['keyfile'] is not None
-                and not os.path.isfile(self.conf['keyfile'])):
-            raise getmailConfigurationError('optional keyfile must be'
-                ' path to a valid file')
-        if (self.conf['certfile'] is not None
-                and not os.path.isfile(self.conf['certfile'])):
-            raise getmailConfigurationError('optional certfile must be'
-                ' path to a valid file')
-        if not (self.conf['certfile'] == self.conf['keyfile'] == None):
-            if self.conf['certfile'] is None or self.conf['keyfile'] is None:
-                raise getmailConfigurationError('optional certfile and keyfile'
-                    ' must be supplied together')
+        (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
         try:
-            if self.conf['certfile'] and self.conf['keyfile']:
+            if keyfile:
                 self.log.trace('establishing IMAP SSL connection to %s:%d'
                     ' with keyfile %s, certfile %s'
                     % (self.conf['server'], self.conf['port'],
-                        self.conf['keyfile'], self.conf['certfile'])
+                       keyfile, certfile)
                     + os.linesep)
                 self.conn = imaplib.IMAP4_SSL(self.conf['server'],
-                    self.conf['port'], self.conf['keyfile'],
-                    self.conf['certfile'])
+                    self.conf['port'], keyfile, certfile)
             else:
                 self.log.trace('establishing IMAP SSL connection to %s:%d'
                     % (self.conf['server'], self.conf['port']) + os.linesep)
