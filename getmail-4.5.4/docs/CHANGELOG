@@ -1,3 +1,8 @@
+Version 4.5.4
+14 February 2006
+
+  -added Maildir "filemode" parameter.  Thanks:  Martin Haag.
+
 Version 4.5.3
 8 February 2006
 

@@ -60,13 +60,13 @@ def unlock_file(file):
     fcntl.flock(file.fileno(), fcntl.LOCK_UN)
 
 #######################################
-def safe_open(path, mode):
+def safe_open(path, mode, permissions=0600):
     '''Open a file path safely.
     '''
     if os.name != 'posix':
         return open(path, mode)
     try:
-        fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0600)
+        fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_EXCL, permissions)
         file = os.fdopen(fd, mode)
     except OSError, o:
         raise getmailDeliveryError('failure opening %s (%s)' % (path, o))
@@ -197,7 +197,7 @@ def is_maildir(d):
     return True
 
 #######################################
-def deliver_maildir(maildirpath, data, hostname, dcount=None):
+def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0600):
     '''Reliably deliver a mail message into a Maildir.  Uses Dan Bernstein's
     documented rules for maildir delivery, and the updated naming convention
     for new files (modern delivery identifiers).  See
@@ -264,7 +264,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None):
 
     # Open file to write
     try:
-        f = safe_open(fname_tmp, 'wb')
+        f = safe_open(fname_tmp, 'wb', filemode)
         f.write(data)
         f.flush()
         os.fsync(f.fileno())

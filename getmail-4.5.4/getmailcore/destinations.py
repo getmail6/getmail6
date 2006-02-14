@@ -107,6 +107,7 @@ class Maildir(DeliverySkeleton, ForkingBase):
         {'name' : 'path', 'type' : str},
         {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
         {'name' : 'user', 'type' : str, 'default' : None},
+        {'name' : 'filemode', 'type' : str, 'default' : '0600'},
     )
 
     def initialize(self):
@@ -117,6 +118,11 @@ class Maildir(DeliverySkeleton, ForkingBase):
         if not self.conf['path'].endswith('/'):
             raise getmailConfigurationError('maildir path missing trailing /'
                 ' (%s)' % self.conf['path'])
+        try:
+            self.conf['filemode'] = int(self.conf['filemode'], 8)
+        except ValueError, o:
+            raise getmailConfigurationError('filemode %s not valid: %s'
+                % (self.conf['filemode'], o))
 
     def __str__(self):
         self.log.trace()
@@ -142,7 +148,7 @@ class Maildir(DeliverySkeleton, ForkingBase):
                         'refuse to deliver mail as GID 0'
                     )
             f = deliver_maildir(self.conf['path'], msg.flatten(delivered_to,
-                received), self.hostname, self.dcount)
+                received), self.hostname, self.dcount, self.conf['filemode'])
             stdout.write(f)
             stdout.flush()
             os.fsync(stdout.fileno())

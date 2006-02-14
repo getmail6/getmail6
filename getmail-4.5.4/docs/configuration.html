@@ -1124,7 +1124,7 @@ path = ~/Maildir/
     </li>
 </ul>
 <p>
-    The Maildir destination also takes one optional parameters:
+    The Maildir destination also takes two optional parameters:
 </p>
 <ul>
     <li>
@@ -1135,6 +1135,15 @@ path = ~/Maildir/
         the maildir.  Note that this typically requires root privileges.
         getmail will not deliver to maildirs as root, so this
         &quot;optional&quot; parameter is required in that situation.
+    </li>
+    <li>
+        filemode
+        (<a href="#parameter-string">string</a>)
+        &mdash; if supplied, getmail will cause the delivered message files in
+        the maildir to have at most these permissions (given in standard Unix 
+        octal notation).  Note that the current umask is masked out of the 
+        given value at file creation time.  The default value, which should be
+        appropriate for most users, is &quot;0600&quot;.
     </li>
 </ul>
 

@@ -532,13 +532,18 @@ Creating a getmail rc file
  path = ~/Maildir/
 
 
-   The Maildir destination also takes one optional parameters:
+   The Maildir destination also takes two optional parameters:
 
      * user (string) -- on Unix-like systems, if supplied, getmail will
        change the effective UID to that of the named user before delivering
        messages to the maildir. Note that this typically requires root
        privileges. getmail will not deliver to maildirs as root, so this
        "optional" parameter is required in that situation.
+     * filemode (string) -- if supplied, getmail will cause the delivered
+       message files in the maildir to have at most these permissions (given
+       in standard Unix octal notation). Note that the current umask is
+       masked out of the given value at file creation time. The default
+       value, which should be appropriate for most users, is "0600".
 
     Mboxrd
 
