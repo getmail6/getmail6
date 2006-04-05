@@ -30,7 +30,7 @@ message_attributes = (
 
 #######################################
 def corrupt_message(why, fromlines=None, fromstring=None):
-    log = getmailcore.logging.logger()
+    log = getmailcore.logging.Logger()
     log.error('failed to parse retrieved message; constructing container for '
         'contents\n')
     if fromlines == fromstring == None:
@@ -74,7 +74,7 @@ class Message(object):
         'recipient',
     )
     def __init__(self, fromlines=None, fromstring=None, fromfile=None):
-        #self.log = logger()
+        #self.log = Logger()
         self.recipient = None
         self.received_by = None
         self.received_from = None

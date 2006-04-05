@@ -8,7 +8,7 @@ a certain level to one fd, and other messages of higher levels to a different fd
 '''
 
 __all__ = [
-    'logger',
+    'Logger',
 ]
 
 import sys
@@ -17,18 +17,18 @@ import traceback
 
 from getmailcore.constants import *
 
-__logger = None
-
 #######################################
-class __Logger(object):
-    '''Class for logging.  Do not instantiate directly; use logger() instead.
-
-    logger() enforces this as a singleton.
+class _Logger(object):
+    '''Class for logging.  Do not instantiate directly; use Logger() instead,
+    to keep this a singleton.
     '''
     def __init__(self):
         '''Create a logger.'''
         self.handlers = []
         self.newline = False
+
+    def __call__(self):
+        return self
 
     def addhandler(self, stream, minlevel, maxlevel=CRITICAL):
         '''Add a handler for logged messages.
@@ -111,9 +111,4 @@ class __Logger(object):
         '''Log a message with level CRITICAL.'''
         self.log(CRITICAL, msg)
 
-def logger():
-    '''Create a logger, or return the existing logger object.'''
-    global __logger
-    if __logger is None:
-        __logger = __Logger()
-    return __logger
+Logger = _Logger()

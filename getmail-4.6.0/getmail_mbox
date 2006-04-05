@@ -42,7 +42,7 @@ for arg in sys.argv[1:]:
 if os.name == 'posix' and (os.geteuid() == 0 or os.getegid() == 0):
     raise SystemExit('Error: do not run this program as user root')
 
-logger = logging.logger()
+logger = logging.Logger()
 logger.addhandler(sys.stderr, constants.WARNING)
 if verbose:
     logger.addhandler(sys.stdout, constants.INFO, constants.INFO)

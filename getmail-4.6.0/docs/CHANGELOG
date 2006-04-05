@@ -1,3 +1,10 @@
+Version 4.6.0
+5 April 2006
+
+  -clean up logger API.
+  -refactor configuration mechanism to use classes with embedded logic,
+  rather than simply dictionaries.
+
 Version 4.5.4
 14 February 2006
 

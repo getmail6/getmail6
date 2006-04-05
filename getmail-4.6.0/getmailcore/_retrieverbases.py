@@ -49,7 +49,7 @@ from getmailcore.constants import *
 from getmailcore.message import *
 from getmailcore.utilities import *
 from getmailcore._pop3ssl import POP3SSL, POP3_ssl_port
-from getmailcore.baseclasses import ConfigurableBase
+from getmailcore.baseclasses import *
 
 NOT_ENVELOPE_RECIPIENT_HEADERS = (
     'to',
@@ -271,7 +271,6 @@ class RetrieverSkeleton(ConfigurableBase):
     '''
 
     def __init__(self, **args):
-        ConfigurableBase.__init__(self, **args)
         self.msgnum_by_msgid = {}
         self.msgid_by_msgnum = {}
         self.msgsizes = {}
@@ -283,6 +282,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.__oldmail_written = False
         self.__initialized = False
         self.gotmsglist = False
+        ConfigurableBase.__init__(self, **args)
 
     def __del__(self):
         self.log.trace()
@@ -358,7 +358,7 @@ class RetrieverSkeleton(ConfigurableBase):
             # Explicitly set to None in case it was previously set
             socket.setdefaulttimeout(None)
         self.oldmail_filename = os.path.join(
-            expand_user_vars(self.conf['getmaildir']),
+            self.conf['getmaildir'],
             ('oldmail-%(server)s-%(port)i-%(username)s' % self.conf).replace(
                 '/', '-').replace(':', '-')
         )
@@ -858,14 +858,8 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         return msg
 
 
-def _sorted(l):
-    # For Python 2.3, which lacks the sorted() builtin
-    l.sort()
-    return l
-
+# Choose right POP-over-SSL mix-in based on Python version being used.
 if sys.hexversion >= 0x02040000:
     POP3SSLinitMixIn = Py24POP3SSLinitMixIn
 else:
     POP3SSLinitMixIn = Py23POP3SSLinitMixIn
-    sorted = _sorted
-    

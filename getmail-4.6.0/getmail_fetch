@@ -13,7 +13,7 @@ except ImportError, o:
     sys.stderr.write('ImportError:  %s\n' % o)
     sys.exit(127)
 
-log = logging.logger()
+log = logging.Logger()
 log.addhandler(sys.stderr, logging.WARNING)
 
 #######################################

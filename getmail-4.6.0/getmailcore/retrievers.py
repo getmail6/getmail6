@@ -41,7 +41,7 @@ import types
 from getmailcore.exceptions import *
 from getmailcore.constants import *
 from getmailcore.utilities import *
-from getmailcore.baseclasses import ConfigurableBase
+from getmailcore.baseclasses import *
 from getmailcore._retrieverbases import *
 
 
@@ -54,16 +54,16 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
     '''Retriever class for single-user POP3 mailboxes.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-        {'name' : 'delete_dup_msgids', 'type' : bool, 'default' : False},
+        ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=110),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfBool(name='use_apop', required=False, default=False),
+        ConfBool(name='delete_dup_msgids', required=False, default=False),
     )
     received_from = None
     received_with = 'POP3'
@@ -87,18 +87,18 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
     '''Retriever class for single-user POP3-over-SSL mailboxes.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : POP3_ssl_port},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-        {'name' : 'delete_dup_msgids', 'type' : bool, 'default' : False},
-        {'name' : 'keyfile', 'type' : str, 'default' : None},
-        {'name' : 'certfile', 'type' : str, 'default' : None},
+        ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=POP3_ssl_port),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfBool(name='use_apop', required=False, default=False),
+        ConfBool(name='delete_dup_msgids', required=False, default=False),
+        ConfFile(name='keyfile', required=False, default=None),
+        ConfFile(name='certfile', required=False, default=None),
     )
     received_from = None
     received_with = 'POP3-SSL'
@@ -158,15 +158,15 @@ class BrokenUIDLPOP3Retriever(BrokenUIDLPOP3RetrieverBase, POP3initMixIn):
     '''For broken POP3 servers without SSL.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
+        ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=110),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfBool(name='use_apop', required=False, default=False),
     )
     received_with = 'POP3'
 
@@ -188,17 +188,17 @@ class BrokenUIDLPOP3SSLRetriever(BrokenUIDLPOP3RetrieverBase, POP3SSLinitMixIn):
     '''For broken POP3 servers with SSL.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : POP3_ssl_port},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-        {'name' : 'keyfile', 'type' : str, 'default' : None},
-        {'name' : 'certfile', 'type' : str, 'default' : None},
+        ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=POP3_ssl_port),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfBool(name='use_apop', required=False, default=False),
+        ConfFile(name='keyfile', required=False, default=None),
+        ConfFile(name='certfile', required=False, default=None),
     )
     received_with = 'POP3-SSL'
 
@@ -220,16 +220,16 @@ class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
     '''Retriever class for multi-drop POP3 mailboxes.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-        {'name' : 'envelope_recipient', 'type' : str},
+        ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=110),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfBool(name='use_apop', required=False, default=False),
+        ConfString(name='envelope_recipient'),
     )
     received_from = None
     received_with = 'POP3'
@@ -253,18 +253,18 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
     '''Retriever class for multi-drop POP3-over-SSL mailboxes.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : POP3_ssl_port},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
-        {'name' : 'envelope_recipient', 'type' : str},
-        {'name' : 'keyfile', 'type' : str, 'default' : None},
-        {'name' : 'certfile', 'type' : str, 'default' : None},
+        ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=POP3_ssl_port),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfBool(name='use_apop', required=False, default=False),
+        ConfString(name='envelope_recipient'),
+        ConfFile(name='keyfile', required=False, default=None),
+        ConfFile(name='certfile', required=False, default=None),
     )
     received_from = None
     received_with = 'POP3-SSL'
@@ -295,16 +295,16 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
     Support originally requested by Paul Clifford for getmail v.2/3.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : 110},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
+        ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=110),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
         # Demon apparently doesn't support APOP
-        {'name' : 'use_apop', 'type' : bool, 'default' : False},
+        ConfBool(name='use_apop', required=False, default=False),
     )
 
     received_from = None
@@ -346,21 +346,19 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
     '''Retriever class for single-user IMAPv4 mailboxes.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_PORT},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-
-        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
-        {'name' : 'move_on_delete', 'type' : str, 'default' : None},
-
+        ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=imaplib.IMAP4_PORT),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfTupleOfStrings(name='mailboxes', required=False, default="('INBOX', )"),
+        ConfString(name='move_on_delete', required=False, default=None),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
-        # .authenticate(), so we can't do this yet.
-        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
+        # .authenticate(), so we can't do this yet (?).
+        ConfBool(name='use_cram_md5', required=False, default=False),
     )
     received_from = None
     received_with = 'IMAP4'
@@ -384,25 +382,22 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
     '''Retriever class for single-user IMAPv4-over-SSL mailboxes.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         # socket.ssl() and socket timeouts are incompatible in Python 2.3
-        #{'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_SSL_PORT},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-
-        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
-        {'name' : 'move_on_delete', 'type' : str, 'default' : None},
-
-        {'name' : 'keyfile', 'type' : str, 'default' : None},
-        {'name' : 'certfile', 'type' : str, 'default' : None},
-
+        #ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=imaplib.IMAP4_SSL_PORT),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfTupleOfStrings(name='mailboxes', required=False, default="('INBOX', )"),
+        ConfString(name='move_on_delete', required=False, default=None),
+        ConfFile(name='keyfile', required=False, default=None),
+        ConfFile(name='certfile', required=False, default=None),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
-        # .authenticate(), so we can't do this yet.
-        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
+        # .authenticate(), so we can't do this yet (?).
+        ConfBool(name='use_cram_md5', required=False, default=False),
     )
     received_from = None
     received_with = 'IMAP4-SSL'
@@ -426,23 +421,20 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
     '''Retriever class for multi-drop IMAPv4 mailboxes.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        {'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_PORT},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-
-        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
-        {'name' : 'move_on_delete', 'type' : str, 'default' : None},
-
+        ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=imaplib.IMAP4_PORT),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfTupleOfStrings(name='mailboxes', required=False, default="('INBOX', )"),
+        ConfString(name='move_on_delete', required=False, default=None),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
-        # .authenticate(), so we can't do this yet.
-        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
-
-        {'name' : 'envelope_recipient', 'type' : str},
+        # .authenticate(), so we can't do this yet (?).
+        ConfBool(name='use_cram_md5', required=False, default=False),
+        ConfString(name='envelope_recipient'),
     )
     received_from = None
     received_with = 'IMAP4'
@@ -466,27 +458,23 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
     '''Retriever class for multi-drop IMAPv4-over-SSL mailboxes.
     '''
     _confitems = (
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'getmaildir', 'type' : str, 'default' : '~/.getmail/'},
+        ConfInstance(name='configparser'),
+        ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         # socket.ssl() and socket timeouts are incompatible in Python 2.3
-        #{'name' : 'timeout', 'type' : int, 'default' : 180},
-        {'name' : 'server', 'type' : str},
-        {'name' : 'port', 'type' : int, 'default' : imaplib.IMAP4_SSL_PORT},
-        {'name' : 'username', 'type' : str},
-        {'name' : 'password', 'type' : str, 'default' : None},
-
-        {'name' : 'mailboxes', 'type' : tuple, 'default' : ('INBOX', )},
-        {'name' : 'move_on_delete', 'type' : str, 'default' : None},
-
-        {'name' : 'keyfile', 'type' : str, 'default' : None},
-        {'name' : 'certfile', 'type' : str, 'default' : None},
-
+        #ConfInt(name='timeout', required=False, default=180),
+        ConfString(name='server'),
+        ConfInt(name='port', required=False, default=110),
+        ConfString(name='username'),
+        ConfPassword(name='password', required=False, default=None),
+        ConfTupleOfStrings(name='mailboxes', required=False, default="('INBOX', )"),
+        ConfString(name='move_on_delete', required=False, default=None),
+        ConfFile(name='keyfile', required=False, default=None),
+        ConfFile(name='certfile', required=False, default=None),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
-        # .authenticate(), so we can't do this yet.
-        {'name' : 'use_cram_md5', 'type' : bool, 'default' : False},
-
-        {'name' : 'envelope_recipient', 'type' : str},
+        # .authenticate(), so we can't do this yet (?).
+        ConfBool(name='use_cram_md5', required=False, default=False),
+        ConfString(name='envelope_recipient'),
     )
     received_from = None
     received_with = 'IMAP4-SSL'

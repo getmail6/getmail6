@@ -33,7 +33,7 @@ import pwd
 
 from getmailcore.exceptions import *
 from getmailcore.utilities import *
-from getmailcore.baseclasses import ConfigurableBase, ForkingBase
+from getmailcore.baseclasses import *
 
 #######################################
 class DeliverySkeleton(ConfigurableBase):
@@ -104,20 +104,16 @@ class Maildir(DeliverySkeleton, ForkingBase):
       '~USER/', as well as environment variables.
     '''
     _confitems = (
-        {'name' : 'path', 'type' : str},
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'user', 'type' : str, 'default' : None},
-        {'name' : 'filemode', 'type' : str, 'default' : '0600'},
+        ConfInstance(name='configparser'),
+        ConfMaildirPath(name='path'),
+        ConfString(name='user', required=False, default=None),
+        ConfString(name='filemode', required=False, default='0600'),
     )
 
     def initialize(self):
         self.log.trace()
         self.hostname = localhostname()
         self.dcount = 0
-        self.conf['path'] = expand_user_vars(self.conf['path'])
-        if not self.conf['path'].endswith('/'):
-            raise getmailConfigurationError('maildir path missing trailing /'
-                ' (%s)' % self.conf['path'])
         try:
             self.conf['filemode'] = int(self.conf['filemode'], 8)
         except ValueError, o:
@@ -224,20 +220,13 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
     http://groups.google.com/groups?selm=4ivk9s%24bok%40hustle.rahul.net
     '''
     _confitems = (
-        {'name' : 'path', 'type' : str},
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
-        {'name' : 'user', 'type' : str, 'default' : None},
+        ConfInstance(name='configparser'),
+        ConfMboxPath(name='path'),
+        ConfString(name='user', required=False, default=None),
     )
 
     def initialize(self):
         self.log.trace()
-        self.conf['path'] = expand_user_vars(self.conf['path'])
-        if not os.path.exists(self.conf['path']):
-            raise getmailConfigurationError('mboxrd does not exist (%s)'
-                % self.conf['path'])
-        if not os.path.isfile(self.conf['path']):
-            raise getmailConfigurationError('not an mboxrd file (%s)'
-                % self.conf['path'])
 
     def __str__(self):
         self.log.trace()
@@ -451,26 +440,26 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
     '''
 
     _confitems = (
-        {'name' : 'qmaillocal', 'type' : str, 'default' : '/var/qmail/bin/qmail-local'},
-        {'name' : 'user', 'type' : str, 'default' : pwd.getpwuid(os.geteuid()).pw_name},
-        {'name' : 'group', 'type' : str, 'default' : None},
-        {'name' : 'homedir', 'type' : str, 'default' : pwd.getpwuid(os.geteuid()).pw_dir},
-        {'name' : 'localdomain', 'type' : str, 'default' : localhostname()},
-        {'name' : 'defaultdelivery', 'type' : str, 'default' : './Maildir/'},
-        {'name' : 'conf-break', 'type' : str, 'default' : '-'},
-        {'name' : 'localpart_translate', 'type' : tuple, 'default' : ('', '')},
-        {'name' : 'strip_delivered_to', 'type' : bool, 'default' : False},
-        {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        ConfInstance(name='configparser'),
+        ConfFile(name='qmaillocal', required=False, 
+                 default='/var/qmail/bin/qmail-local'),
+        ConfString(name='user', required=False, 
+                   default=pwd.getpwuid(os.geteuid()).pw_name),
+        ConfString(name='group', required=False, default=None),
+        ConfDirectory(name='homedir', required=False, 
+                      default=pwd.getpwuid(os.geteuid()).pw_dir),
+        ConfString(name='localdomain', required=False, default=localhostname()),
+        ConfString(name='defaultdelivery', required=False, 
+                   default='./Maildir/'),
+        ConfString(name='conf-break', required=False, default='-'),
+        ConfTupleOfStrings(name='localpart_translate', required=False, 
+                           default="('', '')"),
+        ConfBool(name='strip_delivered_to', required=False, default=False),
+        ConfBool(name='allow_root_commands', required=False, default=False),
     )
 
     def initialize(self):
         self.log.trace()
-        self.conf['qmaillocal'] = expand_user_vars(self.conf['qmaillocal'])
-        self.conf['homedir'] = expand_user_vars(self.conf['homedir'])
-        if not os.path.isdir(self.conf['homedir']):
-            raise getmailConfigurationError('no such directory %s'
-                % self.conf['homedir'])
 
     def __str__(self):
         self.log.trace()
@@ -627,22 +616,18 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             behaviour.
     '''
     _confitems = (
-        {'name' : 'path', 'type' : str},
-        {'name' : 'arguments', 'type' : tuple, 'default' : ()},
-        {'name' : 'unixfrom', 'type' : bool, 'default' : False},
-        {'name' : 'user', 'type' : str, 'default' : None},
-        {'name' : 'group', 'type' : str, 'default' : None},
-        {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        ConfInstance(name='configparser'),
+        ConfFile(name='path'),
+        ConfTupleOfStrings(name='arguments', required=False, default="()"),
+        ConfString(name='user', required=False, default=None),
+        ConfString(name='group', required=False, default=None),
+        ConfBool(name='allow_root_commands', required=False, default=False),
+        ConfBool(name='unixfrom', required=False, default=False),
     )
 
     def initialize(self):
         self.log.trace()
-        self.conf['path'] = expand_user_vars(self.conf['path'])
         self.conf['command'] = os.path.basename(self.conf['path'])
-        if not os.path.isfile(self.conf['path']):
-            raise getmailConfigurationError('no such command %s'
-                % self.conf['path'])
         if not os.access(self.conf['path'], os.X_OK):
             raise getmailConfigurationError('%s not executable'
                 % self.conf['path'])
@@ -744,7 +729,7 @@ class MultiDestinationBase(DeliverySkeleton):
 
       conf - standard ConfigurableBase configuration dictionary
 
-      log - getmailcore.logging.logger() instance
+      log - getmailcore.logging.Logger() instance
 
     In addition, sub-classes must populate the following list provided by
     this base class:
@@ -813,8 +798,8 @@ class MultiDestination(MultiDestinationBase):
                 then interpreted as maildir/mbox/other-destination-section.
     '''
     _confitems = (
-        {'name' : 'destinations', 'type' : tuple},
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        ConfInstance(name='configparser'),
+        ConfTupleOfStrings(name='destinations'),
     )
 
     def initialize(self):
@@ -941,9 +926,9 @@ class MultiSorter(MultiSorterBase):
                with them.
     '''
     _confitems = (
-        {'name' : 'default', 'type' : str},
-        {'name' : 'locals', 'type' : tuple, 'default' : ()},
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        ConfInstance(name='configparser'),
+        ConfString(name='default'),
+        ConfTupleOfTupleOfStrings(name='locals', required=False, default="()"),
     )
 
     def __str__(self):
@@ -990,9 +975,9 @@ class MultiGuesser(MultiSorterBase):
 
     '''
     _confitems = (
-        {'name' : 'default', 'type' : str},
-        {'name' : 'locals', 'type' : tuple, 'default' : ()},
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        ConfInstance(name='configparser'),
+        ConfString(name='default'),
+        ConfTupleOfTupleOfStrings(name='locals', required=False, default="()"),
     )
 
     def __str__(self):
