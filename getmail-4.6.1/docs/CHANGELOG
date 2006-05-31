@@ -1,3 +1,10 @@
+Version 4.6.1
+31 May 2006
+
+  -fix attribute deletion error with Filter_classifier when strip_delivered_to
+  is set.  Thanks: ?.
+  -do not consider qmail-local writing to stderr a delivery error.  Thanks: ?.
+  
 Version 4.6.0
 5 April 2006
 

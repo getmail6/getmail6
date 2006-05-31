@@ -479,7 +479,9 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
             self.log.debug('about to execl() with args %s\n' % str(args))
             # Modify message
             if self.conf['strip_delivered_to']:
-                del msg['delivered-to']
+                msg.remove_header('delivered-to')
+                # Also don't insert a Delivered-To: header.
+                delivered_to = None
             # Write out message
             msgfile = os.tmpfile()
             msgfile.write(msg.flatten(delivered_to, received))
@@ -566,11 +568,16 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
         if exitcode == 111:
             raise getmailDeliveryError('qmail-local %d temporary error (%s)'
                 % (childpid, err))
-        elif exitcode or err:
+        elif exitcode:
             raise getmailDeliveryError('qmail-local %d error (%d, %s)'
                 % (childpid, exitcode, err))
 
-        return 'MDA_qmaillocal (%s)' % out
+        if out and err:
+	    info = '%s:%s' % (out, err)
+	else:
+	    info = out or err
+
+        return 'MDA_qmaillocal (%s)' % info
 
 #######################################
 class MDA_external(DeliverySkeleton, ForkingBase):

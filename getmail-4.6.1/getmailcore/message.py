@@ -170,6 +170,9 @@ class Message(object):
     def add_header(self, name, content):
         self.__msg[name] = content.rstrip()
 
+    def remove_header(self, name):
+	del self.__msg[name]
+
     def headers(self):
         return self.__msg._headers
 
