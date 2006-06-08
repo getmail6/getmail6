@@ -1,9 +1,18 @@
+Version 4.6.2
+8 June 2006
+
+  -fix regression introduced in 4.6.0 where atime on mbox files would get
+  updated (i.e. not set back), making it difficult for other programs to
+  tell if there was new mail or not without actually opening the mbox.
+  Thanks: Tim van der Molen.
+
 Version 4.6.1
 31 May 2006
 
   -fix attribute deletion error with Filter_classifier when strip_delivered_to
-  is set.  Thanks: ?.
-  -do not consider qmail-local writing to stderr a delivery error.  Thanks: ?.
+  is set.  Thanks: Darren Stevens.
+  -do not consider qmail-local writing to stderr a delivery error.  
+  Thanks: Darren Stevens.
   
 Version 4.6.0
 5 April 2006
