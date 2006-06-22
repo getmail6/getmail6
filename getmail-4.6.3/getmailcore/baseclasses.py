@@ -87,24 +87,24 @@ class ConfItem:
         return val
 
 class ConfInstance(ConfItem):
-    def __init__(self, name, default=None, required=None):
+    def __init__(self, name, default=None, required=True):
         ConfItem.__init__(self, name, types.InstanceType, default=default, 
                           required=required)
 
 class ConfString(ConfItem):
-    def __init__(self, name, default=None, required=None):
+    def __init__(self, name, default=None, required=True):
         ConfItem.__init__(self, name, str, default=default, required=required)
 
 class ConfBool(ConfItem):
-    def __init__(self, name, default=None, required=None):
+    def __init__(self, name, default=None, required=True):
         ConfItem.__init__(self, name, bool, default=default, required=required)
 
 class ConfInt(ConfItem):
-    def __init__(self, name, default=None, required=None):
+    def __init__(self, name, default=None, required=True):
         ConfItem.__init__(self, name, int, default=default, required=required)
 
 class ConfTupleOfStrings(ConfString):
-    def __init__(self, name, default=None, required=None):
+    def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
     
     def validate(self, configuration):
@@ -124,7 +124,7 @@ class ConfTupleOfStrings(ConfString):
         return tuple(result)
 
 class ConfTupleOfTupleOfStrings(ConfString):
-    def __init__(self, name, default=None, required=None):
+    def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
     
     def validate(self, configuration):
@@ -156,7 +156,7 @@ class ConfPassword(ConfString):
     securevalue = True
 
 class ConfDirectory(ConfString):
-    def __init__(self, name, default=None, required=None):
+    def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
     
     def validate(self, configuration):
@@ -172,7 +172,7 @@ class ConfDirectory(ConfString):
         return val
 
 class ConfFile(ConfString):
-    def __init__(self, name, default=None, required=None):
+    def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
     
     def validate(self, configuration):
@@ -207,7 +207,7 @@ class ConfMaildirPath(ConfDirectory):
         return val
 
 class ConfMboxPath(ConfString):
-    def __init__(self, name, default=None, required=None):
+    def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
     
     def validate(self, configuration):
@@ -281,40 +281,9 @@ class ConfigurableBase(object):
         if self.__confchecked:
             return
         for item in self._confitems:
-            if type(item) == dict:
-                # Legacy configuration item
-                self.log.trace('checking %s\n' % item)
-                name = item['name']
-                dtype = item['type']
-                if not name in self.conf:
-                    # Not provided
-                    if 'default' in item:
-                        self.conf[name] = item['default']
-                    else:
-                        raise getmailConfigurationError('missing required'
-                            ' configuration parameter %s' % name)
-                elif type(self.conf[name]) is not dtype:
-                    # Value supplied, but not of expected type.  Try to convert.
-                    try:
-                        val = self.conf[name]
-                        if name.lower() == 'password':
-                            self.log.debug('converting password to type %s\n'
-                                % dtype)
-                        else:
-                            self.log.debug('converting %s (%s) to type %s\n'
-                                % (name, val, dtype))
-                        if dtype == bool:
-                            self.conf[name] = eval_bool(val)
-                        else:
-                            self.conf[name] = dtype(eval(val))
-                    except (ValueError, SyntaxError, TypeError), o:
-                        raise getmailConfigurationError('configuration value'
-                            ' %s (%s) not of required type %s (%s)'
-                            % (name, val, dtype, o))
-            else:
-                # New class-based configuration item
-                self.log.trace('checking %s\n' % item.name)
-                self.conf[item.name] = item.validate(self.conf)
+            # New class-based configuration item
+            self.log.trace('checking %s\n' % item.name)
+            self.conf[item.name] = item.validate(self.conf)
 
         unknown_params = sets.ImmutableSet(self.conf.keys()).difference(
             sets.ImmutableSet([item['name'] for item in self._confitems]))

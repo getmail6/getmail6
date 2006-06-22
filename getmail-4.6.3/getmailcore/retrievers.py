@@ -54,7 +54,7 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
     '''Retriever class for single-user POP3 mailboxes.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         ConfInt(name='timeout', required=False, default=180),
@@ -87,7 +87,7 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
     '''Retriever class for single-user POP3-over-SSL mailboxes.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         ConfInt(name='timeout', required=False, default=180),
@@ -158,7 +158,7 @@ class BrokenUIDLPOP3Retriever(BrokenUIDLPOP3RetrieverBase, POP3initMixIn):
     '''For broken POP3 servers without SSL.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         ConfInt(name='timeout', required=False, default=180),
@@ -188,7 +188,7 @@ class BrokenUIDLPOP3SSLRetriever(BrokenUIDLPOP3RetrieverBase, POP3SSLinitMixIn):
     '''For broken POP3 servers with SSL.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         ConfInt(name='timeout', required=False, default=180),
@@ -220,7 +220,7 @@ class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
     '''Retriever class for multi-drop POP3 mailboxes.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         ConfInt(name='timeout', required=False, default=180),
@@ -253,7 +253,7 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
     '''Retriever class for multi-drop POP3-over-SSL mailboxes.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         ConfInt(name='timeout', required=False, default=180),
@@ -295,7 +295,7 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
     Support originally requested by Paul Clifford for getmail v.2/3.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         ConfInt(name='timeout', required=False, default=180),
@@ -346,7 +346,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
     '''Retriever class for single-user IMAPv4 mailboxes.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         ConfInt(name='timeout', required=False, default=180),
@@ -382,7 +382,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
     '''Retriever class for single-user IMAPv4-over-SSL mailboxes.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         # socket.ssl() and socket timeouts are incompatible in Python 2.3
@@ -421,7 +421,7 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
     '''Retriever class for multi-drop IMAPv4 mailboxes.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         ConfInt(name='timeout', required=False, default=180),
@@ -458,7 +458,7 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
     '''Retriever class for multi-drop IMAPv4-over-SSL mailboxes.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
         # socket.ssl() and socket timeouts are incompatible in Python 2.3

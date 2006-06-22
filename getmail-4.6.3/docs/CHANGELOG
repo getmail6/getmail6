@@ -1,3 +1,17 @@
+Version 4.6.3
+22 June 2006
+
+  -fix regression: spurious errors thrown when required multidrop retriever
+  parameter "envelope_recipient" not present in getmailrc file.
+  Thanks: Elliot Schlegelmilch.
+  -fix regression: getmail_fetch no longer properly supported external MDAs
+  because of problems parsing the arguments to them.  Thanks: ?.
+  -change getmail's handling of regular expressions in the "locals" parameter
+  of MultiSorter destination to allow it to handle backslashes correctly.
+  Unfortunately this means complicating the configuration syntax slightly.
+  Thanks: Tim van der Molen.
+  -update filters to use new configuration code.  Remove obsolete code.
+
 Version 4.6.2
 8 June 2006
 

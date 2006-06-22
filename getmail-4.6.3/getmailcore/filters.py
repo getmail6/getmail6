@@ -19,7 +19,7 @@ import sets
 from getmailcore.exceptions import *
 from getmailcore.message import *
 from getmailcore.utilities import *
-from getmailcore.baseclasses import ConfigurableBase, ForkingBase
+from getmailcore.baseclasses import *
 
 #######################################
 class FilterSkeleton(ConfigurableBase):
@@ -149,27 +149,24 @@ class Filter_external(FilterSkeleton, ForkingBase):
                                         default is not to allow such behaviour.
     '''
     _confitems = (
-        {'name' : 'path', 'type' : str},
-        {'name' : 'unixfrom', 'type' : bool, 'default' : False},
-        {'name' : 'arguments', 'type' : tuple, 'default' : ()},
-        {'name' : 'exitcodes_keep', 'type' : tuple, 'default' : (0, )},
-        {'name' : 'exitcodes_drop', 'type' : tuple, 'default' : (99, 100)},
-        {'name' : 'user', 'type' : str, 'default' : None},
-        {'name' : 'group', 'type' : str, 'default' : None},
-        {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        ConfFile(name='path'),
+        ConfBool(name='unixfrom', required=False, default=False),
+        ConfTupleOfStrings(name='arguments', required=False, default="()"),
+        ConfTupleOfStrings(name='exitcodes_keep', required=False, default="(0, )"),
+        ConfTupleOfStrings(name='exitcodes_drop', required=False, default="(99, 100)"),
+        ConfString(name='user', required=False, default=None),
+        ConfString(name='group', required=False, default=None),
+        ConfBool(name='allow_root_commands', required=False, default=False),
+        ConfInstance(name='configparser', required=False),
     )
 
     def initialize(self):
         self.log.trace()
-        self.conf['path'] = expand_user_vars(self.conf['path'])
         self.conf['command'] = os.path.basename(self.conf['path'])
-        if not os.path.isfile(self.conf['path']):
-            raise getmailConfigurationError('no such command %s'
-                % self.conf['path'])
         if not os.access(self.conf['path'], os.X_OK):
-            raise getmailConfigurationError('%s not executable'
-                % self.conf['path'])
+            raise getmailConfigurationError(
+                '%s not executable' % self.conf['path']
+            )
         if type(self.conf['arguments']) != tuple:
             raise getmailConfigurationError('incorrect arguments format;'
                 ' see documentation (%s)' % self.conf['arguments'])
@@ -353,24 +350,21 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
 
     '''
     _confitems = (
-        {'name' : 'path', 'type' : str, 'default' : '/usr/local/bin/tmda-filter'},
-        {'name' : 'user', 'type' : str, 'default' : None},
-        {'name' : 'group', 'type' : str, 'default' : None},
-        {'name' : 'allow_root_commands', 'type' : bool, 'default' : False},
-        {'name' : 'conf-break', 'type' : str, 'default' : '-'},
-        {'name' : 'configparser', 'type' : types.InstanceType, 'default' : None},
+        ConfFile(name='path', default='/usr/local/bin/tmda-filter'),
+        ConfString(name='user', required=False, default=None),
+        ConfString(name='group', required=False, default=None),
+        ConfBool(name='allow_root_commands', required=False, default=False),
+        ConfString(name='conf-break', required=False, default='-'),
+        ConfInstance(name='configparser', required=False),
     )
 
     def initialize(self):
         self.log.trace()
-        self.conf['path'] = expand_user_vars(self.conf['path'])
         self.conf['command'] = os.path.basename(self.conf['path'])
-        if not os.path.isfile(self.conf['path']):
-            raise getmailConfigurationError('no such command %s'
-                % self.conf['path'])
         if not os.access(self.conf['path'], os.X_OK):
-            raise getmailConfigurationError('%s not executable'
-                % self.conf['path'])
+            raise getmailConfigurationError(
+                '%s not executable' % self.conf['path']
+            )
         self.exitcodes_keep = (0, )
         self.exitcodes_drop = (99, )
 

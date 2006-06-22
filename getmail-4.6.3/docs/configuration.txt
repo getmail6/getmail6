@@ -767,10 +767,26 @@ Creating a getmail rc file
        Destinations are specified in the same manner as with the "default"
        parameter, above.
 
+   Important note: if your regular expression contains backslashes (by
+   themselves, or as part of an escaped character or symbol like \n or \W ),
+   you need to tell the parser that this expression must be parsed "raw" by
+   prepending the string with an "r":
+
+ locals = (
+     (r'jeff\?\?\?@.*', '[jeff]'),
+     ('alice@', '[alice]')
+     )
+
+ locals = (
+     ('jeff@.*', '[jeff]'),
+     (r'alice\D+@', '[alice]')
+     )
+
    Note that if you don't understand regular expressions, you don't need to
    worry about it. In general, an email address is a regular expression that
    matches itself. The only significant times this isn't the case is when the
-   address contains odd punctuation characters like ^, $, or [. Handy hints:
+   address contains odd punctuation characters like ^, $, \, or [. Handy
+   hints:
 
      * the regular expression . (dot) matches anything
      * matches can occur anywhere in the address. If you want to only match

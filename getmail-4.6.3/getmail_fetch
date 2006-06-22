@@ -175,7 +175,7 @@ def main():
             destination_func = destinations.MDA_external
             parts = destination[1:].split()
             cmd = parts[0]
-            arguments = tuple(parts[1:])
+            arguments = str(tuple(parts[1:]))
             destination_args = {
                 'path' : cmd,
                 'arguments' : arguments,

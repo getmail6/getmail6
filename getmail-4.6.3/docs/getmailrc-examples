@@ -131,7 +131,9 @@ arguments = ("--message-from-stdin", "--scan-message", "--to-maildir",
 # sort messages for several local users and deliver to maildirs in their
 # home directories (except Sam, who likes mbox files, and Christina, who
 # uses procmail for further sorting), and deliver all other mail to
-# Joe, who serves as postmaster for the company.
+# Joe, who serves as postmaster for the company.  Sam also needs
+# to receive mail for "sam1", "sam23", etc, so we use a regular expression
+# matching "sam" plus zero or more decimal digits.
 #
 
 [retriever]
@@ -149,7 +151,7 @@ default = [postmaster]
 locals = (
   ("jeffk@company.example.net",      "[jeff]"),
   ("martinh@company.example.net",    "[martin]"),
-  ("sam@company.example.net",        "[sam]"),
+  (r"sam\D*@company.example.net",    "[sam]"),
   ("c.fellowes@company.example.net", "[christina-procmail]")
   )
 

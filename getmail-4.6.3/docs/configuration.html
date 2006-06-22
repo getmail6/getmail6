@@ -1507,12 +1507,33 @@ user = jeff
     </li>
 </ul>
 <p>
+    Important note:  if your regular expression contains backslashes (by 
+    themselves, or as part of an escaped character or symbol like 
+    <span class="file">\n</span>
+    or
+    <span class="file">\W</span>
+    ), you need to tell the parser that this expression must be parsed
+    &quot;raw&quot; by prepending the string with an &quot;r&quot;:
+</p>
+<pre class="example">
+locals = (
+    (r'jeff\?\?\?@.*', '[jeff]'),
+    ('alice@', '[alice]')
+    )
+
+locals = (
+    ('jeff@.*', '[jeff]'),
+    (r'alice\D+@', '[alice]')
+    )
+</pre>
+<p>
     Note that if you don't understand regular expressions, you don't need to
     worry about it. In general, an email address is a regular expression that
     matches itself.  The only significant times this isn't the case is when the
     address contains odd punctuation characters like
     <span class="file">^</span>,
     <span class="file">$</span>,
+    <span class="file">\</span>,
     or
     <span class="file">[</span>.
     Handy hints:

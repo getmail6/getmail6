@@ -104,7 +104,7 @@ class Maildir(DeliverySkeleton, ForkingBase):
       '~USER/', as well as environment variables.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfMaildirPath(name='path'),
         ConfString(name='user', required=False, default=None),
         ConfString(name='filemode', required=False, default='0600'),
@@ -220,7 +220,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
     http://groups.google.com/groups?selm=4ivk9s%24bok%40hustle.rahul.net
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfMboxPath(name='path'),
         ConfString(name='user', required=False, default=None),
     )
@@ -440,7 +440,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
     '''
 
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfFile(name='qmaillocal', required=False, 
                  default='/var/qmail/bin/qmail-local'),
         ConfString(name='user', required=False, 
@@ -623,7 +623,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             behaviour.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfFile(name='path'),
         ConfTupleOfStrings(name='arguments', required=False, default="()"),
         ConfString(name='user', required=False, default=None),
@@ -805,7 +805,7 @@ class MultiDestination(MultiDestinationBase):
                 then interpreted as maildir/mbox/other-destination-section.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfTupleOfStrings(name='destinations'),
     )
 
@@ -875,8 +875,7 @@ class MultiSorterBase(MultiDestinationBase):
                 except getmailConfigurationError, o:
                     raise getmailConfigurationError('pattern %s destination'
                         ' error %s' % (pattern, o))
-                self.targets.append( (re.compile(pattern.replace('\\', '\\\\'),
-                    re.IGNORECASE), dest) )
+                self.targets.append((re.compile(pattern, re.IGNORECASE), dest))
                 self._destinations.append(dest)
         except re.error, o:
             raise getmailConfigurationError('invalid regular expression %s' % o)
@@ -933,7 +932,7 @@ class MultiSorter(MultiSorterBase):
                with them.
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfString(name='default'),
         ConfTupleOfTupleOfStrings(name='locals', required=False, default="()"),
     )
@@ -982,7 +981,7 @@ class MultiGuesser(MultiSorterBase):
 
     '''
     _confitems = (
-        ConfInstance(name='configparser'),
+        ConfInstance(name='configparser', required=False),
         ConfString(name='default'),
         ConfTupleOfTupleOfStrings(name='locals', required=False, default="()"),
     )
