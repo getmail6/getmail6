@@ -929,3 +929,27 @@ I think I found this bug in getmail ...
    getmail 4 detects problematic versions of Python and refuses to run, but
    you can still encounter this problem with getmail version 3 if you try to
    run it with a broken Python version.
+
+  operation error (SimplePOP3Retriever: [...] does not uniquely identify
+  messages [...] see documentation or use BrokenUIDLPOP3Retriever instead
+
+   The server you're trying to use does not properly uniquely identify
+   messages (getmail noticed when it saw the same "unique" identifier twice
+   in the same mailbox at the same time). getmail needs these identifiers to
+   be unique so that it can properly tell the difference between new and old
+   messages.
+
+   If you see this error message, and you've configured getmail to retrieve
+   and immediately delete all messages, just switch to using the
+   BrokenUIDLPOP3Retriever class (or its SSL variant) -- it'll work fine.
+
+   If you see this error message, and you're trying to leave messages on the
+   server after retrieval (permanently, or for a few days with delete_after),
+   you have a few options to try to resolve it:
+
+     * If your provider also offers IMAP access to your mailbox, try one of
+       the IMAP retrievers instead.
+     * Change your configuration so you're not leaving messages on the
+       server, and use BrokenUIDLPOP3Retriever instead.
+     * Talk to your mail hosting provider, and see if they can fix their POP3
+       software so that it doesn't have this problem any more.

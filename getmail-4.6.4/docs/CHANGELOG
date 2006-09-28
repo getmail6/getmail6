@@ -1,3 +1,10 @@
+Version 4.6.4
+28 September 2006
+
+  -add FAQ about BrokenUIDLPOP3 retrievers.
+  -add better diagnostics for missing/invalid/unwritable state/data
+  directory.  Thanks: Christian Authmann.
+
 Version 4.6.3
 22 June 2006
 
