@@ -208,14 +208,16 @@ class Filter_external(FilterSkeleton, ForkingBase):
             # Set stdout and stderr to write to files
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
-            change_usergroup(self.log, self.conf['user'], self.conf['group'])
+            change_usergroup(None, self.conf['user'], self.conf['group'])
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)
                 for (key, value) in msginfo.items():
                     arg = arg.replace('%%(%s)' % key, value)
                 args.append(arg)
-            self.log.debug('about to execl() with args %s\n' % str(args))
+            # Can't log this; if --trace is on, it will be written to the
+            # message passed to the filter.
+            #self.log.debug('about to execl() with args %s\n' % str(args))
             os.execl(*args)
         except StandardError, o:
             # Child process; any error must cause us to exit nonzero for parent
@@ -390,7 +392,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
             # Set stdout and stderr to write to files
             os.dup2(stdout.fileno(), 1)
             os.dup2(stderr.fileno(), 2)
-            change_usergroup(self.log, self.conf['user'], self.conf['group'])
+            change_usergroup(None, self.conf['user'], self.conf['group'])
             args = [self.conf['path'], self.conf['path']]
             # Set environment for TMDA
             os.environ['SENDER'] = msg.sender

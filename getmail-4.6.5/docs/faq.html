@@ -172,6 +172,7 @@
             <li><a href="faq.html#faq-notabug">I think I found this bug in getmail &hellip;</a></li>
             <li>
                 <ul>
+                <li><a href="faq.html#faq-notabug-gmail-bug">getmail doesn't download all my mail from Gmail &hellip;</a></li>
                 <li><a href="faq.html#faq-notabug-futurewarning">FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up</a></li>
                 <li><a href="faq.html#faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</a></li>
                 <li><a href="faq.html#faq-notabug-brokenpopserver">operation error (SimplePOP3Retriever: [...] does not uniquely identify messages [...] see documentation or use BrokenUIDLPOP3Retriever instead</a></li>
@@ -1526,6 +1527,30 @@ type = Filter_TMDA
 <p>
     I get frequent reports like the following, which aren't bugs in getmail.
     Please read them before reporting them to me.
+</p>
+
+<h3 id="faq-notabug-gmail-bug">getmail doesn't download all my mail from Gmail &hellip;</h3>
+<p>
+    There's a couple of different problems here.  One is that Google's Gmail service violates
+    the POP3 protocol by removing messages from the POP3 view of the mailbox without the user
+    issuing a DELE command.  They do this as soon as an RETR command is given, so if getmail
+    tries to download a message and it fails for any reason (delivery fails due to a full disk,
+    or the Gmail server fails to respond, or the network connection dies before the transfer is
+    complete, or the Gmail server fails to respond to the QUIT command, or &hellip;),
+    the next time getmail connects to that Gmail account, Gmail will have &quot;helpfully&quot;
+    deleted the message from the POP3 mailbox, even though getmail never issued a DELE command.
+    So Gmail silently destroys mail, from a POP3 perspective.  There's nothing getmail can do
+    about this.
+</p>
+<p>
+    Note this feature of Gmail is <strong>not</strong> well-publicized.  The only mention I
+    can find of it is here:
+    <a href="http://mail.google.com/support/bin/answer.py?answer=13291&amp;topic=1555">http://mail.google.com/support/bin/answer.py?answer=13291&amp;topic=1555</a>
+</p>
+<p>
+    The other issue here is that Google doesn't include mail from your trash or spam folders in
+    the POP3 view, so getmail can't see those messages either.  That's generally less of an issue,
+    provided their spam filters never give false positive results (ha!).
 </p>
 
 <h3 id="faq-notabug-futurewarning">FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up</h3>

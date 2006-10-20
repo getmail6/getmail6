@@ -1,3 +1,11 @@
+Version 4.6.5
+20 October 2006
+
+  -disable debug logging message which would show up in messages if --trace was
+  used and the message was passed through an external filter.  Thanks:
+  Christian Bruemmer.
+  -add additional sanity checks to ensure a recent-enough Python is used; trying to run getmail 4 with Python 2.2 would throw an exception.  Thanks: fakhri ?.
+  
 Version 4.6.4
 28 September 2006
 

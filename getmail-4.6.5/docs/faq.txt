@@ -909,6 +909,30 @@ I think I found this bug in getmail ...
    I get frequent reports like the following, which aren't bugs in getmail.
    Please read them before reporting them to me.
 
+  getmail doesn't download all my mail from Gmail ...
+
+   There's a couple of different problems here. One is that Google's Gmail
+   service violates the POP3 protocol by removing messages from the POP3 view
+   of the mailbox without the user issuing a DELE command. They do this as
+   soon as an RETR command is given, so if getmail tries to download a
+   message and it fails for any reason (delivery fails due to a full disk, or
+   the Gmail server fails to respond, or the network connection dies before
+   the transfer is complete, or the Gmail server fails to respond to the QUIT
+   command, or ...), the next time getmail connects to that Gmail account,
+   Gmail will have "helpfully" deleted the message from the POP3 mailbox,
+   even though getmail never issued a DELE command. So Gmail silently
+   destroys mail, from a POP3 perspective. There's nothing getmail can do
+   about this.
+
+   Note this feature of Gmail is not well-publicized. The only mention I can
+   find of it is here:
+   http://mail.google.com/support/bin/answer.py?answer=13291&topic=1555
+
+   The other issue here is that Google doesn't include mail from your trash
+   or spam folders in the POP3 view, so getmail can't see those messages
+   either. That's generally less of an issue, provided their spam filters
+   never give false positive results (ha!).
+
   FutureWarning: %u/%o/%x/%X of negative int will return a signed string in
   Python 2.4 and up
 
