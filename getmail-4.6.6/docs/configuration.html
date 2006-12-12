@@ -1304,16 +1304,23 @@ path = ~/inbox
             I strongly recommend against running external processes as root.
         </span>
     </li>
+    <li>
+        ignore_stderr
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set, getmail will not consider it an error if the program
+        writes to stderr.  The default is false, which causes getmail to 
+        consider the delivery failed and leave the message on the server,
+        proceeding to the next message.
+        This prevents loss of mail if the MDA writes to stderr but fails to
+        exit nonzero when it encounters an error.
+        <span class="warning">
+            Note that setting this option has serious implications; some MDAs
+            can fail to deliver a message but still exit 0, which can cause
+            loss of mail if this option is set.  Only change this setting if
+            you are confident your MDA always exits nonzero on error.
+        </span>
+    </li>
 </ul>
-<p>
-    If an external MDA writes anything to
-    <span class="file">stderr</span>,
-    getmail will consider the delivery to have encountered an error.  getmail
-    will leave the message on the server and proceed to the next message.
-    You must configure any MDA you use not to emit messages to stderr except
-    on errors &mdash; please see the documentation for your MDA for details;
-    this should be the default mode of operation for any sane MDA.
-</p>
 <p>
     A basic invocation of an external MDA might look like this:
 </p>

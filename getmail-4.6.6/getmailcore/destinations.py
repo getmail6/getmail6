@@ -268,7 +268,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             # in their first line, or are 0-length files.
             f.seek(0, 0)
             first_line = f.readline()
-            if first_line and first_line[:5] != 'From ':
+            if first_line and not first_line.startswith('From '):
                 # Not an mbox file; abort here
                 unlock_file(f)
                 raise getmailDeliveryError('not an mboxrd file (%s)'
@@ -621,6 +621,9 @@ class MDA_external(DeliverySkeleton, ForkingBase):
       allow_root_commands (boolean, optional) - if set, external commands are
             allowed when running as root.  The default is not to allow such
             behaviour.
+    
+      ignore_stderr (boolean, optional) - if set, getmail will not consider the
+            program writing to stderr to be an error.  The default is False.
     '''
     _confitems = (
         ConfInstance(name='configparser', required=False),
@@ -630,6 +633,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         ConfString(name='group', required=False, default=None),
         ConfBool(name='allow_root_commands', required=False, default=False),
         ConfBool(name='unixfrom', required=False, default=False),
+        ConfBool(name='ignore_stderr', required=False, default=False),
     )
 
     def initialize(self):
@@ -721,9 +725,12 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
             childpid, exitcode))
 
-        if exitcode or err:
+        if exitcode or (err and not self.conf['ignore_stderr']):
             raise getmailDeliveryError('command %s %d error (%d, %s)'
                 % (self.conf['command'], childpid, exitcode, err))
+        elif err:
+            # User said to ignore stderr, just log it.
+            self.log.error('%s: command said "%s"' % (self, err))
 
         return 'MDA_external command %s (%s)' % (self.conf['command'], out)
 
