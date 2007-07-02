@@ -135,6 +135,7 @@
             <li>
                 <ul>
                 <li><a href="faq.html#faq-how-multi">How do I retrieve mail from multiple accounts?</a></li>
+                <li><a href="faq.html#faq-how-filter">How do I get getmail to deliver messages to different mailboxes based on &hellip;</a></li>
                 <li><a href="faq.html#faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</a></li>
                 <li><a href="faq.html#faq-how-no-received">How do I stop getmail adding a Received: header to messages?</a></li>
                 <li><a href="faq.html#faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</a></li>
@@ -979,6 +980,40 @@ path = ~/inbox
     multiple
     <span class="file">--rcfile</span>
     options.
+</p>
+<p>
+    Of course, it's really easy to script this for a large number of
+    <span class="file">rc-*</span>
+    files.  You might create a script in
+    <span class="file">$HOME/bin/run-getmail.sh</span>
+    containing:
+</p>
+<pre class="example">
+#!/bin/sh
+set -e
+cd /path/to/my-rc-directory
+rcfiles=""
+for file in rc-* ; do
+  rcfiles="$rcfiles --rcfile $file"
+done
+exec /path/to/getmail $rcfiles $@
+</pre>
+<p>
+    See any beginner's tutorial on Unix shell scripting for details.
+</p>
+
+<h3 id="faq-how-filter">How do I get getmail to deliver messages to different mailboxes based on &hellip;</h3>
+<p>
+    If you want getmail to sort messages based on who they're from, or what address appears in the
+    <span class="file">To:</span>
+    or
+    <span class="file">cc:</span>
+    header fields, or based on the 
+    <span class="file">Subject:</span>
+    field contents, or anything like that, pick a filtering MDA
+    (like maildrop or procmail), and call it from a getmail
+    <a href="configuration.html#destination-mdaexternal"><span class="file">MDA_external</span></a>
+    destination.
 </p>
 
 <h3 id="faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</h3>

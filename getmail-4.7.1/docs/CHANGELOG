@@ -1,3 +1,9 @@
+Version 4.7.1
+2 February 2007
+
+  -add max_bytes_per_session option.  Thanks: Robert Spencer.
+  -documentation additions.
+
 Version 4.7.0
 24 January 2007
 

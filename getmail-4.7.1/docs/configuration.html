@@ -1075,8 +1075,9 @@ envelope_recipient = delivered-to:1
     </li>
     <li>
         <a href="#destination-multiguesser">MultiGuesser</a>
-        &mdash; sort messages according to addresses found in the message's
-        header fields and deliver to a variety of maildirs, mbox files, external
+        &mdash; sort messages according to getmail's best <strong>guess</strong>
+        at what the envelope recipient of the message might have been, and
+        deliver to a variety of maildirs, mbox files, external
         MDAs, or other destinations based on regular expressions matching those
         addresses. Messages not matching any of the regular expressions are
         delivered to a default &quot;postmaster&quot; destination.
@@ -1493,8 +1494,8 @@ user = jeff
 <p class="important">
     Because MultiSorter requires the envelope recipient to operate, it must be
     used with a domain mailbox retriever.  If you instead want to do some basic
-    message sorting based on addresses found in the message header (using
-    getmail as a combination retriever and basic filtering MDA), see the
+    message sorting based on getmail's best guess as to the envelope 
+    recipient of the message, see the
     <a href="#destination-multiguesser">MultiGuesser</a>
     destination class below.
 </p>
@@ -1713,20 +1714,28 @@ user = log
 
 <h4 id="destination-multiguesser">MultiGuesser</h4>
 <p>
-    MultiGuesser compares addresses found in the message header against a
-    list of user-supplied regular expressions and delivers the message to the
+    MultiGuesser tries to guess what the envelope recipient address of the
+    message might have been, by comparing addresses found in the message header 
+    against a list of user-supplied regular expressions, and delivers the message to the
     destination (maildir, mboxrd file, or other) associated with any matching
     patterns.  A message can match multiple patterns and therefore be delivered
     to multiple matching destinations.  Any message which matches none of the
     patterns is delivered to a default destination for the postmaster.
     In this fashion, you can do basic mail filtering and sorting with getmail
     without using an external filtering message delivery agent (MDA) (such
-    as maildrop or procmail).
+    as maildrop or procmail), if and only if the message recipient is the criteria
+    you want to filter on.
 </p>
+<p>
+    If you want to filter based on arbitrary message critera, like &quot;What address
+    is in the To: header field?&quot; or &quot;Who is the message from?&quot;, then
+    use the filtering MDA of your choice, called from a getmail 
+    <a href="#destination-mdaexternal">MDA_external</a> destination.
+    </p>
 <p>
     MultiGuesser is similar to
     <a href="#destination-multisorter">MultiSorter</a>,
-    except that it does not operate on the envelope recipient address, and
+    except that it does not operate on the true envelope recipient address, and
     therefore does not require a domain mailbox retriever.  Because it is
     &quot;guessing&quot; at the intended recipient of the message based on the
     contents of the message header, it is fallible &mdash; for instance, the
@@ -2018,6 +2027,16 @@ localpart_translate = ('mailhostaccount-', '')
         after retrieving them. Note that the delete parameter has higher
         priority; if both are set, the messages will be deleted immediately.
         Default: 0, which means not to enable this feature.
+    </li>
+    <li>
+        max_bytes_per_session
+        (<a href="#parameter-integer">integer</a>)
+        &mdash; if set, getmail will retrieve messages totalling up to this 
+        number of bytes before closing the session with the server.  This can 
+        be useful if you do not want large messages causing large bursts of
+        network traffic.  Default: 0, which means not to enable this feature.
+        Note that message sizes reported by the server are used, and therefore
+        may vary slightly from the actual size on disk after message retrieval.
     </li>
     <li>
         max_message_size

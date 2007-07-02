@@ -26,6 +26,7 @@ options_int = (
     'delete_after',
     'max_message_size',
     'max_messages_per_session',
+    'max_bytes_per_session',
     'verbose',
 )
 options_str = (
@@ -62,6 +63,7 @@ defaults = {
     'delete_after' : 0,
     'max_message_size' : 0,
     'max_messages_per_session' : 0,
+    'max_bytes_per_session' : 0,
     'delivered_to' : True,
     'received' : True,
     'message_log' : None,
@@ -83,6 +85,7 @@ def go(configs):
         oplevel = options['verbose']
         now = int(time.time())
         msgs_retrieved = 0
+        bytes_retrieved = 0
         msgs_skipped = 0
         if options['message_log_syslog']:
             syslog.openlog('getmail', 0, syslog.LOG_MAIL)
@@ -114,10 +117,16 @@ def go(configs):
                         and size > options['max_message_size']):
                     retrieve = False
                     reason = 'oversized'
+                if (options['max_bytes_per_session']
+                        and (bytes_retrieved + size) 
+                            > options['max_bytes_per_session']):
+                    retrieve = False
+                    reason = 'would surpass max_bytes_per_session'
                 try:
                     if retrieve:
                         msg = retriever.getmsg(msgid)
                         msgs_retrieved += 1
+                        bytes_retrieved += size
                         if oplevel > 1:
                             info += (' from <%s>'
                                 % address_no_brackets(msg.sender))
@@ -272,8 +281,8 @@ def go(configs):
     if sum([i for (unused, i, unused) in summary]) and oplevel > 1:
         log.info('Summary:\n')
         for (retriever, retrieved, unused) in summary:
-            log.info('Retrieved %d messages from %s\n'
-                % (retrieved, retriever))
+            log.info('Retrieved %d messages (%s bytes) from %s\n'
+                % (retrieved, bytes_retrieved, retriever))
 
 #######################################
 def main():
@@ -377,6 +386,8 @@ def main():
                 'max_message_size' : defaults['max_message_size'],
                 'max_messages_per_session' :
                     defaults['max_messages_per_session'],
+                'max_bytes_per_session' :
+                    defaults['max_bytes_per_session'],
                 'delivered_to' : defaults['delivered_to'],
                 'received' : defaults['received'],
                 'logfile' : defaults['logfile'],
