@@ -8,6 +8,7 @@ if sys.hexversion < 0x2030300:
 
 import os
 import socket
+import poplib
 from optparse import OptionParser
 
 try:
@@ -86,8 +87,11 @@ def go(retriever, destination, options, startmsg):
     except socket.error, o:
         error_exit(10, 'Socket error: %s' % o)
 
+    except poplib.error_proto, o:
+        error_exit(11, 'Protocol error: %s' % o)
+
     except getmailOperationError, o:
-        error_exit(11, 'Operational error: %s' % o)
+        error_exit(12, 'Operational error: %s' % o)
 
     log.info('%d messages retrieved\n' % msgs_retrieved)
 
@@ -109,7 +113,7 @@ def main():
         parser.add_option('-p', '--port', action='store', type='int',
                           dest='port', metavar='PORT', default=None,
                           help='use server port PORT (default: POP: 110, '
-			  'POP3-over-SSL: 995)')
+                            'POP3-over-SSL: 995)')
         parser.add_option('-d', '--delete', action='store_true',
                           dest='delete', default=False,
                           help='delete messages after retrieval (default: no)')
@@ -119,9 +123,9 @@ def main():
         parser.add_option('-a', '--apop', action='store_true',
                           dest='apop', default=False,
                           help='use APOP authentication (default: no)')
-	parser.add_option('-s', '--ssl', action='store_true',
-			  dest='ssl', default=False,
-			  help='use POP3-over-SSL (default: no)')
+        parser.add_option('-s', '--ssl', action='store_true',
+                          dest='ssl', default=False,
+                          help='use POP3-over-SSL (default: no)')
         (options, args) = parser.parse_args(sys.argv[1:])
         if len(args) != 4:
             raise getmailOperationError('incorrect arguments; try --help'
@@ -139,12 +143,12 @@ def main():
         instance = dummyInstance()
 
         # Retriever
-	if options.ssl:
-	    retriever_func = retrievers.BrokenUIDLPOP3SSLRetriever
-	    port = options.port or 995
-	else:
-	    retriever_func = retrievers.BrokenUIDLPOP3Retriever
-	    port = options.port or 110
+        if options.ssl:
+            retriever_func = retrievers.BrokenUIDLPOP3SSLRetriever
+            port = options.port or 995
+        else:
+            retriever_func = retrievers.BrokenUIDLPOP3Retriever
+            port = options.port or 110
         retriever_args = {
             'getmaildir' : os.getcwd(),
             'configparser' : instance,

@@ -44,7 +44,7 @@ for arg in sys.argv[1:]:
         path = arg
     else:
         raise SystemExit('Error: maildir path specified twice (was %s, now %s)'
-            % (path, arg))
+                         % (path, arg))
 
 if os.name == 'posix' and (os.geteuid() == 0 or os.getegid() == 0):
     raise SystemExit('Error: do not run this program as user root')
@@ -66,10 +66,10 @@ try:
     d = deliver_maildir(path, msg.flatten(True, False), hostname)
 except getmailDeliveryError, o:
     raise SystemExit('Error: delivery error delivering to maildir %s (%s)'
-        % (path, o))
+                     % (path, o))
 except StandardError, o:
     raise SystemExit('Error: other error delivering to maildir %s (%s)'
-        % (path, o))
+                     % (path, o))
 
 if verbose:
     sys.stdout.write('Delivered to maildir %s\n' % path)

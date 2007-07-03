@@ -9,6 +9,8 @@ if sys.hexversion < 0x2030300:
 import os.path
 import time
 import ConfigParser
+import poplib
+import imaplib
 import pprint
 from optparse import OptionParser, OptionGroup
 import socket
@@ -99,7 +101,7 @@ def go(configs):
                 log.debug('  message %s ...\n' % msgid)
                 msgnum += 1
                 retrieve = False
-		reason = 'seen'
+                reason = 'seen'
                 delete = False
                 timestamp = retriever.oldmail.get(msgid, None)
                 size = retriever.getmsgsize(msgid)
@@ -111,7 +113,7 @@ def go(configs):
                 if (options['max_message_size']
                         and size > options['max_message_size']):
                     retrieve = False
-		    reason = 'oversized'
+                    reason = 'oversized'
                 try:
                     if retrieve:
                         msg = retriever.getmsg(msgid)
@@ -225,6 +227,12 @@ def go(configs):
             if options['logfile']:
                 options['logfile'].write('timeout error (%s)' % o)
 
+        except (poplib.error_proto, imaplib.IMAP4.abort), o:
+            retriever.write_oldmailfile(forget_deleted=False)
+            log.error('%s: protocol error (%s)\n' % (configfile, o))
+            if options['logfile']:
+                options['logfile'].write('protocol error (%s)' % o)
+
         except socket.gaierror, o:
             retriever.write_oldmailfile(forget_deleted=False)
             if type(o) == tuple and len(o) > 1:
@@ -332,22 +340,22 @@ def main():
         if not os.path.exists(getmaildir):
             raise getmailOperationError(
                 '%s config/data dir "%s" does not exist - create '
-                'or specify alternate directory with --getmaildir option' 
+                'or specify alternate directory with --getmaildir option'
                 % (getmaildir_type, getmaildir)
             )
         if not os.path.isdir(getmaildir):
             raise getmailOperationError(
-                '%s config/data dir "%s" is not a directory - fix ' 
-                'or specify alternate directory with --getmaildir option' 
+                '%s config/data dir "%s" is not a directory - fix '
+                'or specify alternate directory with --getmaildir option'
                 % (getmaildir_type, getmaildir)
             )
         if not os.access(getmaildir, os.W_OK):
             raise getmailOperationError(
-                '%s config/data dir "%s" is not writable - fix permissions ' 
-                'or specify alternate directory with --getmaildir option' 
+                '%s config/data dir "%s" is not writable - fix permissions '
+                'or specify alternate directory with --getmaildir option'
                 % (getmaildir_type, getmaildir)
             )
-        
+
         configs = []
         for filename in options.rcfile:
             path = os.path.join(os.path.expanduser(options.getmaildir),

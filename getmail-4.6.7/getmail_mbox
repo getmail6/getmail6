@@ -70,10 +70,10 @@ try:
     d = dest.deliver_message(msg, True, False)
 except getmailDeliveryError, o:
     raise SystemExit('Error: delivery error delivering to mboxrd %s (%s)'
-        % (path, o))
+                     % (path, o))
 except StandardError, o:
     raise SystemExit('Error: other error delivering to mboxrd %s (%s)'
-        % (path, o))
+                     % (path, o))
 
 if verbose:
     sys.stdout.write('Delivered to mboxrd %s\n' % path)

@@ -1,3 +1,10 @@
+Version 4.6.7
+3 January 2007
+
+  -better handling for some fatal violations of POP/IMAP protocols.
+  Thanks: Paul ?.
+  -formatting cleanups.
+
 Version 4.6.6
 12 December 2006
 
