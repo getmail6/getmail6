@@ -93,6 +93,13 @@ class updatefile(object):
         self.closed = False
         self.filename = filename
         self.tmpname = filename + '.tmp.%d' % os.getpid()
+	# If the target is a symlink, the rename-on-close semantics of this
+	# class would break the symlink, replacing it with the new file.
+	# Instead, follow the symlink here, and replace the target file on
+	# close.
+	while os.path.islink(filename):
+	    filename = os.path.join(os.path.dirname(filename),
+	                            os.readlink(filename))
         try:
             f = safe_open(self.tmpname, 'wb')
         except IOError, (code, msg):

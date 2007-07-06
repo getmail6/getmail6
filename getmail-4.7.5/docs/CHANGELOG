@@ -1,3 +1,10 @@
+Version 4.7.5
+6 June 2007
+
+  -make updatefile honour symlinks, so users can alias one server's oldmail
+  state file to another (for split-horizon DNS and other strange 
+  configurations).  Thanks: Scott Hepler.
+
 Version 4.7.4
 24 April 2007
 
