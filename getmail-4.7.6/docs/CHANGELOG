@@ -1,3 +1,10 @@
+Version 4.7.6
+8 August 2007
+
+  -fix exception when getmail is trying to report a POP3 server that
+  completely missed generating a UIDL token for a message.
+  Thanks: Hans Lammerts.
+
 Version 4.7.5
 6 June 2007
 

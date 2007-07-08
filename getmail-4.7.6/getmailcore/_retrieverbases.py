@@ -425,10 +425,10 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 except ValueError:
                     # Line didn't contain two tokens.  Server is broken.
                     raise getmailOperationError(
-                        '%s failed to identify message %d in UIDL output'
+                        '%s failed to identify message index %d in UIDL output'
                         ' -- see documentation or use '
                         'BrokenUIDLPOP3Retriever instead'
-                        % (self, msgnum)
+                        % (self, i)
                     )
                 msgnum = int(msgnum)
                 if msgid in self.msgnum_by_msgid:
