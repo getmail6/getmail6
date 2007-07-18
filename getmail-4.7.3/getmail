@@ -264,10 +264,12 @@ def go(configs):
             if options['logfile']:
                 options['logfile'].write('getmailOperationError error (%s)' % o)
 
-        summary.append( (retriever, msgs_retrieved, msgs_skipped) )
+        summary.append(
+            (retriever, msgs_retrieved, bytes_retrieved, msgs_skipped)
+        )
 
-        log.info('  %d messages retrieved, %d skipped\n'
-            % (msgs_retrieved, msgs_skipped))
+        log.info('  %d messages (%d bytes) retrieved, %d skipped\n'
+            % (msgs_retrieved, bytes_retrieved, msgs_skipped))
         log.debug('retriever %s finished\n' % retriever)
         try:
             retriever.quit()
@@ -278,11 +280,11 @@ def go(configs):
                 options['logfile'].write('%s: operation error during quit (%s)' 
                                          % (configfile, o))
 
-    if sum([i for (unused, i, unused) in summary]) and oplevel > 1:
+    if sum([i for (unused, i, unused, unused) in summary]) and oplevel > 1:
         log.info('Summary:\n')
-        for (retriever, retrieved, unused) in summary:
+        for (retriever, msgs_retrieved, bytes_retrieved, unused) in summary:
             log.info('Retrieved %d messages (%s bytes) from %s\n'
-                % (retrieved, bytes_retrieved, retriever))
+                % (msgs_retrieved, bytes_retrieved, retriever))
 
 #######################################
 def main():

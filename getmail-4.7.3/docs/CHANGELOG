@@ -1,3 +1,9 @@
+Version 4.7.3
+18 March 2007
+
+  -fix wrong bytecount displayed in summary at end of run.  Thanks: Andreas
+  Jung.
+
 Version 4.7.2
 20 February 2007
 
