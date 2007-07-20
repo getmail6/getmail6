@@ -2193,14 +2193,16 @@ message_log = ~/.getmail/log
     </li>
 </ul>
 <p>
-    If a filter writes anything to
+    By default, if a filter writes anything to
     <span class="file">stderr</span>,
     getmail will consider the delivery to have encountered an error.  getmail
     will leave the message on the server and proceed to the next message.
     You must configure any filter you use not to emit messages to stderr except
     on errors &mdash; please see the documentation for your filter program
-    for details; this should be the default mode of operation for any sane
-    filter.
+    for details.
+    Optionally, if you know your filter can emit warnings on stderr under
+    non-error conditions, you can set the 
+    <span class="file">ignore_stderr</span> option.
 </p>
 
 <h4 id="conf-filters-classifier">Filter_classifier</h4>
@@ -2301,6 +2303,23 @@ message_log = ~/.getmail/log
         </span>
     </li>
     <li>
+        ignore_stderr
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set, getmail will not consider it an error if the filter
+        writes to stderr.  The default is false, which causes getmail to 
+        consider the delivery failed and leave the message on the server,
+        proceeding to the next message.
+        This prevents loss of mail if the filter writes to stderr but fails to
+        exit nonzero when it encounters an error.
+        <span class="warning">
+            Note that setting this option has serious implications; some 
+            poorly-written programs commonly used as mail filters can 
+            can mangle or drop mail but still exit 0, their only clue to failure
+            being warnings emitted on stderr.  Only change this setting if
+            you are confident your filter always exits nonzero on error.
+        </span>
+    </li>
+    <li>
         exitcodes_drop
         (<a href="#parameter-tupleintegers">tuple of integers</a>)
         &mdash; if the filter returns an exit code in this list, the message
@@ -2380,6 +2399,13 @@ message_log = ~/.getmail/log
         for definition.
     </li>
     <li>
+        ignore_stderr
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
         exitcodes_drop
         (<a href="#parameter-tupleintegers">tuple of integers</a>)
         &mdash; see
@@ -2451,6 +2477,13 @@ message_log = ~/.getmail/log
     </li>
     <li>
         allow_root_commands
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; see
+        <a href="#conf-filters-classifier">Filter_classifier</a>
+        for definition.
+    </li>
+    <li>
+        ignore_stderr
         (<a href="#parameter-boolean">boolean</a>)
         &mdash; see
         <a href="#conf-filters-classifier">Filter_classifier</a>

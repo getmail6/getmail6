@@ -1,3 +1,9 @@
+Version 4.7.2
+20 February 2007
+
+  -add ignore_stderr option to filters, copying same from MDA_external 
+  destination.  Thanks: Vittorio Beggi.
+
 Version 4.7.1
 2 February 2007
 

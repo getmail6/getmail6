@@ -78,9 +78,15 @@ class FilterSkeleton(ConfigurableBase):
             self.log.debug('filter %s returned %d; dropping message\n'
                 % (self, exitcode))
             return None
-        elif (exitcode not in self.exitcodes_keep) or err:
+        elif (exitcode not in self.exitcodes_keep):
             raise getmailFilterError('filter %s returned %d (%s)\n'
                 % (self, exitcode, err))
+        elif err:
+            if self.conf['ignore_stderr']:
+                self.log.info('filter %s: %s\n' % (self, err))
+            else:
+                raise getmailFilterError('filter %s returned %d (%s)\n'
+                    % (self, exitcode, err))
 
         # Check the filter was sane
         if len(newmsg.headers()) < len(msg.headers()):
@@ -147,6 +153,9 @@ class Filter_external(FilterSkeleton, ForkingBase):
       allow_root_commands (boolean, optional) - if set, external commands are
                                         allowed when running as root.  The
                                         default is not to allow such behaviour.
+
+      ignore_stderr (boolean, optional) - if set, getmail will not consider the
+            program writing to stderr to be an error.  The default is False.
     '''
     _confitems = (
         ConfFile(name='path'),
@@ -157,6 +166,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
         ConfString(name='user', required=False, default=None),
         ConfString(name='group', required=False, default=None),
         ConfBool(name='allow_root_commands', required=False, default=False),
+        ConfBool(name='ignore_stderr', required=False, default=False),
         ConfInstance(name='configparser', required=False),
     )
 
@@ -347,15 +357,18 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
                                 allowed when running as root.  The default is
                                 not to allow such behaviour.
 
+      ignore_stderr (boolean, optional) - if set, getmail will not consider the
+            program writing to stderr to be an error.  The default is False.
+
       conf-break - used to break envelope recipient to find EXT.  Defaults
                                 to "-".
-
     '''
     _confitems = (
         ConfFile(name='path', default='/usr/local/bin/tmda-filter'),
         ConfString(name='user', required=False, default=None),
         ConfString(name='group', required=False, default=None),
         ConfBool(name='allow_root_commands', required=False, default=False),
+        ConfBool(name='ignore_stderr', required=False, default=False),
         ConfString(name='conf-break', required=False, default='-'),
         ConfInstance(name='configparser', required=False),
     )
