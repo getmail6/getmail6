@@ -222,11 +222,17 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
     _confitems = (
         ConfInstance(name='configparser', required=False),
         ConfMboxPath(name='path'),
+        ConfString(name='locktype', required=False, default='lockf'),
         ConfString(name='user', required=False, default=None),
     )
 
     def initialize(self):
         self.log.trace()
+        if self.conf['locktype'] not in ('lockf', 'flock'):
+            raise getmailConfigurationError(
+                'unknown mbox lock type: %s'
+                % self.conf['locktype']
+            )
 
     def __str__(self):
         self.log.trace()
@@ -263,14 +269,14 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             fd = os.open(self.conf['path'], os.O_RDWR)
             status_old = os.fstat(fd)
             f = os.fdopen(fd, 'r+b')
-            lock_file(f)
+            lock_file(f, self.conf['locktype'])
             # Check if it _is_ an mbox file.  mbox files must start with "From "
             # in their first line, or are 0-length files.
             f.seek(0, 0)
             first_line = f.readline()
             if first_line and not first_line.startswith('From '):
                 # Not an mbox file; abort here
-                unlock_file(f)
+                unlock_file(f, self.conf['locktype'])
                 raise getmailDeliveryError('not an mboxrd file (%s)'
                     % self.conf['path'])
             # Seek to end
@@ -299,7 +305,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                     stdout.flush()
                     os.fsync(stdout.fileno())
 
-                unlock_file(f)
+                unlock_file(f, self.conf['locktype'])
 
             except IOError, o:
                 try:
@@ -499,7 +505,9 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
             if ((os.geteuid() == 0 or os.getegid() == 0)
                     and not self.conf['allow_root_commands']):
                 raise getmailConfigurationError(
-                    'refuse to invoke external commands as root or GID 0 by default')
+                    'refuse to invoke external commands as root '
+                    'or GID 0 by default'
+                )
 
             os.execl(*args)
         except StandardError, o:
@@ -573,9 +581,9 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
                 % (childpid, exitcode, err))
 
         if out and err:
-	    info = '%s:%s' % (out, err)
-	else:
-	    info = out or err
+            info = '%s:%s' % (out, err)
+        else:
+            info = out or err
 
         return 'MDA_qmaillocal (%s)' % info
 
@@ -675,7 +683,9 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             if ((os.geteuid() == 0 or os.getegid() == 0)
                     and not self.conf['allow_root_commands']):
                 raise getmailConfigurationError(
-                    'refuse to invoke external commands as root or GID 0 by default')
+                    'refuse to invoke external commands as root '
+                    'or GID 0 by default'
+                )
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)

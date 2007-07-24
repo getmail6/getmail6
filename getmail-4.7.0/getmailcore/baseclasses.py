@@ -28,8 +28,7 @@ import sets
 
 from getmailcore.exceptions import *
 import getmailcore.logging
-from getmailcore.utilities import eval_bool, expand_user_vars, lock_file, \
-    unlock_file
+from getmailcore.utilities import eval_bool, expand_user_vars
 
 #
 # Base classes
@@ -223,12 +222,10 @@ class ConfMboxPath(ConfString):
         fd = os.open(val, os.O_RDWR)
         status_old = os.fstat(fd)
         f = os.fdopen(fd, 'r+b')
-        lock_file(f)
         # Check if it _is_ an mbox file.  mbox files must start with "From "
         # in their first line, or are 0-length files.
         f.seek(0, 0)
         first_line = f.readline()
-        unlock_file(f)
         if first_line and first_line[:5] != 'From ':
             # Not an mbox file; abort here
             raise getmailConfigurationError(

@@ -598,15 +598,20 @@ path = ~/Maildir/
 Mboxrd
 
    The Mboxrd destination delivers to an mboxrd-format mbox file with
-   fcntl-type file locking. The file must already exist and appear to be
-   a valid mboxrd file before getmail will try to deliver to it --
-   getmail will not create the file if it does not exist.
+   either fcntl-type (lockf) or flock-type file locking. The file must
+   already exist and appear to be a valid mboxrd file before getmail will
+   try to deliver to it -- getmail will not create the file if it does
+   not exist.
 
-   You should ensure that all other programs accessing any the mbox file
-   expect mboxrd-format mbox files and fcntl-type file locking; failure
-   to do so can cause mbox corruption. Note that delivering to mbox files
-   over NFS can be unreliable and should be avoided; this is the case
-   with any MDA.
+   You must ensure that all other programs accessing any the mbox file
+   expect mboxrd-format mbox files and the same type of file locking that
+   you configure getmail to use; failure to do so can cause mbox
+   corruption. If you do not know what type of file locking your system
+   expects, ask your system administrator. If you are the system
+   administrator and don't know what type of file locking your system
+   expects, do not use Mboxrd files; use Maildirs instead. Note that
+   delivering to mbox files over NFS can be unreliable and should be
+   avoided; this is the case with any MDA.
 
    The Mboxrd destination takes one required parameter:
      * path (string) -- the path to the mbox file. This value will be
@@ -618,13 +623,16 @@ Mboxrd
 type = Mboxrd
 path = ~/inbox
 
-   The Mboxrd destination also takes one optional parameters:
+   The Mboxrd destination also takes two optional parameters:
      * user (string) -- on Unix-like systems, if supplied, getmail will
        change the effective UID to that of the named user before
        delivering messages to the mboxrd file. Note that this typically
        requires root privileges. getmail will not deliver to mbox files
        as root, so this "optional" parameter is required in that
        situation.
+     * locktype (string) -- which type of file locking to use; may be
+       "lockf" (for fcntl locking) or "flock". The default in getmail
+       4.7.0 and later is lockf.
 
 MDA_external
 

@@ -1151,16 +1151,21 @@ path = ~/Maildir/
 <p>
     The Mboxrd destination delivers to an
     <a href="http://qmail.org/man/man5/mbox.html">mboxrd-format mbox file</a>
-    with fcntl-type file locking.  The file must already exist and appear to be
-    a valid mboxrd file before getmail will try to deliver to it &mdash; getmail
-    will
+    with either fcntl-type (lockf) or flock-type file locking.  The file must 
+    already exist and appear to be a valid mboxrd file before getmail will try
+    to deliver to it &mdash; getmail will
     <strong>not</strong>
     create the file if it does not exist.
 </p>
 <p class="warning">
-    You should ensure that all other programs accessing any the mbox file expect
-    mboxrd-format mbox files and fcntl-type file locking; failure to do so can
-    cause mbox corruption. Note that delivering to mbox files over NFS can be
+    You must ensure that all other programs accessing any the mbox file expect
+    mboxrd-format mbox files and the same type of file locking that you 
+    configure getmail to use; failure to do so can cause mbox corruption. 
+    If you do not know what type of file locking your system expects, ask
+    your system administrator.
+    If you are the system administrator and don't know what type of file locking
+    your system expects, do not use Mboxrd files; use Maildirs instead.
+    Note that delivering to mbox files over NFS can be
     unreliable and should be avoided; this is the case with any MDA.
 </p>
 <p>
@@ -1191,7 +1196,7 @@ path = ~/inbox
     </li>
 </ul>
 <p>
-    The Mboxrd destination also takes one optional parameters:
+    The Mboxrd destination also takes two optional parameters:
 </p>
 <ul>
     <li>
@@ -1202,6 +1207,16 @@ path = ~/inbox
         the mboxrd file.  Note that this typically requires root privileges.
         getmail will not deliver to mbox files as root, so this
         &quot;optional&quot; parameter is required in that situation.
+    </li>
+    <li>
+        locktype
+        (<a href="#parameter-string">string</a>)
+        &mdash; which type of file locking to use; may be 
+        &quot;<span class="file">lockf</span>&quot;
+        (for fcntl locking) or
+        &quot;<span class="file">flock</span>&quot;.
+        The default in getmail 4.7.0 and later is 
+        <span class="file">lockf</span>.
     </li>
 </ul>
 

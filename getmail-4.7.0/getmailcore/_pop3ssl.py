@@ -119,7 +119,8 @@ class POP3SSL(POP3):
         msg = "getaddrinfo returns an empty list"
         self.rawsock = None
         self.sock = None
-        for res in socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_STREAM):
+        for res in socket.getaddrinfo(self.host, self.port, 0, 
+                                      socket.SOCK_STREAM):
             af, socktype, proto, canonname, sa = res
             try:
                 self.rawsock = socket.socket(af, socktype, proto)
@@ -144,8 +145,10 @@ class POP3SSL(POP3):
     # Raise error_proto('-ERR EOF') if the connection is closed.
     def _getline(self):
         line = self.sock.readline()
-        if self._debugging > 1: print '*get*', `line`
-        if not line: raise error_proto('-ERR EOF')
+        if self._debugging > 1: 
+            print '*get*', `line`
+        if not line:
+            raise error_proto('-ERR EOF')
         octets = len(line)
         # server can send any combination of CR & LF
         # however, 'readline()' returns lines ending in LF
@@ -157,7 +160,8 @@ class POP3SSL(POP3):
         return line[:-1], octets
 
     def quit(self):
-        """Signoff: commit changes on server, unlock mailbox, close connection."""
+        """Signoff: commit changes on server, unlock mailbox, close connection.
+        """
         try:
             resp = self._shortcmd('QUIT')
         except (error_proto, socket.error), val:

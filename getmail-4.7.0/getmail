@@ -163,7 +163,7 @@ def go(configs):
                             info += ' not retrieved (%s)' % reason
 
                     if (options['delete_after'] and timestamp
-                            and (now - timestamp)/86400
+                            and (now - timestamp) / 86400
                                 >= options['delete_after']):
                         log.debug('    older than %d days (%s seconds),'
                             ' will delete\n'
@@ -263,9 +263,11 @@ def go(configs):
         try:
             retriever.quit()
         except getmailOperationError, o:
-            log.debug('%s: operation error during quit (%s)\n' % (configfile, o))
+            log.debug('%s: operation error during quit (%s)\n' 
+                      % (configfile, o))
             if options['logfile']:
-                options['logfile'].write('%s: operation error during quit (%s)' % (configfile, o))
+                options['logfile'].write('%s: operation error during quit (%s)' 
+                                         % (configfile, o))
 
     if sum([i for (unused, i, unused) in summary]) and oplevel > 1:
         log.info('Summary:\n')

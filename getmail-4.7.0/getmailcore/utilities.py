@@ -50,14 +50,22 @@ _bool_values = {
 }
 
 #######################################
-def lock_file(file):
-    '''Do fcntl file locking.'''
-    fcntl.flock(file.fileno(), fcntl.LOCK_EX)
+def lock_file(file, locktype):
+    '''Do file locking.'''
+    assert locktype in ('lockf', 'flock'), 'unknown lock type %s' % locktype
+    if locktype == 'lockf':
+        fcntl.lockf(file, fcntl.LOCK_EX)
+    elif locktype == 'flock':
+        fcntl.flock(file, fcntl.LOCK_EX)
 
 #######################################
-def unlock_file(file):
-    '''Do fcntl file unlocking.'''
-    fcntl.flock(file.fileno(), fcntl.LOCK_UN)
+def unlock_file(file, locktype):
+    '''Do file unlocking.'''
+    assert locktype in ('lockf', 'flock'), 'unknown lock type %s' % locktype
+    if locktype == 'lockf':
+        fcntl.lockf(file, fcntl.LOCK_UN)
+    elif locktype == 'flock':
+        fcntl.flock(file, fcntl.LOCK_UN)
 
 #######################################
 def safe_open(path, mode, permissions=0600):
@@ -139,14 +147,14 @@ class logfile(object):
 
     def write(self, s):
         try:
-            lock_file(self.file)
+            lock_file(self.file, 'flock')
             # Seek to end
             self.file.seek(0, 2)
             self.file.write(time.strftime(logtimeformat, time.localtime())
                 + ' ' + s.rstrip() + os.linesep)
             self.file.flush()
         finally:
-            unlock_file(self.file)
+            unlock_file(self.file, 'flock')
 
 #######################################
 def format_params(d, maskitems=('password', ), skipitems=()):
@@ -180,20 +188,26 @@ def is_maildir(d):
     '''
     dir_parent = os.path.dirname(d.endswith('/') and d[:-1] or d)
     if not os.access(dir_parent, os.X_OK):
-        raise getmailConfigurationError('cannot read contents of parent '
-            'directory of %s - check permissions and ownership' % d)
+        raise getmailConfigurationError(
+            'cannot read contents of parent directory of %s '
+            '- check permissions and ownership' % d
+        )
     if not os.path.isdir(d):
         return False
     if not os.access(d, os.X_OK):
-        raise getmailConfigurationError('cannot read contents of '
-            'directory %s - check permissions and ownership' % d)
+        raise getmailConfigurationError(
+            'cannot read contents of directory %s '
+            '- check permissions and ownership' % d
+        )
     for sub in ('tmp', 'cur', 'new'):
         subdir = os.path.join(d, sub)
         if not os.path.isdir(subdir):
             return False
         if not os.access(subdir, os.W_OK):
-            raise getmailConfigurationError('cannot write to maildir '
-                '%s - check permissions and ownership' % d)
+            raise getmailConfigurationError(
+                'cannot write to maildir %s '
+                '- check permissions and ownership' % d
+            )
     return True
 
 #######################################

@@ -116,9 +116,9 @@ class Py24POP3SSLinitMixIn(object):
             raise getmailOperationError('error resolving name %s during'
                 ' connect (%s)' % (self.conf['server'], o))
 
-	self.conn.sock.setblocking(1)
+        self.conn.sock.setblocking(1)
         self.log.trace('POP3 connection %s established' % self.conn 
-            + os.linesep)
+                       + os.linesep)
 
 #######################################
 class Py23POP3SSLinitMixIn(object):
@@ -701,7 +701,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.gotmsglist = True
 
     def __getitem__(self, i):
-	return self._mboxuidorder[i]
+        return self._mboxuidorder[i]
     
     def _delmsgbyid(self, msgid):
         self.log.trace()
