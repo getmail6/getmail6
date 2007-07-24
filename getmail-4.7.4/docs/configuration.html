@@ -22,7 +22,7 @@
     software.
 </p>
 <p class="about">
-    getmail is Copyright &copy; 1998-2006 Charles Cazabon.
+    getmail is Copyright &copy; 1998-2007 Charles Cazabon.
 </p>
 <p class="about">
     getmail is licensed under the
@@ -1095,6 +1095,19 @@ envelope_recipient = delivered-to:1
 <p>
     The Maildir destination delivers to a qmail-style
     <a href="http://cr.yp.to/proto/maildir.html">maildir</a>.
+    The maildir must already exist, and must contain all of the
+    subdirectories required by the maildir format.  
+    getmail will
+    <strong>not</strong>
+    create the maildir if it does not exist.
+    If you're not familiar with the maildir format, the requirements
+    in a nutshell are:  it must be a directory containing three
+    writable subdirectories 
+    <span class="file">cur</span>,
+    <span class="file">new</span>,
+    and
+    <span class="file">tmp</span>,
+    and they must all reside on the same filesystem.
 </p>
 <p>
     The Maildir destination takes one required parameter:
@@ -1156,7 +1169,8 @@ path = ~/Maildir/
     already exist and appear to be a valid mboxrd file before getmail will try
     to deliver to it &mdash; getmail will
     <strong>not</strong>
-    create the file if it does not exist.
+    create the file if it does not exist.  If you want to create a new mboxrd
+    file for getmail to use, simply create a completely empty (0-byte) file.
 </p>
 <p class="warning">
     You must ensure that all other programs accessing any the mbox file expect

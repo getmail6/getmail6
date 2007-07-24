@@ -7,7 +7,7 @@
    please refer to the documentation included with that version of the
    software.
 
-   getmail is Copyright (c) 1998-2006 Charles Cazabon.
+   getmail is Copyright (c) 1998-2007 Charles Cazabon.
 
    getmail is licensed under the GNU General Public License version 2 (only).
    If you wish to obtain a license to distribute getmail under other terms,
@@ -62,6 +62,12 @@ Error messages
    The specified maildir path path does not appear to be a valid maildir.
    Check to ensure that it is a valid maildir, and that getmail has
    permission to write to it.
+
+    Configuration error: ... (path: maildir subdirectory "path" does not exist)
+
+   The specified maildir path path does not appear to be a valid maildir, as
+   it is missing one of the required subdirectories. Check to ensure that it
+   is a valid maildir and that getmail has permission to write to it.
 
     Configuration error: not an mboxrd file (path)
 
@@ -141,6 +147,26 @@ Error messages
 
    The POP3 server for this particular account was not able to uniquely
    identify the messages in the mailstore. You can use the
+   BrokenUIDLPOP3Retriever class with this server instead, but functionality
+   is limited because of the inability to identify messages properly.
+
+    Error: server-info failed to identify message X in UIDL output ...
+
+   The POP3 server for this particular account completely failed to identify
+   one of the messages in the mailstore when the UIDL command was issued. The
+   POP server is in violation of the POP3 protocol, and getmail has no way to
+   identify the message in question.
+
+   The most common cause of this is servers that use the contents of the
+   Message-ID: header field as the UIDL value for the message - some messages
+   (usually spam) lack a Message-ID: header field entirely, causing these
+   servers to emit blank UIDL values for these messages, which is not
+   permitted by the POP3 protocol. You may be able to work around the problem
+   by deleting the problematic message(s) from the mailstore by other means
+   (such as a webmail interface provided by your POP3 mailhost).
+
+   Otherwise, you'll need to either ask the postmaster of the POP3 mail host
+   to fix the POP3 software they're using. In the meantime, you can use the
    BrokenUIDLPOP3Retriever class with this server instead, but functionality
    is limited because of the inability to identify messages properly.
 

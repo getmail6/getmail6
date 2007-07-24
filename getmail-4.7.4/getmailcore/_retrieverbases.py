@@ -419,10 +419,21 @@ class POP3RetrieverBase(RetrieverSkeleton):
             response, msglist, octets = self.conn.uidl()
             self.log.debug('UIDL response "%s", %d octets'
                 % (response, octets) + os.linesep)
-            for line in msglist:
-                msgnum, msgid = line.split(None, 1)
+            for (i, line) in enumerate(msglist):
+                try:
+                    (msgnum, msgid) = line.split(None, 1)
+                except ValueError:
+                    # Line didn't contain two tokens.  Server is broken.
+                    raise getmailOperationError(
+                        '%s failed to identify message %d in UIDL output'
+                        ' -- see documentation or use '
+                        'BrokenUIDLPOP3Retriever instead'
+                        % (self, msgnum)
+                    )
                 msgnum = int(msgnum)
                 if msgid in self.msgnum_by_msgid:
+                    # UIDL "unique" identifiers weren't unique.  
+                    # Server is broken.
                     if self.conf.get('delete_dup_msgids', False):
                         self.log.debug('deleting message %s with duplicate '
                                        'msgid %s' % (msgnum, msgid) 

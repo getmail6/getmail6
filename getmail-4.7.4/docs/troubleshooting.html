@@ -22,7 +22,7 @@
     software.
 </p>
 <p class="about">
-    getmail is Copyright &copy; 1998-2006 Charles Cazabon.
+    getmail is Copyright &copy; 1998-2007 Charles Cazabon.
 </p>
 <p class="about">
     getmail is licensed under the
@@ -85,6 +85,7 @@
                     <li><a href="troubleshooting.html#errmsg-config-parameter-wrong-type">Configuration error: configuration value <span class="meta">name</span> (<span class="meta">value</span>) not of required type <span class="meta">type</span> (<span class="meta">why</span>)</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-maildir-slash">Configuration error: maildir path missing trailing /</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-maildir-not">Configuration error: not a maildir (<span class="meta">path</span>)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-maildir-not2">Configuration error: ... (path: maildir subdirectory &quot;<span class="meta">path</span>&quot; does not exist)</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-mboxrd-not">Configuration error: not an mboxrd file (<span class="meta">path</span>)</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-mboxrd-missing">Configuration error: mboxrd does not exist</a></li>
                     <li><a href="troubleshooting.html#errmsg-config-envelope-recipient">Configuration error: the <span class="meta">fieldname</span> header field does not record the envelope recipient address</a></li>
@@ -106,6 +107,7 @@
                 <li>
                     <ul>
                     <li><a href="troubleshooting.html#errmsg-operation-notunique">Error: <span class="meta">server-info</span> does not uniquely identify messages &hellip;</a></li>
+                    <li><a href="troubleshooting.html#errmsg-operation-uidlbroken">Error: <span class="meta">server-info</span> failed to identify message <span class="meta">X</span> in UIDL output &hellip;</a></li>
                     </ul>
                 </li>
                 </ul>
@@ -220,6 +222,16 @@
     maildir, and that getmail has permission to write to it.
 </p>
 
+<h4 id="errmsg-config-maildir-not2" class="errmsg">Configuration error: ... (path: maildir subdirectory &quot;<span class="meta">path</span>&quot; does not exist)</h4>
+<p>
+    The specified maildir path
+    <span class="meta">path</span>
+    does not appear to be a valid maildir, as it is missing one of the required
+    subdirectories.  Check to ensure that it is a valid
+    <a href="http://cr.yp.to/proto/maildir.html">maildir</a>
+    and that getmail has permission to write to it.
+</p>
+
 <h4 id="errmsg-config-mboxrd-not" class="errmsg">Configuration error: not an mboxrd file (<span class="meta">path</span>)</h4>
 <p>
     The specified mboxrd path
@@ -316,6 +328,29 @@
     <span class="file">BrokenUIDLPOP3Retriever</span> class with this server instead,
     but functionality is limited because of the inability to identify messages
     properly.
+</p>
+
+<h4 id="errmsg-operation-uidlbroken" class="errmsg">Error: <span class="meta">server-info</span> failed to identify message <span class="meta">X</span> in UIDL output &hellip;</h4>
+<p>
+    The POP3 server for this particular account completely failed to identify 
+    one of the messages in the mailstore when the UIDL command was issued.
+    The POP server is in violation of the POP3 protocol, and getmail has no way
+    to identify the message in question.
+</p>
+<p>
+    The most common cause of this is servers that use the contents of the
+    Message-ID: header field as the UIDL value for the message - some messages
+    (usually spam) lack a Message-ID: header field entirely, causing these 
+    servers to emit blank UIDL values for these messages, which is not 
+    permitted by the POP3 protocol.  You may be able to work around the problem
+    by deleting the problematic message(s) from the mailstore by other means
+    (such as a webmail interface provided by your POP3 mailhost).
+</p>
+    Otherwise, you'll need to either ask the postmaster of the POP3 mail host
+    to fix the POP3 software they're using.  In the meantime, you can use the 
+    <span class="file">BrokenUIDLPOP3Retriever</span> class with this server 
+    instead, but functionality is limited because of the inability to identify 
+    messages properly.
 </p>
 
 <!-- ********************************************************************** -->

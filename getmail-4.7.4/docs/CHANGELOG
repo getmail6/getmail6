@@ -1,3 +1,10 @@
+Version 4.7.4
+24 April 2007
+
+  -explicitly watch for broken POP3 servers that return a blank UIDL value
+  (not permitted by the POP3 protocol) and print a fatal error message.
+  Thanks: Florian Hackenberger and Cameron Rangeley.
+
 Version 4.7.3
 18 March 2007
 
