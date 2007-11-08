@@ -7,8 +7,8 @@
    please refer to the documentation included with that version of the
    software.
 
-   getmail is Copyright (c) 1998-2007 Charles Cazabon. <getmail @
-   discworld.dyndns.org>
+   getmail is Copyright (c) 1998-2007 Charles Cazabon. <charlesc-getmail @
+   pyropus.ca>
 
    getmail is licensed under the GNU General Public License version 2 (only).
    If you wish to obtain a license to distribute getmail under other terms,
@@ -336,21 +336,21 @@ getmail mailing lists
     How to subscribe
 
    To subscribe to the list, send a blank email to <getmail-subscribe @
-   discworld.dnsalias.org> and follow the instructions in the message you
-   receive. Read and save the "welcome" message you receive when you
-   subscribe; it contains valuable instructions about how to use the list.
+   lists.pyropus.ca> and follow the instructions in the message you receive.
+   Read and save the "welcome" message you receive when you subscribe; it
+   contains valuable instructions about how to use the list.
 
     How to unsubscribe
 
    To un-subscribe from the list, send a blank email from the same address
-   you subscribed with to <getmail-unsubscribe @ discworld.dnsalias.org> and
-   follow the instructions in the message you receive.
+   you subscribed with to <getmail-unsubscribe @ lists.pyropus.ca> and follow
+   the instructions in the message you receive.
 
     How to post
 
    Once you have subscribed to the list, you may post messages to the list by
-   sending them to <getmail @ discworld.dnsalias.org>. Complete instructions
-   for using the list are sent to you when you subscribe.
+   sending them to <getmail @ lists.pyropus.ca>. Complete instructions for
+   using the list are sent to you when you subscribe.
 
    The list allows plaintext message bodies and plaintext attachments. Do not
    attempt to send binary files (gzip, etc), HTML, or other types, as they
@@ -402,7 +402,7 @@ getmail mailing lists
     How to subscribe
 
    To subscribe to the list, send a blank email to
-   <getmail-announce-subscribe @ discworld.dnsalias.org> and follow the
+   <getmail-announce-subscribe @ lists.pyropus.ca> and follow the
    instructions in the message you receive. Read and save the "welcome"
    message you receive when you subscribe; it contains valuable instructions
    about how to use the list.
@@ -410,9 +410,8 @@ getmail mailing lists
     How to unsubscribe
 
    To un-subscribe from the list, send a blank email from the same address
-   you subscribed with to <getmail-announce-unsubscribe @
-   discworld.dnsalias.org> and follow the instructions in the message you
-   receive.
+   you subscribed with to <getmail-announce-unsubscribe @ lists.pyropus.ca>
+   and follow the instructions in the message you receive.
 
     How to post
 

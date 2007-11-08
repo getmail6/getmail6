@@ -80,7 +80,7 @@ About getmail
 
    If you are using getmail in a commercial or other environment where
    problems cost money, consider contacting me privately for commercial
-   support, by emailing <getmail-support @ discworld.dyndns.org>
+   support, by emailing <charlesc-getmail-support @ pyropus.ca>
 
    If you have questions about getmail, the first step is to read the
    documentation, and the remainder of the Frequently Asked Questions. If
@@ -89,9 +89,9 @@ About getmail
 
    If you still haven't found an answer to your question, please subscribe to
    the getmail users' mailing list by sending a blank email to
-   <getmail-subscribe @ discworld.dnsalias.org>. If you post your question
-   there, I will see it. As an additional bonus, your question may be
-   answered by another member of the list.
+   <getmail-subscribe @ lists.pyropus.ca>. If you post your question there, I
+   will see it. As an additional bonus, your question may be answered by
+   another member of the list.
 
   I think I found a bug! How do I report it?
 
@@ -114,7 +114,7 @@ About getmail
        plus --trace, showing the retrieval of one problematic message.
 
    If you absolutely cannot sign up for the mailing list, send the report to
-   me directly at <getmail-bugs @ discworld.dyndns.org>. I may not be able to
+   me directly at <charlesc-getmail-bugs @ pyropus.ca>. I may not be able to
    respond to all reports privately, but I will try to address any bugs I
    find out about this way.
 
@@ -1010,3 +1010,16 @@ I think I found this bug in getmail ...
        server, and use BrokenUIDLPOP3Retriever instead.
      * Talk to your mail hosting provider, and see if they can fix their POP3
        software so that it doesn't have this problem any more.
+
+  MemoryError on OS X
+
+   If you see errors like this while running getmail on Macintosh OS XT:
+
+ python2.5(27172) malloc: *** vm_allocate(size=15699968) failed (error code=3)
+ python2.5(27172) malloc: *** error: can't allocate region
+ python2.5(27172) malloc: *** set a breakpoint in szone_error to debug
+ [...]
+
+   ... which then end with MemoryError, please report the problem to Apple.
+   The OS X implementation of realloc() is broken, and there's nothing
+   getmail can do about it.

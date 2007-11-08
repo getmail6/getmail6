@@ -740,7 +740,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                 % (self.conf['command'], childpid, exitcode, err))
         elif err:
             # User said to ignore stderr, just log it.
-            self.log.error('%s: command said "%s"' % (self, err))
+            self.log.info('command %s: %s' % (self, err))
 
         return 'MDA_external command %s (%s)' % (self.conf['command'], out)
 

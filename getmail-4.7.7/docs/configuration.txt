@@ -272,8 +272,13 @@ Creating a getmail rc file
 
      * use_apop (boolean) -- if set to True, getmail will use APOP-style
        authentication to log in to the server instead of normal USER/PASS
-       authentication. This is not supported by many POP3 servers. The
-       default is False.
+       authentication. This is not supported by many POP3 servers. Note that
+       APOP adds much less security than might be supposed; weaknesses in its
+       hashing algorithm mean that an attacker can recover the first three
+       characters of the password after snooping on only a few hundred
+       authentications between a client and server -- see
+       http://www.securityfocus.com/archive/1/464477/30/0/threaded for
+       details. The default is False.
      * timeout (integer) -- how long (in seconds) to wait for socket
        operations to complete before considering them failed. If not
        specified, the default is 180 seconds. You may need to increase this

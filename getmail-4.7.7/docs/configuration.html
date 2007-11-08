@@ -562,7 +562,13 @@ type = <span class="meta">typename</span>
         (<a href="#parameter-boolean">boolean</a>)
         &mdash; if set to True, getmail will use APOP-style authentication to
         log in to the server instead of normal USER/PASS authentication.  This
-        is not supported by many POP3 servers.  The default is
+        is not supported by many POP3 servers.  Note that APOP adds much less
+        security than might be supposed; weaknesses in its hashing algorithm
+        mean that an attacker can recover the first three characters of the
+        password after snooping on only a few hundred authentications between
+        a client and server &mdash; see 
+        <a href="http://www.securityfocus.com/archive/1/464477/30/0/threaded">http://www.securityfocus.com/archive/1/464477/30/0/threaded</a>
+        for details.  The default is
         <span class="file">False</span>.
     </li>
     <li>

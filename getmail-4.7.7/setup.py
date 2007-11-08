@@ -67,7 +67,7 @@ setup(
         'filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and '
         'other advanced features.'),
     author='Charles Cazabon',
-    author_email='getmail@discworld.dyndns.org',
+    author_email='charlesc-getmail@pyropus.ca',
     license='GNU GPL version 2',
     url='http://pyropus.ca/software/getmail/',
     download_url='http://pyropus.ca/software/getmail/#download',

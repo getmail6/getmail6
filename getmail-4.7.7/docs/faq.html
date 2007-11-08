@@ -177,6 +177,7 @@
                 <li><a href="faq.html#faq-notabug-futurewarning">FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up</a></li>
                 <li><a href="faq.html#faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</a></li>
                 <li><a href="faq.html#faq-notabug-brokenpopserver">operation error (SimplePOP3Retriever: [...] does not uniquely identify messages [...] see documentation or use BrokenUIDLPOP3Retriever instead</a></li>
+                <li><a href="faq.html#faq-notabug-osx-realloc">MemoryError on OS X</a></li>
                 </ul>
             </li>
             </ul>
@@ -270,7 +271,7 @@
 <p>
     If you are using getmail in a commercial or other environment where problems
     cost money, consider contacting me privately for commercial support, by
-    emailing &lt;getmail-support @ discworld.dyndns.org&gt;
+    emailing &lt;charlesc-getmail-support @ pyropus.ca&gt;
 </p>
 <p>
     If you have questions about getmail, the first step is to read the
@@ -284,7 +285,7 @@
     the
     <a href="documentation.html#mailing-list-users">getmail users' mailing list</a>
     by sending a blank email to &lt;getmail-subscribe @
-    discworld.dnsalias.org&gt;. If you post your question there, I will see it.
+    lists.pyropus.ca&gt;. If you post your question there, I will see it.
     As an additional bonus, your question may be answered by another member of
     the list.
 </p>
@@ -327,7 +328,7 @@
 <p>
     If you absolutely cannot sign up for the mailing list, send the report to me
     directly at
-    &lt;getmail-bugs @ discworld.dyndns.org&gt;.
+    &lt;charlesc-getmail-bugs @ pyropus.ca&gt;.
     I may not be able to respond to all reports privately, but I will
     try to address any bugs I find out about this way.
 </p>
@@ -1656,6 +1657,26 @@ type = Filter_TMDA
         POP3 software so that it doesn't have this problem any more.
     </li>
 </ul>
+
+<h3 id="faq-notabug-osx-realloc">MemoryError on OS X</h3>
+<p>
+    If you see errors like this while running getmail on Macintosh OS XT:
+</p>
+<pre class="example">
+python2.5(27172) malloc: *** vm_allocate(size=15699968) failed (error code=3)
+python2.5(27172) malloc: *** error: can't allocate region
+python2.5(27172) malloc: *** set a breakpoint in szone_error to debug
+[...]
+</pre>
+<p>
+    ... which then end with <span class="sample">MemoryError</span>,
+    please report the problem to Apple.
+    The 
+    <a href="http://bugs.python.org/issue1092502">OS X implementation of realloc() is broken</a>,
+    and there's nothing getmail can do about it.
+</p>
+
+
 
         <!--#include virtual="/include/footer-xhtml11.html"-->
     </div>
