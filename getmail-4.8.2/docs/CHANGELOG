@@ -1,3 +1,13 @@
+Version 4.8.2
+2 August 2008
+
+  -for IMAP retrievers, keep message state around for 30 days even if the 
+  corresponding message isn't seen.  This allows users to have multiple rc
+  files with different IMAP folders to retrieve from without losing their
+  "seen" mail state for the folders they're not currently retrieving from.
+  You no longer need to work around this with different getmail state
+  directories.  Thanks: ?.
+
 Version 4.8.1
 26 March 2008
 

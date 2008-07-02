@@ -61,6 +61,13 @@ NOT_ENVELOPE_RECIPIENT_HEADERS = (
     'resent-bcc'
 )
 
+# How long a vanished message is kept in the oldmail state file for IMAP
+# retrievers before we figure it's gone for good.  This is to allow users
+# to only occasionally retrieve mail from certain IMAP folders without
+# losing their oldmail state for that folder.  This is in seconds, so it's
+# 30 days.
+VANISHED_AGE = (60 * 60 * 24 * 30)
+
 #
 # Mix-in classes
 #
@@ -334,7 +341,7 @@ class RetrieverSkeleton(ConfigurableBase):
             for (msgid, timestamp) in [
                 line.strip().split('\0', 1) for line in open(
                     self.oldmail_filename, 'rb'
-                ) if (line.strip()!='' and '\0' in line)
+                ) if (line.strip() and '\0' in line)
             ]:
                 self.oldmail[msgid] = int(timestamp)
             self.log.moreinfo('read %i uids for %s' % (len(self.oldmail), self)
@@ -843,10 +850,15 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.log.debug('msgids: %s'
                            % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
             self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
-            # Remove messages from state file that are no longer in mailbox
+            # Remove messages from state file that are no longer in mailbox, 
+            # but only if the timestamp for them are old (30 days for now).
+            # This is because IMAP users can have one state file but multiple
+            # IMAP folders in different configuration rc files.
             for msgid in self.oldmail.keys():
-                if not self.msgsizes.has_key(msgid):
-                    self.log.debug('removing vanished message id %s' % msgid
+                timestamp = self.oldmail[msgid]
+                age = self.timestamp - timestamp
+                if not self.msgsizes.has_key(msgid) and age > VANISHED_AGE:
+                    self.log.debug('removing vanished old message id %s' % msgid
                                    + os.linesep)
                     del self.oldmail[msgid]
         except imaplib.IMAP4.error, o:
