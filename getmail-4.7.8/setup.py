@@ -100,6 +100,7 @@ setup(
     data_files=[
         (GETMAILDOCDIR, [
             './README',
+            './getmail.spec',
             'docs/BUGS',
             'docs/COPYING',
             'docs/CHANGELOG',

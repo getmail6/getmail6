@@ -669,6 +669,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.trace()
         if mailbox == self.mailbox:
             return
+	if self.mailbox is not None:
+	    # Close current mailbox so deleted mail is expunged.
+	    self.conn.close()
         self.log.debug('selecting mailbox "%s"' % mailbox + os.linesep)
         try:
             response = self._parse_imapcmdresponse('SELECT', mailbox)
