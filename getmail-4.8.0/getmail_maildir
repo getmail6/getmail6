@@ -21,8 +21,8 @@ Place - Suite 330, Boston, MA  02111-1307, USA.
 import sys
 
 if sys.hexversion < 0x2030300:
-    raise ImportError('getmail version 4 requires Python version 2.3.3'
-                      ' or later')
+    raise ImportError('getmail version 4 requires Python version 2.3.3 '
+                      'or later')
 
 import os
 

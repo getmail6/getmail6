@@ -79,8 +79,8 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
 
     def showconf(self):
         self.log.trace()
-        self.log.info('SimplePOP3Retriever(%s)' % self._confstring() 
-            + os.linesep)
+        self.log.info('SimplePOP3Retriever(%s)' % self._confstring()
+                      + os.linesep)
 
 #######################################
 class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
@@ -115,15 +115,15 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('SimplePOP3SSLRetriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)
 
 #######################################
 class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
-    '''Retriever base class for single-user POP3 mailboxes on servers that do 
-    not properly assign unique IDs to messages.  Since with these broken servers 
-    we cannot rely on UIDL, we have to use message numbers, which are unique 
-    within a POP3 session, but which change across sessions.  This class 
-    therefore can not be used to leave old mail on the server and download only 
+    '''Retriever base class for single-user POP3 mailboxes on servers that do
+    not properly assign unique IDs to messages.  Since with these broken servers
+    we cannot rely on UIDL, we have to use message numbers, which are unique
+    within a POP3 session, but which change across sessions.  This class
+    therefore can not be used to leave old mail on the server and download only
     new mail.
     '''
     received_from = None
@@ -142,7 +142,7 @@ class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
         '''Don't rely on UIDL; instead, use just the message number.'''
         self.log.trace()
         try:
-            response, msglist, octets = self.conn.list()
+            (response, msglist, octets) = self.conn.list()
             for line in msglist:
                 msgnum = int(line.split()[0])
                 msgsize = int(line.split()[1])
@@ -181,7 +181,7 @@ class BrokenUIDLPOP3Retriever(BrokenUIDLPOP3RetrieverBase, POP3initMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('BrokenUIDLPOP3Retriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)
 
 #######################################
 class BrokenUIDLPOP3SSLRetriever(BrokenUIDLPOP3RetrieverBase, POP3SSLinitMixIn):
@@ -213,7 +213,7 @@ class BrokenUIDLPOP3SSLRetriever(BrokenUIDLPOP3RetrieverBase, POP3SSLinitMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('BrokenUIDLPOP3SSLRetriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)
 
 #######################################
 class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
@@ -246,7 +246,7 @@ class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('MultidropPOP3Retriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)
 
 #######################################
 class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
@@ -281,7 +281,7 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('MultidropPOP3SSLRetriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)
 
 #######################################
 class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
@@ -322,7 +322,7 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('MultidropSDPSRetriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)
 
     def _getmsgbyid(self, msgid):
         self.log.trace()
@@ -333,8 +333,9 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
             msgnum = self._getmsgnumbyid(msgid)
             resp, lines, octets = self.conn._longcmd('*ENV %i' % msgnum)
         except poplib.error_proto, o:
-            raise getmailConfigurationError('server does not support *ENV (%s)'
-                % o)
+            raise getmailConfigurationError(
+                'server does not support *ENV (%s)' % o
+            )
         if len(lines) < 4:
             raise getmailOperationError('short *ENV response (%s)' % lines)
         msg.sender = lines[2]
@@ -354,7 +355,8 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
         ConfInt(name='port', required=False, default=imaplib.IMAP4_PORT),
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
-        ConfTupleOfStrings(name='mailboxes', required=False, default="('INBOX', )"),
+        ConfTupleOfStrings(name='mailboxes', required=False,
+                           default="('INBOX', )"),
         ConfString(name='move_on_delete', required=False, default=None),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
         # .authenticate(), so we can't do this yet (?).
@@ -375,7 +377,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('SimpleIMAPRetriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)
 
 #######################################
 class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
@@ -391,7 +393,8 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
         ConfInt(name='port', required=False, default=imaplib.IMAP4_SSL_PORT),
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
-        ConfTupleOfStrings(name='mailboxes', required=False, default="('INBOX', )"),
+        ConfTupleOfStrings(name='mailboxes', required=False,
+                           default="('INBOX', )"),
         ConfString(name='move_on_delete', required=False, default=None),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
@@ -414,7 +417,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('SimpleIMAPSSLRetriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)
 
 #######################################
 class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
@@ -429,7 +432,8 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
         ConfInt(name='port', required=False, default=imaplib.IMAP4_PORT),
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
-        ConfTupleOfStrings(name='mailboxes', required=False, default="('INBOX', )"),
+        ConfTupleOfStrings(name='mailboxes', required=False,
+                           default="('INBOX', )"),
         ConfString(name='move_on_delete', required=False, default=None),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
         # .authenticate(), so we can't do this yet (?).
@@ -451,7 +455,7 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('MultidropIMAPRetriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)
 
 #######################################
 class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
@@ -467,7 +471,8 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
         ConfInt(name='port', required=False, default=110),
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
-        ConfTupleOfStrings(name='mailboxes', required=False, default="('INBOX', )"),
+        ConfTupleOfStrings(name='mailboxes', required=False,
+                           default="('INBOX', )"),
         ConfString(name='move_on_delete', required=False, default=None),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
@@ -491,4 +496,4 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
     def showconf(self):
         self.log.trace()
         self.log.info('MultidropIMAPSSLRetriever(%s)' % self._confstring()
-            + os.linesep)
+                      + os.linesep)

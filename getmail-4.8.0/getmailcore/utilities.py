@@ -93,13 +93,13 @@ class updatefile(object):
         self.closed = False
         self.filename = filename
         self.tmpname = filename + '.tmp.%d' % os.getpid()
-	# If the target is a symlink, the rename-on-close semantics of this
-	# class would break the symlink, replacing it with the new file.
-	# Instead, follow the symlink here, and replace the target file on
-	# close.
-	while os.path.islink(filename):
-	    filename = os.path.join(os.path.dirname(filename),
-	                            os.readlink(filename))
+        # If the target is a symlink, the rename-on-close semantics of this
+        # class would break the symlink, replacing it with the new file.
+        # Instead, follow the symlink here, and replace the target file on
+        # close.
+        while os.path.islink(filename):
+            filename = os.path.join(os.path.dirname(filename),
+                                    os.readlink(filename))
         try:
             f = safe_open(self.tmpname, 'wb')
         except IOError, (code, msg):
@@ -158,7 +158,7 @@ class logfile(object):
             # Seek to end
             self.file.seek(0, 2)
             self.file.write(time.strftime(logtimeformat, time.localtime())
-                + ' ' + s.rstrip() + os.linesep)
+                            + ' ' + s.rstrip() + os.linesep)
             self.file.flush()
         finally:
             unlock_file(self.file, 'flock')
@@ -249,8 +249,10 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0600):
         if info['deliverycount'] is not None:
             info['unique'] += 'Q%(deliverycount)s' % info
         try:
-            info['unique'] += 'R%s' % ''.join(['%02x' % ord(char)
-                for char in open('/dev/urandom', 'rb').read(8)])
+            info['unique'] += 'R%s' % ''.join(
+                ['%02x' % ord(char)
+                 for char in open('/dev/urandom', 'rb').read(8)]
+            )
         except StandardError:
             pass
 
@@ -294,7 +296,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0600):
     except IOError, o:
         signal.alarm(0)
         raise getmailDeliveryError('failure writing file %s (%s)'
-            % (fname_tmp, o))
+                                   % (fname_tmp, o))
 
     # Move message file from Maildir/tmp to Maildir/new
     try:
@@ -310,7 +312,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0600):
         except StandardError:
             pass
         raise getmailDeliveryError('failure renaming "%s" to "%s"'
-            % (fname_tmp, fname_new))
+                                   % (fname_tmp, fname_new))
 
     # Delivery done
 
@@ -340,8 +342,10 @@ def eval_bool(s):
     try:
         return _bool_values[str(s).lower()]
     except KeyError:
-        raise getmailConfigurationError('boolean parameter requires value'
-            ' to be one of true or false, not "%s"' % s)
+        raise getmailConfigurationError(
+            'boolean parameter requires value to be one of true or false, '
+            'not "%s"' % s
+        )
 
 #######################################
 def gid_of_uid(uid):
@@ -398,7 +402,7 @@ def change_uidgid(logger=None, uid=None, gid=None):
                 os.setreuid(uid, uid)
     except OSError, o:
         raise getmailDeliveryError('change UID/GID to %s/%s failed (%s)'
-            % (uid, gid, o))
+                                   % (uid, gid, o))
 
 #######################################
 def format_header(name, line):
@@ -406,7 +410,7 @@ def format_header(name, line):
     '''
     header = ''
     line = (name.strip() + ': '
-        + ' '.join([part.strip() for part in line.splitlines()]))
+            + ' '.join([part.strip() for part in line.splitlines()]))
     # Split into lines of maximum 78 characters long plus newline, if
     # possible.  A long line may result if no space characters are present.
     while line and len(line) > 78:
@@ -452,12 +456,15 @@ def check_ssl_key_and_cert(conf):
     if certfile is not None:
         certfile = expand_user_vars(certfile)
     if keyfile and not os.path.isfile(keyfile):
-        raise getmailConfigurationError('optional keyfile must be'
-            ' path to a valid file')
+        raise getmailConfigurationError(
+            'optional keyfile must be path to a valid file'
+        )
     if certfile and not os.path.isfile(certfile):
-        raise getmailConfigurationError('optional certfile must be'
-            ' path to a valid file')
+        raise getmailConfigurationError(
+            'optional certfile must be path to a valid file'
+        )
     if (keyfile is None) ^ (certfile is None):
-        raise getmailConfigurationError('optional certfile and keyfile'
-            ' must be supplied together')
-    return keyfile, certfile
+        raise getmailConfigurationError(
+            'optional certfile and keyfile must be supplied together'
+        )
+    return (keyfile, certfile)

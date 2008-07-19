@@ -63,8 +63,9 @@ class FilterSkeleton(ConfigurableBase):
         try:
             self.initialize()
         except KeyError, o:
-            raise getmailConfigurationError('missing required configuration'
-                ' parameter %s' % o)
+            raise getmailConfigurationError(
+                'missing required configuration parameter %s' % o
+            )
         self.log.trace('done\n')
 
     def filter_message(self, msg, retriever):
@@ -76,24 +77,26 @@ class FilterSkeleton(ConfigurableBase):
         if exitcode in self.exitcodes_drop:
             # Drop message
             self.log.debug('filter %s returned %d; dropping message\n'
-                % (self, exitcode))
+                           % (self, exitcode))
             return None
         elif (exitcode not in self.exitcodes_keep):
             raise getmailFilterError('filter %s returned %d (%s)\n'
-                % (self, exitcode, err))
+                                     % (self, exitcode, err))
         elif err:
             if self.conf['ignore_stderr']:
                 self.log.info('filter %s: %s\n' % (self, err))
             else:
                 raise getmailFilterError('filter %s returned %d (%s)\n'
-                    % (self, exitcode, err))
+                                         % (self, exitcode, err))
 
         # Check the filter was sane
         if len(newmsg.headers()) < len(msg.headers()):
             # Warn user
-            self.log.warning('Warning: filter %s returned fewer headers'
-                ' (%d) than supplied (%d)\n'
-                % (self, len(newmsg.headers()), len(msg.headers())))
+            self.log.warning(
+                'Warning: filter %s returned fewer headers (%d) than supplied '
+                '(%d)\n'
+                % (self, len(newmsg.headers()), len(msg.headers()))
+            )
 
         # Copy attributes from original message
         newmsg.copyattrs(msg)
@@ -161,8 +164,10 @@ class Filter_external(FilterSkeleton, ForkingBase):
         ConfFile(name='path'),
         ConfBool(name='unixfrom', required=False, default=False),
         ConfTupleOfStrings(name='arguments', required=False, default="()"),
-        ConfTupleOfStrings(name='exitcodes_keep', required=False, default="(0, )"),
-        ConfTupleOfStrings(name='exitcodes_drop', required=False, default="(99, 100)"),
+        ConfTupleOfStrings(name='exitcodes_keep', required=False,
+                           default="(0, )"),
+        ConfTupleOfStrings(name='exitcodes_drop', required=False,
+                           default="(99, 100)"),
         ConfString(name='user', required=False, default=None),
         ConfString(name='group', required=False, default=None),
         ConfBool(name='allow_root_commands', required=False, default=False),
@@ -178,26 +183,29 @@ class Filter_external(FilterSkeleton, ForkingBase):
                 '%s not executable' % self.conf['path']
             )
         if type(self.conf['arguments']) != tuple:
-            raise getmailConfigurationError('incorrect arguments format;'
-                ' see documentation (%s)' % self.conf['arguments'])
+            raise getmailConfigurationError(
+                'incorrect arguments format; see documentation (%s)'
+                % self.conf['arguments']
+            )
         try:
             self.exitcodes_keep = [int(i) for i in self.conf['exitcodes_keep']
-                if 0 <= int(i) <= 255]
+                                   if 0 <= int(i) <= 255]
             self.exitcodes_drop = [int(i) for i in self.conf['exitcodes_drop']
-                if 0 <= int(i) <= 255]
+                                   if 0 <= int(i) <= 255]
             if not self.exitcodes_keep:
                 raise getmailConfigurationError('exitcodes_keep set empty')
             if sets.ImmutableSet(self.exitcodes_keep).intersection(
-                    sets.ImmutableSet(self.exitcodes_drop)):
+                sets.ImmutableSet(self.exitcodes_drop)
+            ):
                 raise getmailConfigurationError('exitcode sets intersect')
         except ValueError, o:
             raise getmailConfigurationError('invalid exit code specified (%s)'
-                % o)
+                                            % o)
 
     def __str__(self):
         self.log.trace()
         return 'Filter_external %s (%s)' % (self.conf['command'],
-            self._confstring())
+                                            self._confstring())
 
     def showconf(self):
         self.log.trace()
@@ -208,7 +216,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
             # Write out message with native EOL convention
             msgfile = os.tmpfile()
             msgfile.write(msg.flatten(False, False,
-                include_from=self.conf['unixfrom']))
+                                      include_from=self.conf['unixfrom']))
             msgfile.flush()
             os.fsync(msgfile.fileno())
             # Rewind
@@ -233,7 +241,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             self.log.critical('exec of filter %s failed (%s)'
-                % (self.conf['command'], o))
+                              % (self.conf['command'], o))
             os._exit(127)
 
     def _filter_message(self, msg):
@@ -250,8 +258,9 @@ class Filter_external(FilterSkeleton, ForkingBase):
         # At least some security...
         if (os.geteuid() == 0 and not self.conf['allow_root_commands']
                 and self.conf['user'] == None):
-            raise getmailConfigurationError('refuse to invoke external'
-                ' commands as root by default')
+            raise getmailConfigurationError(
+                'refuse to invoke external commands as root by default'
+            )
 
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -270,11 +279,11 @@ class Filter_external(FilterSkeleton, ForkingBase):
         err = stderr.read().strip()
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
-            childpid, exitcode))
+                                                      childpid, exitcode))
 
         newmsg = Message(fromfile=stdout)
 
-        return exitcode, newmsg, err
+        return (exitcode, newmsg, err)
 
 #######################################
 class Filter_classifier(Filter_external):
@@ -286,7 +295,7 @@ class Filter_classifier(Filter_external):
     def __str__(self):
         self.log.trace()
         return 'Filter_classifier %s (%s)' % (self.conf['command'],
-            self._confstring())
+                                              self._confstring())
 
     def showconf(self):
         self.log.trace()
@@ -306,8 +315,9 @@ class Filter_classifier(Filter_external):
         # At least some security...
         if (os.geteuid() == 0 and not self.conf['allow_root_commands']
                 and self.conf['user'] == None):
-            raise getmailConfigurationError('refuse to invoke external'
-                ' commands as root by default')
+            raise getmailConfigurationError(
+                'refuse to invoke external commands as root by default'
+            )
 
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -326,13 +336,13 @@ class Filter_classifier(Filter_external):
         err = stderr.read().strip()
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
-            childpid, exitcode))
+                                                      childpid, exitcode))
 
         for line in [line.strip() for line in stdout.readlines()
-                if line.strip()]:
+                     if line.strip()]:
             msg.add_header('X-getmail-filter-classifier', line)
 
-        return exitcode, msg, err
+        return (exitcode, msg, err)
 
 #######################################
 class Filter_TMDA(FilterSkeleton, ForkingBase):
@@ -410,32 +420,37 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
             # Set environment for TMDA
             os.environ['SENDER'] = msg.sender
             os.environ['RECIPIENT'] = msg.recipient
-            os.environ['EXT'] = self.conf['conf-break'].join('@'.join(
-                msg.recipient.split('@')[:-1]).split(
-                self.conf['conf-break'])[1:])
+            os.environ['EXT'] = self.conf['conf-break'].join(
+                '@'.join(msg.recipient.split('@')[:-1]).split(
+                    self.conf['conf-break']
+                )[1:]
+            )
             self.log.trace('SENDER="%(SENDER)s",RECIPIENT="%(RECIPIENT)s"'
-                ',EXT="%(EXT)s"' % os.environ)
+                           ',EXT="%(EXT)s"' % os.environ)
             self.log.debug('about to execl() with args %s\n' % str(args))
             os.execl(*args)
         except StandardError, o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             self.log.critical('exec of filter %s failed (%s)'
-                % (self.conf['command'], o))
+                              % (self.conf['command'], o))
             os._exit(127)
 
     def _filter_message(self, msg):
         self.log.trace()
         self._prepare_child()
         if msg.recipient == None or msg.sender == None:
-            raise getmailConfigurationError('TMDA requires the message envelope'
-                ' and therefore a multidrop retriever')
+            raise getmailConfigurationError(
+                'TMDA requires the message envelope and therefore a multidrop '
+                'retriever'
+            )
 
         # At least some security...
         if (os.geteuid() == 0 and not self.conf['allow_root_commands']
                 and self.conf['user'] == None):
-            raise getmailConfigurationError('refuse to invoke external'
-                ' commands as root by default')
+            raise getmailConfigurationError(
+                'refuse to invoke external commands as root by default'
+            )
 
         stdout = os.tmpfile()
         stderr = os.tmpfile()
@@ -453,6 +468,6 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
         err = stderr.read().strip()
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
-            childpid, exitcode))
+                                                      childpid, exitcode))
 
-        return exitcode, msg, err
+        return (exitcode, msg, err)

@@ -44,14 +44,6 @@ class ConfItem:
         self.default = default
         self.required = required
 
-    def __getitem__(self, key):
-        # Backward-compatibility hack to enable ConfigurableBase.checkconf()
-        # to access the name attribute like the old-style dictionaries.
-        # :TODO: cc - remove when all configuration items converted to classes
-        if key == 'name':
-            return self.name
-        raise KeyError(key)
-
     def validate(self, configuration, val=None):
         if val is None:
             # If not passed in by subclass
@@ -68,11 +60,11 @@ class ConfItem:
             # Got value, but not of expected type.  Try to convert.
             if self.securevalue:
                 self.log.debug('converting %s to type %s\n'
-                    % (self.name, self.dtype))
+                               % (self.name, self.dtype))
             else:
                 self.log.debug('converting %s (%s) to type %s\n'
-                    % (self.name, val, self.dtype))
-            
+                               % (self.name, val, self.dtype))
+
             try:
                 if self.dtype == bool:
                     val = eval_bool(val)
@@ -87,7 +79,7 @@ class ConfItem:
 
 class ConfInstance(ConfItem):
     def __init__(self, name, default=None, required=True):
-        ConfItem.__init__(self, name, types.InstanceType, default=default, 
+        ConfItem.__init__(self, name, types.InstanceType, default=default,
                           required=required)
 
 class ConfString(ConfItem):
@@ -105,11 +97,11 @@ class ConfInt(ConfItem):
 class ConfTupleOfStrings(ConfString):
     def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
-    
+
     def validate(self, configuration):
         val = ConfItem.validate(self, configuration)
         try:
-            if val is None or val is '':
+            if not val:
                 val = '()'
             tup = eval(val)
             if type(tup) != tuple:
@@ -125,11 +117,11 @@ class ConfTupleOfStrings(ConfString):
 class ConfTupleOfTupleOfStrings(ConfString):
     def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
-    
+
     def validate(self, configuration):
         val = ConfItem.validate(self, configuration)
         try:
-            if val is None or val is '':
+            if not val:
                 val = '()'
             tup = eval(val)
             if type(tup) != tuple:
@@ -157,7 +149,7 @@ class ConfPassword(ConfString):
 class ConfDirectory(ConfString):
     def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
-    
+
     def validate(self, configuration):
         val = ConfString.validate(self, configuration)
         if val is None:
@@ -165,15 +157,14 @@ class ConfDirectory(ConfString):
         val = expand_user_vars(val)
         if not os.path.isdir(val):
             raise getmailConfigurationError(
-                '%s: specified directory "%s" does not exist'
-                % (self.name, val)
+                '%s: specified directory "%s" does not exist' % (self.name, val)
             )
         return val
 
 class ConfFile(ConfString):
     def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
-    
+
     def validate(self, configuration):
         val = ConfString.validate(self, configuration)
         if val is None:
@@ -181,8 +172,7 @@ class ConfFile(ConfString):
         val = expand_user_vars(val)
         if not os.path.isfile(val):
             raise getmailConfigurationError(
-                '%s: specified file "%s" does not exist'
-                % (self.name, val)
+                '%s: specified file "%s" does not exist' % (self.name, val)
             )
         return val
 
@@ -193,8 +183,7 @@ class ConfMaildirPath(ConfDirectory):
             return None
         if not val.endswith('/'):
             raise getmailConfigurationError(
-                '%s: maildir must end with "/"'
-                % self.name
+                '%s: maildir must end with "/"' % self.name
             )
         for subdir in ('cur', 'new', 'tmp'):
             subdirpath = os.path.join(val, subdir)
@@ -208,7 +197,7 @@ class ConfMaildirPath(ConfDirectory):
 class ConfMboxPath(ConfString):
     def __init__(self, name, default=None, required=True):
         ConfString.__init__(self, name, default=default, required=required)
-    
+
     def validate(self, configuration):
         val = ConfString.validate(self, configuration)
         if val is None:
@@ -216,8 +205,7 @@ class ConfMboxPath(ConfString):
         val = expand_user_vars(val)
         if not os.path.isfile(val):
             raise getmailConfigurationError(
-                '%s: specified mbox file "%s" does not exist'
-                % (self.name, val)
+                '%s: specified mbox file "%s" does not exist' % (self.name, val)
             )
         fd = os.open(val, os.O_RDWR)
         status_old = os.fstat(fd)
@@ -228,9 +216,7 @@ class ConfMboxPath(ConfString):
         first_line = f.readline()
         if first_line and first_line[:5] != 'From ':
             # Not an mbox file; abort here
-            raise getmailConfigurationError(
-                '%s: not an mboxrd file' % val
-            )
+            raise getmailConfigurationError('%s: not an mboxrd file' % val)
         # Reset atime and mtime
         try:
             os.utime(val, (status_old.st_atime, status_old.st_mtime))
@@ -263,12 +249,17 @@ class ConfigurableBase(object):
         self.log = getmailcore.logging.Logger()
         self.log.trace()
         self.conf = {}
+        allowed_params = set([item.name for item in self._confitems])
         for (name, value) in args.items():
+            if not name in allowed_params:
+                self.log.warning('Warning: ignoring unknown parameter "%s" '
+                                 '(value: %s)\n' % (name, value))
+                continue
             if name.lower() == 'password':
                 self.log.trace('setting %s to * (%s)\n' % (name, type(value)))
             else:
                 self.log.trace('setting %s to "%s" (%s)\n'
-                    % (name, value, type(value)))
+                               % (name, value, type(value)))
             self.conf[name] = value
         self.__confchecked = False
         self.checkconf()
@@ -281,12 +272,12 @@ class ConfigurableBase(object):
             # New class-based configuration item
             self.log.trace('checking %s\n' % item.name)
             self.conf[item.name] = item.validate(self.conf)
-
         unknown_params = sets.ImmutableSet(self.conf.keys()).difference(
-            sets.ImmutableSet([item['name'] for item in self._confitems]))
+            sets.ImmutableSet([item.name for item in self._confitems])
+        )
         for param in sorted(list(unknown_params), key=str.lower):
             self.log.warning('Warning: ignoring unknown parameter "%s" '
-                '(value: %s)\n' % (param, self.conf[param]))
+                             '(value: %s)\n' % (param, self.conf[param]))
         self.__confchecked = True
         self.log.trace('done\n')
 
@@ -342,21 +333,26 @@ class ForkingBase(object):
             self.log.trace('waiting for child %d' % childpid)
             time.sleep(1.0)
             #raise getmailDeliveryError('failed waiting for commands %s %d (%s)'
-            #   % (self.conf['command'], childpid, o))
+            #                           % (self.conf['command'], childpid, o))
         if self.__child_pid != childpid:
             #self.log.error('got child pid %d, not %d' % (pid, childpid))
-            raise getmailOperationError('got child pid %d, not %d'
-                % (self.__child_pid, childpid))
-
+            raise getmailOperationError(
+                'got child pid %d, not %d'
+                % (self.__child_pid, childpid)
+            )
         if os.WIFSTOPPED(self.__child_status):
-            raise getmailOperationError('child pid %d stopped by signal %d'
-                % (self.__child_pid, os.WSTOPSIG(self.__child_status)))
+            raise getmailOperationError(
+                'child pid %d stopped by signal %d'
+                % (self.__child_pid, os.WSTOPSIG(self.__child_status))
+            )
         if os.WIFSIGNALED(self.__child_status):
-            raise getmailOperationError('child pid %d killed by signal %d'
-                % (self.__child_pid, os.WTERMSIG(self.__child_status)))
+            raise getmailOperationError(
+                'child pid %d killed by signal %d'
+                % (self.__child_pid, os.WTERMSIG(self.__child_status))
+            )
         if not os.WIFEXITED(self.__child_status):
             raise getmailOperationError('child pid %d failed to exit'
-                % self.__child_pid)
+                                        % self.__child_pid)
         exitcode = os.WEXITSTATUS(self.__child_status)
 
         return exitcode

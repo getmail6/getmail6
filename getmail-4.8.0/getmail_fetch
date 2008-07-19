@@ -3,8 +3,8 @@
 import sys
 
 if sys.hexversion < 0x2030300:
-    raise ImportError('getmail version 4 requires Python version 2.3.3'
-                      ' or later')
+    raise ImportError('getmail version 4 requires Python version 2.3.3 '
+                      'or later')
 
 import os
 import socket
@@ -29,8 +29,8 @@ class dummyInstance:
 #######################################
 def blurb():
     log.info('getmail_fetch version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2007 Charles Cazabon.  Licensed under the'
-        ' GNU GPL version 2.\n')
+    log.info('Copyright (C) 1998-2007 Charles Cazabon.  Licensed under the '
+             'GNU GPL version 2.\n')
 
 #######################################
 def error_exit(v, s):
@@ -56,13 +56,11 @@ def go(retriever, destination, options, startmsg):
             msgnum += 1
             size = retriever.getmsgsize(msgid)
             log.info('  msg %*d/%*d (%d bytes) ...'
-                % (fmtlen, msgnum, fmtlen, nummsgs, size))
+                     % (fmtlen, msgnum, fmtlen, nummsgs, size))
             try:
                 msg = retriever.getmsg(msgid)
                 msgs_retrieved += 1
-                destination.deliver_message(
-                    msg, False, False
-                )
+                destination.deliver_message(msg, False, False)
                 log.info(' delivered')
                 retriever.delivered(msgid)
                 if options.delete:
@@ -106,14 +104,15 @@ def main():
                           help='output only on error')
         parser.add_option('-v', '--verbose', action='store_true',
                           dest='verbose', default=True,
-                          help='output informational messages (default: verbose)')
+                          help='output informational messages '
+                               '(default: verbose)')
         parser.add_option('-m', '--message', action='store', dest='message',
                           help='deliver message from FILE first',
                           metavar='FILE')
         parser.add_option('-p', '--port', action='store', type='int',
                           dest='port', metavar='PORT', default=None,
                           help='use server port PORT (default: POP: 110, '
-                            'POP3-over-SSL: 995)')
+                               'POP3-over-SSL: 995)')
         parser.add_option('-d', '--delete', action='store_true',
                           dest='delete', default=False,
                           help='delete messages after retrieval (default: no)')
@@ -129,7 +128,7 @@ def main():
         (options, args) = parser.parse_args(sys.argv[1:])
         if len(args) != 4:
             raise getmailOperationError('incorrect arguments; try --help'
-                % args)
+                                        % args)
 
         msg = None
         if options.message is not None:
@@ -137,8 +136,10 @@ def main():
                 f = open(options.message, 'rb')
                 msg = message.Message(fromfile=f)
             except IOError, o:
-                error_exit(1, 'Error reading message file "%s": %s'
-                           % (options.message, o))
+                error_exit(
+                    1,
+                    'Error reading message file "%s": %s' % (options.message, o)
+                )
 
         instance = dummyInstance()
 
@@ -197,8 +198,9 @@ def main():
         try:
             destination = destination_func(**destination_args)
         except getmailOperationError, o:
-            error_exit(5, 'Error initializing destination "%s": %s'
-                       % (destination, o))
+            error_exit(
+                5, 'Error initializing destination "%s": %s' % (destination, o)
+            )
 
         go(retriever, destination, options, msg)
 
@@ -209,15 +211,15 @@ def main():
     except getmailConfigurationError, o:
         error_exit(8, 'Configuration error: %s' % o)
     except StandardError, o:
-        log.critical('\nException: please read docs/BUGS and include the'
-            ' following information in any bug report:\n\n')
+        log.critical('\nException: please read docs/BUGS and include the '
+                     'following information in any bug report:\n\n')
         log.critical('  getmail_fetch version %s\n' % __version__)
         log.critical('  Python version %s\n\n' % sys.version)
         log.critical('Unhandled exception follows:\n')
         exc_type, value, tb = sys.exc_info()
         import traceback
         tblist = (traceback.format_tb(tb, None)
-            + traceback.format_exception_only(exc_type, value))
+                  + traceback.format_exception_only(exc_type, value))
         if type(tblist) != list:
             tblist = [tblist]
         for line in tblist:

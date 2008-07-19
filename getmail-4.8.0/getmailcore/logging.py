@@ -40,7 +40,7 @@ class _Logger(object):
         stdout.
         '''
         self.handlers.append({'minlevel' : minlevel, 'stream' : stream,
-            'newline' : True, 'maxlevel' : maxlevel})
+                              'newline' : True, 'maxlevel' : maxlevel})
 
     def clearhandlers(self):
         '''Clear the list of handlers.

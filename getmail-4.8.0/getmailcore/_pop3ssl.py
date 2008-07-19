@@ -78,8 +78,8 @@ class sslsocket(object):
                 self._fillbuf()
             log.trace('checking self.buf\n')
             if self.buf:
-                log.trace('self.buf = "%r", len %i\n' 
-                    % (self.buf, len(self.buf)))
+                log.trace('self.buf = "%r", len %i\n'
+                          % (self.buf, len(self.buf)))
                 while True:
                     log.trace('looking for EOL\n')
                     i = self.buf.find('\n')
@@ -101,7 +101,8 @@ class sslsocket(object):
             return line
         except (socket.sslerror, socket.error), o:
             raise getmailOperationError(
-                'socket/ssl error while reading from server (%s)' % o)
+                'socket/ssl error while reading from server (%s)' % o
+            )
 
 class POP3SSL(POP3):
     '''Thin subclass to add SSL functionality to the built-in POP3 class.
@@ -119,7 +120,7 @@ class POP3SSL(POP3):
         msg = "getaddrinfo returns an empty list"
         self.rawsock = None
         self.sock = None
-        for res in socket.getaddrinfo(self.host, self.port, 0, 
+        for res in socket.getaddrinfo(self.host, self.port, 0,
                                       socket.SOCK_STREAM):
             af, socktype, proto, canonname, sa = res
             try:
@@ -145,7 +146,7 @@ class POP3SSL(POP3):
     # Raise error_proto('-ERR EOF') if the connection is closed.
     def _getline(self):
         line = self.sock.readline()
-        if self._debugging > 1: 
+        if self._debugging > 1:
             print '*get*', `line`
         if not line:
             raise error_proto('-ERR EOF')

@@ -33,14 +33,15 @@ message_attributes = (
 def corrupt_message(why, fromlines=None, fromstring=None):
     log = getmailcore.logging.Logger()
     log.error('failed to parse retrieved message; constructing container for '
-        'contents\n')
+              'contents\n')
     if fromlines == fromstring == None:
         raise SystemExit('corrupt_message() called with wrong arguments')
     msg = email.message_from_string('')
     msg['From'] = '"unknown sender" <>'
     msg['Subject'] = 'Corrupt message received'
     msg['Date'] = email.Utils.formatdate(localtime=True)
-    body = ['A badly-corrupt message was retrieved and could not be parsed',
+    body = [
+        'A badly-corrupt message was retrieved and could not be parsed',
         'for the following reason:',
         '',
         '    %s' % why,
@@ -82,7 +83,7 @@ class Message(object):
         self.received_with = None
         self.__raw = None
         parser = email.Parser.HeaderParser()
-        
+
         # Message is instantiated with fromlines for POP3, fromstring for
         # IMAP (both of which can be badly-corrupted or invalid, i.e. spam,
         # MS worms, etc).  It's instantiated with fromfile for the output
@@ -112,7 +113,7 @@ class Message(object):
             raise SystemExit('Message() called with wrong arguments')
 
         self.sender = address_no_brackets(self.__msg['return-path']
-            or 'unknown')
+                                          or 'unknown')
 
     def content(self):
         return self.__msg
@@ -122,7 +123,7 @@ class Message(object):
             setattr(self, attr, getattr(othermsg, attr))
 
     def flatten(self, delivered_to, received, mangle_from=False,
-            include_from=False):
+                include_from=False):
         '''Return a string with native EOL convention.
 
         The email module apparently doesn't always use native EOL, so we force
@@ -135,7 +136,7 @@ class Message(object):
             # This needs to be written out first, so we can't rely on the
             # generator
             f.write('From %s %s' % (mbox_from_escape(self.sender),
-                time.asctime()) + os.linesep)
+                                    time.asctime()) + os.linesep)
         # Write the Return-Path: header
         f.write(format_header('Return-Path', '<%s>' % self.sender))
         # Remove previous Return-Path: header fields.
@@ -143,12 +144,13 @@ class Message(object):
         if delivered_to:
             f.write(format_header('Delivered-To', self.recipient or 'unknown'))
         if received:
-            content = 'from %s by %s with %s' % (self.received_from,
-                self.received_by, self.received_with)
+            content = 'from %s by %s with %s' % (
+                self.received_from, self.received_by, self.received_with
+            )
             if self.recipient is not None:
                 content += ' for <%s>' % self.recipient
             content += '; ' + time.strftime('%d %b %Y %H:%M:%S -0000',
-                time.gmtime())
+                                            time.gmtime())
             f.write(format_header('Received', content))
         gen = Generator(f, mangle_from, 0)
         # From_ handled above, always tell the generator not to include it
@@ -159,20 +161,20 @@ class Message(object):
         except TypeError, o:
             # email module chokes on some badly-misformatted messages, even
             # late during flatten().  Hope this is fixed in Python 2.4.
-            if self.__raw == None:
+            if self.__raw is None:
                 # Argh -- a filter took a correctly-formatted message
                 # and returned a badly-misformatted one?
                 raise getmailDeliveryError('failed to parse retrieved message '
-                    'and could not recover (%s)' % o)
+                                           'and could not recover (%s)' % o)
             self.__msg = corrupt_message(o, fromstring=self.__raw)
-            return self.flatten(delivered_to, received, mangle_from, 
-                include_from)
+            return self.flatten(delivered_to, received, mangle_from,
+                                include_from)
 
     def add_header(self, name, content):
         self.__msg[name] = content.rstrip()
 
     def remove_header(self, name):
-	del self.__msg[name]
+        del self.__msg[name]
 
     def headers(self):
         return self.__msg._headers
