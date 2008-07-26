@@ -1,3 +1,10 @@
+Version 4.8.4
+26 September 2008
+
+  -Add missing fsync() in updatefile close method to ensure data actually
+  hits disk before the rename takes place, to make writing of the oldmail
+  file more resilient to system crashes.  Thanks: Domen Puncer.
+
 Version 4.8.3
 11 August 2008
 

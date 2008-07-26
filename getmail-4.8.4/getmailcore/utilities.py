@@ -123,6 +123,7 @@ class updatefile(object):
         if self.closed or not hasattr(self, 'file'):
             return
         self.file.flush()
+        os.fsync(self.file.fileno())
         self.file.close()
         os.rename(self.tmpname, self.filename)
         self.closed = True
