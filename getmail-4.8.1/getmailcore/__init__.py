@@ -14,9 +14,9 @@ You should have received a copy of the license in the file COPYING.
 import sys
 if sys.hexversion < 0x2030300:
     raise ImportError('getmail version 4 requires Python version 2.3.3'
-        ' or later')
+                      ' or later')
 
-__version__ = '4.8.0'
+__version__ = '4.8.1'
 
 __all__ = [
     'baseclasses',

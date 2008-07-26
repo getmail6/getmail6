@@ -1,5 +1,6 @@
 include README
 include MANIFEST.in
+include getmail.spec
 include docs/*.txt
 include docs/*.html
 include docs/BUGS

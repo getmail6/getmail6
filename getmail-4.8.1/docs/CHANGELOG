@@ -1,3 +1,10 @@
+Version 4.8.1
+26 March 2008
+
+  -fix use of Python 2.4 set builtin in 4.8.0 preventing getmail from running
+  on Python 2.3.x.  Thanks: Björn Stenberg.
+  -fix the RPM spec file not being included in the getmail distribution.
+
 Version 4.8.0
 19 February 2008
   -better diagnostic when user invalidly supplies timeout configuration 
