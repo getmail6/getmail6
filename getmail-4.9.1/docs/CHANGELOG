@@ -1,3 +1,11 @@
+Version 4.9.1
+1 June 2009
+
+  -if oldmail file is corrupted on disk (by system crash, perhaps), handle it
+  gracefully.  Some lines may be lost (and messages therefore re-retrieved),
+  but operation will continue, with the corrupt lines logged.  Thanks:  Domen
+  Puncer.
+
 Version 4.9.0
 5 April 2009
 

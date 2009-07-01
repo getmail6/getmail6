@@ -350,12 +350,19 @@ class RetrieverSkeleton(ConfigurableBase):
         '''Read contents of oldmail file.'''
         self.log.trace()
         try:
-            for (msgid, timestamp) in [
-                line.strip().split('\0', 1) for line in open(
-                    self.oldmail_filename, 'rb'
-                ) if (line.strip() and '\0' in line)
-            ]:
-                self.oldmail[msgid] = int(timestamp)
+            for line in open(self.oldmail_filename, 'rb'):
+                line = line.strip()
+                if not line or not '\0' in line:
+                    # malformed
+                    continue
+                try:
+                    (msgid, timestamp) = line.split('\0', 1)
+                    self.oldmail[msgid] = int(timestamp)
+                except ValueError:
+                    # malformed
+                    self.log.info('skipped malformed line "%r" for %s' 
+                                  % (line, self)
+                                  + os.linesep)
             self.log.moreinfo('read %i uids for %s' % (len(self.oldmail), self)
                               + os.linesep)
         except IOError:
