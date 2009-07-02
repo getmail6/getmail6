@@ -1,3 +1,8 @@
+Version 4.15.0
+2 December 2009
+  -default port for MultidropIMAPSSLRetriever was incorrect.  Thanks: David 
+  Lehn.
+
 Version 4.14.0
 23 November 2009
   -handle additional cases where IMAP (and for good measure, POP3) server is
