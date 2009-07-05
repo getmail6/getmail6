@@ -1,3 +1,12 @@
+Version 4.9.0
+5 April 2009
+
+  -add Kerberos authentication support to IMAP retriever classes.  Thanks:
+  Guido Günther, Uli M.
+  -clarify documentation regarding MDA_external.  Thanks: AJ Weber.
+  -eliminate deprecation warning for sets module with Python 2.6 by using a
+  compatibility wrapper module.
+
 Version 4.8.4
 26 September 2008
 
@@ -14,7 +23,7 @@ Version 4.8.3
 Version 4.8.2
 2 August 2008
 
-  -for IMAP retrievers, keep message state around for 30 days even if the 
+  -for IMAP retrievers, keep message state around for 30 days even if the
   corresponding message isn't seen.  This allows users to have multiple rc
   files with different IMAP folders to retrieve from without losing their
   "seen" mail state for the folders they're not currently retrieving from.
@@ -30,23 +39,23 @@ Version 4.8.1
 
 Version 4.8.0
 19 February 2008
-  -better diagnostic when user invalidly supplies timeout configuration 
+  -better diagnostic when user invalidly supplies timeout configuration
   parametmer for an IMAP-SSL retriever.  Thanks: Dennis S.
   -code cleanups
 
 Version 4.7.8
 5 February 2008
 
-  -explicitly close current IMAP mailbox when selecting a new one, so all 
+  -explicitly close current IMAP mailbox when selecting a new one, so all
   servers expunge deleted mail.  Thanks: Josh Triplett.
-  -include experimental spec file for creating RPM with rpmbuild.  Thanks: 
+  -include experimental spec file for creating RPM with rpmbuild.  Thanks:
   Dag Wieers, Rob Loos, Dries Verachtert.
 
 Version 4.7.7
 8 November 2007
 
   -convert changelog to utf-8 encoding.
-  -update email addresses, etc.  Domain for mailing lists has changed to 
+  -update email addresses, etc.  Domain for mailing lists has changed to
   lists.pyropus.ca.
   -add FAQ about memory errors on OS X.  Thanks: Andres Gasson.
   -drop log message level for stderr output of destination if ignore_stderr is
@@ -63,7 +72,7 @@ Version 4.7.5
 6 June 2007
 
   -make updatefile honour symlinks, so users can alias one server's oldmail
-  state file to another (for split-horizon DNS and other strange 
+  state file to another (for split-horizon DNS and other strange
   configurations).  Thanks: Scott Hepler.
 
 Version 4.7.4
@@ -82,7 +91,7 @@ Version 4.7.3
 Version 4.7.2
 20 February 2007
 
-  -add ignore_stderr option to filters, copying same from MDA_external 
+  -add ignore_stderr option to filters, copying same from MDA_external
   destination.  Thanks: Vittorio Beggi.
 
 Version 4.7.1
@@ -107,7 +116,7 @@ Version 4.6.7
 Version 4.6.6
 12 December 2006
 
-  -add ignore_stderr option to MDA_external destination.  Thanks: Daniel 
+  -add ignore_stderr option to MDA_external destination.  Thanks: Daniel
   Burrows.
   -documentation cleanups.
 
@@ -117,10 +126,10 @@ Version 4.6.5
   -disable debug logging message which would show up in messages if --trace was
   used and the message was passed through an external filter.  Thanks:
   Christian Bruemmer.
-  -add additional sanity checks to ensure a recent-enough Python is used; 
-  trying to run getmail 4 with Python 2.2 would throw an exception.  
+  -add additional sanity checks to ensure a recent-enough Python is used;
+  trying to run getmail 4 with Python 2.2 would throw an exception.
   Thanks: fakhri ?.
-  
+
 Version 4.6.4
 28 September 2006
 
@@ -155,9 +164,9 @@ Version 4.6.1
 
   -fix attribute deletion error with Filter_classifier when strip_delivered_to
   is set.  Thanks: Darren Stevens.
-  -do not consider qmail-local writing to stderr a delivery error.  
+  -do not consider qmail-local writing to stderr a delivery error.
   Thanks: Darren Stevens.
-  
+
 Version 4.6.0
 5 April 2006
 
@@ -182,13 +191,13 @@ Version 4.5.2
 
   -fix IMAP bug where no mail was retrieved introduced in 4.5.0.  Thanks:
   Scott Robbins.
-  
+
 Version 4.5.1
 3 February 2006
 
   -fix accidental use of sorted() builtin only present in Python 2.4 and up.
   Thanks:  Juergen Nagel.
-  
+
 Version 4.5.0
 1 February 2006
 
@@ -197,7 +206,7 @@ Version 4.5.0
   -suppress stack trace in getmail_fetch error message when configuration error
   detected.  Thanks: Dave Jarvis.
   -documentation updates.
-  -build and development environment changes.  The plaintext versions of the 
+  -build and development environment changes.  The plaintext versions of the
   documentation are now generated with links instead of lynx.
   -explicitly log the reason for not retrieving a message (seen or oversized).
   Thanks: Payal Rathod.
@@ -211,7 +220,7 @@ Version 4.4.3
 1 December 2005
 
   -fix harmless copy and paste error in IMAPRetrieverBase class.  Thanks: Henry Miller.
-  
+
 Version 4.4.2
 13 November 2005
 
@@ -241,20 +250,20 @@ Version 4.3.14
 
   -Fix copy and paste error that caused BrokenUIDLPOP3SSLRetriever to default
   to port 110.  Thanks: Daniel Burrows via Fredrik Steen.
-  
+
 Version 4.3.13
 15 October 2005
 
   -add BrokenUIDLPOP3SSLRetriever as SSL version of BrokenUIDLPOP3Retriever,
   based on an idea by a user of the Debian package.  Thanks: Daniel Burrows,
   Fredrik Steen.
-  
+
 Version 4.3.12
 13 October 2005
 
   -remove deprecated "strict" argument from message/header parsing calls.
   While it was possible to suppress the warning that resulted when using
-  Python 2.4,  it appears many getmail users couldn't bother to do that 
+  Python 2.4,  it appears many getmail users couldn't bother to do that
   and complained to me instead.
 
 Version 4.3.11
@@ -267,7 +276,7 @@ Version 4.3.10
 19 May 2005
 
   -bugfix for missing import.  Thanks: Matthias Andree.
-  
+
 Version 4.3.9
 18 May 2005
 
@@ -317,19 +326,19 @@ Version 4.3.3
   -previously, for safety, getmail would re-retrieve messages after a session
   that encountered errors.  However, getmail had enough information to safely
   remember those messages that had been successfully delivered.  This behaviour
-  has been changed, to avoid delivering duplicate messages where it isn't 
+  has been changed, to avoid delivering duplicate messages where it isn't
   necessary.  Thanks: Thomas Schwinge.
-  -in output/log files, getmailrc files are now specified only by filename, 
-  instead of by complete paths.  This will prevent some overly-long output 
+  -in output/log files, getmailrc files are now specified only by filename,
+  instead of by complete paths.  This will prevent some overly-long output
   lines.
   -add Windows versions of functions to lock/unlock files, so mbox delivery
   can be used on Windows.  Thanks: Felix Schwarz.
-  
+
 Version 4.3.2
 5 February 2005
 
-  -previously, if an SSL POP3 or IMAP server abruptly closed the connection 
-  before getmail could finish logging in, getmail would exit instead of 
+  -previously, if an SSL POP3 or IMAP server abruptly closed the connection
+  before getmail could finish logging in, getmail would exit instead of
   proceeding to the next configured mail account.  Fixed.  Thanks: Matthias
   Andree, Frank Benkstein, Thomas Schwinge.
   -eliminate duplicate Return-Path: header fields.  Thanks: Angles Puglisi.
@@ -344,13 +353,13 @@ Version 4.3.1
 Version 4.3.0
 10 January 2005
 
-  -add BrokenUIDLPOP3Retriever class to support servers that do not implement 
+  -add BrokenUIDLPOP3Retriever class to support servers that do not implement
   the UIDL command, or which fail to uniquely identify messages using it.
 
 Version 4.2.6
 2 January 2005
 
-  -add new error message and documentation for POP3 servers that cannot 
+  -add new error message and documentation for POP3 servers that cannot
   uniquely identify messages in a mailbox.  Thanks: Thomas Schwinge.
 
 Version 4.2.5
@@ -380,7 +389,7 @@ Version 4.2.2
   -in child delivery processes, change real as well as effective uid/gid.
   Thanks: David Watson.
   -handle corrupted oldmail file better.  Thanks: Matthias Andree.
-  
+
 Version 4.2.1
 8 October 2004
 
@@ -395,10 +404,10 @@ Version 4.2.0
 18 September 2004
 
   -SECURITY: previous versions of getmail contain a security vulnerability.
-  A local attacker with a shell account could exploit a race condition (or a 
-  similar symlink attack) to cause getmail to create or overwrite files in a 
-  directory of the local user's choosing if the system administrator ran getmail 
-  as root and delivered messages to a maildir or mbox file under the control of 
+  A local attacker with a shell account could exploit a race condition (or a
+  similar symlink attack) to cause getmail to create or overwrite files in a
+  directory of the local user's choosing if the system administrator ran getmail
+  as root and delivered messages to a maildir or mbox file under the control of
   the attacker, resulting in a local root exploit.  Fixed in versions 4.2.0
   and 3.2.5.
   This vulnerability is not exploitable if the administrator does not deliver

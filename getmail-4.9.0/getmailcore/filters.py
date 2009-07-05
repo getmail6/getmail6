@@ -14,9 +14,9 @@ __all__ = [
 
 import os
 import types
-import sets
 
 from getmailcore.exceptions import *
+from getmailcore.compatibility import *
 from getmailcore.message import *
 from getmailcore.utilities import *
 from getmailcore.baseclasses import *
@@ -194,8 +194,8 @@ class Filter_external(FilterSkeleton, ForkingBase):
                                    if 0 <= int(i) <= 255]
             if not self.exitcodes_keep:
                 raise getmailConfigurationError('exitcodes_keep set empty')
-            if sets.ImmutableSet(self.exitcodes_keep).intersection(
-                sets.ImmutableSet(self.exitcodes_drop)
+            if frozenset(self.exitcodes_keep).intersection(
+                frozenset(self.exitcodes_drop)
             ):
                 raise getmailConfigurationError('exitcode sets intersect')
         except ValueError, o:

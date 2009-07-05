@@ -24,9 +24,9 @@ import os
 import time
 import signal
 import types
-import sets
 
 from getmailcore.exceptions import *
+from getmailcore.compatibility import *
 import getmailcore.logging
 from getmailcore.utilities import eval_bool, expand_user_vars
 
@@ -249,7 +249,7 @@ class ConfigurableBase(object):
         self.log = getmailcore.logging.Logger()
         self.log.trace()
         self.conf = {}
-        allowed_params = sets.Set([item.name for item in self._confitems])
+        allowed_params = set([item.name for item in self._confitems])
         for (name, value) in args.items():
             if not name in allowed_params:
                 self.log.warning('Warning: ignoring unknown parameter "%s" '
@@ -272,8 +272,8 @@ class ConfigurableBase(object):
             # New class-based configuration item
             self.log.trace('checking %s\n' % item.name)
             self.conf[item.name] = item.validate(self.conf)
-        unknown_params = sets.ImmutableSet(self.conf.keys()).difference(
-            sets.ImmutableSet([item.name for item in self._confitems])
+        unknown_params = frozenset(self.conf.keys()).difference(
+            frozenset([item.name for item in self._confitems])
         )
         for param in sorted(list(unknown_params), key=str.lower):
             self.log.warning('Warning: ignoring unknown parameter "%s" '

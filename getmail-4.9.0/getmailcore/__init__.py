@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python
 '''A reliable mail-retriever toolkit.
 
 getmail is a reliable, modular, extensible mail retriever with support for
@@ -16,7 +16,7 @@ if sys.hexversion < 0x2030300:
     raise ImportError('getmail version 4 requires Python version 2.3.3'
                       ' or later')
 
-__version__ = '4.8.4'
+__version__ = '4.9.0'
 
 __all__ = [
     'baseclasses',

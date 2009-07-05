@@ -42,9 +42,18 @@ import getpass
 import email
 import poplib
 import imaplib
-import sets
+
+try:
+    # do we have a recent pykerberos?
+    HAVE_KERBEROS_GSS = False
+    import kerberos
+    if 'authGSSClientWrap' in dir(kerberos):
+        HAVE_KERBEROS_GSS = True
+except ImportError:
+    pass
 
 from getmailcore.exceptions import *
+from getmailcore.compatibility import *
 from getmailcore.constants import *
 from getmailcore.message import *
 from getmailcore.utilities import *
@@ -67,6 +76,9 @@ NOT_ENVELOPE_RECIPIENT_HEADERS = (
 # losing their oldmail state for that folder.  This is in seconds, so it's
 # 30 days.
 VANISHED_AGE = (60 * 60 * 24 * 30)
+
+# Kerberos authentication state constants
+(GSS_STATE_STEP, GSS_STATE_WRAP) = (0, 1)
 
 #
 # Mix-in classes
@@ -358,9 +370,9 @@ class RetrieverSkeleton(ConfigurableBase):
         wrote = 0
         try:
             f = updatefile(self.oldmail_filename)
-            msgids = sets.ImmutableSet(
+            msgids = frozenset(
                 self.__delivered.keys()
-            ).union(sets.ImmutableSet(self.oldmail.keys()))
+            ).union(frozenset(self.oldmail.keys()))
             for msgid in msgids:
                 self.log.debug('msgid %s ...' % msgid)
                 if forget_deleted and msgid in self.deleted:
@@ -644,6 +656,41 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.trace()
         self.mailbox = None
         self.uidvalidity = None
+        self.gss_step = 0
+        self.gss_vc = None
+        self.gssapi = False
+
+    def checkconf(self):
+        RetrieverSkeleton.checkconf(self)
+        if self.conf['use_kerberos'] and not HAVE_KERBEROS_GSS:
+            raise getmailConfigurationError(
+                'cannot use kerberos authentication; Python kerberos support '
+                'not installed or does not support GSS'
+            )
+
+    def gssauth(self, response):
+        if not HAVE_KERBEROS_GSS:
+            # shouldn't get here
+            raise ValueError('kerberos GSS support not available')
+        data = ''.join(str(response).encode('base64').splitlines())
+        if self.gss_step == GSS_STATE_STEP:
+            if not self.gss_vc:
+                (rc, self.gss_vc) = kerberos.authGSSClientInit(
+                    'imap@%s' % self.conf['server']
+                )
+                response = kerberos.authGSSClientResponse(self.gss_vc)
+            rc = kerberos.authGSSClientStep(self.gss_vc, data)
+            if rc != kerberos.AUTH_GSS_CONTINUE:
+               self.gss_step = GSS_STATE_WRAP
+        elif self.gss_step == GSS_STATE_WRAP:
+            rc = kerberos.authGSSClientUnwrap(self.gss_vc, data)
+            response = kerberos.authGSSClientResponse(self.gss_vc)
+            rc = kerberos.authGSSClientWrap(self.gss_vc, response,
+                                            self.conf['username'])
+        response = kerberos.authGSSClientResponse(self.gss_vc)
+        if not response:
+            response = ''
+        return response.decode('base64')
 
     def __del__(self):
         RetrieverSkeleton.__del__(self)
@@ -829,15 +876,19 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def initialize(self):
         self.log.trace()
         # Handle password
-        if self.conf.get('password', None) is None:
-            self.conf['password'] = getpass.getpass('Enter password for %s:  '
-                                                    % self)
+        if (self.conf.get('password', None) is None
+                and not (HAVE_KERBEROS_GSS and self.conf['use_kerberos'])):
+            self.conf['password'] = getpass.getpass(
+                'Enter password for %s:  ' % self
+            )
         RetrieverSkeleton.initialize(self)
         try:
             self.log.trace('trying self._connect()' + os.linesep)
             self._connect()
             self.log.trace('logging in' + os.linesep)
-            if self.conf['use_cram_md5']:
+            if self.conf['use_kerberos'] and HAVE_KERBEROS_GSS:
+                self.conn.authenticate('GSSAPI', self.gssauth)
+            elif self.conf['use_cram_md5']:
                 self._parse_imapcmdresponse(
                     'login_cram_md5', self.conf['username'],
                     self.conf['password']
@@ -850,7 +901,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.log.debug('msgids: %s'
                            % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
             self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
-            # Remove messages from state file that are no longer in mailbox, 
+            # Remove messages from state file that are no longer in mailbox,
             # but only if the timestamp for them are old (30 days for now).
             # This is because IMAP users can have one state file but multiple
             # IMAP folders in different configuration rc files.

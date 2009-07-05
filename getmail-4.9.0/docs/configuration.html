@@ -546,7 +546,48 @@ type = <span class="meta">typename</span>
         password
         (<a href="#parameter-string">string</a>)
         &mdash; password to use when logging in to the mail server.  If not
-        provided, getmail will prompt you to enter the password when run.
+        provided (and not using Kerberos authentication -- see below), getmail
+        will prompt you to enter the password when getmail is run.
+    </li>
+</ul>
+<p>
+    All IMAP retriever types also take the following optional parameters:
+</p>
+<ul>
+    <li>
+        mailboxes
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
+        &mdash; a list of mailbox paths to retrieve mail from, expressed as a
+        Python tuple. If not specified, the default is to retrieve mail from the
+        mail folder named
+        <span class="file">INBOX</span>.
+        You might want to retrieve messages from several different mail folders,
+        using a configuration like this:
+        <pre class="example">
+mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
+    &quot;mailing-lists.model-railroading&quot;)
+        </pre>
+    </li>
+    <li>
+        move_on_delete
+        (<a href="#parameter-string">string</a>)
+        &mdash; if set, messages are moved to the named mail folder before being
+        deleted from their original location.  Note that if you configure
+        getmail not to delete retrieved messages (the default behaviour), they
+        will not be moved at all.
+    </li>
+    <li>
+        use_kerberos
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; whether to use Kerberos authentication with the IMAP server.
+        If not set, normal password-based authenticaion is used.  Note that when
+        you use Kerberos authentication, it is up to you to ensure you have a
+        valid Kerberos ticket (perhaps by running a ticket-renewing agent such
+        as <a href="http://www.eyrie.org/~eagle/software/kstart/">kstart</a> or similar).
+        This feature requires that a recent version of pykerberos with GSS
+        support is installed; check your OS distribution or see
+        <a href="http://honk.sigxcpu.org/projects/pykerberos/">http://honk.sigxcpu.org/projects/pykerberos/"</a>
+        for details.
     </li>
 </ul>
 
@@ -566,7 +607,7 @@ type = <span class="meta">typename</span>
         security than might be supposed; weaknesses in its hashing algorithm
         mean that an attacker can recover the first three characters of the
         password after snooping on only a few hundred authentications between
-        a client and server &mdash; see 
+        a client and server &mdash; see
         <a href="http://www.securityfocus.com/archive/1/464477/30/0/threaded">http://www.securityfocus.com/archive/1/464477/30/0/threaded</a>
         for details.  The default is
         <span class="file">False</span>.
@@ -637,28 +678,6 @@ type = <span class="meta">typename</span>
         &mdash; see
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
-    </li>
-    <li>
-        mailboxes
-        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
-        &mdash; a list of mailbox paths to retrieve mail from, expressed as a
-        Python tuple. If not specified, the default is to retrieve mail from the
-        mail folder named
-        <span class="file">INBOX</span>.
-        You might want to retrieve messages from several different mail folders,
-        using a configuration like this:
-        <pre class="example">
-mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
-    &quot;mailing-lists.model-railroading&quot;)
-        </pre>
-    </li>
-    <li>
-        move_on_delete
-        (<a href="#parameter-string">string</a>)
-        &mdash; if set, messages are moved to the named mail folder before being
-        deleted from their original location.  Note that if you configure
-        getmail not to delete retrieved messages (the default behaviour), they
-        will not be moved at all.
     </li>
 </ul>
 
@@ -1102,13 +1121,13 @@ envelope_recipient = delivered-to:1
     The Maildir destination delivers to a qmail-style
     <a href="http://cr.yp.to/proto/maildir.html">maildir</a>.
     The maildir must already exist, and must contain all of the
-    subdirectories required by the maildir format.  
+    subdirectories required by the maildir format.
     getmail will
     <strong>not</strong>
     create the maildir if it does not exist.
     If you're not familiar with the maildir format, the requirements
     in a nutshell are:  it must be a directory containing three
-    writable subdirectories 
+    writable subdirectories
     <span class="file">cur</span>,
     <span class="file">new</span>,
     and
@@ -1160,8 +1179,8 @@ path = ~/Maildir/
         filemode
         (<a href="#parameter-string">string</a>)
         &mdash; if supplied, getmail will cause the delivered message files in
-        the maildir to have at most these permissions (given in standard Unix 
-        octal notation).  Note that the current umask is masked out of the 
+        the maildir to have at most these permissions (given in standard Unix
+        octal notation).  Note that the current umask is masked out of the
         given value at file creation time.  The default value, which should be
         appropriate for most users, is &quot;0600&quot;.
     </li>
@@ -1171,7 +1190,7 @@ path = ~/Maildir/
 <p>
     The Mboxrd destination delivers to an
     <a href="http://qmail.org/man/man5/mbox.html">mboxrd-format mbox file</a>
-    with either fcntl-type (lockf) or flock-type file locking.  The file must 
+    with either fcntl-type (lockf) or flock-type file locking.  The file must
     already exist and appear to be a valid mboxrd file before getmail will try
     to deliver to it &mdash; getmail will
     <strong>not</strong>
@@ -1180,8 +1199,8 @@ path = ~/Maildir/
 </p>
 <p class="warning">
     You must ensure that all other programs accessing any the mbox file expect
-    mboxrd-format mbox files and the same type of file locking that you 
-    configure getmail to use; failure to do so can cause mbox corruption. 
+    mboxrd-format mbox files and the same type of file locking that you
+    configure getmail to use; failure to do so can cause mbox corruption.
     If you do not know what type of file locking your system expects, ask
     your system administrator.
     If you are the system administrator and don't know what type of file locking
@@ -1232,11 +1251,11 @@ path = ~/inbox
     <li>
         locktype
         (<a href="#parameter-string">string</a>)
-        &mdash; which type of file locking to use; may be 
+        &mdash; which type of file locking to use; may be
         &quot;<span class="file">lockf</span>&quot;
         (for fcntl locking) or
         &quot;<span class="file">flock</span>&quot;.
-        The default in getmail 4.7.0 and later is 
+        The default in getmail 4.7.0 and later is
         <span class="file">lockf</span>.
     </li>
 </ul>
@@ -1244,7 +1263,8 @@ path = ~/inbox
 <h4 id="destination-mdaexternal">MDA_external</h4>
 <p>
     MDA_external delivers messages by running an external program (known as a
-    message delivery agent, or MDA).  Some typical MDAs include
+    message delivery agent, or MDA) and feeding it the message on its standard
+    input.  Some typical MDAs include
     <a href="http://www.flounder.net/~mrsam/maildrop/maildrop.html">maildrop</a>
     and
     <a href="http://www.procmail.org/">procmail</a>.
@@ -1344,7 +1364,7 @@ path = ~/inbox
         ignore_stderr
         (<a href="#parameter-boolean">boolean</a>)
         &mdash; if set, getmail will not consider it an error if the program
-        writes to stderr.  The default is false, which causes getmail to 
+        writes to stderr.  The default is false, which causes getmail to
         consider the delivery failed and leave the message on the server,
         proceeding to the next message.
         This prevents loss of mail if the MDA writes to stderr but fails to
@@ -1514,7 +1534,7 @@ user = jeff
 <p class="important">
     Because MultiSorter requires the envelope recipient to operate, it must be
     used with a domain mailbox retriever.  If you instead want to do some basic
-    message sorting based on getmail's best guess as to the envelope 
+    message sorting based on getmail's best guess as to the envelope
     recipient of the message, see the
     <a href="#destination-multiguesser">MultiGuesser</a>
     destination class below.
@@ -1550,8 +1570,8 @@ user = jeff
     </li>
 </ul>
 <p>
-    Important note:  if your regular expression contains backslashes (by 
-    themselves, or as part of an escaped character or symbol like 
+    Important note:  if your regular expression contains backslashes (by
+    themselves, or as part of an escaped character or symbol like
     <span class="file">\n</span>
     or
     <span class="file">\W</span>
@@ -1735,7 +1755,7 @@ user = log
 <h4 id="destination-multiguesser">MultiGuesser</h4>
 <p>
     MultiGuesser tries to guess what the envelope recipient address of the
-    message might have been, by comparing addresses found in the message header 
+    message might have been, by comparing addresses found in the message header
     against a list of user-supplied regular expressions, and delivers the message to the
     destination (maildir, mboxrd file, or other) associated with any matching
     patterns.  A message can match multiple patterns and therefore be delivered
@@ -1749,7 +1769,7 @@ user = log
 <p>
     If you want to filter based on arbitrary message critera, like &quot;What address
     is in the To: header field?&quot; or &quot;Who is the message from?&quot;, then
-    use the filtering MDA of your choice, called from a getmail 
+    use the filtering MDA of your choice, called from a getmail
     <a href="#destination-mdaexternal">MDA_external</a> destination.
     </p>
 <p>
@@ -2051,8 +2071,8 @@ localpart_translate = ('mailhostaccount-', '')
     <li>
         max_bytes_per_session
         (<a href="#parameter-integer">integer</a>)
-        &mdash; if set, getmail will retrieve messages totalling up to this 
-        number of bytes before closing the session with the server.  This can 
+        &mdash; if set, getmail will retrieve messages totalling up to this
+        number of bytes before closing the session with the server.  This can
         be useful if you do not want large messages causing large bursts of
         network traffic.  Default: 0, which means not to enable this feature.
         Note that message sizes reported by the server are used, and therefore
@@ -2221,7 +2241,7 @@ message_log = ~/.getmail/log
     on errors &mdash; please see the documentation for your filter program
     for details.
     Optionally, if you know your filter can emit warnings on stderr under
-    non-error conditions, you can set the 
+    non-error conditions, you can set the
     <span class="file">ignore_stderr</span> option.
 </p>
 
@@ -2326,14 +2346,14 @@ message_log = ~/.getmail/log
         ignore_stderr
         (<a href="#parameter-boolean">boolean</a>)
         &mdash; if set, getmail will not consider it an error if the filter
-        writes to stderr.  The default is false, which causes getmail to 
+        writes to stderr.  The default is false, which causes getmail to
         consider the delivery failed and leave the message on the server,
         proceeding to the next message.
         This prevents loss of mail if the filter writes to stderr but fails to
         exit nonzero when it encounters an error.
         <span class="warning">
-            Note that setting this option has serious implications; some 
-            poorly-written programs commonly used as mail filters can 
+            Note that setting this option has serious implications; some
+            poorly-written programs commonly used as mail filters can
             can mangle or drop mail but still exit 0, their only clue to failure
             being warnings emitted on stderr.  Only change this setting if
             you are confident your filter always exits nonzero on error.

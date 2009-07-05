@@ -122,7 +122,7 @@ class POP3SSL(POP3):
         self.sock = None
         for res in socket.getaddrinfo(self.host, self.port, 0,
                                       socket.SOCK_STREAM):
-            af, socktype, proto, canonname, sa = res
+            (af, socktype, proto, canonname, sa) = res
             try:
                 self.rawsock = socket.socket(af, socktype, proto)
                 self.rawsock.connect(sa)
