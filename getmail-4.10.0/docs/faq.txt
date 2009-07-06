@@ -7,7 +7,7 @@
    please refer to the documentation included with that version of the
    software.
 
-   getmail is Copyright (c) 1998-2007 Charles Cazabon.
+   getmail is Copyright (c) 1998-2009 Charles Cazabon.
 
    getmail is licensed under the GNU General Public License version 2 (only).
    If you wish to obtain a license to distribute getmail under other terms,

@@ -24,13 +24,15 @@ path = ~jeffp/Maildir/
 
 #
 # Example 2:  same as (1), but operate quietly, delete messages from
-# the server after retrieving them, and log getmail's actions to a file.
+# the server after retrieving them, and log getmail's actions (in detail)
+# to a file.
 #
 
 [options]
 verbose = 0
 delete = true
 message_log = ~/.getmail/log
+message_log_verbose = true
 
 [retriever]
 type = SimplePOP3Retriever

@@ -22,7 +22,7 @@
     software.
 </p>
 <p class="about">
-    getmail is Copyright &copy; 1998-2007 Charles Cazabon.
+    getmail is Copyright &copy; 1998-2009 Charles Cazabon.
 </p>
 <p class="about">
     getmail is licensed under the
@@ -487,30 +487,30 @@
     </p>
 </blockquote>
 <p>
-	As an example,
-	<a href="http://cr.yp.to/djb.html">Dan Bernstein</a>, 
-	author of 
-	<a href="http://cr.yp.to/qmail.html">qmail</a>
-	and 
-	<a href="http://cr.yp.to/software.html">other software packages</a>,
-	once noted to the qmail list:
+    As an example,
+    <a href="http://cr.yp.to/djb.html">Dan Bernstein</a>,
+    author of
+    <a href="http://cr.yp.to/qmail.html">qmail</a>
+    and
+    <a href="http://cr.yp.to/software.html">other software packages</a>,
+    once noted to the qmail list:
 </p>
 <blockquote cite="http://www.mail-archive.com/qmail@id.wustl.edu/msg06997.html">
-	<p>
-		Last night, root@xxxxxxxxxxxxxxxxx reinjected thirty old messages from
-		various authors to qmail@xxxxxxxxxxxxxx
-	</p>
-	<p>
-		This sort of idiocy happens much more often than most subscribers know,
-		thanks to a broken piece of software by Eric Raymond called fetchmail.
-		Fortunately, qmail and ezmlm have loop-prevention mechanisms that stop
-		these messages before they are distributed to subscribers. The messages
-		end up bouncing to the wrong place, thanks to another fetchmail bug, but
-		at least the mailing list is protected.
-	</p>
-	<p>
-		  --D. J. Bernstein
-	</p>
+    <p>
+        Last night, root@xxxxxxxxxxxxxxxxx reinjected thirty old messages from
+        various authors to qmail@xxxxxxxxxxxxxx
+    </p>
+    <p>
+        This sort of idiocy happens much more often than most subscribers know,
+        thanks to a broken piece of software by Eric Raymond called fetchmail.
+        Fortunately, qmail and ezmlm have loop-prevention mechanisms that stop
+        these messages before they are distributed to subscribers. The messages
+        end up bouncing to the wrong place, thanks to another fetchmail bug, but
+        at least the mailing list is protected.
+    </p>
+    <p>
+          --D. J. Bernstein
+    </p>
 </blockquote>
 <p>
     The maintainer also ignored dozens of complaints about fetchmail's
@@ -605,10 +605,10 @@
     </li>
     <li>
         Just in case you thought fetchmail was all better now, there's still
-	new security problems being discovered in it.  In December, 2005,
-	it was revealed that
-	<a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-4348">anyone can send a fetchmail multidrop user a message that causes fetchmail to crash</a>.
-    </li>	
+    new security problems being discovered in it.  In December, 2005,
+    it was revealed that
+    <a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-4348">anyone can send a fetchmail multidrop user a message that causes fetchmail to crash</a>.
+    </li>
 </ul>
 <p>
     In July, 2004, it was noted that there may be at least 2 unfixed denial-of-service attacks,
@@ -1009,7 +1009,7 @@ exec /path/to/getmail $rcfiles $@
     <span class="file">To:</span>
     or
     <span class="file">cc:</span>
-    header fields, or based on the 
+    header fields, or based on the
     <span class="file">Subject:</span>
     field contents, or anything like that, pick a filtering MDA
     (like maildrop or procmail), and call it from a getmail
@@ -1063,7 +1063,7 @@ $ mkdir -p /path/to/Maildir/{cur,new,tmp}
 <h3 id="faq-how-create-mboxrd">How do I create an mboxrd file?</h3>
 <p>
     Create a completely empty (i.e. zero bytes long) file via your favourite
-    method.  The standard utility 
+    method.  The standard utility
     <span class="file">touch</span>
     is commonly used:
 </p>
@@ -1460,13 +1460,13 @@ arguments = (&quot;-R&quot;, &quot;X-getmail-filter-classifier:&quot;,
 </p>
 <pre class="example">
 [filter]
-type = Filter_external                                                          
+type = Filter_external
 path = /usr/local/bin/f-prot-wrapper.sh
 </pre>
 <p>
     The wrapper script
     <span class="file">f-prot-wrapper.sh</span>
-    is a small shellscript by Ali Onur Cinar, and 
+    is a small shellscript by Ali Onur Cinar, and
     <a href="http://www.zdo.com/articles/res/f-prot-wrapper.sh">can be downloaded from his website</a>.
 </p>
 
@@ -1626,10 +1626,10 @@ type = Filter_TMDA
 
 <h3 id="faq-notabug-brokenpopserver">operation error (SimplePOP3Retriever: [...] does not uniquely identify messages [...] see documentation or use BrokenUIDLPOP3Retriever instead</h3>
 <p>
-    The server you're trying to use does not properly uniquely identify messages 
-    (getmail noticed when it saw the same &quot;unique&quot; identifier twice in 
-    the same mailbox at the same time).  getmail needs these identifiers to be 
-    unique so that it can properly tell the difference between new and old 
+    The server you're trying to use does not properly uniquely identify messages
+    (getmail noticed when it saw the same &quot;unique&quot; identifier twice in
+    the same mailbox at the same time).  getmail needs these identifiers to be
+    unique so that it can properly tell the difference between new and old
     messages.
 </p>
 <p>
@@ -1639,13 +1639,13 @@ type = Filter_TMDA
 </p>
 <p>
     If you see this error message, and you're trying to leave messages on the
-    server after retrieval (permanently, or for a few days with 
+    server after retrieval (permanently, or for a few days with
     <span class="sample">delete_after</span>),
     you have a few options to try to resolve it:
 </p>
 <ul>
     <li>
-        If your provider also offers IMAP access to your mailbox, try one of 
+        If your provider also offers IMAP access to your mailbox, try one of
         the IMAP retrievers instead.
     </li>
     <li>
@@ -1671,7 +1671,7 @@ python2.5(27172) malloc: *** set a breakpoint in szone_error to debug
 <p>
     ... which then end with <span class="sample">MemoryError</span>,
     please report the problem to Apple.
-    The 
+    The
     <a href="http://bugs.python.org/issue1092502">OS X implementation of realloc() is broken</a>,
     and there's nothing getmail can do about it.
 </p>

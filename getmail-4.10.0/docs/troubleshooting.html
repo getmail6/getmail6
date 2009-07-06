@@ -22,12 +22,12 @@
     software.
 </p>
 <p class="about">
-    getmail is Copyright &copy; 1998-2007 Charles Cazabon.
+    getmail is Copyright &copy; 1998-2009 Charles Cazabon.
 </p>
 <p class="about">
     getmail is licensed under the
     <a href="COPYING">GNU General Public License version 2</a>
-    (only). If you wish to obtain a license to distribute getmail under other 
+    (only). If you wish to obtain a license to distribute getmail under other
     terms, please contact me directly.
 </p>
 
@@ -205,8 +205,8 @@
     <span class="meta">why</span>.
 </p>
 <p>
-	The getmail documentation contains
-	<a href="configuration.html#parametertypes">descriptions of the syntax for each parameter type</a>.
+    The getmail documentation contains
+    <a href="configuration.html#parametertypes">descriptions of the syntax for each parameter type</a>.
 </p>
 
 <h4 id="errmsg-config-maildir-slash" class="errmsg">Configuration error: maildir path missing trailing /</h4>
@@ -257,7 +257,7 @@
 <h4 id="errmsg-config-root-commands" class="errmsg">Configuration error: refuse to invoke external commands as root or GID 0 by default</h4>
 <p>
     By default, getmail will not invoke external commands (in destinations or
-    filters) when it is running with root privileges, for security reasons.  
+    filters) when it is running with root privileges, for security reasons.
     See the documenation for possible solutions.
 </p>
 
@@ -285,14 +285,14 @@
 <!-- ********************************************************************** -->
 <h3 id="errmsg-delivery" class="errmsg">Delivery error &hellip;</h3>
 <p>
-    getmail detected an error after retrieving a message but before delivery was 
-    successfully completed.  
+    getmail detected an error after retrieving a message but before delivery was
+    successfully completed.
     Some of the specific errors it may find include the following.
 </p>
 <h4 id="errmsg-delivery-root-maildir" class="errmsg">Delivery error: maildir delivery process failed (refuse to deliver mail as root)</h4>
 <p>
-    getmail will not deliver to a maildir as the root user.  You may specify an 
-    alternate user to deliver as with the 
+    getmail will not deliver to a maildir as the root user.  You may specify an
+    alternate user to deliver as with the
     <span class="file">user</span>
     directive in the destination section of your
     <span class="file">getmailrc</span>
@@ -300,8 +300,8 @@
 </p>
 <h4 id="errmsg-delivery-root-mbox" class="errmsg">Delivery error: mbox delivery process failed (refuse to deliver mail as root)</h4>
 <p>
-    getmail will not deliver to an mbox file as the root user.  You may specify 
-    an alternate user to deliver as with the 
+    getmail will not deliver to an mbox file as the root user.  You may specify
+    an alternate user to deliver as with the
     <span class="file">user</span>
     directive in the destination section of your
     <span class="file">getmailrc</span>
@@ -324,7 +324,7 @@
 <h4 id="errmsg-operation-notunique" class="errmsg">Error: <span class="meta">server-info</span> does not uniquely identify messages &hellip;</h4>
 <p>
     The POP3 server for this particular account was not able to uniquely identify
-    the messages in the mailstore.  You can use the 
+    the messages in the mailstore.  You can use the
     <span class="file">BrokenUIDLPOP3Retriever</span> class with this server instead,
     but functionality is limited because of the inability to identify messages
     properly.
@@ -332,7 +332,7 @@
 
 <h4 id="errmsg-operation-uidlbroken" class="errmsg">Error: <span class="meta">server-info</span> failed to identify message <span class="meta">X</span> in UIDL output &hellip;</h4>
 <p>
-    The POP3 server for this particular account completely failed to identify 
+    The POP3 server for this particular account completely failed to identify
     one of the messages in the mailstore when the UIDL command was issued.
     The POP server is in violation of the POP3 protocol, and getmail has no way
     to identify the message in question.
@@ -340,16 +340,16 @@
 <p>
     The most common cause of this is servers that use the contents of the
     Message-ID: header field as the UIDL value for the message - some messages
-    (usually spam) lack a Message-ID: header field entirely, causing these 
-    servers to emit blank UIDL values for these messages, which is not 
+    (usually spam) lack a Message-ID: header field entirely, causing these
+    servers to emit blank UIDL values for these messages, which is not
     permitted by the POP3 protocol.  You may be able to work around the problem
     by deleting the problematic message(s) from the mailstore by other means
     (such as a webmail interface provided by your POP3 mailhost).
 </p>
     Otherwise, you'll need to either ask the postmaster of the POP3 mail host
-    to fix the POP3 software they're using.  In the meantime, you can use the 
-    <span class="file">BrokenUIDLPOP3Retriever</span> class with this server 
-    instead, but functionality is limited because of the inability to identify 
+    to fix the POP3 software they're using.  In the meantime, you can use the
+    <span class="file">BrokenUIDLPOP3Retriever</span> class with this server
+    instead, but functionality is limited because of the inability to identify
     messages properly.
 </p>
 
@@ -371,7 +371,7 @@
 <p>
     A getmail rc file contained an unknown parameter.  This usually indicates
     that you've put the parameter in the wrong section of the file (such as
-    putting the 
+    putting the
     <span class="file">read_all</span>
     parameter in the
     <span class="file">[retriever]</span>
@@ -382,12 +382,12 @@
 
 <h4 id="warnmsg-filterheaders" class="warnmsg">Warning: filter <span class="meta">filter</span> returned fewer headers (X) than supplied (Y)</h4>
 <p>
-    A 
+    A
     <a href="configuration.html#conf-filters">message filter</a>
-    appeared to incorrectly remove header fields from the header of a message 
-    which it handled.  getmail warns you about this so that you can check your 
-    filter for proper operation.  Filters should add information to the message 
-    header or leave it alone; check the configuration for the filter program you 
+    appeared to incorrectly remove header fields from the header of a message
+    which it handled.  getmail warns you about this so that you can check your
+    filter for proper operation.  Filters should add information to the message
+    header or leave it alone; check the configuration for the filter program you
     are using.
 </p>
 
@@ -410,13 +410,13 @@
 
 <h3 id="unexpected-unknown">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> or <span class="file">Return-Path:</span>header field</h3>
 <p>
-    getmail records the envelope recipient address in the 
+    getmail records the envelope recipient address in the
     <span class="file">Delivered-To:</span>
     header field, and the envelope sender in the
     <span class="file">Return-Path:</span>
-    header field.  If this information is not available (because you're not 
-    using a multidrop retriever class, or the MTA on the POP/IMAP server is 
-    broken, for example), getmail uses the string &quot;unknown&quot;.  You can 
+    header field.  If this information is not available (because you're not
+    using a multidrop retriever class, or the MTA on the POP/IMAP server is
+    broken, for example), getmail uses the string &quot;unknown&quot;.  You can
     disable the creation of the
     <span class="file">Delivered-To:</span>
     header field if you wish.
@@ -424,7 +424,7 @@
 
 <h3 id="unexpected-recipient">getmail isn't replacing my command argument &quot;%(recipient)&quot; with the message recipient address</h3>
 <p>
-    The 
+    The
     <span class="file">%(recipient)</span>,
     <span class="file">%(local)</span>,
     and
@@ -443,15 +443,15 @@
 <pre class="example">
 python -c &quot;import socket; print socket.getfqdn()&quot;
 </pre>
-<p>	
-	If this seems to take a similarly long period of time to complete, the delay 
-	is in finding the fully-qualified hostname of your system.  The fix is to 
-	ensure you have a valid mapping of address-to-hostname for all the addresses 
-	in your system.  You can do this in your 
-	<span class="file">/etc/hosts</span>
-	file, in your authoritative content DNS server, or in another
-	system-specific manner &mdash; please contact your OS vendor (or its
-	public support mailing list) for assistance.
+<p>
+    If this seems to take a similarly long period of time to complete, the delay
+    is in finding the fully-qualified hostname of your system.  The fix is to
+    ensure you have a valid mapping of address-to-hostname for all the addresses
+    in your system.  You can do this in your
+    <span class="file">/etc/hosts</span>
+    file, in your authoritative content DNS server, or in another
+    system-specific manner &mdash; please contact your OS vendor (or its
+    public support mailing list) for assistance.
 </p>
         <!--#include virtual="/include/footer-xhtml11.html"-->
     </div>

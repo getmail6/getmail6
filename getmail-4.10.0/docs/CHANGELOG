@@ -1,3 +1,10 @@
+Version 4.10.0
+6 August 2009
+  -add "message_log_verbose" option, defaulting to false.  If true, the
+  message_log file (and syslog, if used) will contain a little more information
+  than the default of just messages retrieved.  Thanks: Matthias Andree,
+  Gregory Morozov.
+
 Version 4.9.2
 15 July 2009
   -use tempfile module function instead of os.tmpfile() so getmail obeys TMPDIR

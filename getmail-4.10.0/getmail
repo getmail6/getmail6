@@ -20,6 +20,7 @@ options_bool = (
     'delete',
     'delivered_to',
     'received',
+    'message_log_verbose',
     'message_log_syslog',
 )
 options_int = (
@@ -67,6 +68,7 @@ defaults = {
     'delivered_to' : True,
     'received' : True,
     'message_log' : None,
+    'message_log_verbose' : False,
     'message_log_syslog' : False,
     'logfile' : None,
 }
@@ -74,7 +76,7 @@ defaults = {
 #######################################
 def blurb():
     log.info('getmail version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2008 Charles Cazabon.  Licensed under the '
+    log.info('Copyright (C) 1998-2009 Charles Cazabon.  Licensed under the '
              'GNU GPL version 2.\n')
 
 #######################################
@@ -83,6 +85,7 @@ def go(configs):
     summary = []
     for (configfile, retriever, _filters, destination, options) in configs:
         oplevel = options['verbose']
+        logverbose = options['message_log_verbose']
         now = int(time.time())
         msgs_retrieved = 0
         bytes_retrieved = 0
@@ -92,9 +95,9 @@ def go(configs):
         try:
             log.info('%s:\n' % retriever)
             logline = 'Initializing %s:' % retriever
-            if options['logfile']:
+            if options['logfile'] and logverbose:
                 options['logfile'].write(logline)
-            if options['message_log_syslog']:
+            if options['message_log_syslog'] and logverbose:
                 syslog.syslog(syslog.LOG_INFO, logline)
             retriever.initialize()
             destination.retriever_info(retriever)
@@ -201,18 +204,25 @@ def go(configs):
                     info += ', delivery error (%s)' % o
                     if options['logfile']:
                         options['logfile'].write('Delivery error (%s)' % o)
+                    if options['message_log_syslog']:
+                        syslog.syslog(syslog.LOG_ERR,
+                                      'Delivery error (%s)' % o)
 
                 except getmailFilterError, o:
                     log.error('Filter error (%s)\n' % o)
                     info += ', filter error (%s)' % o
                     if options['logfile']:
                         options['logfile'].write('Filter error (%s)' % o)
+                    if options['message_log_syslog']:
+                        syslog.syslog(syslog.LOG_ERR,
+                                      'Filter error (%s)' % o)
 
                 if (retrieve or delete or oplevel > 1):
                     log.info('  %s\n' % info)
-                if options['logfile']:
+                if options['logfile'] and (retrieve or delete or logverbose):
                     options['logfile'].write(logline)
-                if options['message_log_syslog']:
+                if options['message_log_syslog'] and (retrieve or delete
+                                                      or logverbose):
                     syslog.syslog(syslog.LOG_INFO, logline)
 
                 if (options['max_messages_per_session']
@@ -264,6 +274,9 @@ def go(configs):
             log.error('%s: operation error (%s)\n' % (configfile, o))
             if options['logfile']:
                 options['logfile'].write('getmailOperationError error (%s)' % o)
+            if options['message_log_syslog']:
+                syslog.syslog(syslog.LOG_ERR,
+                              'getmailOperationError error (%s)' % o)
 
         summary.append(
             (retriever, msgs_retrieved, bytes_retrieved, msgs_skipped)
@@ -271,6 +284,11 @@ def go(configs):
 
         log.info('  %d messages (%d bytes) retrieved, %d skipped\n'
                  % (msgs_retrieved, bytes_retrieved, msgs_skipped))
+        if options['logfile'] and logverbose:
+            options['logfile'].write(
+                '  %d messages (%d bytes) retrieved, %d skipped\n'
+                % (msgs_retrieved, bytes_retrieved, msgs_skipped)
+            )
         log.debug('retriever %s finished\n' % retriever)
         try:
             retriever.quit()
@@ -418,6 +436,7 @@ def main():
                 'received' : defaults['received'],
                 'logfile' : defaults['logfile'],
                 'message_log' : defaults['message_log'],
+                'message_log_verbose' : defaults['message_log_verbose'],
                 'message_log_syslog' : defaults['message_log_syslog'],
             }
             # Python's ConfigParser .getboolean() couldn't handle booleans in

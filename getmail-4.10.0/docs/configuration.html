@@ -22,7 +22,7 @@
     software.
 </p>
 <p class="about">
-    getmail is Copyright &copy; 1998-2007 Charles Cazabon.
+    getmail is Copyright &copy; 1998-2009 Charles Cazabon.
 </p>
 <p class="about">
     getmail is licensed under the
@@ -2131,6 +2131,20 @@ localpart_translate = ('mailhostaccount-', '')
         system logger.
         <span class="warning">
             Note that syslog is inherently unreliable and can lose log messages.
+        </span>
+        Default: False.
+    </li>
+    <li>
+        message_log_verbose
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set, getmail will log to the message log file (or syslog)
+        information about messages not retrieved and the reason for not
+        retrieving them, as well as starting and ending information lines.
+        By default, it will log only about messages actually retrieved, and
+        about error conditions.
+        <span class="warning">
+            Note that this has no effect if neither message_log nor
+            message_log_syslog is in use.
         </span>
         Default: False.
     </li>
