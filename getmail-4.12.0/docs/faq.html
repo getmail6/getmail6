@@ -178,6 +178,7 @@
                 <li><a href="faq.html#faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</a></li>
                 <li><a href="faq.html#faq-notabug-brokenpopserver">operation error (SimplePOP3Retriever: [...] does not uniquely identify messages [...] see documentation or use BrokenUIDLPOP3Retriever instead</a></li>
                 <li><a href="faq.html#faq-notabug-osx-realloc">MemoryError on OS X</a></li>
+                <li><a href="faq.html#faq-notabug-memory">MemoryError when using IMAP</a></li>
                 </ul>
             </li>
             </ul>
@@ -1660,7 +1661,7 @@ type = Filter_TMDA
 
 <h3 id="faq-notabug-osx-realloc">MemoryError on OS X</h3>
 <p>
-    If you see errors like this while running getmail on Macintosh OS XT:
+    If you see errors like this while running getmail on Macintosh OS X:
 </p>
 <pre class="example">
 python2.5(27172) malloc: *** vm_allocate(size=15699968) failed (error code=3)
@@ -1676,6 +1677,28 @@ python2.5(27172) malloc: *** set a breakpoint in szone_error to debug
     and there's nothing getmail can do about it.
 </p>
 
+<h3 id="faq-notabug-memory">MemoryError when using IMAP</h3>
+<p>
+    If you see errors like this while running getmail configured to retrieve
+    mail via IMAP or IMAP-over-SSL:
+</p>
+<pre class="example">
+Python(24006) malloc: *** mmap(size=9875456) failed (error code=12)
+[...]
+</pre>
+<p>
+    ... which then end with <span class="sample">MemoryError</span>,
+    you've run into
+    <a href="http://bugs.python.org/issue1389051">a bug in Python's IMAP library</a>.
+    It's fixed in the most recent versions of Python 2.5 and 2.6.  This bug can
+    cause getmail to grow to a huge size, vastly out of proportion to the size
+    of the message it's retrieving, at which point Python may fail or be killed
+    when the system runs out of memory.
+</p>
+<p>
+    Upgrade your Python installation to the newest Python 2.5 or 2.6 version to
+    fix the problem, or use POP3 instead of IMAP to work around it.
+</p>
 
 
         <!--#include virtual="/include/footer-xhtml11.html"-->

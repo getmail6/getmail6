@@ -866,7 +866,16 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             #   ')',
             #   <maybe more>
             # ]
-            msg = Message(fromstring=response[0][1])
+            
+            # MSExchange is broken -- if a message is badly formatted enough
+            # (virus, spam, trojan), it can completely fail to return the
+            # message when requested.
+            try:
+                msg = Message(fromstring=response[0][1])
+            except TypeError, o:
+                # response[0] is None instead of a message tuple
+                raise getmailRetrievalError('failed to retrieve msgid %s' 
+                                            % msgid)
             return msg
 
         except imaplib.IMAP4.error, o:

@@ -1,3 +1,10 @@
+Version 4.12.0
+7 October 2009
+  -handle MSExchange failure to deliver message gracefully.  Thanks: Morty 
+  Abzug.
+  -documentation updates regarding Python IMAP memory bug.  Thanks: "spig".
+  -fix bad tag in documentation.
+
 Version 4.11.0
 8 August 2009
   -fix --dump not generating any output for rcfiles containing "verbose = 0"

@@ -1013,7 +1013,7 @@ I think I found this bug in getmail ...
 
   MemoryError on OS X
 
-   If you see errors like this while running getmail on Macintosh OS XT:
+   If you see errors like this while running getmail on Macintosh OS X:
 
  python2.5(27172) malloc: *** vm_allocate(size=15699968) failed (error code=3)
  python2.5(27172) malloc: *** error: can't allocate region
@@ -1023,3 +1023,20 @@ I think I found this bug in getmail ...
    ... which then end with MemoryError, please report the problem to Apple.
    The OS X implementation of realloc() is broken, and there's nothing
    getmail can do about it.
+
+  MemoryError when using IMAP
+
+   If you see errors like this while running getmail configured to retrieve
+   mail via IMAP or IMAP-over-SSL:
+
+ Python(24006) malloc: *** mmap(size=9875456) failed (error code=12)
+ [...]
+
+   ... which then end with MemoryError, you've run into a bug in Python's
+   IMAP library. It's fixed in the most recent versions of Python 2.5 and
+   2.6. This bug can cause getmail to grow to a huge size, vastly out of
+   proportion to the size of the message it's retrieving, at which point
+   Python may fail or be killed when the system runs out of memory.
+
+   Upgrade your Python installation to the newest Python 2.5 or 2.6 version
+   to fix the problem, or use POP3 instead of IMAP to work around it.

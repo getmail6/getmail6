@@ -110,6 +110,22 @@ Error messages
    A destination in the getmail rc file refers to another rc file section
    named section, but that section was not found in the file.
 
+  Retrieval error ...
+
+   getmail detected an error while trying to retrieve a message. Some of the
+   specific errors it may find include the following.
+
+    Retrieval error: server ... is broken;
+
+   The server claimed to have a particular message, but when getmail tried to
+   retrieve it, the server returned an empty response in violation of the POP
+   or IMAP protocol. getmail will skip on to the next message.
+
+   This problem is almost always with an MSExchange server, and is due to
+   bugs in MSExchange. Delete the offending message from the mailbox via the
+   webmail interface if you don't want to see this error message, and report
+   the bug to the server administrator or Microsoft.
+
   Delivery error ...
 
    getmail detected an error after retrieving a message but before delivery
@@ -169,6 +185,20 @@ Error messages
    to fix the POP3 software they're using. In the meantime, you can use the
    BrokenUIDLPOP3Retriever class with this server instead, but functionality
    is limited because of the inability to identify messages properly.
+
+    Python(...) malloc: *** mmap(...) failed (...)
+
+   ... followed by an Unhandled exception block and then MemoryError.
+
+   getmail ran out of memory, usually due to a bug in Python's IMAP library
+   which was fixed in early 2008.
+
+   If you are using IMAP and run into this problem retrieving messages that
+   aren't hundreds of megabytes in size, you can almost certainly fix it by
+   upgrading your Python installation to the latest 2.5.x or 2.6.x release.
+   Note that if you switch from Python 2.5.x to Python 2.6.x, you'll need to
+   re-install getmail with python setup.py install from the getmail source
+   directory.
 
 Warning messages
 

@@ -5,8 +5,9 @@
 __all__ = [
     'getmailError',
     'getmailConfigurationError',
-    'getmailFilterError',
     'getmailOperationError',
+    'getmailFilterError',
+    'getmailRetrievalError',
     'getmailDeliveryError',
 ]
 
@@ -22,6 +23,11 @@ class getmailConfigurationError(getmailError):
 
 class getmailOperationError(getmailError):
     '''Exception raised when a runtime error is detected.'''
+    pass
+
+class getmailRetrievalError(getmailOperationError):
+    '''Exception raised when a server (cough MSExchange cough) fails to 
+    hand over a message it claims to have.'''
     pass
 
 class getmailFilterError(getmailOperationError):

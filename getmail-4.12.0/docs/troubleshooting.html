@@ -95,6 +95,12 @@
                     <li><a href="troubleshooting.html#errmsg-config-missing-section">Configuration error: destination specifies section name <span class="meta">section</span> which does not exist</a></li>
                     </ul>
                 </li>
+                <li><a href="troubleshooting.html#errmsg-retrieval">Retrieval error &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="troubleshooting.html#errmsg-retrieval-missing">Retrieval error: server &hellip; is broken;</a></li>
+                    </ul>
+                </li>
                 <li><a href="troubleshooting.html#errmsg-delivery">Delivery error &hellip;</a></li>
                 <li>
                     <ul>
@@ -108,6 +114,7 @@
                     <ul>
                     <li><a href="troubleshooting.html#errmsg-operation-notunique">Error: <span class="meta">server-info</span> does not uniquely identify messages &hellip;</a></li>
                     <li><a href="troubleshooting.html#errmsg-operation-uidlbroken">Error: <span class="meta">server-info</span> failed to identify message <span class="meta">X</span> in UIDL output &hellip;</a></li>
+                    <li><a href="troubleshooting.html#errmsg-imapbug-memory">Python(&hellip;) malloc: *** mmap(&hellip;) failed (&hellip;)</a></li>
                     </ul>
                 </li>
                 </ul>
@@ -283,6 +290,25 @@
 </p>
 
 <!-- ********************************************************************** -->
+<h3 id="errmsg-retrieval" class="errmsg">Retrieval error &hellip;</h3>
+<p>
+    getmail detected an error while trying to retrieve a message.
+    Some of the specific errors it may find include the following.
+</p>
+<h4 id="errmsg-retrieval-missing" class="errmsg">Retrieval error: server &hellip; is broken;</h4>
+<p>
+    The server claimed to have a particular message, but when getmail tried to 
+    retrieve it, the server returned an empty response in violation of the
+    POP or IMAP protocol.  getmail will skip on to the next message.
+</p>
+<p>
+    This problem is almost always with an MSExchange server, and is due
+    to bugs in MSExchange.  Delete the offending message from the mailbox
+    via the webmail interface if you don't want to see this error message,
+    and report the bug to the server administrator or Microsoft.
+</p>
+
+<!-- ********************************************************************** -->
 <h3 id="errmsg-delivery" class="errmsg">Delivery error &hellip;</h3>
 <p>
     getmail detected an error after retrieving a message but before delivery was
@@ -346,11 +372,31 @@
     by deleting the problematic message(s) from the mailstore by other means
     (such as a webmail interface provided by your POP3 mailhost).
 </p>
+<p>
     Otherwise, you'll need to either ask the postmaster of the POP3 mail host
     to fix the POP3 software they're using.  In the meantime, you can use the
     <span class="file">BrokenUIDLPOP3Retriever</span> class with this server
     instead, but functionality is limited because of the inability to identify
     messages properly.
+</p>
+
+<h4 id="errmsg-imapbug-memory" class="errmsg">Python(&hellip;) malloc: *** mmap(&hellip;) failed (&hellip;)</h4>
+<p>
+    &hellip; followed by an <span class="file">Unhandled exception</span> block
+    and then <span class="file">MemoryError</span>.
+</p>
+<p>
+    getmail ran out of memory, usually due to
+    <a href="http://bugs.python.org/issue1389051">a bug in Python's IMAP library</a>
+    which was fixed in early 2008.
+</p>
+<p>
+    If you are using IMAP and run into this problem retrieving messages that
+    aren't hundreds of megabytes in size, you can almost certainly fix it by
+    upgrading your Python installation to the latest 2.5.x or 2.6.x release.
+    Note that if you switch from Python 2.5.x to Python 2.6.x, you'll need to
+    re-install getmail with <span class="file">python setup.py install</span>
+    from the getmail source directory.
 </p>
 
 <!-- ********************************************************************** -->

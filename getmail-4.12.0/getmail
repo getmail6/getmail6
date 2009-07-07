@@ -127,7 +127,17 @@ def go(configs):
                     reason = 'would surpass max_bytes_per_session'
                 try:
                     if retrieve:
-                        msg = retriever.getmsg(msgid)
+                        try:
+                            msg = retriever.getmsg(msgid)
+                        except getmailRetrievalError, o:
+                            log.error(
+                                'Retrieval error: server for %s is broken; '
+                                'offered message %s but failed to provide it.  '
+                                'Please notify the administrator of the '
+                                'server.  Skipping message...'
+                                % (retriever, msgid)
+                            )
+                            continue
                         msgs_retrieved += 1
                         bytes_retrieved += size
                         if oplevel > 1:
