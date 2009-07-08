@@ -646,6 +646,10 @@ def main():
                             destination, config.copy()))
 
         if options.dump_config:
+            # Override any "verbose = 0" in the config file
+            log.clearhandlers()
+            log.addhandler(sys.stdout, logging.INFO, maxlevel=logging.INFO)
+            log.addhandler(sys.stderr, logging.WARNING)
             blurb()
             for (filename, retriever, _filters, destination, config) in configs:
                 log.info('getmail configuration:\n')

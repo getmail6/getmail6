@@ -1,3 +1,10 @@
+Version 4.11.0
+8 August 2009
+  -fix --dump not generating any output for rcfiles containing "verbose = 0"
+  option.  Thanks: Morty Abzug.
+  -fix copy-and-paste error in documentation of MultiSorter destination.
+  Thanks: Roland Hill.
+
 Version 4.10.0
 6 August 2009
   -add "message_log_verbose" option, defaulting to false.  If true, the
