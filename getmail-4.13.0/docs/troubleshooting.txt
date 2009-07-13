@@ -115,7 +115,7 @@ Error messages
    getmail detected an error while trying to retrieve a message. Some of the
    specific errors it may find include the following.
 
-    Retrieval error: server ... is broken;
+    Retrieval error: server ... is broken; ...
 
    The server claimed to have a particular message, but when getmail tried to
    retrieve it, the server returned an empty response in violation of the POP

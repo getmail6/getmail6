@@ -134,7 +134,7 @@ def go(configs):
                                 'Retrieval error: server for %s is broken; '
                                 'offered message %s but failed to provide it.  '
                                 'Please notify the administrator of the '
-                                'server.  Skipping message...'
+                                'server.  Skipping message...\n'
                                 % (retriever, msgid)
                             )
                             continue
