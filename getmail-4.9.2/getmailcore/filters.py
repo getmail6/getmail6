@@ -13,6 +13,7 @@ __all__ = [
 ]
 
 import os
+import tempfile
 import types
 
 from getmailcore.exceptions import *
@@ -214,7 +215,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
     def _filter_command(self, msg, msginfo, stdout, stderr):
         try:
             # Write out message with native EOL convention
-            msgfile = os.tmpfile()
+            msgfile = tempfile.TemporaryFile()
             msgfile.write(msg.flatten(False, False,
                                       include_from=self.conf['unixfrom']))
             msgfile.flush()
@@ -262,8 +263,8 @@ class Filter_external(FilterSkeleton, ForkingBase):
                 'refuse to invoke external commands as root by default'
             )
 
-        stdout = os.tmpfile()
-        stderr = os.tmpfile()
+        stdout = tempfile.TemporaryFile()
+        stderr = tempfile.TemporaryFile()
         childpid = os.fork()
 
         if not childpid:
@@ -319,8 +320,8 @@ class Filter_classifier(Filter_external):
                 'refuse to invoke external commands as root by default'
             )
 
-        stdout = os.tmpfile()
-        stderr = os.tmpfile()
+        stdout = tempfile.TemporaryFile()
+        stderr = tempfile.TemporaryFile()
         childpid = os.fork()
 
         if not childpid:
@@ -404,7 +405,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
     def _filter_command(self, msg, stdout, stderr):
         try:
             # Write out message with native EOL convention
-            msgfile = os.tmpfile()
+            msgfile = tempfile.TemporaryFile()
             msgfile.write(msg.flatten(True, True, include_from=True))
             msgfile.flush()
             os.fsync(msgfile.fileno())
@@ -452,8 +453,8 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
                 'refuse to invoke external commands as root by default'
             )
 
-        stdout = os.tmpfile()
-        stderr = os.tmpfile()
+        stdout = tempfile.TemporaryFile()
+        stderr = tempfile.TemporaryFile()
         childpid = os.fork()
 
         if not childpid:

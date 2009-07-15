@@ -26,6 +26,7 @@ __all__ = [
 
 import os
 import re
+import tempfile
 import types
 import email.Utils
 
@@ -179,8 +180,8 @@ class Maildir(DeliverySkeleton, ForkingBase):
                         'refuse to deliver mail as GID 0'
                     )
         self._prepare_child()
-        stdout = os.tmpfile()
-        stderr = os.tmpfile()
+        stdout = tempfile.TemporaryFile()
+        stderr = tempfile.TemporaryFile()
         childpid = os.fork()
 
         if not childpid:
@@ -351,8 +352,8 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                     'refuse to deliver mail as GID 0'
                 )
         self._prepare_child()
-        stdout = os.tmpfile()
-        stderr = os.tmpfile()
+        stdout = tempfile.TemporaryFile()
+        stderr = tempfile.TemporaryFile()
         childpid = os.fork()
 
         if not childpid:
@@ -488,7 +489,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
                 # Also don't insert a Delivered-To: header.
                 delivered_to = None
             # Write out message
-            msgfile = os.tmpfile()
+            msgfile = tempfile.TemporaryFile()
             msgfile.write(msg.flatten(delivered_to, received))
             msgfile.flush()
             os.fsync(msgfile.fileno())
@@ -554,8 +555,8 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
         self.log.debug('recipient: set dash to "%s", ext to "%s"\n'
                        % (msginfo['dash'], msginfo['ext']))
 
-        stdout = os.tmpfile()
-        stderr = os.tmpfile()
+        stdout = tempfile.TemporaryFile()
+        stderr = tempfile.TemporaryFile()
         childpid = os.fork()
 
         if not childpid:
@@ -669,7 +670,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                          stdout, stderr):
         try:
             # Write out message with native EOL convention
-            msgfile = os.tmpfile()
+            msgfile = tempfile.TemporaryFile()
             msgfile.write(msg.flatten(delivered_to, received,
                                       include_from=self.conf['unixfrom']))
             msgfile.flush()
@@ -717,8 +718,8 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
         self.log.debug('msginfo "%s"\n' % msginfo)
 
-        stdout = os.tmpfile()
-        stderr = os.tmpfile()
+        stdout = tempfile.TemporaryFile()
+        stderr = tempfile.TemporaryFile()
         childpid = os.fork()
 
         if not childpid:
