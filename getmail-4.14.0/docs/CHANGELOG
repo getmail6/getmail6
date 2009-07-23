@@ -1,3 +1,9 @@
+Version 4.14.0
+23 November 2009
+  -handle additional cases where IMAP (and for good measure, POP3) server is
+  broken and offers a message that it then fails to return.  Thanks: Eric 
+  Waguespack.
+
 Version 4.13.0
 13 October 2009
   -fix new log message not having trailing newline.Thanks: Morty Abzug.

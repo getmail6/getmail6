@@ -360,7 +360,7 @@ class RetrieverSkeleton(ConfigurableBase):
                     self.oldmail[msgid] = int(timestamp)
                 except ValueError:
                     # malformed
-                    self.log.info('skipped malformed line "%r" for %s' 
+                    self.log.info('skipped malformed line "%r" for %s'
                                   % (line, self)
                                   + os.linesep)
             self.log.moreinfo('read %i uids for %s' % (len(self.oldmail), self)
@@ -535,7 +535,10 @@ class POP3RetrieverBase(RetrieverSkeleton):
             msg = Message(fromlines=lines)
             return msg
         except poplib.error_proto, o:
-            raise getmailOperationError('POP error (%s)' % o)
+            raise getmailRetrievalError(
+                'failed to retrieve msgid %s; server said %s' 
+                % (msgid, o)
+            )
 
     def _getheaderbyid(self, msgid):
         self.log.trace()
@@ -855,7 +858,15 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             # Retrieve message
             self.log.debug('retrieving body for message "%s"' % uid
                            + os.linesep)
-            response = self._parse_imapuidcmdresponse('FETCH', uid, part)
+            try:
+                response = self._parse_imapuidcmdresponse('FETCH', uid, part)
+            except imaplib.IMAP4.error, o:
+                # server gave a negative/NO response, most likely.  Bad server,
+                # no doughnut.
+                raise getmailRetrievalError(
+                    'failed to retrieve msgid %s; server said %s' 
+                    % (msgid, o)
+                )
             # Response is really ugly:
             #
             # [
