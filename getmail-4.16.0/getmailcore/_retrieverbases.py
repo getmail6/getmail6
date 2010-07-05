@@ -860,7 +860,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                            + os.linesep)
             try:
                 response = self._parse_imapuidcmdresponse('FETCH', uid, part)
-            except imaplib.IMAP4.error, o:
+            except (imaplib.IMAP4.error, getmailOperationError), o:
                 # server gave a negative/NO response, most likely.  Bad server,
                 # no doughnut.
                 raise getmailRetrievalError(

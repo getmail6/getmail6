@@ -1,3 +1,8 @@
+Version 4.16.0
+5 January 2010
+  -additional fix for IMAP server that offers a message it then fails to return,
+  to allow getmail to continue with the next message.  Thanks: Yaw Anokwa.
+
 Version 4.15.0
 2 December 2009
   -default port for MultidropIMAPSSLRetriever was incorrect.  Thanks: David 
