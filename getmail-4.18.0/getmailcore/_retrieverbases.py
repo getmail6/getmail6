@@ -410,11 +410,14 @@ class RetrieverSkeleton(ConfigurableBase):
         else:
             # Explicitly set to None in case it was previously set
             socket.setdefaulttimeout(None)
-        self.oldmail_filename = os.path.join(
-            self.conf['getmaildir'],
-            ('oldmail-%(server)s-%(port)i-%(username)s'
-             % self.conf).replace('/', '-').replace(':', '-')
+        # strip problematic characters from oldmail filename.  Mostly for
+        # non-Unix systems; only / is illegal in a Unix path component
+        oldmail_filename = re.sub(
+            r'[/\:;<>|]+', '-',
+            'oldmail-%(server)s-%(port)i-%(username)s' % self.conf
         )
+        self.oldmail_filename = os.path.join(self.conf['getmaildir'], 
+                                             oldmail_filename)
         self._read_oldmailfile()
         self.received_from = '%s (%s)' % (
             self.conf['server'],

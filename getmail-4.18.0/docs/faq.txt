@@ -319,7 +319,9 @@ About getmail
 
    But don't just take my word for it; see
    http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724 and
-   http://esr.1accesshost.com/.
+   http://esr.1accesshost.com/ (note: went offline sometime in 2009 or 2010;
+   the content is still available at
+   http://web.archive.org/web/20080621090439/http://esr.1accesshost.com/ ).
 
    getmail users have not had to worry about any of these security holes or
    design and implementation errors.

@@ -1,3 +1,17 @@
+Version 4.18.0
+26 June 2010
+  -update broken link in FAQ.  Thanks: Stefan Kangas.
+  -strip a few extra problematic (on non-Unix systems) characters when 
+  generating oldmail filenames; backslash was requested by Andy Ross.
+  If upgrading and your current oldmail file contains any of these
+  characters: 
+      \ ; < > | 
+  ... then rename it, replacing runs of one or more of those characters with
+  a single "-".
+  -improve clarity of message logged by getmail when an external program exits
+  0 but getmail considers it failed because it wrote to stderr.  Thanks:
+  Chris Dennis.
+
 Version 4.17.0
 30 April 2010
   -change to how getmail counts messages in an IMAP mailbox; prevents problems

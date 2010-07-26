@@ -87,8 +87,10 @@ class FilterSkeleton(ConfigurableBase):
             if self.conf['ignore_stderr']:
                 self.log.info('filter %s: %s\n' % (self, err))
             else:
-                raise getmailFilterError('filter %s returned %d (%s)\n'
-                                         % (self, exitcode, err))
+                raise getmailFilterError(
+                    'filter %s returned %d but wrote to stderr: %s\n'
+                    % (self, exitcode, err)
+                )
 
         # Check the filter was sane
         if len(newmsg.headers()) < len(msg.headers()):
