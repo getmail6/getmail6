@@ -42,6 +42,7 @@ import getpass
 import email
 import poplib
 import imaplib
+import re
 
 try:
     # do we have a recent pykerberos?

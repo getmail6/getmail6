@@ -1,3 +1,7 @@
+Version 4.19.0
+29 June 2010
+  -fix missing import introduced in 4.18.0.  Thanks: Paul Howarth.
+
 Version 4.18.0
 26 June 2010
   -update broken link in FAQ.  Thanks: Stefan Kangas.
