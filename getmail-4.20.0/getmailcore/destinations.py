@@ -739,30 +739,6 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         self.log.debug('command %s %d exited %d\n'
                        % (self.conf['command'], childpid, exitcode))
 
-
-
-
-
-        if exitcode in self.exitcodes_drop:
-            # Drop message
-            self.log.debug('filter %s returned %d; dropping message\n'
-                           % (self, exitcode))
-            return None
-        elif (exitcode not in self.exitcodes_keep):
-            raise getmailFilterError('filter %s returned %d (%s)\n'
-                                     % (self, exitcode, err))
-        elif err:
-            if self.conf['ignore_stderr']:
-                self.log.info('filter %s: %s\n' % (self, err))
-            else:
-                raise getmailFilterError(
-                    'filter %s returned %d but wrote to stderr: %s\n'
-                    % (self, exitcode, err)
-                )
-
-
-
-
         if exitcode:
             raise getmailDeliveryError(
                 'command %s %d error (%d, %s)'

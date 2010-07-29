@@ -1,3 +1,8 @@
+Version 4.20.0
+29 June 2010
+  -fix crap code from bad svn merge that slipped into 4.18.0, triggering 
+  exceptions in MDA_external configs.  Thanks: Paul Howarth.
+
 Version 4.19.0
 29 June 2010
   -fix missing import introduced in 4.18.0.  Thanks: Paul Howarth.
