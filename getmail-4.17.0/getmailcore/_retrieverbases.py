@@ -785,7 +785,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.debug('selecting mailbox "%s"' % mailbox + os.linesep)
         try:
             response = self._parse_imapcmdresponse('SELECT', mailbox)
-            count = int(response[0])
+            count = int(response[-1]) # use *last* EXISTS returned
             uidvalidity = self.conn.response('UIDVALIDITY')[1][0]
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)

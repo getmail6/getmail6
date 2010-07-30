@@ -1,3 +1,9 @@
+Version 4.17.0
+30 April 2010
+  -change to how getmail counts messages in an IMAP mailbox; prevents problems
+  where getmail would only see the first 500 messages in a mailbox with some
+  IMAP servers that return oddball responses to SELECT.  Thanks: David Damerell.
+
 Version 4.16.0
 5 January 2010
   -additional fix for IMAP server that offers a message it then fails to return,
