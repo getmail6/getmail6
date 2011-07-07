@@ -82,6 +82,28 @@ VANISHED_AGE = (60 * 60 * 24 * 30)
 (GSS_STATE_STEP, GSS_STATE_WRAP) = (0, 1)
 
 #
+# Bugfix classes
+#
+
+if sys.version_info < (2, 5, 3):
+    # A serious imaplib bug (http://bugs.python.org/issue1389051) was
+    # fixed in 2.5.3.  Earlier Python releases need a work-around.
+    orig_imap4_ssl = imaplib.IMAP4_SSL
+    class IMAP4_SSL(orig_imap4_ssl):
+        def read(self, size):
+            """Read 'size' bytes from remote."""
+            # sslobj.read() sometimes returns < size bytes
+            chunks = []
+            read = 0
+            while read < size:
+                data = self.sslobj.read(min(size-read, 16384))
+                read += len(data)
+                chunks.append(data)
+            return ''.join(chunks)
+    
+    imaplib.IMAP4_SSL = IMAP4_SSL
+
+#
 # Mix-in classes
 #
 
@@ -93,6 +115,7 @@ class POP3initMixIn(object):
         self.log.trace()
         try:
             self.conn = poplib.POP3(self.conf['server'], self.conf['port'])
+            self.remoteaddr = '%s:%s' % self.conn.sock.getpeername()
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
@@ -136,6 +159,7 @@ class Py24POP3SSLinitMixIn(object):
                                + os.linesep)
                 self.conn = poplib.POP3_SSL(self.conf['server'],
                                             self.conf['port'])
+            self.remoteaddr = '%s:%s' % self.conn.sock.getpeername()
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
@@ -180,6 +204,7 @@ class Py23POP3SSLinitMixIn(object):
                     + os.linesep
                 )
                 self.conn = POP3SSL(self.conf['server'], self.conf['port'])
+            self.remoteaddr = '%s:%s' % self.conn.rawsock.getpeername()
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
@@ -202,6 +227,7 @@ class IMAPinitMixIn(object):
         self.log.trace()
         try:
             self.conn = imaplib.IMAP4(self.conf['server'], self.conf['port'])
+            self.remoteaddr = '%s:%s' % self.conn.sock.getpeername()
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
@@ -242,6 +268,7 @@ class IMAPSSLinitMixIn(object):
                 )
                 self.conn = imaplib.IMAP4_SSL(self.conf['server'],
                                               self.conf['port'])
+            self.remoteaddr = '%s:%s' % self.conn.sock.getpeername()
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
@@ -420,10 +447,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.oldmail_filename = os.path.join(self.conf['getmaildir'], 
                                              oldmail_filename)
         self._read_oldmailfile()
-        self.received_from = '%s (%s)' % (
-            self.conf['server'],
-            socket.getaddrinfo(self.conf['server'], None)[0][4][0]
-        )
+        self.received_from = None
         self.__initialized = True
 
     def delivered(self, msgid):
@@ -561,6 +585,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
         RetrieverSkeleton.initialize(self)
         try:
             self._connect()
+            self.received_from = '%s (%s)' % (self.conf['server'], 
+                                              self.remoteaddr)
             if self.conf['use_apop']:
                 self.conn.apop(self.conf['username'], self.conf['password'])
             else:
@@ -886,7 +912,14 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             # (virus, spam, trojan), it can completely fail to return the
             # message when requested.
             try:
-                msg = Message(fromstring=response[0][1])
+                try:
+                    sbody = response[0][1]
+                except Exception, o:
+                    sbody = None
+                if not sbody:
+                    log.error('bad message from server!')
+                    sbody = str(response)
+                msg = Message(fromstring=sbody)
             except TypeError, o:
                 # response[0] is None instead of a message tuple
                 raise getmailRetrievalError('failed to retrieve msgid %s' 
@@ -916,6 +949,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         try:
             self.log.trace('trying self._connect()' + os.linesep)
             self._connect()
+            self.received_from = '%s (%s)' % (self.conf['server'], 
+                                              self.remoteaddr)
             self.log.trace('logging in' + os.linesep)
             if self.conf['use_kerberos'] and HAVE_KERBEROS_GSS:
                 self.conn.authenticate('GSSAPI', self.gssauth)
