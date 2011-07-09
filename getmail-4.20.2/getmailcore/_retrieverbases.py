@@ -115,7 +115,7 @@ class POP3initMixIn(object):
         self.log.trace()
         try:
             self.conn = poplib.POP3(self.conf['server'], self.conf['port'])
-            self.remoteaddr = '%s:%s' % self.conn.sock.getpeername()
+            self.setup_received(self.conn.sock)
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
@@ -159,7 +159,7 @@ class Py24POP3SSLinitMixIn(object):
                                + os.linesep)
                 self.conn = poplib.POP3_SSL(self.conf['server'],
                                             self.conf['port'])
-            self.remoteaddr = '%s:%s' % self.conn.sock.getpeername()
+            self.setup_received(self.conn.sock)
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
@@ -204,7 +204,7 @@ class Py23POP3SSLinitMixIn(object):
                     + os.linesep
                 )
                 self.conn = POP3SSL(self.conf['server'], self.conf['port'])
-            self.remoteaddr = '%s:%s' % self.conn.rawsock.getpeername()
+            self.setup_received(self.conn.rawsock)
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
@@ -227,7 +227,7 @@ class IMAPinitMixIn(object):
         self.log.trace()
         try:
             self.conn = imaplib.IMAP4(self.conf['server'], self.conf['port'])
-            self.remoteaddr = '%s:%s' % self.conn.sock.getpeername()
+            self.setup_received(self.conn.sock)
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
@@ -268,7 +268,7 @@ class IMAPSSLinitMixIn(object):
                 )
                 self.conn = imaplib.IMAP4_SSL(self.conf['server'],
                                               self.conf['port'])
-            self.remoteaddr = '%s:%s' % self.conn.sock.getpeername()
+            self.setup_received(self.conn.sock)
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
@@ -355,6 +355,21 @@ class RetrieverSkeleton(ConfigurableBase):
         self.__initialized = False
         self.gotmsglist = False
         ConfigurableBase.__init__(self, **args)
+
+    def setup_received(self, sock):
+        serveraddr = sock.getpeername()
+        if len(serveraddr) == 2:
+            # IPv4
+            self.remoteaddr = '%s:%s' % serveraddr
+        elif len(serveraddr) == 4:
+            # IPv6
+            self.remoteaddr = '[%s]:%s' % serveraddr[:2]
+        else:
+            # Shouldn't happen
+            log.warn('unexpected peer address format %s', str(serveraddr))
+            self.remoteaddr = str(serveraddr)
+        self.received_from = '%s (%s)' % (self.conf['server'], 
+                                          self.remoteaddr)
 
     def __del__(self):
         self.log.trace()
@@ -585,8 +600,6 @@ class POP3RetrieverBase(RetrieverSkeleton):
         RetrieverSkeleton.initialize(self)
         try:
             self._connect()
-            self.received_from = '%s (%s)' % (self.conf['server'], 
-                                              self.remoteaddr)
             if self.conf['use_apop']:
                 self.conn.apop(self.conf['username'], self.conf['password'])
             else:
@@ -949,8 +962,6 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         try:
             self.log.trace('trying self._connect()' + os.linesep)
             self._connect()
-            self.received_from = '%s (%s)' % (self.conf['server'], 
-                                              self.remoteaddr)
             self.log.trace('logging in' + os.linesep)
             if self.conf['use_kerberos'] and HAVE_KERBEROS_GSS:
                 self.conn.authenticate('GSSAPI', self.gssauth)

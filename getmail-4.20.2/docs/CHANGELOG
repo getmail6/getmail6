@@ -1,3 +1,8 @@
+Version 4.20.2
+9 Apr 2011
+  -further changes to the Received: header construction to handle IPv6 better.
+  Thanks: Frédéric Perrin.
+
 Version 4.20.1
 7 Apr 2011
   -ensure correct remote address and port is included in the Received: trace
