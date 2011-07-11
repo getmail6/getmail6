@@ -1,7 +1,16 @@
+Version 4.24.0
+11 December 2011
+    -add an explicit expunge when closing an IMAP mailbox, for servers that 
+    incorrectly do not do this when the mailbox is closed.  Thanks: Nicolas 
+    Pomarède.
+    -fix incorrect section reference for `mailboxes` parameter in documentation.
+    Thanks: Ross Boylan.
+    -fix getmail_fetch broken in 4.21.0.  Thanks: Chris Donoghue.
+
 Version 4.23.0
 20 November 2011
 
-    Fix race if new message shows up in POP3 mailbox between running the UIDL 
+    -fix race if new message shows up in POP3 mailbox between running the UIDL 
     and LIST commands.  Thanks: Roland Koebler, Osamu Aoki.
 
 Version 4.22.2

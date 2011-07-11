@@ -885,6 +885,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             return
         if self.mailbox is not None:
             # Close current mailbox so deleted mail is expunged.
+            # Except one user reports that an explicit expunge is needed with 
+            # his server, or else the mail is never removed from the mailbox.
+            self.conn.expunge()
             self.conn.close()
         self.log.debug('selecting mailbox "%s"' % mailbox + os.linesep)
         try:

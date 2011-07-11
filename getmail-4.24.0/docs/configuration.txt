@@ -368,8 +368,8 @@ Creating a getmail rc file
    The SimpleIMAPSSLRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
 
-     * mailboxes (tuple of quoted strings) -- see SimpleIMAPRetriever for
-       definition.
+     * mailboxes (tuple of quoted strings) -- see common retriever parameters
+       for definition.
      * move_on_delete (string) -- see SimpleIMAPRetriever for definition.
      * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
      * certfile (string) -- see SimplePOP3SSLRetriever for definition.
@@ -426,8 +426,8 @@ Creating a getmail rc file
    parameters:
 
      * timeout (integer) -- see SimplePOP3Retriever for definition.
-     * mailboxes (tuple of quoted strings) -- see SimpleIMAPRetriever for
-       definition.
+     * mailboxes (tuple of quoted strings) -- see common retriever parameters
+       for definition.
      * move_on_delete (string) -- see SimpleIMAPRetriever for definition.
 
     MultidropIMAPSSLRetriever
@@ -441,8 +441,8 @@ Creating a getmail rc file
    The MultidropIMAPSSLRetriever class also takes following optional
    parameters:
 
-     * mailboxes (tuple of quoted strings) -- see SimpleIMAPRetriever for
-       definition.
+     * mailboxes (tuple of quoted strings) -- see common retriever parameters
+       for definition.
      * move_on_delete (string) -- see SimpleIMAPRetriever for definition.
      * keyfile (string) -- see SimplePOP3SSLRetriever for definition.
      * certfile (string) -- see SimplePOP3SSLRetriever for definition.

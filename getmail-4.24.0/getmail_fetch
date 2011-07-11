@@ -48,7 +48,7 @@ def go(retriever, destination, options, startmsg):
         if startmsg is not None:
             destination.deliver_message(startmsg, False, False)
         log.info('%s:\n' % retriever)
-        retriever.initialize()
+        retriever.initialize(options)
         destination.retriever_info(retriever)
         nummsgs = len(retriever)
         fmtlen = len(str(nummsgs))
