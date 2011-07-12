@@ -898,7 +898,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         except (IndexError, ValueError), o:
             raise getmailOperationError(
                 'IMAP server failed to return correct SELECT response (%s)'
-                % response
+                % o
             )
         self.log.debug('select(%s) returned message count of %d'
                        % (mailbox, count) + os.linesep)
