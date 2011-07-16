@@ -1,3 +1,10 @@
+Version 4.20.4
+16 July 2011
+  -include more info from server response in error message when IMAP command
+  errors out.  Thanks: W. Martin Borgert, Osamu Aoki.
+  -switch to using Parser instead of HeaderParser to correct illegal formatting
+  bogosities in the body parts of incoming messages.  Thanks: Lauri Alanko.
+
 Version 4.20.3
 30 May 2011
   -fix logging errors in error paths.  Thanks: Visa Putkinen.

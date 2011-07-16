@@ -763,8 +763,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             raise getmailOperationError('IMAP error (%s)' % o)
         if result != 'OK':
             raise getmailOperationError(
-                'IMAP error (command %s returned %s)'
-                % ('%s %s' % (cmd, args), result)
+                'IMAP error (command %s returned %s %s)'
+                % ('%s %s' % (cmd, args), result, resplist)
             )
         if cmd.lower().startswith('login'):
             self.log.debug('login command response %s' % resplist + os.linesep)
@@ -784,8 +784,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             raise getmailOperationError('IMAP error (%s)' % o)
         if result != 'OK':
             raise getmailOperationError(
-                'IMAP error (command %s returned %s)'
-                % ('%s %s' % (cmd, args), result)
+                'IMAP error (command %s returned %s %s)'
+                % ('%s %s' % (cmd, args), result, resplist)
             )
         self.log.debug('command uid %s response %s'
                        % ('%s %s' % (cmd, args), resplist) + os.linesep)
