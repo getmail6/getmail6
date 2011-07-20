@@ -570,7 +570,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
     def _getmsglist(self):
         self.log.trace()
         try:
-            response, msglist, octets = self.conn.uidl()
+            (response, msglist, octets) = self.conn.uidl()
             self.log.debug('UIDL response "%s", %d octets'
                            % (response, octets) + os.linesep)
             for (i, line) in enumerate(msglist):
@@ -606,11 +606,15 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self.log.debug('Message IDs: %s'
                            % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
             self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
-            response, msglist, octets = self.conn.list()
+            (response, msglist, octets) = self.conn.list()
             for line in msglist:
                 msgnum = int(line.split()[0])
                 msgsize = int(line.split()[1])
-                self.msgsizes[self.msgid_by_msgnum[msgnum]] = msgsize
+                msgid = self.msgid_by_msgnum.get(msgnum, None)
+                # If no msgid found, it's a message that wasn't in the UIDL
+                # response above.  Ignore it and we'll get it next time.
+                if msgid is not None:
+                    self.msgsizes[msgid] = msgsize
         except poplib.error_proto, o:
             raise getmailOperationError(
                 'POP error (%s) - if your server does not support the UIDL '
