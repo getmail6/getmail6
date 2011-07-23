@@ -1,3 +1,12 @@
+Version 4.21.0
+23 September 2011
+
+  -automatically open IMAP folders read-only if neither the delete nor 
+  delete_after options are in use; necessary to access chatlogs via Gmail.
+  Thanks: Daniel M. Drucker.
+  -avoid sorting msgids on each retrieval, reducing overhead when dealing with
+  folders containing thousands of messages.  Thanks: Daniel Koukola.
+
 Version 4.20.4
 16 July 2011
   -include more info from server response in error message when IMAP command

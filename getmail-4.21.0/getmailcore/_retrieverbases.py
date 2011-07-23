@@ -338,13 +338,14 @@ class RetrieverSkeleton(ConfigurableBase):
 
       __init__(self, **args)
       __del__(self)
-      initialize(self)
+      initialize(self, options)
       checkconf(self)
     '''
 
     def __init__(self, **args):
         self.msgnum_by_msgid = {}
         self.msgid_by_msgnum = {}
+        self.sorted_msgnum_msgid = {}
         self.msgsizes = {}
         self.headercache = {}
         self.oldmail = {}
@@ -387,7 +388,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.log.trace('i == %d' % i)
         if not self.__initialized:
             raise getmailOperationError('not initialized')
-        return sorted(self.msgid_by_msgnum.items())[i][1]
+        return self.sorted_msgnum_msgid[i][1]
 
     def _read_oldmailfile(self):
         '''Read contents of oldmail file.'''
@@ -444,7 +445,9 @@ class RetrieverSkeleton(ConfigurableBase):
             f.abort()
         self.__oldmail_written = True
 
-    def initialize(self):
+    def initialize(self, options):
+        # Options - dict of application-wide settings, including ones that 
+        # aren't used in initializing the retriever.
         self.log.trace()
         self.checkconf()
         # socket.ssl() and socket timeouts are incompatible in Python 2.3
@@ -463,6 +466,9 @@ class RetrieverSkeleton(ConfigurableBase):
                                              oldmail_filename)
         self._read_oldmailfile()
         self.received_from = None
+        
+        self.app_options = options
+
         self.__initialized = True
 
     def delivered(self, msgid):
@@ -549,6 +555,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                     self.msgid_by_msgnum[msgnum] = msgid
             self.log.debug('Message IDs: %s'
                            % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
+            self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
             response, msglist, octets = self.conn.list()
             for line in msglist:
                 msgnum = int(line.split()[0])
@@ -590,14 +597,14 @@ class POP3RetrieverBase(RetrieverSkeleton):
         parser = email.Parser.HeaderParser()
         return parser.parsestr(os.linesep.join(headerlist))
 
-    def initialize(self):
+    def initialize(self, options):
         self.log.trace()
         # Handle password
         if self.conf.get('password', None) is None:
             self.conf['password'] = getpass.getpass(
                 'Enter password for %s:  ' % self
             )
-        RetrieverSkeleton.initialize(self)
+        RetrieverSkeleton.initialize(self, options)
         try:
             self._connect()
             if self.conf['use_apop']:
@@ -653,9 +660,9 @@ class MultidropPOP3RetrieverBase(POP3RetrieverBase):
     be specified as "delivered-to:2".
     '''
 
-    def initialize(self):
+    def initialize(self, options):
         self.log.trace()
-        POP3RetrieverBase.initialize(self)
+        POP3RetrieverBase.initialize(self, options)
         self.envrecipname = (
             self.conf['envelope_recipient'].split(':')[0].lower()
         )
@@ -827,8 +834,14 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.conn.close()
         self.log.debug('selecting mailbox "%s"' % mailbox + os.linesep)
         try:
-            response = self._parse_imapcmdresponse('SELECT', mailbox)
-            count = int(response[-1]) # use *last* EXISTS returned
+            #response = self._parse_imapcmdresponse('SELECT', mailbox)
+            #count = int(response[-1]) # use *last* EXISTS returned
+            if self.app_options['delete'] or self.app_options['delete_after']:
+                read_only = False
+            else:
+                read_only = True
+            status, count = self.conn.select(mailbox, read_only)
+            count = int(count[-1])
             uidvalidity = self.conn.response('UIDVALIDITY')[1][0]
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
@@ -950,7 +963,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.trace()
         return self._getmsgpartbyid(msgid, '(RFC822[header])')
 
-    def initialize(self):
+    def initialize(self, options):
         self.log.trace()
         # Handle password
         if (self.conf.get('password', None) is None
@@ -958,7 +971,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.conf['password'] = getpass.getpass(
                 'Enter password for %s:  ' % self
             )
-        RetrieverSkeleton.initialize(self)
+        RetrieverSkeleton.initialize(self, options)
         try:
             self.log.trace('trying self._connect()' + os.linesep)
             self._connect()
@@ -1025,9 +1038,9 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
     be specified as "delivered-to:2".
     '''
 
-    def initialize(self):
+    def initialize(self, options):
         self.log.trace()
-        IMAPRetrieverBase.initialize(self)
+        IMAPRetrieverBase.initialize(self, options)
         self.envrecipname = (self.conf['envelope_recipient'].split(':')
             [0].lower())
         if self.envrecipname in NOT_ENVELOPE_RECIPIENT_HEADERS:

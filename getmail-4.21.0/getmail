@@ -99,7 +99,7 @@ def go(configs):
                 options['logfile'].write(logline)
             if options['message_log_syslog'] and logverbose:
                 syslog.syslog(syslog.LOG_INFO, logline)
-            retriever.initialize()
+            retriever.initialize(options)
             destination.retriever_info(retriever)
             nummsgs = len(retriever)
             fmtlen = len(str(nummsgs))
