@@ -78,6 +78,9 @@ NOT_ENVELOPE_RECIPIENT_HEADERS = (
 # 30 days.
 VANISHED_AGE = (60 * 60 * 24 * 30)
 
+# Regex used to remove problematic characters from oldmail filenames
+STRIP_CHAR_RE = r'[/\:;<>|]+'
+
 # Kerberos authentication state constants
 (GSS_STATE_STEP, GSS_STATE_WRAP) = (0, 1)
 
@@ -393,24 +396,48 @@ class RetrieverSkeleton(ConfigurableBase):
     def _read_oldmailfile(self):
         '''Read contents of oldmail file.'''
         self.log.trace()
-        try:
-            for line in open(self.oldmail_filename, 'rb'):
-                line = line.strip()
-                if not line or not '\0' in line:
-                    # malformed
-                    continue
-                try:
-                    (msgid, timestamp) = line.split('\0', 1)
-                    self.oldmail[msgid] = int(timestamp)
-                except ValueError:
-                    # malformed
-                    self.log.info('skipped malformed line "%r" for %s'
-                                  % (line, self)
-                                  + os.linesep)
-            self.log.moreinfo('read %i uids for %s' % (len(self.oldmail), self)
-                              + os.linesep)
-        except IOError:
-            self.log.moreinfo('no oldmail file for %s' % self + os.linesep)
+        # Read separate oldmail file for each folder (IMAP).
+        mailboxes = self.conf.get('mailboxes', (None, ))
+        for mailbox in mailboxes:
+            filename = self.oldmail_filename
+            mailbox_logstr = ''
+            if mailbox:
+                mailbox_logstr = 'mailbox %s in ' % mailbox
+                filename += '-' + re.sub(STRIP_CHAR_RE, '.', mailbox)
+                if not os.path.isfile(filename):
+                    # use existing oldmail file, to enable smooth migration to 
+                    # oldmail filenames with appended mailbox name
+                    self.log.info(
+                        'oldmail file %s not found, reverting to %s%s'
+                        % (filename, self.oldmail_filename, os.linesep)
+                    )
+                    filename = self.oldmail_filename
+            try:
+                oldlength = len(self.oldmail)
+                for line in open(filename, 'rb'):
+                    line = line.strip()
+                    if not line or not '\0' in line:
+                        # malformed
+                        continue
+                    try:
+                        (msgid, timestamp) = line.split('\0', 1)
+                        self.oldmail[msgid] = int(timestamp)
+                    except ValueError:
+                        # malformed
+                        self.log.info(
+                            'skipped malformed line "%r" for %s%s'
+                            % (line, self, os.linesep)
+                        )
+                self.log.moreinfo(
+                    'read %i uids for %s%s%s'
+                    % (len(self.oldmail) - oldlength, mailbox_logstr, self, 
+                       os.linesep)
+                )
+            except IOError:
+                self.log.moreinfo('no oldmail file for %s%s%s'
+                                  % (mailbox_logstr, self, os.linesep))
+        self.log.moreinfo('read %i uids in total for %s%s'
+                          % (len(self.oldmail), self, os.linesep))
 
     def write_oldmailfile(self, forget_deleted=True):
         '''Write oldmail info to oldmail file.'''
@@ -418,9 +445,18 @@ class RetrieverSkeleton(ConfigurableBase):
         if (self.__oldmail_written or not self.__initialized
                 or not self.gotmsglist):
             return
-        wrote = 0
+        mailboxes = self.conf.get('mailboxes', (None,))
+        wrote = {}
+        for mailbox in mailboxes:
+            wrote[mailbox] = 0
+        f = {}
         try:
-            f = updatefile(self.oldmail_filename)
+            # Write each folders msgids/data to a separate oldmail file.
+            for mailbox in mailboxes:
+                filename = self.oldmail_filename
+                if mailbox:
+                    filename += '-' + re.sub(STRIP_CHAR_RE, '.', mailbox)
+                f[mailbox] = updatefile(filename)
             msgids = frozenset(
                 self.__delivered.keys()
             ).union(frozenset(self.oldmail.keys()))
@@ -434,15 +470,29 @@ class RetrieverSkeleton(ConfigurableBase):
                 # not deleted, remember this one's time stamp
                 t = self.oldmail.get(msgid, self.timestamp)
                 self.log.debug(' timestamp %s' % t + os.linesep)
-                f.write('%s\0%i%s' % (msgid, t, os.linesep))
-                wrote += 1
-            f.close()
-            self.log.moreinfo('wrote %i uids for %s' % (wrote, self)
-                              + os.linesep)
+                mailbox = None
+                match = re.match('^\d+/(.+?)/\d+$', msgid)
+                if match:
+                    mailbox = match.group(1)
+                if mailbox in mailboxes:
+                    f[mailbox].write('%s\0%i%s' % (msgid, t, os.linesep))
+                    wrote[mailbox] += 1
+                else:
+                    self.log.info('mailbox %s unknown for msgid %s%s'
+                                  % (mailbox, msgid, os.linesep))
+            for mailbox in mailboxes:
+                f[mailbox].close()
+                mailbox_logstr = ''
+                if mailbox != None:
+                    mailbox_logstr = 'mailbox %s in ' % mailbox
+                self.log.moreinfo('wrote %i uids for %s%s%s'
+                                  % (wrote[mailbox], mailbox_logstr, self, 
+                                     os.linesep))
         except IOError, o:
             self.log.error('failed writing oldmail file for %s (%s)'
                            % (self, o) + os.linesep)
-            f.abort()
+            for file in f:
+                file.abort()
         self.__oldmail_written = True
 
     def initialize(self, options):
@@ -459,7 +509,7 @@ class RetrieverSkeleton(ConfigurableBase):
         # strip problematic characters from oldmail filename.  Mostly for
         # non-Unix systems; only / is illegal in a Unix path component
         oldmail_filename = re.sub(
-            r'[/\:;<>|]+', '-',
+            STRIP_CHAR_RE, '-',
             'oldmail-%(server)s-%(port)i-%(username)s' % self.conf
         )
         self.oldmail_filename = os.path.join(self.conf['getmaildir'], 
