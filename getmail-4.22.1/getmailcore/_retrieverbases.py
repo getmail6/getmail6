@@ -348,7 +348,7 @@ class RetrieverSkeleton(ConfigurableBase):
     def __init__(self, **args):
         self.msgnum_by_msgid = {}
         self.msgid_by_msgnum = {}
-        self.sorted_msgnum_msgid = {}
+        self.sorted_msgnum_msgid = ()
         self.msgsizes = {}
         self.headercache = {}
         self.oldmail = {}

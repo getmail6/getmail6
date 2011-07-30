@@ -149,6 +149,7 @@ class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
                 self.msgnum_by_msgid[msgnum] = msgnum
                 self.msgid_by_msgnum[msgnum] = msgnum
                 self.msgsizes[msgnum] = msgsize
+            self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         self.gotmsglist = True

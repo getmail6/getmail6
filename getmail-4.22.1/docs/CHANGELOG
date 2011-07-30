@@ -1,3 +1,9 @@
+Version 4.22.1
+30 September 2011
+
+  -fix BrokenUIDLPOP3Retriever breakage from 4.21.0.  Thanks: Scott Robbins, 
+  "hgolden".
+  
 Version 4.22.0
 25 September 2011
 
