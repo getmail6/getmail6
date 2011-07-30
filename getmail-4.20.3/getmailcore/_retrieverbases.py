@@ -366,7 +366,7 @@ class RetrieverSkeleton(ConfigurableBase):
             self.remoteaddr = '[%s]:%s' % serveraddr[:2]
         else:
             # Shouldn't happen
-            log.warn('unexpected peer address format %s', str(serveraddr))
+            self.log.warn('unexpected peer address format %s', str(serveraddr))
             self.remoteaddr = str(serveraddr)
         self.received_from = '%s (%s)' % (self.conf['server'], 
                                           self.remoteaddr)
@@ -930,7 +930,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 except Exception, o:
                     sbody = None
                 if not sbody:
-                    log.error('bad message from server!')
+                    self.log.error('bad message from server!')
                     sbody = str(response)
                 msg = Message(fromstring=sbody)
             except TypeError, o:
