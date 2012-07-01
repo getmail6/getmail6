@@ -38,7 +38,6 @@ import sys
 import os
 import socket
 import time
-import getpass
 import email
 import poplib
 import imaplib
@@ -655,8 +654,9 @@ class POP3RetrieverBase(RetrieverSkeleton):
         self.log.trace()
         # Handle password
         if self.conf.get('password', None) is None:
-            self.conf['password'] = getpass.getpass(
-                'Enter password for %s:  ' % self
+            self.conf['password'] = get_password(
+                self, self.conf['username'], self.conf['server'], 'pop3', 
+                self.log
             )
         RetrieverSkeleton.initialize(self, options)
         try:
@@ -1025,9 +1025,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         # Handle password
         if (self.conf.get('password', None) is None
                 and not (HAVE_KERBEROS_GSS and self.conf['use_kerberos'])):
-            self.conf['password'] = getpass.getpass(
-                'Enter password for %s:  ' % self
+            self.conf['password'] = get_password(
+                self, self.conf['username'], self.conf['server'], 'imap',
+                self.log
             )
+            
         RetrieverSkeleton.initialize(self, options)
         try:
             self.log.trace('trying self._connect()' + os.linesep)

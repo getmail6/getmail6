@@ -1,3 +1,8 @@
+Version 4.25.0
+1 February 2012
+    -add support for storing POP/IMAP password in OSX keychain.  Thanks: Adam 
+    Lazur.
+
 Version 4.24.0
 11 December 2011
     -add an explicit expunge when closing an IMAP mailbox, for servers that 

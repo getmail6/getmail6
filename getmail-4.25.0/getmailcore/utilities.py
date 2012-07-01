@@ -20,6 +20,7 @@ __all__ = [
     'gid_of_uid',
     'uid_of_user',
     'updatefile',
+    'get_password',
 ]
 
 
@@ -30,10 +31,12 @@ import signal
 import stat
 import time
 import glob
-
+import re
 import fcntl
 import pwd
 import grp
+import getpass
+import commands
 
 from getmailcore.exceptions import *
 
@@ -48,6 +51,8 @@ _bool_values = {
     'off'   : False,
     '0'     : False
 }
+osx_keychain_binary = '/usr/bin/security'
+
 
 #######################################
 def lock_file(file, locktype):
@@ -469,3 +474,44 @@ def check_ssl_key_and_cert(conf):
             'optional certfile and keyfile must be supplied together'
         )
     return (keyfile, certfile)
+
+
+#######################################
+if os.name == 'posix' and os.path.isfile(osx_keychain_binary):
+    def keychain_password(user, server, protocol, logger):
+        """Mac OSX: return a keychain password, if it exists.  Otherwise, return
+        None.
+        """
+        # wish we could pass along a comment to this thing for the user prompt
+        cmd = "%s find-internet-password -g -a '%s' -s '%s' -r '%s'" % (
+            osx_keychain_binary, user, server, protocol
+        )
+        (status, output) = commands.getstatusoutput(cmd)
+        if status != os.EX_OK or not output:
+            logger.error('keychain command %s failed: %s %s' 
+                         % (cmd, status, output))
+            return None
+        password = None
+        for line in output.split('\n'):
+            match = re.match(r'password: "([^"]+)"', line)
+            if match:
+                password = match.group(1)
+        if password is None:
+            logger.debug('No keychain password found for %s %s %s'
+                         % (user, server, protocol))
+        return password
+else:
+    def keychain_password(user, server, protocol, logger):
+        """Not Mac OSX: always return None.
+        """
+        return None
+
+
+#######################################
+def get_password(label, user, server, protocol, logger):
+    # try keychain first
+    password = keychain_password(user, server, protocol, logger)
+    # if no password found (or not on OSX), prompt in the usual way
+    if not password:
+        password = getpass.getpass('Enter password for %s:  ' % label)
+    return password
