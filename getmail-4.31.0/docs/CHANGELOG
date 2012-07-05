@@ -1,3 +1,9 @@
+Version 4.31.0
+5 July 2012
+    -improved backwards compatibility with pre-v.4.22.0 oldmail files, so IMAP
+    mail is not re-retrieved if you upgrade from a 4.22 or earlier to this one; 
+    no user action necessary.  Thanks: Osamu Aoki, Tim van der Molen.
+
 Version 4.30.2
 27 June 2012
     -fix a nuisance stack trace that would be dumped if a connection failed in

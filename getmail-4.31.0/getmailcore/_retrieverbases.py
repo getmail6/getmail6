@@ -472,6 +472,13 @@ class RetrieverSkeleton(ConfigurableBase):
                 continue
             try:
                 (msgid, timestamp) = line.split('\0', 1)
+                if msgid.count('/') == 2:
+                    # Was pre-4.22.0 file format, which includes the
+                    # mailbox name in the msgid, in the format
+                    # 'uidvalidity/mailbox/serveruid'.
+                    # Strip it out.
+                    fields = msgid.split('/')
+                    msgid = '/'.join([fields[0], fields[2]])
                 self.oldmail[msgid] = int(timestamp)
             except ValueError:
                 # malformed
