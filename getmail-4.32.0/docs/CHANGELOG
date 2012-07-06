@@ -1,3 +1,10 @@
+Version 4.32.0
+6 July 2012
+    -prevent some nuisance stack traces if getmail cannot connect to the POP/
+    IMAP server correctly.  Thanks: Daniel Dumke.
+    -restore use_peek IMAP retriever parameter which accidentally got removed
+    in 4.30.  Thanks: Andreas Amann.
+
 Version 4.31.0
 5 July 2012
     -improved backwards compatibility with pre-v.4.22.0 oldmail files, so IMAP

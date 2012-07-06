@@ -381,6 +381,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.__initialized = False
         self.gotmsglist = False
         self._clear_state()
+        self.conn = None
         ConfigurableBase.__init__(self, **args)
 
     def _clear_state(self):
@@ -750,6 +751,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
     def abort(self):
         self.log.trace()
         RetrieverSkeleton.abort(self)
+        if not self.conn:
+            return
         try:
             self.conn.rset()
             self.conn.quit()
@@ -760,7 +763,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
     def quit(self):
         RetrieverSkeleton.quit(self)
         self.log.trace()
-        if not getattr(self, 'conn', None):
+        if not self.conn:
             return
         try:
             self.conn.quit()
@@ -1148,11 +1151,19 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def _getmsgbyid(self, msgid):
         self.log.trace()
-        return self._getmsgpartbyid(msgid, '(BODY.PEEK[])')
+        if self.conf.get('use_peek', True):
+            part = '(BODY.PEEK[])'
+        else:
+            part = '(RFC822)'
+        return self._getmsgpartbyid(msgid, part)
 
     def _getheaderbyid(self, msgid):
         self.log.trace()
-        return self._getmsgpartbyid(msgid, '(BODY.PEEK[header])')
+        if self.conf.get('use_peek', True):
+            part = '(BODY.PEEK[header])'
+        else:
+            part = '(RFC822[header])'
+        return self._getmsgpartbyid(msgid, part)
 
     def initialize(self, options):
         self.log.trace()
@@ -1216,6 +1227,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def abort(self):
         self.log.trace()
         RetrieverSkeleton.abort(self)
+        if not self.conn:
+            return
         try:
             self.quit()
         except (imaplib.IMAP4.error, socket.error), o:
@@ -1224,7 +1237,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def quit(self):
         self.log.trace()
-        if not getattr(self, 'conn', None):
+        if not self.conn:
             return
         try:
             if self.mailbox_selected is not False:
