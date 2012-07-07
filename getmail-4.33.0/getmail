@@ -269,6 +269,11 @@ def go(configs):
         except StopIteration:
             pass
 
+        except KeyboardInterrupt, o:
+            log.warning('%s: user aborted\n' % configfile)
+            if options['logfile']:
+                options['logfile'].write('user aborted')
+
         except socket.timeout, o:
             errorexit = True
             retriever.abort()

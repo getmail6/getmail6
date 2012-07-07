@@ -1,3 +1,11 @@
+Version 4.33.0
+7 August 2012
+    -allow normal exit on interrupt (ctrl-c) to allow the uesr to abort message
+    retrieval while still remembering already-retrieved messages as successfully
+    delivered.  You may get a weird error message after you abort, since the
+    server may be in the middle of delivering another message to getmail at the
+    time.  Thanks: Krzysztof Warzecha.
+
 Version 4.32.0
 6 July 2012
     -prevent some nuisance stack traces if getmail cannot connect to the POP/
