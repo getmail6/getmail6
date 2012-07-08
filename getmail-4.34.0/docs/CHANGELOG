@@ -1,6 +1,11 @@
+Version 4.34.0
+8 September 2012
+    -retrieve Gmail metadata (labels, thread ID, message ID) via IMAP extension
+    and record it in new message headers.  Thanks: Krzysztof Warzecha.
+
 Version 4.33.0
 7 August 2012
-    -allow normal exit on interrupt (ctrl-c) to allow the uesr to abort message
+    -allow normal exit on interrupt (ctrl-c) to allow the user to abort message
     retrieval while still remembering already-retrieved messages as successfully
     delivered.  You may get a weird error message after you abort, since the
     server may be in the middle of delivering another message to getmail at the

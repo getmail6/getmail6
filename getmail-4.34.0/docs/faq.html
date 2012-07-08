@@ -168,6 +168,11 @@
                 <li><a href="faq.html#faq-integrating-procmail">How do I use procmail with getmail?</a></li>
                 <li><a href="faq.html#faq-integrating-maildrop">How do I use maildrop with getmail?</a></li>
                 <li><a href="faq.html#faq-integrating-tmda">How do I use TMDA with getmail?</a></li>
+                <li>
+                    <ul>
+                    <li><a href="faq.html#faq-integrating-gmail">How can I get Gmail labels with getmail?</a></li>
+                    </ul>
+                </li>
                 </ul>
             </li>
             <li><a href="faq.html#faq-notabug">I think I found this bug in getmail &hellip;</a></li>
@@ -1569,6 +1574,16 @@ type = Filter_TMDA
 <p>
     See the documentation for details on optional parameters to the
     <a href="configuration.html#conf-filters-tmda">Filter_TMDA module</a>.
+</p>
+
+<h4 id="faq-integrating-gmail">How can I get Gmail labels with getmail?</h4>
+<p>
+    As of getmail version 4.34.0, getmail retrieves the labels and other metadata
+    that Gmail makes available via an IMAP extension, and records that information
+    in the message headers
+    <span class="file">X-GMAIL-LABELS:</span>,
+    <span class="file">X-GMAIL-THRID:</span>,
+    and <span class="file">X-GMAIL-MSGID:</span>.
 </p>
 
 <!-- ********************************************************************** -->

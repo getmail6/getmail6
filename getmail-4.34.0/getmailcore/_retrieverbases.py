@@ -1144,10 +1144,57 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 # response[0] is None instead of a message tuple
                 raise getmailRetrievalError('failed to retrieve msgid %s' 
                                             % msgid)
+
+            # google extensions: apply labels, etc
+            if 'X-GM-EXT-1' in self.conn.capabilities:
+                metadata = self._getgmailmetadata(uid, msg)
+                for (header, value) in metadata.items():
+                    msg.add_header(header, value)
+
             return msg
 
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
+
+    def _getgmailmetadata(self, uid, msg):
+        """
+        Add Gmail labels and other metadata which Google exposes through an
+        IMAP extension to headers in the message.
+        
+        See https://developers.google.com/google-apps/gmail/imap_extensions
+        """
+        try:
+            # ['976 (X-GM-THRID 1410134259107225671 X-GM-MSGID '
+            #   '1410134259107225671 X-GM-LABELS (labels space '
+            #   'separated) UID 167669)']
+            response = self._parse_imapuidcmdresponse('FETCH', uid,
+                '(X-GM-LABELS X-GM-THRID X-GM-MSGID)')
+        except imaplib.IMAP4.error, o:
+            self.log.warning('Could not fetch google imap extensions: %s' % o)
+            return {}
+
+        if not response:
+            return {}
+            
+        ext = re.search(
+            'X-GM-THRID (?P<THRID>\d+) X-GM-MSGID (?P<MSGID>\d+)'
+            ' X-GM-LABELS \((?P<LABELS>.*)\) UID',
+            response[0]
+        )
+        if not ext:
+            self.log.warning(
+                'Could not parse google imap extensions. Server said: %s'
+                % repr(response)
+            )
+            return ()
+
+        results = ext.groupdict()
+        metadata = {}
+        for item in ('LABELS', 'THRID', 'MSGID'):
+            if item in results and results[item]:
+                metadata['X-GMAIL-%s' % item] = results[item]
+
+        return metadata
 
     def _getmsgbyid(self, msgid):
         self.log.trace()

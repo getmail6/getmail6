@@ -939,6 +939,13 @@ Using getmail with other software
    See the documentation for details on optional parameters to the
    Filter_TMDA module.
 
+    How can I get Gmail labels with getmail?
+
+   As of getmail version 4.34.0, getmail retrieves the labels and other
+   metadata that Gmail makes available via an IMAP extension, and records
+   that information in the message headers X-GMAIL-LABELS:, X-GMAIL-THRID:,
+   and X-GMAIL-MSGID:.
+
 I think I found this bug in getmail ...
 
    I get frequent reports like the following, which aren't bugs in getmail.
