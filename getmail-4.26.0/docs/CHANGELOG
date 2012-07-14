@@ -1,3 +1,10 @@
+Version 4.26.0
+14 April 2012
+    -switch to using BODY.PEEK in IMAP retrieval; I no longer see problems with
+    this feature in my testing.  If users experience incompatibility with any
+    IMAP servers where 4.25.0 worked, please let me know.
+    
+
 Version 4.25.0
 1 February 2012
     -add support for storing POP/IMAP password in OSX keychain.  Thanks: Adam 

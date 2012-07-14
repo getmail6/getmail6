@@ -1014,11 +1014,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def _getmsgbyid(self, msgid):
         self.log.trace()
-        return self._getmsgpartbyid(msgid, '(RFC822)')
+        return self._getmsgpartbyid(msgid, '(BODY.PEEK[])')
 
     def _getheaderbyid(self, msgid):
         self.log.trace()
-        return self._getmsgpartbyid(msgid, '(RFC822[header])')
+        return self._getmsgpartbyid(msgid, '(BODY.PEEK[header])')
 
     def initialize(self, options):
         self.log.trace()
