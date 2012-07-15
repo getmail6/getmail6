@@ -15,6 +15,17 @@ import pprint
 from optparse import OptionParser, OptionGroup
 import socket
 
+# Optional gnome-keyring integration
+try:
+    import gnomekeyring
+    import glib
+    glib.set_application_name('getmail')
+    # And test to see if it's actually available
+    if not gnomekeyring.is_available():
+        gnomekeyring = None
+except ImportError:
+    gnomekeyring = None
+
 options_bool = (
     'read_all',
     'delete',
@@ -45,7 +56,7 @@ try:
         logging
     from getmailcore.exceptions import *
     from getmailcore.utilities import eval_bool, logfile, format_params, \
-        address_no_brackets, expand_user_vars
+        address_no_brackets, expand_user_vars, get_password
 except ImportError, o:
     sys.stderr.write('ImportError:  %s\n' % o)
     sys.exit(127)
@@ -381,6 +392,12 @@ def main():
             dest='trace', action='store_true', default=False,
             help='print extended trace information (extremely verbose)'
         )
+        if gnomekeyring:
+            parser.add_option(
+                '--store-password-in-gnome-keyring',
+                dest='store_gnome_keyring', action='store_true', default=False,
+                help='store the POP/IMAP password in the Gnome keyring'
+            )
         overrides = OptionGroup(
             parser, 'Overrides',
             'The following options override those specified in any '
@@ -600,6 +617,30 @@ def main():
                 except getmailOperationError, o:
                     log.error('Error initializing retriever: %s\n' % o)
                     continue
+                
+                # Retriever is okay.  Check if user wants us to store the
+                # password in a Gnome keyring for future use.
+                if gnomekeyring and options.store_gnome_keyring:
+                    # Need to get the password first, if the user hasn't put
+                    # it in the rc file.
+                    if retriever.conf.get('password', None) is None:
+                        password = get_password(
+                            str(retriever), retriever.conf['username'], 
+                            retriever.conf['server'], retriever.received_with, 
+                            log
+                        )
+                    else:
+                        password = retriever.conf['password']
+
+                    gnomekeyring.set_network_password_sync(
+                        # keyring=None, user, domain=None, server, object=None, 
+                        # protocol, authtype=None, port=0
+                        None, retriever.conf['username'], None, 
+                        retriever.conf['server'], None, retriever.received_with,
+                        None, 0, password
+                    )
+                    log.info('Stored password in Gnome keyring.  Exiting.\n')
+                    raise SystemExit()
 
                 # Destination
                 log.debug('  getting destination\n')

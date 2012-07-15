@@ -546,8 +546,22 @@ type = <span class="meta">typename</span>
         password
         (<a href="#parameter-string">string</a>)
         &mdash; password to use when logging in to the mail server.  If not
-        provided (and not using Kerberos authentication -- see below), getmail
-        will prompt you to enter the password when getmail is run.
+        using Kerberos authentication -- see below -- getmail gets the password
+        credential for the POP/IMAP server in one of the following ways:
+        <ol>
+            <li>from the <span class="file">password</span> configuration item in the getmailrc file</li>
+            <li>on Mac OS X only, from the OS X keychain</li>
+            <li>on systems with Gnome keyring support, from the default Gnome keyring</li>
+            <li>if not found via any of the above methods, getmail will prompt for the password when run</li>
+        </ol>
+        To store your POP/IMAP account password into the Gnome keyring, ensure 
+        the password is not provided in the getmailrc file, and run getmail with
+        the special option <span class="file">--store-password-in-gnome-keyring</span>; 
+        getmail will run, prompt you for the password, store it in the Gnome 
+        keyring, and exit without retrieving mail.  If this option is not 
+        recognized, your Python installation does not have Gnome keyring 
+        integration support, or Gnome indicates that the keyring is not 
+        available.
     </li>
 </ul>
 <p>

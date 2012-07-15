@@ -38,6 +38,15 @@ import grp
 import getpass
 import commands
 
+# Optional gnome-keyring integration
+try:
+    import gnomekeyring
+    # And test to see if it's actually available
+    if not gnomekeyring.is_available():
+        gnomekeyring = None
+except ImportError:
+    gnomekeyring = None
+
 from getmailcore.exceptions import *
 
 logtimeformat = '%Y-%m-%d %H:%M:%S'
@@ -477,41 +486,79 @@ def check_ssl_key_and_cert(conf):
 
 
 #######################################
-if os.name == 'posix' and os.path.isfile(osx_keychain_binary):
-    def keychain_password(user, server, protocol, logger):
-        """Mac OSX: return a keychain password, if it exists.  Otherwise, return
-        None.
-        """
-        # wish we could pass along a comment to this thing for the user prompt
-        cmd = "%s find-internet-password -g -a '%s' -s '%s' -r '%s'" % (
-            osx_keychain_binary, user, server, protocol
-        )
-        (status, output) = commands.getstatusoutput(cmd)
-        if status != os.EX_OK or not output:
-            logger.error('keychain command %s failed: %s %s' 
-                         % (cmd, status, output))
+keychain_password = None
+if os.name == 'posix':
+    if os.path.isfile(osx_keychain_binary):
+        def keychain_password(user, server, protocol, logger):
+            """Mac OSX: return a keychain password, if it exists.  Otherwise, return
+         
+         None.
+            """
+            # wish we could pass along a comment to this thing for the user prompt
+            cmd = "%s find-internet-password -g -a '%s' -s '%s' -r '%s'" % (
+                osx_keychain_binary, user, server, protocol
+            )
+            (status, output) = commands.getstatusoutput(cmd)
+            if status != os.EX_OK or not output:
+                logger.error('keychain command %s failed: %s %s' 
+                             % (cmd, status, output))
+                return None
+            password = None
+            for line in output.split('\n'):
+                match = re.match(r'password: "([^"]+)"', line)
+                if match:
+                    password = match.group(1)
+            if password is None:
+                logger.debug('No keychain password found for %s %s %s'
+                             % (user, server, protocol))
+            return password
+    elif gnomekeyring:
+        def keychain_password(user, server, protocol, logger):
+            """Gnome: return a keyring password, if it exists.  Otherwise, return
+            None.
+            """
+            #logger.trace('trying Gnome keyring for user="%s", server="%s", protocol="%s"\n'
+            #             % (user, server, protocol))
+            try:
+                # http://developer.gnome.org/gnome-keyring/3.5/gnome-keyring
+                # -Network-Passwords.html#gnome-keyring-find-network-password-sync
+                secret = gnomekeyring.find_network_password_sync(
+                    # user, domain=None, server, object=None, protocol,
+                    # authtype=None, port=0
+                    user, None, server, None, protocol, None, 0
+                )
+                
+                #logger.trace('got keyring result %s' % str(secret))
+            except gnomekeyring.NoMatchError:
+                logger.debug('gnome-keyring does not know password for %s %s %s'
+                             % (user, server, protocol))
+                return None
+
+            # secret looks like this:
+            # [{'protocol': 'imap', 'keyring': 'Default', 'server': 'gmail.com', 
+            #   'user': 'hiciu', 'item_id': 1L, 'password': 'kielbasa'}]
+            if secret and 'password' in secret[0]:
+                return secret[0]['password']
+
             return None
-        password = None
-        for line in output.split('\n'):
-            match = re.match(r'password: "([^"]+)"', line)
-            if match:
-                password = match.group(1)
-        if password is None:
-            logger.debug('No keychain password found for %s %s %s'
-                         % (user, server, protocol))
-        return password
-else:
+    #else:
+        # Posix but no OSX keychain or Gnome keyring.
+        # Fallthrough
+if keychain_password is None:
     def keychain_password(user, server, protocol, logger):
-        """Not Mac OSX: always return None.
+        """Neither Mac OSX keychain or Gnome keyring available: always return 
+        None.
         """
         return None
 
 
 #######################################
 def get_password(label, user, server, protocol, logger):
-    # try keychain first
+    # try keychain/keyrings first, where available
     password = keychain_password(user, server, protocol, logger)
-    # if no password found (or not on OSX), prompt in the usual way
-    if not password:
+    if password:
+        logger.debug('using password from keychain/keyring')
+    else:
+        # no password found (or not on OSX), prompt in the usual way
         password = getpass.getpass('Enter password for %s:  ' % label)
     return password

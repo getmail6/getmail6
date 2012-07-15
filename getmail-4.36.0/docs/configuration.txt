@@ -262,9 +262,24 @@ Creating a getmail rc file
        the default is a port appropriate for the protocol (110 for POP3,
        etc.)
      * password (string) -- password to use when logging in to the mail
-       server. If not provided (and not using Kerberos authentication -- see
-       below), getmail will prompt you to enter the password when getmail is
-       run.
+       server. If not using Kerberos authentication -- see below -- getmail
+       gets the password credential for the POP/IMAP server in one of the
+       following ways:
+
+         1. from the password configuration item in the getmailrc file
+         2. on Mac OS X only, from the OS X keychain
+         3. on systems with Gnome keyring support, from the default Gnome
+            keyring
+         4. if not found via any of the above methods, getmail will prompt
+            for the password when run
+
+       To store your POP/IMAP account password into the Gnome keyring, ensure
+       the password is not provided in the getmailrc file, and run getmail
+       with the special option --store-password-in-gnome-keyring; getmail
+       will run, prompt you for the password, store it in the Gnome keyring,
+       and exit without retrieving mail. If this option is not recognized,
+       your Python installation does not have Gnome keyring integration
+       support, or Gnome indicates that the keyring is not available.
 
    All IMAP retriever types also take the following optional parameters:
 

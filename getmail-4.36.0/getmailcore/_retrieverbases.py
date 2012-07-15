@@ -724,8 +724,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
         # Handle password
         if self.conf.get('password', None) is None:
             self.conf['password'] = get_password(
-                self, self.conf['username'], self.conf['server'], 'pop3', 
-                self.log
+                self, self.conf['username'], self.conf['server'],
+                self.received_with, self.log
             )
         RetrieverSkeleton.initialize(self, options)
         try:
@@ -1219,8 +1219,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         if (self.conf.get('password', None) is None
                 and not (HAVE_KERBEROS_GSS and self.conf['use_kerberos'])):
             self.conf['password'] = get_password(
-                self, self.conf['username'], self.conf['server'], 'imap',
-                self.log
+                self, self.conf['username'], self.conf['server'], 
+                self.received_with, self.log
             )
             
         RetrieverSkeleton.initialize(self, options)
