@@ -5,10 +5,15 @@
 __all__ = [
     'getmailError',
     'getmailConfigurationError',
+    'getmailDnsLookupError',
+    'getmailDnsServerFailure',
     'getmailOperationError',
     'getmailFilterError',
     'getmailRetrievalError',
     'getmailDeliveryError',
+    'getmailCredentialError',
+    'getmailLoginRefusedError',
+    'getmailMailboxSelectError',
 ]
 
 # Base class for all getmail exceptions
@@ -39,5 +44,34 @@ class getmailFilterError(getmailOperationError):
 class getmailDeliveryError(getmailOperationError):
     '''Exception raised when problems occur during message delivery.
     Subclass of getmailOperationError.
+    '''
+    pass
+
+class getmailDnsError(getmailOperationError):
+    '''Base class for errors looking up hosts in DNS to connect to.'''
+    pass
+
+class getmailDnsLookupError(getmailDnsError):
+    '''No such DNS name, or name found but no address records for it.'''
+    pass
+
+class getmailDnsServerFailure(getmailDnsError):
+    '''DNS server failed when trying to look up name.'''
+    pass
+    
+class getmailCredentialError(getmailOperationError):
+    '''Error raised when server says "bad password", "no such user", etc
+    (when that is possible to detect).'''
+    pass
+
+class getmailLoginRefusedError(getmailOperationError):
+    '''Error raised when the server is just refusing logins due to reasons
+    other than credential problems (when that is possible to detect):  server
+    too busy, service shutting down, etc.'''
+    pass
+
+class getmailMailboxSelectError(getmailOperationError):
+    '''Error raised when the server responds NO to an (IMAP) select mailbox
+    command -- no such mailbox, no permissions, etc.
     '''
     pass

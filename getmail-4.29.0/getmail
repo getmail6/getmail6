@@ -76,13 +76,18 @@ defaults = {
 #######################################
 def blurb():
     log.info('getmail version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2009 Charles Cazabon.  Licensed under the '
+    log.info('Copyright (C) 1998-2012 Charles Cazabon.  Licensed under the '
              'GNU GPL version 2.\n')
 
 #######################################
 def go(configs):
+    """Main code.
+
+    Returns True if all goes well, False if any error condition occurs.
+    """
     blurb()
     summary = []
+    errorexit = False
     for (configfile, retriever, _filters, destination, options) in configs:
         oplevel = options['verbose']
         logverbose = options['message_log_verbose']
@@ -101,156 +106,172 @@ def go(configs):
                 syslog.syslog(syslog.LOG_INFO, logline)
             retriever.initialize(options)
             destination.retriever_info(retriever)
-            nummsgs = len(retriever)
-            fmtlen = len(str(nummsgs))
-            for (msgnum, msgid) in enumerate(retriever):
-                log.debug('  message %s ...\n' % msgid)
-                msgnum += 1
-                retrieve = False
-                reason = 'seen'
-                delete = False
-                timestamp = retriever.oldmail.get(msgid, None)
-                size = retriever.getmsgsize(msgid)
-                info = ('msg %*d/%*d (%d bytes)'
-                        % (fmtlen, msgnum, fmtlen, nummsgs, size))
-                logline = '%s msgid %s' % (info, msgid)
-                if options['read_all'] or timestamp is None:
-                    retrieve = True
-                if (options['max_message_size']
-                        and size > options['max_message_size']):
-                    retrieve = False
-                    reason = 'oversized'
-                if (options['max_bytes_per_session']
-                        and (bytes_retrieved + size)
-                            > options['max_bytes_per_session']):
-                    retrieve = False
-                    reason = 'would surpass max_bytes_per_session'
+            for mailbox in retriever.mailboxes:
+                if mailbox:
+                    # For POP this is None and uninteresting
+                    log.debug('  checking mailbox %s ...\n' % mailbox)
                 try:
-                    if retrieve:
-                        try:
-                            msg = retriever.getmsg(msgid)
-                        except getmailRetrievalError, o:
-                            log.error(
-                                'Retrieval error: server for %s is broken; '
-                                'offered message %s but failed to provide it.  '
-                                'Please notify the administrator of the '
-                                'server.  Skipping message...\n'
-                                % (retriever, msgid)
-                            )
-                            continue
-                        msgs_retrieved += 1
-                        bytes_retrieved += size
-                        if oplevel > 1:
-                            info += (' from <%s>'
-                                     % address_no_brackets(msg.sender))
-                            if msg.recipient is not None:
-                                info += (' to <%s>'
-                                         % address_no_brackets(msg.recipient))
-                        logline += (' from <%s>'
-                                    % address_no_brackets(msg.sender))
-                        if msg.recipient is not None:
-                            logline += (' to <%s>'
-                                        % address_no_brackets(msg.recipient))
-
-                        for mail_filter in _filters:
-                            log.debug('    passing to filter %s\n'
-                                      % mail_filter)
-                            msg = mail_filter.filter_message(msg, retriever)
-                            if msg is None:
-                                log.debug('    dropped by filter %s\n'
-                                          % mail_filter)
-                                info += (' dropped by filter %s'
-                                         % mail_filter)
-                                logline += (' dropped by filter %s'
-                                            % mail_filter)
-                                retriever.delivered(msgid)
-                                break
-
-                        if msg is not None:
-                            r = destination.deliver_message(msg,
-                                options['delivered_to'], options['received'])
-                            log.debug('    delivered to %s\n' % r)
-                            info += ' delivered'
+                    retriever.select_mailbox(mailbox)
+                except getmailMailboxSelectError, o:
+                    errorexit = True
+                    log.info('  mailbox %s not selectable (%s) - verify the '
+                                'mailbox exists and you have sufficient '
+                                'permissions\n' % (mailbox, o))
+                    continue
+                nummsgs = len(retriever)
+                fmtlen = len(str(nummsgs))
+                for (msgnum, msgid) in enumerate(retriever):
+                    log.debug('  message %s ...\n' % msgid)
+                    msgnum += 1
+                    retrieve = False
+                    reason = 'seen'
+                    delete = False
+                    timestamp = retriever.oldmail.get(msgid, None)
+                    size = retriever.getmsgsize(msgid)
+                    info = ('msg %*d/%*d (%d bytes)'
+                            % (fmtlen, msgnum, fmtlen, nummsgs, size))
+                    logline = '%s msgid %s' % (info, msgid)
+                    if options['read_all'] or timestamp is None:
+                        retrieve = True
+                    if (options['max_message_size']
+                            and size > options['max_message_size']):
+                        retrieve = False
+                        reason = 'oversized'
+                    if (options['max_bytes_per_session']
+                            and (bytes_retrieved + size)
+                                > options['max_bytes_per_session']):
+                        retrieve = False
+                        reason = 'would surpass max_bytes_per_session'
+                    try:
+                        if retrieve:
+                            try:
+                                msg = retriever.getmsg(msgid)
+                            except getmailRetrievalError, o:
+                                errorexit = True
+                                log.error(
+                                    'Retrieval error: server for %s is broken; '
+                                    'offered message %s but failed to provide it.  '
+                                    'Please notify the administrator of the '
+                                    'server.  Skipping message...\n'
+                                    % (retriever, msgid)
+                                )
+                                continue
+                            msgs_retrieved += 1
+                            bytes_retrieved += size
                             if oplevel > 1:
-                                info += (' to %s' % r)
-                            logline += (' delivered to %s' % r)
-                            retriever.delivered(msgid)
-                        if options['delete']:
+                                info += (' from <%s>'
+                                         % address_no_brackets(msg.sender))
+                                if msg.recipient is not None:
+                                    info += (' to <%s>'
+                                             % address_no_brackets(msg.recipient))
+                            logline += (' from <%s>'
+                                        % address_no_brackets(msg.sender))
+                            if msg.recipient is not None:
+                                logline += (' to <%s>'
+                                            % address_no_brackets(msg.recipient))
+
+                            for mail_filter in _filters:
+                                log.debug('    passing to filter %s\n'
+                                          % mail_filter)
+                                msg = mail_filter.filter_message(msg, retriever)
+                                if msg is None:
+                                    log.debug('    dropped by filter %s\n'
+                                              % mail_filter)
+                                    info += (' dropped by filter %s'
+                                             % mail_filter)
+                                    logline += (' dropped by filter %s'
+                                                % mail_filter)
+                                    retriever.delivered(msgid)
+                                    break
+
+                            if msg is not None:
+                                r = destination.deliver_message(msg,
+                                    options['delivered_to'], options['received'])
+                                log.debug('    delivered to %s\n' % r)
+                                info += ' delivered'
+                                if oplevel > 1:
+                                    info += (' to %s' % r)
+                                logline += (' delivered to %s' % r)
+                                retriever.delivered(msgid)
+                            if options['delete']:
+                                delete = True
+                        else:
+                            logline += ' not retrieved (%s)' % reason
+                            msgs_skipped += 1
+                            log.debug('    not retrieving (timestamp %s)\n'
+                                      % timestamp)
+                            if oplevel > 1:
+                                info += ' not retrieved (%s)' % reason
+
+                        if (options['delete_after'] and timestamp
+                                and (now - timestamp) / 86400
+                                    >= options['delete_after']):
+                            log.debug(
+                                '    older than %d days (%s seconds), will delete\n'
+                                % (options['delete_after'], (now - timestamp))
+                            )
                             delete = True
-                    else:
-                        logline += ' not retrieved (%s)' % reason
-                        msgs_skipped += 1
-                        log.debug('    not retrieving (timestamp %s)\n'
-                                  % timestamp)
+
+                        if options['delete'] and timestamp:
+                            log.debug('    will delete\n')
+                            delete = True
+
+                        if not retrieve and timestamp is None:
+                            # We haven't retrieved this message.  Don't delete it.
+                            log.debug('    not yet retrieved, not deleting\n')
+                            delete = False
+
+                        if delete:
+                            retriever.delmsg(msgid)
+                            log.debug('    deleted\n')
+                            info += ', deleted'
+                            logline += ', deleted'
+
+                    except getmailDeliveryError, o:
+                        errorexit = True
+                        log.error('Delivery error (%s)\n' % o)
+                        info += ', delivery error (%s)' % o
+                        if options['logfile']:
+                            options['logfile'].write('Delivery error (%s)' % o)
+                        if options['message_log_syslog']:
+                            syslog.syslog(syslog.LOG_ERR,
+                                          'Delivery error (%s)' % o)
+
+                    except getmailFilterError, o:
+                        errorexit = True
+                        log.error('Filter error (%s)\n' % o)
+                        info += ', filter error (%s)' % o
+                        if options['logfile']:
+                            options['logfile'].write('Filter error (%s)' % o)
+                        if options['message_log_syslog']:
+                            syslog.syslog(syslog.LOG_ERR,
+                                          'Filter error (%s)' % o)
+
+                    if (retrieve or delete or oplevel > 1):
+                        log.info('  %s\n' % info)
+                    if options['logfile'] and (retrieve or delete or logverbose):
+                        options['logfile'].write(logline)
+                    if options['message_log_syslog'] and (retrieve or delete
+                                                          or logverbose):
+                        syslog.syslog(syslog.LOG_INFO, logline)
+
+                    if (options['max_messages_per_session']
+                            and msgs_retrieved >=
+                            options['max_messages_per_session']):
+                        log.debug('hit max_messages_per_session (%d), breaking\n'
+                            % options['max_messages_per_session'])
                         if oplevel > 1:
-                            info += ' not retrieved (%s)' % reason
-
-                    if (options['delete_after'] and timestamp
-                            and (now - timestamp) / 86400
-                                >= options['delete_after']):
-                        log.debug(
-                            '    older than %d days (%s seconds), will delete\n'
-                            % (options['delete_after'], (now - timestamp))
-                        )
-                        delete = True
-
-                    if options['delete'] and timestamp:
-                        log.debug('    will delete\n')
-                        delete = True
-
-                    if not retrieve and timestamp is None:
-                        # We haven't retrieved this message.  Don't delete it.
-                        log.debug('    not yet retrieved, not deleting\n')
-                        delete = False
-
-                    if delete:
-                        retriever.delmsg(msgid)
-                        log.debug('    deleted\n')
-                        info += ', deleted'
-                        logline += ', deleted'
-
-                except getmailDeliveryError, o:
-                    log.error('Delivery error (%s)\n' % o)
-                    info += ', delivery error (%s)' % o
-                    if options['logfile']:
-                        options['logfile'].write('Delivery error (%s)' % o)
-                    if options['message_log_syslog']:
-                        syslog.syslog(syslog.LOG_ERR,
-                                      'Delivery error (%s)' % o)
-
-                except getmailFilterError, o:
-                    log.error('Filter error (%s)\n' % o)
-                    info += ', filter error (%s)' % o
-                    if options['logfile']:
-                        options['logfile'].write('Filter error (%s)' % o)
-                    if options['message_log_syslog']:
-                        syslog.syslog(syslog.LOG_ERR,
-                                      'Filter error (%s)' % o)
-
-                if (retrieve or delete or oplevel > 1):
-                    log.info('  %s\n' % info)
-                if options['logfile'] and (retrieve or delete or logverbose):
-                    options['logfile'].write(logline)
-                if options['message_log_syslog'] and (retrieve or delete
-                                                      or logverbose):
-                    syslog.syslog(syslog.LOG_INFO, logline)
-
-                if (options['max_messages_per_session']
-                        and msgs_retrieved >=
-                        options['max_messages_per_session']):
-                    log.debug('hit max_messages_per_session (%d), breaking\n'
-                        % options['max_messages_per_session'])
-                    if oplevel > 1:
-                        log.info('  max messages per session (%d)\n'
-                                 % options['max_messages_per_session'])
-                    raise StopIteration('max_messages_per_session %d'
-                                        % options['max_messages_per_session'])
+                            log.info('  max messages per session (%d)\n'
+                                     % options['max_messages_per_session'])
+                        raise StopIteration('max_messages_per_session %d'
+                                            % options['max_messages_per_session'])
 
         except StopIteration:
             pass
 
         except socket.timeout, o:
-            retriever.write_oldmailfile(forget_deleted=False)
+            errorexit = True
+            retriever.abort()
             if type(o) == tuple and len(o) > 1:
                 o = o[1]
             log.error('%s: timeout (%s)\n' % (configfile, o))
@@ -258,13 +279,15 @@ def go(configs):
                 options['logfile'].write('timeout error (%s)' % o)
 
         except (poplib.error_proto, imaplib.IMAP4.abort), o:
-            retriever.write_oldmailfile(forget_deleted=False)
+            errorexit = True
+            retriever.abort()
             log.error('%s: protocol error (%s)\n' % (configfile, o))
             if options['logfile']:
                 options['logfile'].write('protocol error (%s)' % o)
 
         except socket.gaierror, o:
-            retriever.write_oldmailfile(forget_deleted=False)
+            errorexit = True
+            retriever.abort()
             if type(o) == tuple and len(o) > 1:
                 o = o[1]
             log.error('%s: error resolving name (%s)\n' % (configfile, o))
@@ -272,15 +295,24 @@ def go(configs):
                 options['logfile'].write('gaierror error (%s)' % o)
 
         except socket.error, o:
-            retriever.write_oldmailfile(forget_deleted=False)
+            errorexit = True
+            retriever.abort()
             if type(o) == tuple and len(o) > 1:
                 o = o[1]
             log.error('%s: socket error (%s)\n' % (configfile, o))
             if options['logfile']:
                 options['logfile'].write('socket error (%s)' % o)
 
+        except getmailCredentialError, o:
+            errorexit = True
+            retriever.abort()
+            log.error('%s: credential/login error (%s)\n' % (configfile, o))
+            if options['logfile']:
+                options['logfile'].write('credential/login error (%s)' % o)
+
         except getmailOperationError, o:
-            retriever.write_oldmailfile(forget_deleted=False)
+            errorexit = True
+            retriever.abort()
             log.error('%s: operation error (%s)\n' % (configfile, o))
             if options['logfile']:
                 options['logfile'].write('getmailOperationError error (%s)' % o)
@@ -303,6 +335,7 @@ def go(configs):
         try:
             retriever.quit()
         except getmailOperationError, o:
+            errorexit = True
             log.debug('%s: operation error during quit (%s)\n'
                       % (configfile, o))
             if options['logfile']:
@@ -314,6 +347,9 @@ def go(configs):
         for (retriever, msgs_retrieved, bytes_retrieved, unused) in summary:
             log.info('Retrieved %d messages (%s bytes) from %s\n'
                      % (msgs_retrieved, bytes_retrieved, retriever))
+
+    return (not errorexit)
+
 
 #######################################
 def main():
@@ -682,7 +718,9 @@ def main():
             sys.exit()
 
         # Go!
-        go(configs)
+        success = go(configs)
+        if not success:
+            raise SystemExit(127)
 
     except KeyboardInterrupt:
         log.warning('Operation aborted by user (keyboard interrupt)\n')

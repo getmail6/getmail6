@@ -1,3 +1,28 @@
+Version 4.29.0
+19 June 2012
+    -update old contact information for Free Software Foundation.  Thanks: Ricky
+    Zhou.
+    -fix incorrect character encoding in plaintext documentation.  Thanks: Ricky
+    Zhou.
+    -ensure getmail exits nonzero if a server refuses login due to a credential
+    problem.  Thanks: Stephan Schulz.
+
+Version 4.28.0
+26 May 2012
+    -ensure getmail exits nonzero if various error conditions (like POP/IMAP
+    authentication failure) occur.  Thanks: Ryan J., Stephan Schulz.
+    -python versions prior to 2.5.0 contain a bug when dealing with read-only
+    IMAP mailboxes.  Monkey-patch imaplib when running with Python<2.5.0.
+    Thanks: Les Barstow.
+    -do IMAP modified-utf7 conversion of mailbox names containing non-ASCII
+    characters.  Thanks: A. Lapraitis, Randall Mason.
+    -add special ALL value for retrieving mail from all selectable IMAP 
+    mailboxes in the account.
+    -change IMAP retrieval strategy to retrieve all messages from a mailbox,
+    then move on to the next mailbox, etc.  Should result in increased speed,
+    but if you set `max_messages_per_session` too low, this could result in
+    later mailboxes not being retrieved from.
+
 Version 4.27.0
 20 May 2012
     -make use of IMAP BODY.PEEK configurable; set the IMAP retriever parameter 
@@ -9,7 +34,6 @@ Version 4.26.0
     -switch to using BODY.PEEK in IMAP retrieval; I no longer see problems with
     this feature in my testing.  If users experience incompatibility with any
     IMAP servers where 4.25.0 worked, please let me know.
-    
 
 Version 4.25.0
 1 February 2012

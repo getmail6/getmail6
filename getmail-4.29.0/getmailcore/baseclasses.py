@@ -11,6 +11,7 @@ __all__ = [
     'ConfBool',
     'ConfInt',
     'ConfTupleOfStrings',
+    'ConfTupleOfUnicode',
     'ConfTupleOfTupleOfStrings',
     'ConfPassword',
     'ConfDirectory',
@@ -113,6 +114,40 @@ class ConfTupleOfStrings(ConfString):
             )
         result = [str(item) for item in val]
         return tuple(result)
+
+class ConfTupleOfUnicode(ConfString):
+    def __init__(self, name, default=None, required=True, allow_specials=()):
+        ConfString.__init__(self, name, default=default, required=required)
+        self.specials = allow_specials
+
+    def validate(self, configuration):
+        _locals = dict([(v, v) for v in self.specials])
+        val = ConfItem.validate(self, configuration)
+        try:
+            if not val:
+                val = '()'
+            tup = eval(val, {}, _locals)
+            if tup in self.specials:
+                val = [tup]
+            else:
+                if type(tup) != tuple:
+                    raise ValueError('not a tuple')
+                vals = []
+                for item in tup:
+                    item = str(item)
+                    try:
+                        vals.append(item.decode('ascii'))
+                    except UnicodeError, o:
+                        try:
+                            vals.append(item.decode('utf-8'))
+                        except UnicodeError, o:
+                            raise ValueError('not ascii or utf-8: %s' % item)
+                val = vals
+        except (ValueError, SyntaxError), o:
+            raise getmailConfigurationError(
+                '%s: incorrect format (%s)' % (self.name, o)
+            )
+        return tuple(val)
 
 class ConfTupleOfTupleOfStrings(ConfString):
     def __init__(self, name, default=None, required=True):

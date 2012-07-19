@@ -570,6 +570,18 @@ mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
         Note that the format for hierarchical folder names is determined by the
         IMAP server, not by getmail.  Consult your server's documentation or
         postmaster if you're unsure what form your server uses.
+        If your mailbox names contain non-ASCII characters, ensure that your
+        getmailrc file is stored with UTF-8 encoding so that getmail can 
+        correctly determine the unicode character names that need to be quoted
+        in IMAP's modified UTF-7 encoding; if you do not do this, the mailbox
+        names will not match what the server expects them to be, or will cause
+        UnicodeErrors when attempting to load your getmailrc file.
+        As a special case, the unquoted base (non-tuple) value
+        <span class="file">ALL</span> (case-sensitive) means to retrieve mail
+        from all selectable IMAP mailboxes in the account.        To retrieve messages from all mailboxes, you would use:
+        <pre class="example">
+mailboxes = ALL
+        </pre>
     </li>
     <li>
         use_peek

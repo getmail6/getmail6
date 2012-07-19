@@ -52,13 +52,15 @@ try:
 except ImportError:
     pass
 
-from getmailcore.exceptions import *
 from getmailcore.compatibility import *
+from getmailcore.exceptions import *
 from getmailcore.constants import *
 from getmailcore.message import *
 from getmailcore.utilities import *
 from getmailcore._pop3ssl import POP3SSL, POP3_ssl_port
 from getmailcore.baseclasses import *
+import getmailcore.imap_utf7        # registers imap4-utf-7 codec
+
 
 NOT_ENVELOPE_RECIPIENT_HEADERS = (
     'to',
@@ -83,27 +85,31 @@ STRIP_CHAR_RE = r'[/\:;<>|]+'
 # Kerberos authentication state constants
 (GSS_STATE_STEP, GSS_STATE_WRAP) = (0, 1)
 
-#
-# Bugfix classes
-#
+# For matching imap LIST responses
+IMAP_LISTPARTS = re.compile(
+    r'^\s*'
+    r'\((?P<attributes>[^)]*)\)'
+    r'\s+'
+    r'"(?P<delimiter>[^"]+)"'
+    r'\s+'
+    # I *think* this should actually be a double-quoted string "like/this"
+    # but in testing we saw an MSexChange response that violated that
+    # expectation:
+    #   (\HasNoChildren) "/" Calendar"
+    # i.e. the leading quote on the mailbox name was missing.  The following
+    # works for both by treating the leading/trailing double-quote as optional,
+    # even when mismatched.
+    r'("?)(?P<mailbox>.+?)("?)'
+    r'\s*$'
+)
 
-if sys.version_info < (2, 5, 3):
-    # A serious imaplib bug (http://bugs.python.org/issue1389051) was
-    # fixed in 2.5.3.  Earlier Python releases need a work-around.
-    orig_imap4_ssl = imaplib.IMAP4_SSL
-    class IMAP4_SSL(orig_imap4_ssl):
-        def read(self, size):
-            """Read 'size' bytes from remote."""
-            # sslobj.read() sometimes returns < size bytes
-            chunks = []
-            read = 0
-            while read < size:
-                data = self.sslobj.read(min(size-read, 16384))
-                read += len(data)
-                chunks.append(data)
-            return ''.join(chunks)
-    
-    imaplib.IMAP4_SSL = IMAP4_SSL
+
+# Constants used in socket module
+NO_OBJ = object()
+EAI_NONAME = getattr(socket, 'EAI_NONAME', NO_OBJ)
+EAI_NODATA = getattr(socket, 'EAI_NODATA', NO_OBJ)
+EAI_FAIL = getattr(socket, 'EAI_FAIL', NO_OBJ)
+
 
 #
 # Mix-in classes
@@ -121,7 +127,8 @@ class POP3initMixIn(object):
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
-            raise getmailOperationError('timeout during connect')
+            raise
+            #raise getmailOperationError('timeout during connect')
         except socket.gaierror, o:
             raise getmailOperationError(
                 'error resolving name %s during connect (%s)'
@@ -165,7 +172,8 @@ class Py24POP3SSLinitMixIn(object):
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
-            raise getmailOperationError('timeout during connect')
+            #raise getmailOperationError('timeout during connect')
+            raise
         except socket.gaierror, o:
             raise getmailOperationError(
                 'error resolving name %s during connect (%s)'
@@ -210,7 +218,8 @@ class Py23POP3SSLinitMixIn(object):
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
-            raise getmailOperationError('timeout during connect')
+            #raise getmailOperationError('timeout during connect')
+            raise
         except socket.gaierror, o:
             raise getmailOperationError('socket error during connect (%s)' % o)
         except socket.sslerror, o:
@@ -233,12 +242,15 @@ class IMAPinitMixIn(object):
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
-            raise getmailOperationError('timeout during connect')
+            #raise getmailOperationError('timeout during connect')
+            raise
         except socket.gaierror, o:
             raise getmailOperationError('socket error during connect (%s)' % o)
 
         self.log.trace('IMAP connection %s established' % self.conn
                        + os.linesep)
+
+
 
 #######################################
 class IMAPSSLinitMixIn(object):
@@ -274,9 +286,23 @@ class IMAPSSLinitMixIn(object):
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
-            raise getmailOperationError('timeout during connect')
+            #raise getmailOperationError('timeout during connect')
+            raise
         except socket.gaierror, o:
-            raise getmailOperationError('socket error during connect (%s)' % o)
+            errcode = o[0]
+            if errcode in (EAI_NONAME, EAI_NODATA):
+                # No such DNS name
+                raise getmailDnsLookupError(
+                    'no address for %s (%s)' % (self.conf['server'], o)
+                )
+            elif errcode == EAI_FAIL:
+                # DNS server failure
+                raise getmailDnsServerFailure(
+                    'DNS server failure looking up address for %s (%s)' 
+                    % (self.conf['server'], o)
+                )
+            else:
+                raise getmailOperationError('socket error during connect (%s)' % o)
         except socket.sslerror, o:
             raise getmailOperationError(
                 'socket sslerror during connect (%s)' % o
@@ -345,20 +371,24 @@ class RetrieverSkeleton(ConfigurableBase):
     '''
 
     def __init__(self, **args):
-        self.msgnum_by_msgid = {}
-        self.msgid_by_msgnum = {}
-        self.sorted_msgnum_msgid = ()
-        self.msgsizes = {}
         self.headercache = {}
-        self.oldmail = {}
         self.deleted = {}
-        self.__delivered = {}
         self.timestamp = int(time.time())
         self.__oldmail_written = False
         self.__initialized = False
         self.gotmsglist = False
+        self._clear_state()
         ConfigurableBase.__init__(self, **args)
 
+    def _clear_state(self):
+        self.msgnum_by_msgid = {}
+        self.msgid_by_msgnum = {}
+        self.sorted_msgnum_msgid = ()
+        self.msgsizes = {}
+        self.oldmail = {}
+        self.__delivered = {}
+        self.mailbox_selected = False
+        
     def setup_received(self, sock):
         serveraddr = sock.getpeername()
         if len(serveraddr) == 2:
@@ -374,13 +404,15 @@ class RetrieverSkeleton(ConfigurableBase):
         self.received_from = '%s (%s)' % (self.conf['server'], 
                                           self.remoteaddr)
 
-    def __del__(self):
-        self.log.trace()
-        self.write_oldmailfile()
-
     def __str__(self):
         self.log.trace()
         return str(self.conf)
+
+    def list_mailboxes(self):
+        raise NotImplementedError('virtual')
+
+    def select_mailbox(self, mailbox):
+        raise NotImplementedError('virtual')
 
     def __len__(self):
         self.log.trace()
@@ -392,106 +424,93 @@ class RetrieverSkeleton(ConfigurableBase):
             raise getmailOperationError('not initialized')
         return self.sorted_msgnum_msgid[i][1]
 
-    def _read_oldmailfile(self):
-        '''Read contents of oldmail file.'''
-        self.log.trace()
-        # Read separate oldmail file for each folder (IMAP).
-        mailboxes = self.conf.get('mailboxes', (None, ))
-        for mailbox in mailboxes:
-            filename = self.oldmail_filename
-            mailbox_logstr = ''
-            if mailbox:
-                mailbox_logstr = 'mailbox %s in ' % mailbox
-                filename += '-' + re.sub(STRIP_CHAR_RE, '.', mailbox)
-                if not os.path.isfile(filename):
-                    # use existing oldmail file, to enable smooth migration to 
-                    # oldmail filenames with appended mailbox name
-                    self.log.info(
-                        'oldmail file %s not found, reverting to %s%s'
-                        % (filename, self.oldmail_filename, os.linesep)
-                    )
-                    filename = self.oldmail_filename
-            try:
-                oldlength = len(self.oldmail)
-                for line in open(filename, 'rb'):
-                    line = line.strip()
-                    if not line or not '\0' in line:
-                        # malformed
-                        continue
-                    try:
-                        (msgid, timestamp) = line.split('\0', 1)
-                        self.oldmail[msgid] = int(timestamp)
-                    except ValueError:
-                        # malformed
-                        self.log.info(
-                            'skipped malformed line "%r" for %s%s'
-                            % (line, self, os.linesep)
-                        )
-                self.log.moreinfo(
-                    'read %i uids for %s%s%s'
-                    % (len(self.oldmail) - oldlength, mailbox_logstr, self, 
-                       os.linesep)
-                )
-            except IOError:
-                self.log.moreinfo('no oldmail file for %s%s%s'
-                                  % (mailbox_logstr, self, os.linesep))
-        self.log.moreinfo('read %i uids in total for %s%s'
-                          % (len(self.oldmail), self, os.linesep))
+    def _oldmail_filename(self, mailbox):
+        assert (mailbox is None 
+                or (isinstance(mailbox, (str, unicode)) and mailbox)), (
+            'bad mailbox %s (%s)' % (mailbox, type(mailbox))
+        )
+        if isinstance(mailbox, str):
+            mailbox = mailbox.decode('utf-8')
+        filename = self.oldmail_filename
+        if mailbox is None:
+            # No mailbox (POP), use above with no extension
+            pass
+        else:
+            # Use oldmail file per IMAP folder
+            filename += '-' + re.sub(STRIP_CHAR_RE, '.', mailbox)
+        return filename
 
-    def write_oldmailfile(self, forget_deleted=True):
-        '''Write oldmail info to oldmail file.'''
-        self.log.trace()
-        if (self.__oldmail_written or not self.__initialized
-                or not self.gotmsglist):
-            return
-        mailboxes = self.conf.get('mailboxes', (None,))
-        wrote = {}
-        for mailbox in mailboxes:
-            wrote[mailbox] = 0
-        f = {}
+    def oldmail_exists(self, mailbox):
+        '''Test whether an oldmail file exists for a specified mailbox.'''
+        return os.path.isfile(self._oldmail_filename(mailbox))
+
+    def read_oldmailfile(self, mailbox):
+        '''Read contents of an oldmail file.  For POP, mailbox must be 
+        explicitly None.
+        '''
+        assert not self.oldmail, (
+            'still have %d unflushed oldmail' % len(self.oldmail)
+        )
+        self.log.trace('mailbox=%s' % mailbox)
+        
+        filename = self._oldmail_filename(mailbox)
+        logname = '%s:%s' % (self, mailbox or '')
         try:
-            # Write each folders msgids/data to a separate oldmail file.
-            for mailbox in mailboxes:
-                filename = self.oldmail_filename
-                if mailbox:
-                    filename += '-' + re.sub(STRIP_CHAR_RE, '.', mailbox)
-                f[mailbox] = updatefile(filename)
-            msgids = frozenset(
-                self.__delivered.keys()
-            ).union(frozenset(self.oldmail.keys()))
+            f = open(filename, 'rb')
+        except IOError:
+            self.log.moreinfo('no oldmail file for %s%s'
+                              % (logname, os.linesep))
+            return
+            
+        for line in f:
+            line = line.strip()
+            if not line or not '\0' in line:
+                # malformed
+                continue
+            try:
+                (msgid, timestamp) = line.split('\0', 1)
+                self.oldmail[msgid] = int(timestamp)
+            except ValueError:
+                # malformed
+                self.log.info(
+                    'skipped malformed line "%r" for %s%s'
+                    % (line, logname, os.linesep)
+                )
+        self.log.moreinfo(
+            'read %i uids for %s%s'
+            % (len(self.oldmail), logname, os.linesep)
+        )
+        self.log.moreinfo('read %i uids in total for %s%s'
+                          % (len(self.oldmail), logname, os.linesep))
+
+    def write_oldmailfile(self, mailbox):
+        '''Write oldmail info to oldmail file.'''
+        self.log.trace('mailbox=%s' % mailbox)
+        
+        filename = self._oldmail_filename(mailbox)
+        logname = '%s:%s' % (self, mailbox or '')
+        
+        oldmailfile = None
+        wrote = 0
+        msgids = frozenset(
+            self.__delivered.keys()
+        ).union(frozenset(self.oldmail.keys()))
+        try:
+            oldmailfile = updatefile(filename)
             for msgid in msgids:
                 self.log.debug('msgid %s ...' % msgid)
-                if forget_deleted and msgid in self.deleted:
-                    # Already deleted, don't remember this one
-                    self.log.debug(' was deleted, skipping' + os.linesep)
-                    continue
-                # else:
-                # not deleted, remember this one's time stamp
                 t = self.oldmail.get(msgid, self.timestamp)
                 self.log.debug(' timestamp %s' % t + os.linesep)
-                mailbox = None
-                match = re.match('^\d+/(.+?)/\d+$', msgid)
-                if match:
-                    mailbox = match.group(1)
-                if mailbox in mailboxes:
-                    f[mailbox].write('%s\0%i%s' % (msgid, t, os.linesep))
-                    wrote[mailbox] += 1
-                else:
-                    self.log.info('mailbox %s unknown for msgid %s%s'
-                                  % (mailbox, msgid, os.linesep))
-            for mailbox in mailboxes:
-                f[mailbox].close()
-                mailbox_logstr = ''
-                if mailbox != None:
-                    mailbox_logstr = 'mailbox %s in ' % mailbox
-                self.log.moreinfo('wrote %i uids for %s%s%s'
-                                  % (wrote[mailbox], mailbox_logstr, self, 
-                                     os.linesep))
+                oldmailfile.write('%s\0%i%s' % (msgid, t, os.linesep))
+                wrote += 1
+            oldmailfile.close()
+            self.log.moreinfo('wrote %i uids for %s%s'
+                              % (wrote, logname, os.linesep))
         except IOError, o:
             self.log.error('failed writing oldmail file for %s (%s)'
-                           % (self, o) + os.linesep)
-            for file in f:
-                file.abort()
+                           % (logname, o) + os.linesep)
+            if oldmailfile:
+                oldmailfile.abort()
         self.__oldmail_written = True
 
     def initialize(self, options):
@@ -505,6 +524,8 @@ class RetrieverSkeleton(ConfigurableBase):
         else:
             # Explicitly set to None in case it was previously set
             socket.setdefaulttimeout(None)
+
+        # Construct base filename for oldmail files.
         # strip problematic characters from oldmail filename.  Mostly for
         # non-Unix systems; only / is illegal in a Unix path component
         oldmail_filename = re.sub(
@@ -513,12 +534,21 @@ class RetrieverSkeleton(ConfigurableBase):
         )
         self.oldmail_filename = os.path.join(self.conf['getmaildir'], 
                                              oldmail_filename)
-        self._read_oldmailfile()
-        self.received_from = None
-        
-        self.app_options = options
 
+        self.received_from = None
+        self.app_options = options
         self.__initialized = True
+
+    def quit(self):
+        if self.mailbox_selected is not False:
+            self.write_oldmailfile(self.mailbox_selected)
+        self._clear_state()
+
+    def abort(self):
+        '''On error conditions where you do not want modified state to be saved,
+        call this before .quit().
+        '''
+        self._clear_state()
 
     def delivered(self, msgid):
         self.__delivered[msgid] = None
@@ -557,8 +587,20 @@ class POP3RetrieverBase(RetrieverSkeleton):
         RetrieverSkeleton.__init__(self, **args)
         self.log.trace()
 
-    def __del__(self):
-        RetrieverSkeleton.__del__(self)
+    def select_mailbox(self, mailbox):
+        assert mailbox is None, (
+            'POP does not support mailbox selection (%s)' % mailbox
+        )
+        if self.mailbox_selected is not False:
+            self.write_oldmailfile(self.mailbox_selected)
+
+        self._clear_state()
+
+        if self.oldmail_exists(mailbox):
+            self.read_oldmailfile(mailbox)
+        self.mailbox_selected = mailbox
+
+        self._getmsglist()
 
     def _getmsgnumbyid(self, msgid):
         self.log.trace()
@@ -614,6 +656,19 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 # response above.  Ignore it and we'll get it next time.
                 if msgid is not None:
                     self.msgsizes[msgid] = msgsize
+
+            # Remove messages from state file that are no longer in mailbox,
+            # but only if the timestamp for them are old (30 days for now).
+            # This is because IMAP users can have one state file but multiple
+            # IMAP folders in different configuration rc files.
+            for msgid in self.oldmail.keys():
+                timestamp = self.oldmail[msgid]
+                age = self.timestamp - timestamp
+                if not self.msgsizes.has_key(msgid) and age > VANISHED_AGE:
+                    self.log.debug('removing vanished old message id %s' % msgid
+                                   + os.linesep)
+                    del self.oldmail[msgid]
+
         except poplib.error_proto, o:
             raise getmailOperationError(
                 'POP error (%s) - if your server does not support the UIDL '
@@ -652,6 +707,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
 
     def initialize(self, options):
         self.log.trace()
+        # POP doesn't support different mailboxes
+        self.mailboxes = (None, )
         # Handle password
         if self.conf.get('password', None) is None:
             self.conf['password'] = get_password(
@@ -681,6 +738,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
 
     def abort(self):
         self.log.trace()
+        RetrieverSkeleton.abort(self)
         try:
             self.conn.rset()
             self.conn.quit()
@@ -689,8 +747,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
         del self.conn
 
     def quit(self):
+        RetrieverSkeleton.quit(self)
         self.log.trace()
-        self.write_oldmailfile()
         if not getattr(self, 'conn', None):
             return
         try:
@@ -768,11 +826,22 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def __init__(self, **args):
         RetrieverSkeleton.__init__(self, **args)
         self.log.trace()
-        self.mailbox = None
-        self.uidvalidity = None
         self.gss_step = 0
         self.gss_vc = None
         self.gssapi = False
+
+    def _clear_state(self):
+        RetrieverSkeleton._clear_state(self)
+        self.mailbox = None
+        self.uidvalidity = None
+        self.msgnum_by_msgid = {}
+        self.msgid_by_msgnum = {}
+        self.sorted_msgnum_msgid = ()
+        self._mboxuids = {}
+        self._mboxuidorder = []
+        self.msgsizes = {}
+        self.oldmail = {}
+        self.__delivered = {}
 
     def checkconf(self):
         RetrieverSkeleton.checkconf(self)
@@ -805,23 +874,24 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         if not response:
             response = ''
         return response.decode('base64')
-
-    def __del__(self):
-        RetrieverSkeleton.__del__(self)
-
+ 
     def _getmboxuidbymsgid(self, msgid):
         self.log.trace()
         if not msgid in self.msgnum_by_msgid:
             raise getmailOperationError('no such message ID %s' % msgid)
-        mailbox, uid = self._mboxuids[msgid]
-        return mailbox, uid
+        uid = self._mboxuids[msgid]
+        return uid
 
     def _parse_imapcmdresponse(self, cmd, *args):
         self.log.trace()
         try:
             result, resplist = getattr(self.conn, cmd)(*args)
         except imaplib.IMAP4.error, o:
-            raise getmailOperationError('IMAP error (%s)' % o)
+            if cmd == 'login':
+                # Percolate up
+                raise
+            else:
+                raise getmailOperationError('IMAP error (%s)' % o)
         if result != 'OK':
             raise getmailOperationError(
                 'IMAP error (command %s returned %s %s)'
@@ -842,7 +912,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         try:
             result, resplist = self.conn.uid(cmd, *args)
         except imaplib.IMAP4.error, o:
-            raise getmailOperationError('IMAP error (%s)' % o)
+            if cmd == 'login':
+                # Percolate up
+                raise
+            else:
+                raise getmailOperationError('IMAP error (%s)' % o)
         if result != 'OK':
             raise getmailOperationError(
                 'IMAP error (command %s returned %s %s)'
@@ -879,25 +953,64 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.trace('got %s' % r + os.linesep)
         return r
 
-    def _selectmailbox(self, mailbox):
+    def list_mailboxes(self):
+        '''List (selectable) IMAP folders in account.'''
+        mailboxes = []
+        cmd = ('LIST', )
+        resplist = self._parse_imapcmdresponse(*cmd)
+        for item in resplist:
+            m = IMAP_LISTPARTS.match(item)
+            if not m:
+                raise getmailOperationError(
+                    'no match for list response "%s"' % item
+                )
+            g = m.groupdict()
+            attributes = g['attributes'].split()
+            if r'\Noselect' in attributes:
+                # Can't select this mailbox, don't include it in output
+                continue
+            try:
+                mailbox = g['mailbox'].decode('imap4-utf-7')
+                mailboxes.append(mailbox)
+                #log.debug(u'%20s : delimiter %s, attributes: %s',
+                #          mailbox, g['delimiter'], ', '.join(attributes))
+            except Exception, o:
+                raise getmailOperationError('error decoding mailbox "%s"' 
+                                            % g['mailbox'])
+        return mailboxes
+
+    def select_mailbox(self, mailbox):
         self.log.trace()
-        if mailbox == self.mailbox:
-            return
-        if self.mailbox is not None:
+        assert mailbox in self.mailboxes, (
+            'mailbox not in config (%s)' % mailbox
+        )
+        if self.mailbox_selected is not False:
             # Close current mailbox so deleted mail is expunged.
             # Except one user reports that an explicit expunge is needed with 
             # his server, or else the mail is never removed from the mailbox.
             self.conn.expunge()
             self.conn.close()
+            self.write_oldmailfile(self.mailbox_selected)
+
+        self._clear_state()
+
+        if self.oldmail_exists(mailbox):
+            self.read_oldmailfile(mailbox)
+
         self.log.debug('selecting mailbox "%s"' % mailbox + os.linesep)
         try:
-            #response = self._parse_imapcmdresponse('SELECT', mailbox)
-            #count = int(response[-1]) # use *last* EXISTS returned
             if self.app_options['delete'] or self.app_options['delete_after']:
                 read_only = False
             else:
                 read_only = True
-            status, count = self.conn.select(mailbox, read_only)
+            (status, count) = self.conn.select(mailbox.encode('imap4-utf-7'), 
+                                               read_only)
+            if status == 'NO':
+                # Specified mailbox doesn't exist, no permissions, etc.
+                raise getmailMailboxSelectError(mailbox)
+                
+            self.mailbox_selected = mailbox
+            # use *last* EXISTS returned
             count = int(count[-1])
             uidvalidity = self.conn.response('UIDVALIDITY')[1][0]
         except imaplib.IMAP4.error, o:
@@ -911,34 +1024,43 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                        % (mailbox, count) + os.linesep)
         self.mailbox = mailbox
         self.uidvalidity = uidvalidity
+
+        self._getmsglist(count)
+
         return count
 
-    def _getmsglist(self):
+    def _getmsglist(self, msgcount):
         self.log.trace()
-        self.msgnum_by_msgid = {}
-        self._mboxuids = {}
-        self._mboxuidorder = []
-        self.msgsizes = {}
-        for mailbox in self.conf['mailboxes']:
-            try:
-                # Get number of messages in mailbox
-                msgcount = self._selectmailbox(mailbox)
-                if msgcount:
-                    # Get UIDs and sizes for all messages in mailbox
-                    response = self._parse_imapcmdresponse(
-                        'FETCH', '1:%d' % msgcount, '(UID RFC822.SIZE)'
+        try:
+            if msgcount:
+                # Get UIDs and sizes for all messages in mailbox
+                response = self._parse_imapcmdresponse(
+                    'FETCH', '1:%d' % msgcount, '(UID RFC822.SIZE)'
+                )
+                for line in response:
+                    r = self._parse_imapattrresponse(line)
+                    msgid = (
+                        '%s/%s' % (self.uidvalidity, r['uid'])
                     )
-                    for line in response:
-                        r = self._parse_imapattrresponse(line)
-                        msgid = (
-                            '%s/%s/%s' % (self.uidvalidity, mailbox, r['uid'])
-                        )
-                        self._mboxuids[msgid] = (mailbox, r['uid'])
-                        self._mboxuidorder.append(msgid)
-                        self.msgnum_by_msgid[msgid] = None
-                        self.msgsizes[msgid] = int(r['rfc822.size'])
-            except imaplib.IMAP4.error, o:
-                raise getmailOperationError('IMAP error (%s)' % o)
+                    self._mboxuids[msgid] = r['uid']
+                    self._mboxuidorder.append(msgid)
+                    self.msgnum_by_msgid[msgid] = None
+                    self.msgsizes[msgid] = int(r['rfc822.size'])
+
+            # Remove messages from state file that are no longer in mailbox,
+            # but only if the timestamp for them are old (30 days for now).
+            # This is because IMAP users can have one state file but multiple
+            # IMAP folders in different configuration rc files.
+            for msgid in self.oldmail.keys():
+                timestamp = self.oldmail[msgid]
+                age = self.timestamp - timestamp
+                if not self.msgsizes.has_key(msgid) and age > VANISHED_AGE:
+                    self.log.debug('removing vanished old message id %s' % msgid
+                                   + os.linesep)
+                    del self.oldmail[msgid]
+
+        except imaplib.IMAP4.error, o:
+            raise getmailOperationError('IMAP error (%s)' % o)
         self.gotmsglist = True
 
     def __getitem__(self, i):
@@ -947,8 +1069,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def _delmsgbyid(self, msgid):
         self.log.trace()
         try:
-            mailbox, uid = self._getmboxuidbymsgid(msgid)
-            self._selectmailbox(mailbox)
+            uid = self._getmboxuidbymsgid(msgid)
+            #self._selectmailbox(mailbox)
             # Delete message
             if self.conf['move_on_delete']:
                 self.log.debug('copying message to folder "%s"'
@@ -966,8 +1088,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def _getmsgpartbyid(self, msgid, part):
         self.log.trace()
         try:
-            mailbox, uid = self._getmboxuidbymsgid(msgid)
-            self._selectmailbox(mailbox)
+            uid = self._getmboxuidbymsgid(msgid)
             # Retrieve message
             self.log.debug('retrieving body for message "%s"' % uid
                            + os.linesep)
@@ -1014,22 +1135,15 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def _getmsgbyid(self, msgid):
         self.log.trace()
-        if self.conf.get('use_peek', True):
-            part = '(BODY.PEEK[])'
-        else:
-            part = '(RFC822)'
-        return self._getmsgpartbyid(msgid, part)
+        return self._getmsgpartbyid(msgid, '(BODY.PEEK[])')
 
     def _getheaderbyid(self, msgid):
         self.log.trace()
-        if self.conf.get('use_peek', True):
-            part = '(BODY.PEEK[header])'
-        else:
-            part = '(RFC822[header])'
-        return self._getmsgpartbyid(msgid, part)
+        return self._getmsgpartbyid(msgid, '(BODY.PEEK[header])')
 
     def initialize(self, options):
         self.log.trace()
+        self.mailboxes = self.conf.get('mailboxes', ('INBOX', ))
         # Handle password
         if (self.conf.get('password', None) is None
                 and not (HAVE_KERBEROS_GSS and self.conf['use_kerberos'])):
@@ -1042,17 +1156,25 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         try:
             self.log.trace('trying self._connect()' + os.linesep)
             self._connect()
-            self.log.trace('logging in' + os.linesep)
-            if self.conf['use_kerberos'] and HAVE_KERBEROS_GSS:
-                self.conn.authenticate('GSSAPI', self.gssauth)
-            elif self.conf['use_cram_md5']:
-                self._parse_imapcmdresponse(
-                    'login_cram_md5', self.conf['username'],
-                    self.conf['password']
-                )
-            else:
-                self._parse_imapcmdresponse('login', self.conf['username'],
-                                            self.conf['password'])
+            try:
+                self.log.trace('logging in' + os.linesep)
+                if self.conf['use_kerberos'] and HAVE_KERBEROS_GSS:
+                    self.conn.authenticate('GSSAPI', self.gssauth)
+                elif self.conf['use_cram_md5']:
+                    self._parse_imapcmdresponse(
+                        'login_cram_md5', self.conf['username'],
+                        self.conf['password']
+                    )
+                else:
+                    self._parse_imapcmdresponse('login', self.conf['username'],
+                                                self.conf['password'])
+            except imaplib.IMAP4.abort, o:
+                raise getmailLoginRefusedError(o)
+            except imaplib.IMAP4.error, o:
+                raise getmailCredentialError(o)
+
+            self.log.trace('logged in' + os.linesep)
+            """
             self.log.trace('logged in, getting message list' + os.linesep)
             self._getmsglist()
             self.log.debug('msgids: %s'
@@ -1069,23 +1191,36 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     self.log.debug('removing vanished old message id %s' % msgid
                                    + os.linesep)
                     del self.oldmail[msgid]
+            """
+            
+            if self.mailboxes == ('ALL', ):
+                # Special value meaning all mailboxes in account
+                self.mailboxes = tuple(self.list_mailboxes())
+
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
 
     def abort(self):
         self.log.trace()
+        RetrieverSkeleton.abort(self)
         try:
             self.quit()
         except (imaplib.IMAP4.error, socket.error), o:
             pass
 
     def quit(self):
+        RetrieverSkeleton.quit(self)
         self.log.trace()
-        self.write_oldmailfile()
         if not getattr(self, 'conn', None):
             return
         try:
-            self.conn.close()
+            if self.mailbox_selected is not False:
+                # Close current mailbox so deleted mail is expunged.
+                # Except one user reports that an explicit expunge is needed 
+                # with his server, or else the mail is never removed from the 
+                # mailbox.
+                self.conn.expunge()
+                self.conn.close()
             self.conn.logout()
             self.conn = None
         except imaplib.IMAP4.error, o:
