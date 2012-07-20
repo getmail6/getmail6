@@ -281,6 +281,10 @@ Creating a getmail rc file
        Note that the format for hierarchical folder names is determined by
        the IMAP server, not by getmail. Consult your server's documentation
        or postmaster if you're unsure what form your server uses.
+     * use_peek (boolean) -- whether to use PEEK to retrieve the message; the
+       default is True. IMAP servers typically mark a message as seen if PEEK
+       is not used to retrieve the message content. Versions of getmail prior
+       to 4.26.0 did not use PEEK to retrieve messages.
      * move_on_delete (string) -- if set, messages are moved to the named
        mail folder before being deleted from their original location. Note
        that if you configure getmail not to delete retrieved messages (the

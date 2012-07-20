@@ -358,6 +358,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='mailboxes', required=False,
                            default="('INBOX', )"),
+        ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
         # .authenticate(), so we can't do this yet (?).
@@ -397,6 +398,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='mailboxes', required=False,
                            default="('INBOX', )"),
+        ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
@@ -437,6 +439,7 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='mailboxes', required=False,
                            default="('INBOX', )"),
+        ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
         # .authenticate(), so we can't do this yet (?).
@@ -477,6 +480,7 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='mailboxes', required=False,
                            default="('INBOX', )"),
+        ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),

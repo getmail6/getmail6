@@ -1,3 +1,9 @@
+Version 4.27.0
+20 May 2012
+    -make use of IMAP BODY.PEEK configurable; set the IMAP retriever parameter 
+    `use_peek` to False to disable use of PEEK to get getmail's historical IMAP 
+    behaviour.
+
 Version 4.26.0
 14 April 2012
     -switch to using BODY.PEEK in IMAP retrieval; I no longer see problems with

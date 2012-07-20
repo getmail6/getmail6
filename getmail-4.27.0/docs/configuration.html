@@ -572,6 +572,14 @@ mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
         postmaster if you're unsure what form your server uses.
     </li>
     <li>
+        use_peek
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; whether to use PEEK to retrieve the message; the default is
+        True.  IMAP servers typically mark a message as seen if PEEK is not used
+        to retrieve the message content.  Versions of getmail prior to 4.26.0
+        did not use PEEK to retrieve messages.
+    </li>
+    <li>
         move_on_delete
         (<a href="#parameter-string">string</a>)
         &mdash; if set, messages are moved to the named mail folder before being
