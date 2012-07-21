@@ -11,11 +11,11 @@ __all__ = [
 import sys
 import imaplib
 import new
-import sets
 
 
 if sys.version_info < (2, 4, 0):
     # set/frozenset not built-in until Python 2.4
+    import sets
     set = sets.Set
     frozenset = sets.ImmutableSet
 set = set

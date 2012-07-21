@@ -287,9 +287,10 @@ Creating a getmail rc file
        modified UTF-7 encoding; if you do not do this, the mailbox names will
        not match what the server expects them to be, or will cause
        UnicodeErrors when attempting to load your getmailrc file. As a
-       special case, the unquoted base (non-tuple) value ALL (case-sensitive)
-       means to retrieve mail from all selectable IMAP mailboxes in the
-       account. To retrieve messages from all mailboxes, you would use:
+       special case, in getmail version 4.29.0 and later, the unquoted base
+       (non-tuple) value ALL (case-sensitive) means to retrieve mail from all
+       selectable IMAP mailboxes in the account. To retrieve messages from
+       all mailboxes, you would use:
 
  mailboxes = ALL
 
