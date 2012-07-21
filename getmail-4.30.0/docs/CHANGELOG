@@ -1,3 +1,11 @@
+Version 4.30.0
+21 June 2012
+    -fix breakage introduced in 4.29.0 where BrokenUIDLPOP3Retriever would fail
+    with a TypeError at logout time.  Thanks: Scott Robbins, Stephan Schulz.
+    -fix breakage introduced in 4.29.0 where deleted mail was not being expunged
+    from the last (or only) folder retrieved from in an IMAP session.  Thanks: 
+    Paul Howarth.
+
 Version 4.29.0
 19 June 2012
     -update old contact information for Free Software Foundation.  Thanks: Ricky

@@ -134,7 +134,7 @@ class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
         duplicated IDs are always treated as new messages.'''
         self.log.trace()
 
-    def write_oldmailfile(self, **kwargs):
+    def write_oldmailfile(self, unused, **kwargs):
         '''Short-circuit writing the oldmail file.'''
         self.log.trace()
 

@@ -1209,7 +1209,6 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             pass
 
     def quit(self):
-        RetrieverSkeleton.quit(self)
         self.log.trace()
         if not getattr(self, 'conn', None):
             return
@@ -1226,6 +1225,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         except imaplib.IMAP4.error, o:
             #raise getmailOperationError('IMAP error (%s)' % o)
             self.log.warning('IMAP error during logout (%s)' % o + os.linesep)
+        RetrieverSkeleton.quit(self)
 
 #######################################
 class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
