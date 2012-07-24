@@ -1,3 +1,10 @@
+Version 4.35.0
+24 October 2012
+    -fix From_ quoting in mbox delivery; use of the Python stdlib function 
+    meant getmail was incorrectly using mboxo-style quoting instead of
+    mboxrd quoting, probably since early in the v4 series.  
+    Thanks: Christoph Mitterer.
+
 Version 4.34.0
 8 September 2012
     -retrieve Gmail metadata (labels, thread ID, message ID) via IMAP extension

@@ -10,6 +10,7 @@ __all__ = [
 import os
 import time
 import cStringIO
+import re
 import email
 import email.Errors
 import email.Utils
@@ -28,6 +29,9 @@ message_attributes = (
     'received_with',
     'recipient'
 )
+
+RE_FROMLINE = re.compile(r'^(>*From )', re.MULTILINE)
+
 
 #######################################
 def corrupt_message(why, fromlines=None, fromstring=None):
@@ -130,19 +134,25 @@ class Message(object):
         it by writing out what we need, letting the generator write out the
         message, splitting it into lines, and joining them with the platform
         EOL.
+        
+        Note on mangle_from: the Python email.Generator class apparently only
+        quotes "From ", not ">From " (i.e. it uses mboxo format instead of
+        mboxrd).  So we don't use its mangling, and do it by hand instead.
         '''
-        f = cStringIO.StringIO()
         if include_from:
-            # This needs to be written out first, so we can't rely on the
-            # generator
-            f.write('From %s %s' % (mbox_from_escape(self.sender),
-                                    time.asctime()) + os.linesep)
+            # Mbox-style From line, not rfc822 From: header field.
+            fromline = 'From %s %s' % (mbox_from_escape(self.sender),
+                                       time.asctime()) + os.linesep
+        else:
+            fromline = ''
         # Write the Return-Path: header
-        f.write(format_header('Return-Path', '<%s>' % self.sender))
+        rpline = format_header('Return-Path', '<%s>' % self.sender)
         # Remove previous Return-Path: header fields.
         del self.__msg['Return-Path']
         if delivered_to:
-            f.write(format_header('Delivered-To', self.recipient or 'unknown'))
+            dtline = format_header('Delivered-To', self.recipient or 'unknown')
+        else:
+            dtline = ''
         if received:
             content = 'from %s by %s with %s' % (
                 self.received_from, self.received_by, self.received_with
@@ -151,13 +161,20 @@ class Message(object):
                 content += ' for <%s>' % self.recipient
             content += '; ' + time.strftime('%d %b %Y %H:%M:%S -0000',
                                             time.gmtime())
-            f.write(format_header('Received', content))
-        gen = Generator(f, mangle_from, 0)
+            receivedline = format_header('Received', content)
+        else:
+            receivedline = ''
         # From_ handled above, always tell the generator not to include it
         try:
+            tmpf = cStringIO.StringIO()
+            gen = Generator(tmpf, False, 0)
             gen.flatten(self.__msg, False)
-            f.seek(0)
-            return os.linesep.join(f.read().splitlines() + [''])
+            strmsg = tmpf.getvalue()
+            if mangle_from:
+                # do mboxrd-style "From " line quoting
+                strmsg = RE_FROMLINE.sub(r'>\1', strmsg)
+            return (fromline + rpline + dtline + receivedline 
+                    + os.linesep.join(strmsg.splitlines() + ['']))
         except TypeError, o:
             # email module chokes on some badly-misformatted messages, even
             # late during flatten().  Hope this is fixed in Python 2.4.
