@@ -138,6 +138,7 @@ class POP3initMixIn(object):
         self.log.trace('POP3 connection %s established' % self.conn
                        + os.linesep)
 
+
 #######################################
 class Py24POP3SSLinitMixIn(object):
     '''Mix-In class to do POP3 over SSL initialization with Python 2.4's
@@ -184,6 +185,7 @@ class Py24POP3SSLinitMixIn(object):
         self.log.trace('POP3 connection %s established' % self.conn
                        + os.linesep)
 
+
 #######################################
 class Py23POP3SSLinitMixIn(object):
     '''Mix-In class to do POP3 over SSL initialization with custom-implemented
@@ -229,6 +231,7 @@ class Py23POP3SSLinitMixIn(object):
 
         self.log.trace('POP3 SSL connection %s established' % self.conn
                        + os.linesep)
+
 
 #######################################
 class IMAPinitMixIn(object):
@@ -579,6 +582,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self._delmsgbyid(msgid)
         self.deleted[msgid] = True
 
+
 #######################################
 class POP3RetrieverBase(RetrieverSkeleton):
     '''Base class for single-user POP3 mailboxes.
@@ -744,7 +748,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self.conn.quit()
         except (poplib.error_proto, socket.error), o:
             pass
-        del self.conn
+        self.conn = None
 
     def quit(self):
         RetrieverSkeleton.quit(self)
@@ -753,11 +757,12 @@ class POP3RetrieverBase(RetrieverSkeleton):
             return
         try:
             self.conn.quit()
-            self.conn = None
         except (poplib.error_proto, socket.error), o:
             raise getmailOperationError('POP error (%s)' % o)
         except AttributeError:
             pass
+        self.conn = None
+
 
 #######################################
 class MultidropPOP3RetrieverBase(POP3RetrieverBase):
@@ -818,6 +823,7 @@ class MultidropPOP3RetrieverBase(POP3RetrieverBase):
             )
         msg.recipient = address_no_brackets(line.strip())
         return msg
+
 
 #######################################
 class IMAPRetrieverBase(RetrieverSkeleton):
@@ -1207,6 +1213,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.quit()
         except (imaplib.IMAP4.error, socket.error), o:
             pass
+        self.conn = None
 
     def quit(self):
         self.log.trace()
@@ -1221,11 +1228,12 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 self.conn.expunge()
                 self.conn.close()
             self.conn.logout()
-            self.conn = None
         except imaplib.IMAP4.error, o:
             #raise getmailOperationError('IMAP error (%s)' % o)
             self.log.warning('IMAP error during logout (%s)' % o + os.linesep)
         RetrieverSkeleton.quit(self)
+        self.conn = None
+
 
 #######################################
 class MultidropIMAPRetrieverBase(IMAPRetrieverBase):

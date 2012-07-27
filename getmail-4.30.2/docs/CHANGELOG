@@ -1,3 +1,8 @@
+Version 4.30.2
+27 June 2012
+    -fix a nuisance stack trace that would be dumped if a connection failed in
+    particular states.  Thanks: Gary Schmidt.
+
 Version 4.30.1
 21 June 2012
     -silence a nuisance deprecation warning about the sets module when running
