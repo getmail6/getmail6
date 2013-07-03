@@ -204,7 +204,7 @@ class Message(object):
                                 include_from)
 
     def add_header(self, name, content):
-        self.__msg[name] = Header(content.rstrip())
+        self.__msg[name] = Header(content.rstrip(), 'utf-8')
 
     def remove_header(self, name):
         del self.__msg[name]

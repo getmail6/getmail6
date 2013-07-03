@@ -343,6 +343,11 @@ class Filter_classifier(Filter_external):
 
         for line in [line.strip() for line in stdout.readlines()
                      if line.strip()]:
+            # Output from filter can be in any random text encoding and may
+            # not even be valid, which causes problems when trying to stick
+            # that text into message headers.  Try to decode it to something
+            # sane here first.
+            line = decode_crappy_text(line)
             msg.add_header('X-getmail-filter-classifier', line)
 
         return (exitcode, msg, err)

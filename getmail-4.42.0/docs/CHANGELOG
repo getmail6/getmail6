@@ -1,3 +1,8 @@
+Version 4.42.0
+3 August 2013
+    -fix problem with non-ascii characters in newly-added message header fields
+    with output from Filter_classifier.  Thanks: "Gour".
+
 Version 4.41.0
 26 May 2013
     -messages retrieved with POP could have a blank trailing line removed when
