@@ -1,3 +1,8 @@
+Version 4.40.2
+8 May 2013
+    -fix a backwards incompatibility with Python 2.3 and 2.4 introduced in
+    getmail 4.38.0.  Thanks: Massimo Zambelli, Krzysztof Warzecha.
+
 Version 4.40.1
 22 April 2013
     -again change protocol codes passed to OSX, as they're not only reserved
