@@ -1,3 +1,9 @@
+Version 4.39.1
+10 March 2013
+    -fix a bug that could crop up when retrieving mail via IMAP from Gmail, and
+    the Gmail servers provided weird data in their header extensions.
+    Thanks: Krzysztof Warzecha.
+
 Version 4.39.0
 22 February 2013
     -fix an oldmail filename issue that occurred with certain non-ASCII 

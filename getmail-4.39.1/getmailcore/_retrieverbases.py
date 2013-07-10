@@ -1198,7 +1198,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 'Could not parse google imap extensions. Server said: %s'
                 % repr(response)
             )
-            return ()
+            return {}
 
         results = ext.groupdict()
         metadata = {}
