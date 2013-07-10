@@ -7,6 +7,7 @@ __all__ = [
     'Message',
 ]
 
+import sys
 import os
 import time
 import cStringIO
@@ -26,6 +27,13 @@ from getmailcore.exceptions import *
 from getmailcore.utilities import mbox_from_escape, format_header, \
     address_no_brackets
 import getmailcore.logging
+
+if sys.hexversion < 0x02040000:
+    # email module in Python 2.3 uses more recursion to parse messages or
+    # similar; a user reported recursion errors with a message with ~300
+    # MIME parts.
+    # Hack around it by increasing the recursion limit.
+    sys.setrecursionlimit(2000)
 
 message_attributes = (
     'sender',

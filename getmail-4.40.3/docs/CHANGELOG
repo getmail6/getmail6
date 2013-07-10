@@ -1,3 +1,9 @@
+Version 4.40.3
+10 May 2013
+    -increase system recursion limit when run with Python 2.3, to prevent
+    recursion errors in parsing some pathologically complex MIME emails.
+    Thanks: Kenneth Pronovici.
+
 Version 4.40.2
 8 May 2013
     -fix a backwards incompatibility with Python 2.3 and 2.4 introduced in
