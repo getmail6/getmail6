@@ -15,6 +15,7 @@ import email
 import email.Errors
 import email.Utils
 import email.Parser
+import email.header
 from email.Generator import Generator
 
 from getmailcore.exceptions import *
@@ -188,7 +189,7 @@ class Message(object):
                                 include_from)
 
     def add_header(self, name, content):
-        self.__msg[name] = content.rstrip()
+        self.__msg[name] = email.header.Header(content.rstrip())
 
     def remove_header(self, name):
         del self.__msg[name]

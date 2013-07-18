@@ -1,3 +1,9 @@
+Version 4.38.0
+16 February 2013
+    -fix retrieving mail from an IMAP mailbox with non-ASCII characters in its
+    name causing difficult-to-understand unicode errors during delivery.
+    Thanks: "fsLeg", Krzysztof Warzecha.
+    
 Version 4.37.0
 27 January 2013
     -handle IMAP servers which include "/" in message IDs better, so those 
