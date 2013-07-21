@@ -494,6 +494,16 @@ if os.name == 'posix':
          
          None.
             """
+            # OSX protocol is not an arbitrary string; it's a code limited to 
+            # 4 chars.
+            protocol = protocol.lower()
+            if 'imap' in protocol:
+                protocol = 'IMAP'
+            elif 'pop' in protocol:
+                protocol = 'POP'
+            else:
+                protocol = '????'
+            
             # wish we could pass along a comment to this thing for the user prompt
             cmd = "%s find-internet-password -g -a '%s' -s '%s' -r '%s'" % (
                 osx_keychain_binary, user, server, protocol

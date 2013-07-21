@@ -1,3 +1,11 @@
+Version 4.40.0
+21 April 2013
+    -convert SIGTERM to SIGINT so getmail can cleanup and exit normally if 
+    killed with a default signal.  Thanks: Carl Lei.
+    -fix change which resulted in passing full protocol name to OSX keyring
+    program, which can't handle it (restricted to 4-character code).
+    Thanks: Tim Gray.
+
 Version 4.39.1
 10 March 2013
     -fix a bug that could crop up when retrieving mail via IMAP from Gmail, and

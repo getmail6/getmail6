@@ -14,6 +14,7 @@ import imaplib
 import pprint
 from optparse import OptionParser, OptionGroup
 import socket
+import signal
 
 # Optional gnome-keyring integration
 try:
@@ -85,6 +86,18 @@ defaults = {
     'message_log_syslog' : False,
     'logfile' : None,
 }
+
+
+
+
+#######################################
+def convert_to_sigint(unused1, unused2):
+    """Catch a SIGTERM and raise a SIGINT so getmail exits normally and does
+    cleanup if killed with default signal.
+    """
+    raise KeyboardInterrupt('from signal')
+
+signal.signal(signal.SIGTERM, convert_to_sigint)
 
 #######################################
 def blurb():
