@@ -1,3 +1,9 @@
+Version 4.40.1
+22 April 2013
+    -again change protocol codes passed to OSX, as they're not only reserved
+    codes, but also case-sensitive.  Use the ones an OSX user reports work
+    properly.  Thanks: Tim Gray.
+
 Version 4.40.0
 21 April 2013
     -convert SIGTERM to SIGINT so getmail can cleanup and exit normally if 

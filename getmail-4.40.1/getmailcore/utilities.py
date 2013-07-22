@@ -495,13 +495,14 @@ if os.name == 'posix':
          None.
             """
             # OSX protocol is not an arbitrary string; it's a code limited to 
-            # 4 chars.
+            # 4 case-sensitive chars, and only specific values.
             protocol = protocol.lower()
             if 'imap' in protocol:
-                protocol = 'IMAP'
+                protocol = 'imap'
             elif 'pop' in protocol:
-                protocol = 'POP'
+                protocol = 'pop3'
             else:
+                # This will break.
                 protocol = '????'
             
             # wish we could pass along a comment to this thing for the user prompt
