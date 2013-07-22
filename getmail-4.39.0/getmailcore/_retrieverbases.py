@@ -433,15 +433,16 @@ class RetrieverSkeleton(ConfigurableBase):
                 or (isinstance(mailbox, (str, unicode)) and mailbox)), (
             'bad mailbox %s (%s)' % (mailbox, type(mailbox))
         )
-        if isinstance(mailbox, str):
-            mailbox = mailbox.decode('utf-8')
         filename = self.oldmail_filename
-        if mailbox is None:
-            # No mailbox (POP), use above with no extension
-            pass
-        else:
+        if mailbox is not None:
+            if isinstance(mailbox, str):
+                mailbox = mailbox.decode('utf-8')
+            mailbox = re.sub(STRIP_CHAR_RE, '.', mailbox)
+            mailbox = mailbox.encode('utf-8')
             # Use oldmail file per IMAP folder
-            filename += '-' + re.sub(STRIP_CHAR_RE, '.', mailbox)
+            filename += '-' + mailbox
+        # else:
+            # mailbox is None, is POP, just use filename
         return filename
 
     def oldmail_exists(self, mailbox):

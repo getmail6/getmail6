@@ -1,3 +1,8 @@
+Version 4.39.0
+22 February 2013
+    -fix an oldmail filename issue that occurred with certain non-ASCII 
+    characters in an IMAP mailbox name.  Thanks: Michael Kockmeyer.
+
 Version 4.38.0
 16 February 2013
     -fix retrieving mail from an IMAP mailbox with non-ASCII characters in its
