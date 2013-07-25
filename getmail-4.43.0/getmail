@@ -106,7 +106,7 @@ def blurb():
              'GNU GPL version 2.\n')
 
 #######################################
-def go(configs):
+def go(configs, idle):
     """Main code.
 
     Returns True if all goes well, False if any error condition occurs.
@@ -114,7 +114,27 @@ def go(configs):
     blurb()
     summary = []
     errorexit = False
+    idling = False
+
+    if len(configs) > 1 and idle:
+        log.info('more than one config file given with --idle, ignoring\n')
+        idle = False
+
     for (configfile, retriever, _filters, destination, options) in configs:
+        if options['read_all'] and not options['delete']:
+            if idle:
+                # This is a nonsense combination of options; every time the
+                # server returns from IDLE, all messages will be re-retrieved.
+                log.error('%s: IDLE, read_all, and not delete - bad '
+                          'combination, skipping\n' 
+                          % retriever)
+                continue
+            else:
+                # Slightly less nonsensical, but still weird.
+                log.warning('%s: read_all and not delete -- all messages will '
+                            'be retrieved each time getmail is run\n' 
+                            % retriever)
+            
         oplevel = options['verbose']
         logverbose = options['message_log_verbose']
         now = int(time.time())
@@ -124,14 +144,16 @@ def go(configs):
         if options['message_log_syslog']:
             syslog.openlog('getmail', 0, syslog.LOG_MAIL)
         try:
-            log.info('%s:\n' % retriever)
-            logline = 'Initializing %s:' % retriever
-            if options['logfile'] and logverbose:
-                options['logfile'].write(logline)
-            if options['message_log_syslog'] and logverbose:
-                syslog.syslog(syslog.LOG_INFO, logline)
-            retriever.initialize(options)
-            destination.retriever_info(retriever)
+            if not idling:
+                log.info('%s:\n' % retriever)
+                logline = 'Initializing %s:' % retriever
+                if options['logfile'] and logverbose:
+                    options['logfile'].write(logline)
+                if options['message_log_syslog'] and logverbose:
+                    syslog.syslog(syslog.LOG_INFO, logline)
+                retriever.initialize(options)
+                destination.retriever_info(retriever)
+
             for mailbox in retriever.mailboxes:
                 if mailbox:
                     # For POP this is None and uninteresting
@@ -370,6 +392,39 @@ def go(configs):
             )
         log.debug('retriever %s finished\n' % retriever)
         try:
+            if idle and not retriever.supports_idle:
+                log.info('--idle given, but chosen retriever does not support'
+                        'IDLE\n')
+                idle = False
+
+            if not errorexit and idle:
+                # TODO
+                # Okay, so what should really happen here is that when go_idle
+                # returns, getmail should use the *existing* connection to check
+                # for new messages and then call go_idle again once that is
+                # done. The current code layout doesn't lend itself very well to
+                # that since the message download code is coupled with the
+                # connection setup/teardown code.
+                #
+                # Therefore, we do a bit of a hack.
+                # We add the current config back into configs, so that when the
+                # main for loop over configs runs again, it will find the same
+                # config again, and thus download the new messages and then go
+                # back to IDLEing. Since the return value of go_idle changes the
+                # value of idling, a failed connection will cause it to become
+                # False, which will make the main go() loop reconnect, which is
+                # what we want.
+                try:
+                    idling = retriever.go_idle(idle)
+                    configs.append(configs[0])
+                    continue
+                except KeyboardInterrupt, o:
+                    # Because configs isn't appended to, this just means we'll
+                    # quit, which is presumably what the user wanted
+                    # The newline is to clear the ^C shown in terminal
+                    log.info('\n')
+                    pass
+
             retriever.quit()
         except getmailOperationError, o:
             errorexit = True
@@ -412,6 +467,14 @@ def main():
             '--trace',
             dest='trace', action='store_true', default=False,
             help='print extended trace information (extremely verbose)'
+        )
+        parser.add_option(
+            '-i', '--idle',
+            dest='idle', action='store', default='',
+            help='maintain connection and listen for new messages in FOLDER. '
+                 'Only applies if a single rc file is given with a connection '
+                 'to an IMAP server that supports the IDLE command',
+            metavar='FOLDER'
         )
         if gnomekeyring:
             parser.add_option(
@@ -786,7 +849,7 @@ def main():
             sys.exit()
 
         # Go!
-        success = go(configs)
+        success = go(configs, options.idle)
         if not success:
             raise SystemExit(127)
 

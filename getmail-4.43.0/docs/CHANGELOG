@@ -1,3 +1,7 @@
+Version 4.43.0
+25 August 2013
+    -add IMAP IDLE support.  Thanks: Jon Gjengset.
+
 Version 4.42.0
 3 August 2013
     -fix problem with non-ascii characters in newly-added message header fields

@@ -42,6 +42,7 @@ import email
 import poplib
 import imaplib
 import re
+import select
 
 try:
     # do we have a recent pykerberos?
@@ -119,6 +120,7 @@ EAI_FAIL = getattr(socket, 'EAI_FAIL', NO_OBJ)
 class POP3initMixIn(object):
     '''Mix-In class to do POP3 non-SSL initialization.
     '''
+    SSL = False
     def _connect(self):
         self.log.trace()
         try:
@@ -144,6 +146,7 @@ class Py24POP3SSLinitMixIn(object):
     '''Mix-In class to do POP3 over SSL initialization with Python 2.4's
     poplib.POP3_SSL class.
     '''
+    SSL = True
     def _connect(self):
         self.log.trace()
         if not hasattr(socket, 'ssl'):
@@ -191,6 +194,7 @@ class Py23POP3SSLinitMixIn(object):
     '''Mix-In class to do POP3 over SSL initialization with custom-implemented
     code to support SSL with Python 2.3's poplib.POP3 class.
     '''
+    SSL = True
     def _connect(self):
         self.log.trace()
         if not hasattr(socket, 'ssl'):
@@ -237,6 +241,7 @@ class Py23POP3SSLinitMixIn(object):
 class IMAPinitMixIn(object):
     '''Mix-In class to do IMAP non-SSL initialization.
     '''
+    SSL = False
     def _connect(self):
         self.log.trace()
         try:
@@ -259,6 +264,7 @@ class IMAPinitMixIn(object):
 class IMAPSSLinitMixIn(object):
     '''Mix-In class to do IMAP over SSL initialization.
     '''
+    SSL = True
     def _connect(self):
         self.log.trace()
         if not hasattr(socket, 'ssl'):
@@ -372,7 +378,6 @@ class RetrieverSkeleton(ConfigurableBase):
       initialize(self, options)
       checkconf(self)
     '''
-
     def __init__(self, **args):
         self.headercache = {}
         self.deleted = {}
@@ -382,6 +387,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.gotmsglist = False
         self._clear_state()
         self.conn = None
+        self.supports_idle = False
         ConfigurableBase.__init__(self, **args)
 
     def _clear_state(self):
@@ -1275,7 +1281,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                                    + os.linesep)
                     del self.oldmail[msgid]
             """
-            
+
+            if 'IDLE' in self.conn.capabilities:
+                self.supports_idle = True
+                imaplib.Commands['IDLE'] = ('AUTH', 'SELECTED')
+
             if self.mailboxes == ('ALL', ):
                 # Special value meaning all mailboxes in account
                 self.mailboxes = tuple(self.list_mailboxes())
@@ -1293,6 +1303,72 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         except (imaplib.IMAP4.error, socket.error), o:
             pass
         self.conn = None
+
+    def go_idle(self, folder, timeout=29*60):
+        """Initiates IMAP's IDLE mode if the server supports it
+
+        Waits until state of current mailbox changes, and then returns. Returns
+        True if the connection still seems to be up, False otherwise.
+
+        May throw getmailOperationError if the server refuses the IDLE setup
+        (e.g. if the server does not support IDLE)
+
+        Default timeout is the maximum possible idle time according to RFC 2177.
+        """
+
+        if not self.supports_idle:
+            self.log.warning('IDLE not supported, so not idling')
+            raise getmailOperationError(
+                'IMAP4 IDLE requested, but not supported by server'
+            )
+
+
+        if self.SSL:
+            sock = self.conn.ssl()
+        else:
+            sock = self.conn.socket()
+
+        # Based on current imaplib IDLE patch: http://bugs.python.org/issue11245
+        self.conn.untagged_responses = {}
+        self.conn.select(folder)
+        tag = self.conn._command('IDLE')
+        data = self.conn._get_response() # read continuation response
+
+        if data is not None:
+            raise getmailOperationError(
+                'IMAP4 IDLE requested, but server refused IDLE request: %s' 
+                % data
+            )
+
+        self.log.debug('Entering IDLE mode (server says "%s")\n' 
+                       % self.conn.continuation_response)
+
+        try:
+            aborted = None
+            (readable, unused, unused) = select.select([sock], [], [], timeout)
+        except KeyboardInterrupt, o:
+            # Delay raising this until we've stopped IDLE mode
+            aborted = o
+
+        if aborted is not None:
+            self.log.debug('IDLE mode cancelled\n')
+        elif readable:
+            # The socket has data waiting; server has updated status
+            self.log.info('IDLE message received\n')
+        else:
+            self.log.debug('IDLE timeout (%ds)\n' % timeout)
+
+        try:
+            self.conn.untagged_responses = {}
+            self.conn.send('DONE\r\n')
+            self.conn._command_complete('IDLE', tag)
+        except imaplib.IMAP4.error, o:
+            return False
+
+        if aborted:
+            raise aborted
+
+        return True
 
     def quit(self):
         self.log.trace()

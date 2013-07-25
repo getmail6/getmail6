@@ -33,6 +33,11 @@ dump configuration and exit (debugging)
 .TP
 \fB\-\-trace\fR
 print extended trace information (extremely verbose)
+.TP
+\fB\-i\fIFOLDER\fR, \fB\-\-idle\fR=\fIFOLDER\fR
+maintain connection and listen for new messages in \fR\fIFOLDER\fI\fR.
+This flag will only work if a single rc file is given, and will only work on
+IMAP connections where the server supports IMAP4 IDLE (RFC 2177).
 .PP
 The following options override any in the configuration file(s).
 .TP

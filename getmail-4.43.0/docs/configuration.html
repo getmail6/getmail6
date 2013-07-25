@@ -2730,6 +2730,13 @@ type = Filter_TMDA
     <li>--trace &mdash; print extended debugging information</li>
 </ul>
 <p>
+    If you are using a single getmailrc file with an IMAP server that understands 
+    the IDLE extension from <a href="http://www.rfc-editor.org/rfc/rfc2177.txt">RFC 2177</a>,
+    you can use the --rcfile=<span class="meta">MAILBOX</span> option to specify
+    that getmail should wait on the server to notify getmail of new mail in the
+    specified mailbox after getmail is finished retrieving mail.
+</p>
+<p>
     In addition, the following commandline options can be used to override any
     values specified in the
     <span class="file">[options]</span>
