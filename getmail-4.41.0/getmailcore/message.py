@@ -20,8 +20,11 @@ from email.Generator import Generator
 try:
     from email.header import Header
 except ImportError, o:
-    # Python < 2.5
-    from email import Header
+    try:
+        from email.Header import Header
+    except ImportError, o:
+        # Python < 2.5
+        from email import Header
 
 from getmailcore.exceptions import *
 from getmailcore.utilities import mbox_from_escape, format_header, \

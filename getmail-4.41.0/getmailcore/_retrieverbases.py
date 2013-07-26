@@ -707,7 +707,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             response, lines, octets = self.conn.retr(msgnum)
             self.log.debug('RETR response "%s", %d octets'
                            % (response, octets) + os.linesep)
-            msg = Message(fromlines=lines)
+            msg = Message(fromlines=lines+[''])
             return msg
         except poplib.error_proto, o:
             raise getmailRetrievalError(

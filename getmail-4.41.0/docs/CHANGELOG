@@ -1,3 +1,9 @@
+Version 4.41.0
+26 May 2013
+    -messages retrieved with POP could have a blank trailing line removed when
+    delivered; fixed.  Thanks: Christoph Mitterer, Krzysztof Warzecha.
+    -fix an ImportError when IMAP retriever used with getmail under Python 2.4.
+
 Version 4.40.3
 10 May 2013
     -increase system recursion limit when run with Python 2.3, to prevent
