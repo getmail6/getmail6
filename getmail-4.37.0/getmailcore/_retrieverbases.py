@@ -629,6 +629,10 @@ class POP3RetrieverBase(RetrieverSkeleton):
             for (i, line) in enumerate(msglist):
                 try:
                     (msgnum, msgid) = line.split(None, 1)
+                    # Don't allow / in UIDs we store, as we look for that to 
+                    # detect old-style oldmail files.  Shouldn't occur in POP3
+                    # anyway.
+                    msgid = msgid.replace('/', '-')
                 except ValueError:
                     # Line didn't contain two tokens.  Server is broken.
                     raise getmailOperationError(
@@ -1015,7 +1019,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         self.log.debug('selecting mailbox "%s"' % mailbox + os.linesep)
         try:
-            if self.app_options['delete'] or self.app_options['delete_after']:
+            if (self.app_options['delete'] or self.app_options['delete_after'] 
+                    or self.app_options['delete_bigger_than']):
                 read_only = False
             else:
                 read_only = True
@@ -1055,9 +1060,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 )
                 for line in response:
                     r = self._parse_imapattrresponse(line)
-                    msgid = (
-                        '%s/%s' % (self.uidvalidity, r['uid'])
-                    )
+                    # Don't allow / in UIDs we store, as we look for that to 
+                    # detect old-style oldmail files.  Can occur with IMAP, at 
+                    # least with some servers.
+                    uid = r['uid'].replace('/', '-')
+                    msgid = '%s/%s' % (self.uidvalidity, uid)
                     self._mboxuids[msgid] = r['uid']
                     self._mboxuidorder.append(msgid)
                     self.msgnum_by_msgid[msgid] = None
@@ -1144,6 +1151,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 # response[0] is None instead of a message tuple
                 raise getmailRetrievalError('failed to retrieve msgid %s' 
                                             % msgid)
+
+            # record mailbox retrieved from in a header
+            msg.add_header('X-getmail-retrieved-from-mailbox', 
+                           self.mailbox_selected)
 
             # google extensions: apply labels, etc
             if 'X-GM-EXT-1' in self.conn.capabilities:

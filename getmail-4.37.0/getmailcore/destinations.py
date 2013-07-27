@@ -81,6 +81,7 @@ class DeliverySkeleton(ConfigurableBase):
         self.received_from = None
         self.received_with = None
         self.received_by = None
+        self.retriever = None
         self.log.trace('done\n')
 
     def retriever_info(self, retriever):
@@ -88,6 +89,7 @@ class DeliverySkeleton(ConfigurableBase):
         self.received_from = retriever.received_from
         self.received_with = retriever.received_with
         self.received_by = retriever.received_by
+        self.retriever = retriever
 
     def deliver_message(self, msg, delivered_to=True, received=True):
         self.log.trace()
@@ -608,6 +610,9 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                     %(recipient) - recipient address
                     %(domain) - domain-part of recipient address
                     %(local) - local-part of recipient address
+                    %(mailbox) - for IMAP retrievers, the name of the 
+                        server-side mailbox/folder the message was retrieved
+                        from.  Will be empty for POP.
 
                   Warning: the text of these replacements is taken from the
                   message and is therefore under the control of a potential
@@ -691,6 +696,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                     'or GID 0 by default'
                 )
             args = [self.conf['path'], self.conf['path']]
+            msginfo['mailbox'] = self.retriever.mailbox_selected or ''
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)
                 for (key, value) in msginfo.items():

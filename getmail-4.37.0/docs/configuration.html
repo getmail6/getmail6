@@ -1358,6 +1358,11 @@ path = ~/inbox
                 <span class="sample">%(domain)</span>
                 &mdash; domain-part of the envelope recipient address
             </li>
+            <li>
+                <span class="sample">%(mailbox)</span>
+                &mdash; the IMAP mailbox name the message was retrieved from;
+                for POP, this will be empty
+            </li>
         </ul>
         The default value of the
         <span class="file">arguments</span>
@@ -2105,6 +2110,23 @@ localpart_translate = ('mailhostaccount-', '')
         effect, leaves messages on the server for a configurable number of days
         after retrieving them. Note that the delete parameter has higher
         priority; if both are set, the messages will be deleted immediately.
+        Default: 0, which means not to enable this feature.
+    </li>
+    <li>
+        delete_bigger_than
+        (<a href="#parameter-integer">integer</a>)
+        &mdash; if set, getmail will delete messages larger than this number of 
+        bytes after retrieving them, even if the 
+        <span class="file">delete</span>
+        and <span class="file">delete_after</span>
+        options are disabled.  The purpose of this feature is to allow deleting
+        only large messages, to help keep a mailbox under quota.
+        Has no effect if <span class="file">delete</span> is set, as that will
+        unconditionally remove messages.  If 
+        <span class="file">delete_after</span> is also set, the message will be
+        deleted immediately after retrieval if it is over this size, and 
+        otherwise will be deleted according to the setting of 
+        <span class="file">delete_after</span>.
         Default: 0, which means not to enable this feature.
     </li>
     <li>

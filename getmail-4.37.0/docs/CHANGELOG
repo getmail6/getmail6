@@ -1,3 +1,13 @@
+Version 4.37.0
+27 January 2013
+    -handle IMAP servers which include "/" in message IDs better, so those 
+    messages aren't always thought to be new.  Thanks: Bradley Rintoul.
+    -record (IMAP) mailbox retrieved from in X-getmail-retrieved-from-mailbox:
+    header field, and make it available as %(mailbox) substitution in 
+    MDA_external arguments.  Thanks: Les Barstow.
+    -add delete_bigger_than option to allow removal of large messages after
+    retrieval, even if not deleting messages otherwise.  Thanks: Jan Vereecke.
+
 Version 4.36.0
 15 December 2012
     -add support for retrieving POP/IMAP passwords from, and storing them to,

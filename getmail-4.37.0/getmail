@@ -36,6 +36,7 @@ options_bool = (
 )
 options_int = (
     'delete_after',
+    'delete_bigger_than',
     'max_message_size',
     'max_messages_per_session',
     'max_bytes_per_session',
@@ -73,6 +74,7 @@ defaults = {
     'read_all' : True,
     'delete' : False,
     'delete_after' : 0,
+    'delete_bigger_than' : 0,
     'max_message_size' : 0,
     'max_messages_per_session' : 0,
     'max_bytes_per_session' : 0,
@@ -225,6 +227,12 @@ def go(configs):
 
                         if options['delete'] and timestamp:
                             log.debug('    will delete\n')
+                            delete = True
+                        
+                        if (options['delete_bigger_than'] 
+                                and size > options['delete_bigger_than']):
+                            log.debug('    bigger than %d, will delete\n'
+                                      % options['delete_bigger_than'])
                             delete = True
 
                         if not retrieve and timestamp is None:
@@ -495,6 +503,7 @@ def main():
                 'read_all' : defaults['read_all'],
                 'delete' : defaults['delete'],
                 'delete_after' : defaults['delete_after'],
+                'delete_bigger_than' : defaults['delete_bigger_than'],
                 'max_message_size' : defaults['max_message_size'],
                 'max_messages_per_session' :
                     defaults['max_messages_per_session'],
