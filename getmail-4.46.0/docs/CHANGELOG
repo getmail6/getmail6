@@ -1,3 +1,11 @@
+Version 4.46.0
+6 April 2014
+    -fix --idle checking Python version incorrectly, resulting in incorrect 
+    warning about running with Python < 2.5.  Thanks: "Voytek", Krzysztof 
+    Warzecha.
+    -add missing support for SSL certificate checking in POP3 which broke
+    POP retrieval in v4.45.0.  Requires Python 2.6 or newer.  Thanks: "mancha".
+
 Version 4.45.0
 30 March 2014
     -perform hostname-vs-certificate matching of SSL certificate if validating

@@ -658,8 +658,8 @@ mailboxes = ALL
 
 <h4 id="retriever-ssl-extra">SSL Certificate Validation and Server Parameters</h4>
 <p>
-    All SSL-enabled IMAP retriever types also take the following options, allowing
-    you to require validation of the server's SSL certificate, or to check the
+    All SSL-enabled POP and IMAP retriever types also take the following options, 
+    allowing you to require validation of the server's SSL certificate, or to check the
     server's certificate fingerprint against a known good value, or to control
     the specific SSL cipher used during the connection.
 </p>
@@ -668,8 +668,8 @@ mailboxes = ALL
     requires using Python 2.6 or Python 2.7 or higher with getmail.</strong>
     If you use an earlier version of Python, these features will not work, and
     no server certificate validation will be performed.
-    Also note that these features are not currently implemented for POP3 or
-    SPDS retrievers; I would be interested in hearing from POP3 users who desire
+    Also note that these features are not currently implemented for SPDS 
+    retrievers; I would be interested in hearing from SPDS users who desire
     these features.
 </p>
 <ul>
@@ -691,8 +691,10 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         trusted root certificates, getmail will abort the connection.
         <br />
         Root certificates are not supplied with getmail; your OS probably installs a set 
-        by default for use by the system.  Common locations for OS-supplied SSL root
-        certification authority certificates include:
+        by default for use by the system, or you may wish to use a specific set of
+        trusted root certificates provided by your employer or a trusted third
+        party.  Common locations for OS-supplied SSL root certification authority 
+        certificates include:
         <ul>
             <li>Linux (Debian, Ubuntu, Arch, SuSE): <pre class="file">/etc/ssl/certs/</pre></li>
             <li>Linux (RedHat, Fedora, CentOS): <pre class="file">/etc/pki/tls/certs/</pre></li>
@@ -846,6 +848,30 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
     </li>
+    <li>
+        ca_certs
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_ciphers
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_version
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_fingerprints
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
 </ul>
 
 <h4 id="retriever-brokenpop3ssl">BrokenUIDLPOP3SSLRetriever</h4>
@@ -875,6 +901,30 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         &mdash; see
         <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
+    </li>
+    <li>
+        ca_certs
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_ciphers
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_version
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_fingerprints
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
     </li>
 </ul>
 
@@ -1022,6 +1072,30 @@ envelope_recipient = delivered-to:1
         &mdash; see
         <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
+    </li>
+    <li>
+        ca_certs
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_ciphers
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_version
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_fingerprints
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
     </li>
 </ul>
 

@@ -230,6 +230,9 @@ EAI_NODATA = getattr(socket, 'EAI_NODATA', NO_OBJ)
 EAI_FAIL = getattr(socket, 'EAI_FAIL', NO_OBJ)
 
 
+# Constant for POPSSL
+POP3_SSL_PORT = 995
+
 #
 # Mix-in classes
 #
@@ -260,6 +263,55 @@ class POP3initMixIn(object):
 
 
 #######################################
+class POP3_SSL_EXTENDED(poplib.POP3_SSL):
+    # Extended SSL support for POP3 (certificate checking, 
+    # fingerprint matching, cipher selection, etc.)
+
+    def __init__(self, host, port=POP3_SSL_PORT, keyfile=None,
+                 certfile=None, ssl_version=None, ca_certs=None,
+                 ssl_ciphers=None):
+        self.host = host
+        self.port = port
+        self.keyfile = keyfile
+        self.certfile = certfile
+        self.ssl_version = ssl_version
+        self.ca_certs = ca_certs
+        self.ssl_ciphers = ssl_ciphers
+
+        self.buffer = ''
+        msg = "getaddrinfo returns an empty list"
+        self.sock = None
+        for res in socket.getaddrinfo(self.host, self.port, 0,
+                                      socket.SOCK_STREAM):
+            (af, socktype, proto, canonname, sa) = res
+            try:
+                self.sock = socket.socket(af, socktype, proto)
+                self.sock.connect(sa)
+            except socket.error, msg:
+                if self.sock:
+                    self.sock.close()
+                self.sock = None
+                continue
+            break
+        if not self.sock:
+            raise socket.error(msg)
+        extra_args = {}
+        if self.ssl_version:
+            extra_args['ssl_version'] = self.ssl_version
+        if self.ca_certs:
+            extra_args['cert_reqs'] = ssl.CERT_REQUIRED
+            extra_args['ca_certs'] = self.ca_certs
+        if self.ssl_ciphers:
+            extra_args['ciphers'] = self.ssl_ciphers
+
+        self.file = self.sock.makefile('rb')
+        self.sslobj = ssl.wrap_socket(self.sock, self.keyfile,
+                                      self.certfile, **extra_args)
+        self._debugging = 0
+        self.welcome = self._getresp()
+
+
+#######################################
 class Py24POP3SSLinitMixIn(object):
     '''Mix-In class to do POP3 over SSL initialization with Python 2.4's
     poplib.POP3_SSL class.
@@ -272,8 +324,39 @@ class Py24POP3SSLinitMixIn(object):
                 'SSL not supported by this installation of Python'
             )
         (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
+        ca_certs = check_ca_certs(self.conf)
+        ssl_version = check_ssl_version(self.conf)
+        ssl_fingerprints = check_ssl_fingerprints(self.conf)
+        ssl_ciphers = check_ssl_ciphers(self.conf)
+        using_extended_certs_interface = False
         try:
-            if keyfile:
+            if ca_certs or ssl_version or ssl_ciphers:
+                using_extended_certs_interface = True
+                # Python 2.6 or higher required, use above class instead of
+                # vanilla stdlib one
+                msg = ''
+                if keyfile:
+                    msg += 'with keyfile %s, certfile %s' % (keyfile, certfile)
+                if ssl_version:
+                    if msg:
+                        msg += ', '
+                    msg += ('using protocol version %s'
+                            % self.conf['ssl_version'].upper())
+                if ca_certs:
+                    if msg:
+                        msg += ', '
+                    msg += 'with ca_certs %s' % ca_certs
+
+                self.log.trace(
+                    'establishing POP3 SSL connection to %s:%d %s'
+                    % (self.conf['server'], self.conf['port'], msg)
+                    + os.linesep
+                )
+                self.conn = POP3_SSL_EXTENDED(
+                    self.conf['server'], self.conf['port'], keyfile, certfile,
+                    ssl_version, ca_certs, ssl_ciphers
+                )
+            elif keyfile:
                 self.log.trace(
                     'establishing POP3 SSL connection to %s:%d with '
                     'keyfile %s, certfile %s'
@@ -290,13 +373,42 @@ class Py24POP3SSLinitMixIn(object):
                                + os.linesep)
                 self.conn = poplib.POP3_SSL(self.conf['server'],
                                             self.conf['port'])
+            self.setup_received(self.conn.sock)
+            if ssl and hashlib:
+                sslobj = self.conn.sslobj
+                peercert = sslobj.getpeercert(True)
+                ssl_cipher = sslobj.cipher()
+                if ssl_cipher:
+                    ssl_cipher = '%s:%s:%s' % ssl_cipher
+                if not peercert:
+                    actual_hash = None
+                else:
+                    actual_hash = hashlib.sha256(peercert).hexdigest().lower()
+            else:
+                actual_hash = None
+                ssl_cipher = None
 
             # Ensure cert is for server we're connecting to
             if ssl and self.conf['ca_certs']:
-                ssl_match_hostname(self.conn.sock.getpeercert(), 
+                ssl_match_hostname(self.conn.sslobj.getpeercert(),
                                self.conf['server'])
 
-            self.setup_received(self.conn.sock)
+            if ssl_fingerprints:
+                if not actual_hash:
+                    raise getmailOperationError(
+                        'socket ssl_fingerprints mismatch (no cert provided)'
+                    )
+
+                any_matches = False
+                for expected_hash in ssl_fingerprints:
+                    if expected_hash == actual_hash:
+                        any_matches = True
+                if not any_matches:
+                    raise getmailOperationError(
+                        'socket ssl_fingerprints mismatch (got %s)'
+                        % actual_hash
+                    )
+
         except poplib.error_proto, o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
@@ -326,6 +438,15 @@ class Py23POP3SSLinitMixIn(object):
                 'SSL not supported by this installation of Python'
             )
         (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
+        ca_certs = check_ca_certs(self.conf)
+        ssl_version = check_ssl_version(self.conf)
+        ssl_fingerprints = check_ssl_fingerprints(self.conf)
+        ssl_ciphers = check_ssl_ciphers(self.conf)
+        if ca_certs or ssl_version or ssl_ciphers or ssl_fingerprints:
+            raise getmailConfigurationError(
+                'SSL extended options are not supported by this'
+                 ' installation of Python'
+            )
         try:
             if keyfile:
                 self.log.trace(
@@ -344,11 +465,6 @@ class Py23POP3SSLinitMixIn(object):
                     + os.linesep
                 )
                 self.conn = POP3SSL(self.conf['server'], self.conf['port'])
-
-            # Ensure cert is for server we're connecting to
-            if ssl and self.conf['ca_certs']:
-                ssl_match_hostname(self.conn.sock.getpeercert(), 
-                               self.conf['server'])
 
             self.setup_received(self.conn.rawsock)
         except poplib.error_proto, o:
@@ -498,7 +614,8 @@ class IMAPSSLinitMixIn(object):
 
             # Ensure cert is for server we're connecting to
             if ssl and self.conf['ca_certs']:
-                ssl_match_hostname(sslobj.getpeercert(), self.conf['server'])
+                ssl_match_hostname(self.conn.ssl().getpeercert(),
+                               self.conf['server'])
 
             if ssl_fingerprints:
                 if not actual_hash:

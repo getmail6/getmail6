@@ -413,19 +413,18 @@ SSL Client Parameters
 
 SSL Certificate Validation and Server Parameters
 
-   All SSL-enabled IMAP retriever types also take the following options,
-   allowing you to require validation of the server's SSL certificate, or
-   to check the server's certificate fingerprint against a known good
-   value, or to control the specific SSL cipher used during the
+   All SSL-enabled POP and IMAP retriever types also take the following
+   options, allowing you to require validation of the server's SSL
+   certificate, or to check the server's certificate fingerprint against a
+   known good value, or to control the specific SSL cipher used during the
    connection.
 
    Note: using these features, including server certificate validation,
    requires using Python 2.6 or Python 2.7 or higher with getmail. If you
    use an earlier version of Python, these features will not work, and no
    server certificate validation will be performed. Also note that these
-   features are not currently implemented for POP3 or SPDS retrievers; I
-   would be interested in hearing from POP3 users who desire these
-   features.
+   features are not currently implemented for SPDS retrievers; I would be
+   interested in hearing from SPDS users who desire these features.
      * ca_certs (string) — advanced option to perform validation of the
        server's SSL certificate. Specify the path to a PEM-formatted list
        of 1 or more valid and trusted root certification authority (CA)
@@ -440,9 +439,10 @@ openssl s_client -showcerts -connect HOST:PORT < /dev/null 2>/dev/null \
        supplied trusted root certificates, getmail will abort the
        connection.
        Root certificates are not supplied with getmail; your OS probably
-       installs a set by default for use by the system. Common locations
-       for OS-supplied SSL root certification authority certificates
-       include:
+       installs a set by default for use by the system, or you may wish to
+       use a specific set of trusted root certificates provided by your
+       employer or a trusted third party. Common locations for OS-supplied
+       SSL root certification authority certificates include:
           + Linux (Debian, Ubuntu, Arch, SuSE):
 /etc/ssl/certs/
           + Linux (RedHat, Fedora, CentOS):
@@ -526,6 +526,14 @@ SimplePOP3SSLRetriever
      * use_apop (boolean) — see SimplePOP3Retriever for definition.
      * delete_dup_msgids (boolean) — see SimplePOP3Retriever for
        definition.
+     * ca_certs (string) — see SSL Certificate Validation and Server
+       Parameters for definition
+     * ssl_ciphers (string) — see SSL Certificate Validation and Server
+       Parameters for definition
+     * ssl_version (string) — see SSL Certificate Validation and Server
+       Parameters for definition
+     * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
+       Validation and Server Parameters for definition
 
 BrokenUIDLPOP3SSLRetriever
 
@@ -534,6 +542,14 @@ BrokenUIDLPOP3SSLRetriever
      * use_apop (boolean) — see SimplePOP3Retriever for definition.
      * keyfile (string) — see SSL Client Parameters for definition.
      * certfile (string) — see SSL Client Parameters for definition.
+     * ca_certs (string) — see SSL Certificate Validation and Server
+       Parameters for definition
+     * ssl_ciphers (string) — see SSL Certificate Validation and Server
+       Parameters for definition
+     * ssl_version (string) — see SSL Certificate Validation and Server
+       Parameters for definition
+     * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
+       Validation and Server Parameters for definition
 
 SimpleIMAPSSLRetriever
 
@@ -580,6 +596,14 @@ MultidropPOP3SSLRetriever
      * use_apop (boolean) — see SimplePOP3Retriever for definition.
      * keyfile (string) — see SSL Client Parameters for definition.
      * certfile (string) — see SSL Client Parameters for definition.
+     * ca_certs (string) — see SSL Certificate Validation and Server
+       Parameters for definition
+     * ssl_ciphers (string) — see SSL Certificate Validation and Server
+       Parameters for definition
+     * ssl_version (string) — see SSL Certificate Validation and Server
+       Parameters for definition
+     * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
+       Validation and Server Parameters for definition
 
 MultidropSDPSRetriever
 

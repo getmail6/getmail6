@@ -99,6 +99,10 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
         ConfBool(name='delete_dup_msgids', required=False, default=False),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
+        ConfFile(name='ca_certs', required=False, default=None),
+        ConfTupleOfStrings(name='ssl_fingerprints', required=False, default=()),
+        ConfString(name='ssl_version', required=False, default=None),
+        ConfString(name='ssl_ciphers', required=False, default=None),
     )
     received_from = None
     received_with = 'POP3-SSL'
@@ -200,6 +204,10 @@ class BrokenUIDLPOP3SSLRetriever(BrokenUIDLPOP3RetrieverBase, POP3SSLinitMixIn):
         ConfBool(name='use_apop', required=False, default=False),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
+        ConfFile(name='ca_certs', required=False, default=None),
+        ConfTupleOfStrings(name='ssl_fingerprints', required=False, default=()),
+        ConfString(name='ssl_version', required=False, default=None),
+        ConfString(name='ssl_ciphers', required=False, default=None),
     )
     received_with = 'POP3-SSL'
 
@@ -266,6 +274,10 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
         ConfString(name='envelope_recipient'),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
+        ConfFile(name='ca_certs', required=False, default=None),
+        ConfTupleOfStrings(name='ssl_fingerprints', required=False, default=()),
+        ConfString(name='ssl_version', required=False, default=None),
+        ConfString(name='ssl_ciphers', required=False, default=None),
     )
     received_from = None
     received_with = 'POP3-SSL'
