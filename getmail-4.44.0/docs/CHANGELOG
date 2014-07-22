@@ -1,3 +1,11 @@
+Version 4.44.0
+22 March 2014
+    -add extended SSL options for IMAP retrievers, allowing certificate 
+    verification and other features.  Thanks: Steven Murdoch.
+    -fix missing plaintext versions of documentation.  Thanks: Osamu Aoki.
+    -fix "Header instance has no attribute 'strip'" error which cropped up
+    in some configurations.  Thanks: Krzysztof Warzecha.
+
 Version 4.43.0
 25 August 2013
     -add IMAP IDLE support.  Thanks: Jon Gjengset.

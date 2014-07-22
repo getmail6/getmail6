@@ -1,0 +1,270 @@
+   Link: Contents Up Index: Charles Cazabon's Software
+
+                             getmail documentation
+
+   This is the documentation for getmail version 4. Version 4 includes
+   numerous changes from version 3.x; if you are using getmail version 3,
+   please refer to the documentation included with that version of the
+   software.
+
+   getmail is Copyright (c) 1998-2009 Charles Cazabon.
+
+   getmail is licensed under the GNU General Public License version 2 (only).
+   If you wish to obtain a license to distribute getmail under other terms,
+   please contact me directly.
+
+                            Troubleshooting problems
+
+   This section of the documentation is to be added to as getmail version 4
+   progresses through beta testing to release state. If you have suggestions
+   for additions or changes to this documentation, please send them to the
+   mailing list or me.
+
+Error messages
+
+   getmail may output various diagnostic error messages. The common ones and
+   their meanings are given below.
+
+  ImportError: getmail version 4 requires Python version 2.3.3 or later
+
+   You tried to run getmail 4 with a version of Python prior to Python 2.3.3.
+   This is unsupported. If you cannot install a newer Python alongside your
+   current version, please use getmail version 3, which supports Python 1.5.2
+   and later.
+
+  Configuration error: ...
+
+   getmail detected an error in your configuration. Check your getmail rc
+   file(s). getmail will do its best to point out the exact cause of the
+   error. Some of the specific errors it may find include the following.
+
+    Configuration error: missing required configuration parameter name
+
+   A class object in your getmail rc file requires the parameter name, but it
+   was not found in the appropriate section of the file.
+
+    Configuration error: configuration value name (value) not of required type
+    type (why)
+
+   The configuration parameter name must be of type type, but the supplied
+   value value does not appear to be of that type. Further information may be
+   present in why.
+
+   The getmail documentation contains descriptions of the syntax for each
+   parameter type.
+
+    Configuration error: maildir path missing trailing /
+
+   Maildir paths must start with dot or slash and end with a slash.
+
+    Configuration error: not a maildir (path)
+
+   The specified maildir path path does not appear to be a valid maildir.
+   Check to ensure that it is a valid maildir, and that getmail has
+   permission to write to it.
+
+    Configuration error: ... (path: maildir subdirectory "path" does not exist)
+
+   The specified maildir path path does not appear to be a valid maildir, as
+   it is missing one of the required subdirectories. Check to ensure that it
+   is a valid maildir and that getmail has permission to write to it.
+
+    Configuration error: not an mboxrd file (path)
+
+   The specified mboxrd path path does not appear to be a valid mboxrd file.
+   To avoid corrupting files in the event of a user typo, getmail will not
+   deliver messages to files that do not appear to be valid mboxrd files.
+
+    Configuration error: mboxrd does not exist
+
+   The specified mboxrd does not exist. getmail will not create mbox files;
+   ensure they exist before trying to deliver to them.
+
+    Configuration error: the fieldname header field does not record the envelope
+    recipient address
+
+   In a multidrop retriever configuration, you specified that the envelope
+   recipient was recorded in a header field that getmail knows does not
+   actually record that information.
+
+    Configuration error: refuse to invoke external commands as root or GID 0 by
+    default
+
+   By default, getmail will not invoke external commands (in destinations or
+   filters) when it is running with root privileges, for security reasons.
+   See the documenation for possible solutions.
+
+    Configuration error: no such command path
+
+   An external command was specified as being located at path path, but the
+   command executable was not found at that location.
+
+    Configuration error: path not executable
+
+   A specified external command at path path was found to not be an
+   executable file.
+
+    Configuration error: destination specifies section name section which does
+    not exist
+
+   A destination in the getmail rc file refers to another rc file section
+   named section, but that section was not found in the file.
+
+  Retrieval error ...
+
+   getmail detected an error while trying to retrieve a message. Some of the
+   specific errors it may find include the following.
+
+    Retrieval error: server ... is broken; ...
+
+   The server claimed to have a particular message, but when getmail tried to
+   retrieve it, the server returned an empty response in violation of the POP
+   or IMAP protocol. getmail will skip on to the next message.
+
+   This problem is almost always with an MSExchange server, and is due to
+   bugs in MSExchange. Delete the offending message from the mailbox via the
+   webmail interface if you don't want to see this error message, and report
+   the bug to the server administrator or Microsoft.
+
+  Delivery error ...
+
+   getmail detected an error after retrieving a message but before delivery
+   was successfully completed. Some of the specific errors it may find
+   include the following.
+
+    Delivery error: maildir delivery process failed (refuse to deliver mail as
+    root)
+
+   getmail will not deliver to a maildir as the root user. You may specify an
+   alternate user to deliver as with the user directive in the destination
+   section of your getmailrc file, or let getmail default to the user who is
+   the owner of the maildir.
+
+    Delivery error: mbox delivery process failed (refuse to deliver mail as
+    root)
+
+   getmail will not deliver to an mbox file as the root user. You may specify
+   an alternate user to deliver as with the user directive in the destination
+   section of your getmailrc file, or let getmail default to the user who is
+   the owner of the mbox file.
+
+    Delivery error: mbox delivery process failed (not an mboxrd file)
+
+   The specified mbox file does not appear to be a valid mbox file.
+
+  Error: ...
+
+   getmail detected an operational error. getmail will do its best to point
+   out the exact cause of the error. Common causes are failures to connect to
+   a remote mail server, timeouts during network operations, and other
+   transient failures.
+
+    Error: server-info does not uniquely identify messages ...
+
+   The POP3 server for this particular account was not able to uniquely
+   identify the messages in the mailstore. You can use the
+   BrokenUIDLPOP3Retriever class with this server instead, but functionality
+   is limited because of the inability to identify messages properly.
+
+    Error: server-info failed to identify message X in UIDL output ...
+
+   The POP3 server for this particular account completely failed to identify
+   one of the messages in the mailstore when the UIDL command was issued. The
+   POP server is in violation of the POP3 protocol, and getmail has no way to
+   identify the message in question.
+
+   The most common cause of this is servers that use the contents of the
+   Message-ID: header field as the UIDL value for the message - some messages
+   (usually spam) lack a Message-ID: header field entirely, causing these
+   servers to emit blank UIDL values for these messages, which is not
+   permitted by the POP3 protocol. You may be able to work around the problem
+   by deleting the problematic message(s) from the mailstore by other means
+   (such as a webmail interface provided by your POP3 mailhost).
+
+   Otherwise, you'll need to either ask the postmaster of the POP3 mail host
+   to fix the POP3 software they're using. In the meantime, you can use the
+   BrokenUIDLPOP3Retriever class with this server instead, but functionality
+   is limited because of the inability to identify messages properly.
+
+    Python(...) malloc: *** mmap(...) failed (...)
+
+   ... followed by an Unhandled exception block and then MemoryError.
+
+   getmail ran out of memory, usually due to a bug in Python's IMAP library
+   which was fixed in early 2008.
+
+   If you are using IMAP and run into this problem retrieving messages that
+   aren't hundreds of megabytes in size, you can almost certainly fix it by
+   upgrading your Python installation to the latest 2.5.x or 2.6.x release.
+   Note that if you switch from Python 2.5.x to Python 2.6.x, you'll need to
+   re-install getmail with python setup.py install from the getmail source
+   directory.
+
+Warning messages
+
+   getmail may output various diagnostic warning messages. The common ones
+   and their meanings are given below.
+
+  Warning: ...
+
+   getmail detected a condition which might be problematic. Some of the
+   specific warnings it may find include the following.
+
+    Warning: ignoring unknown parameter "parameter_name"
+
+   A getmail rc file contained an unknown parameter. This usually indicates
+   that you've put the parameter in the wrong section of the file (such as
+   putting the read_all parameter in the [retriever] section instead of in
+   the [options] section).
+
+    Warning: filter filter returned fewer headers (X) than supplied (Y)
+
+   A message filter appeared to incorrectly remove header fields from the
+   header of a message which it handled. getmail warns you about this so that
+   you can check your filter for proper operation. Filters should add
+   information to the message header or leave it alone; check the
+   configuration for the filter program you are using.
+
+Unexpected Behaviour
+
+   If getmail is behaving in a manner other that you expected, see the
+   following sections.
+
+  getmail uses the wrong hostname for my machine
+
+   If getmail records a hostname other than the "right" one for your host (in
+   its Received: trace header fields), check your /etc/hosts file and make
+   sure the "right" name is the first hostname listed for any of the
+   addresses of the machine.
+
+  getmail puts "unknown" in the Delivered-To: or Return-Path:header field
+
+   getmail records the envelope recipient address in the Delivered-To: header
+   field, and the envelope sender in the Return-Path: header field. If this
+   information is not available (because you're not using a multidrop
+   retriever class, or the MTA on the POP/IMAP server is broken, for
+   example), getmail uses the string "unknown". You can disable the creation
+   of the Delivered-To: header field if you wish.
+
+  getmail isn't replacing my command argument "%(recipient)" with the message
+  recipient address
+
+   The %(recipient), %(local), and %(domain) replacement strings are only
+   replaced if the message is retrieved with a multidrop retriever class;
+   otherwise, getmail does not "know" the recipient address of the message,
+   and therefore cannot perform this replacement.
+
+  getmail seems to take longer than expected to initialize
+
+   If getmail takes more than a few seconds to initialize, run the following
+   command to test:
+
+ python -c "import socket; print socket.getfqdn()"
+
+   If this seems to take a similarly long period of time to complete, the
+   delay is in finding the fully-qualified hostname of your system. The fix
+   is to ensure you have a valid mapping of address-to-hostname for all the
+   addresses in your system. You can do this in your /etc/hosts file, in your
+   authoritative content DNS server, or in another system-specific manner -
+   please contact your OS vendor (or its public support mailing list) for
+   assistance.

@@ -74,6 +74,8 @@
                     <ul>
                     <li><a href="configuration.html#conf-retriever-multidrop">What is a &quot;multidrop&quot; mailbox?  How do I know if I have one?</a></li>
                     <li><a href="configuration.html#retriever-parameters">Common retriever parameters</a></li>
+                    <li><a href="configuration.html#retriever-ssl-client">SSL Client Parameters</a></li>
+                    <li><a href="configuration.html#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a></li>
                     <li><a href="configuration.html#retriever-simplepop3">SimplePOP3Retriever</a></li>
                     <li><a href="configuration.html#retriever-brokenpop3">BrokenUIDLPOP3Retriever</a></li>
                     <li><a href="configuration.html#retriever-simpleimap">SimpleIMAPRetriever</a></li>
@@ -630,6 +632,105 @@ mailboxes = ALL
     </li>
 </ul>
 
+<h4 id="retriever-ssl-client">SSL Client Parameters</h4>
+<p>
+    All SSL-enabled retriever types also take the following options, to allow
+    specifying the use of a particular client key and client certificate
+    in establishing a connection to the server.
+</p>
+<ul>
+    <li>
+        keyfile
+        (<a href="#parameter-string">string</a>)
+        &mdash; use the specified PEM-formatted key file in the SSL negotiation.
+    </li>
+    <li>
+        certfile
+        (<a href="#parameter-string">string</a>)
+        &mdash; use the specified PEM-formatted certificate file in the SSL
+        negotiation.
+    </li>
+</ul>
+
+<h4 id="retriever-ssl-extra">SSL Certificate Validation and Server Parameters</h4>
+<p>
+    All SSL-enabled IMAP retriever types also take the following options, allowing
+    you to require validation of the server's SSL certificate, or to check the
+    server's certificate fingerprint against a known good value, or to control
+    the specific SSL cipher used during the connection.
+</p>
+<p>
+    <strong>Note: using these features, including server certificate validation,
+    requires using Python 2.6 or Python 2.7 or higher with getmail.</strong>
+    If you use an earlier version of Python, these features will not work, and
+    no server certificate validation will be performed.
+    Also note that these features are not currently implemented for POP3 or
+    SPDS retrievers; I would be interested in hearing from POP3 users who desire
+    these features.
+</p>
+<ul>
+    <li>
+        ca_certs
+        (<a href="#parameter-string">string</a>)
+        &mdash; advanced option to perform validation of the server's SSL 
+        certificate.  Specify the path to a PEM-formatted list of 1 or more 
+        valid and trusted root certification authority (CA) certificates.
+        <strong>Note: this option is only available with Python 2.6 or higher.</strong>
+        <br />
+        To find out which root CA is used to sign the chain of certificates for
+        a given server, you can run 
+        <pre class="example">
+openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
+  | grep '^[[:space:]]*i:' | tail -n 1
+</pre>
+        If the server's certificate cannot be validated based upon the supplied
+        trusted root certificates, getmail will abort the connection.
+        <br />
+        Root certificates are not supplied with getmail; your OS probably installs a set 
+        by default for use by the system.  Common locations for OS-supplied SSL root
+        certification authority certificates include:
+        <ul>
+            <li>Linux (Debian, Ubuntu, Arch, SuSE): <pre class="file">/etc/ssl/certs/</pre></li>
+            <li>Linux (RedHat, Fedora, CentOS): <pre class="file">/etc/pki/tls/certs/</pre></li>
+            <li>FreeBSD: <pre class="file">/usr/local/share/certs/</pre></li>
+            <li>OpenBSD: <pre class="file">/etc/ssl/</pre></li>
+            <li>OSX: <pre class="file">/System/Library/OpenSSL/certs/</pre></li>
+            <li>Windows: ask Microsoft</li>
+        </ul>
+    </li>
+    <li>
+        ssl_ciphers
+        (<a href="#parameter-string">string</a>)
+        &mdash; advanced option to control which SSL cipher algorithms will be 
+        allowed to proceed.  See the 
+        <a href="http://www.openssl.org/docs/apps/ciphers.html">Open SSL documentation</a>
+        for details.
+        If the specified setting results in no possible ciphers available,
+        getmail will abort the connection.
+        <strong>Note: this option is only available with Python 2.7 or higher.</strong>
+    </li>
+    <li>
+        ssl_version
+        (<a href="#parameter-string">string</a>)
+        &mdash; advanced option to control which SSL version getmail tries to
+        use to connect to the server; the default is &quot;sslv23&quot;.  Another
+        useful value is probably &quot;sslv3&quot;.  The available option values
+        are taken from the Python ssl module.
+        <strong>Note: this option is only available with Python 2.6 or higher.</strong>
+    </li>
+    <li>
+        ssl_fingerprints
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
+        &mdash; advanced option to notice when the server's SSL certificate
+        changes.  Supply a list of one or more SHA256 certificate fingerprints, 
+        and getmail will confirm whether the server's certificate fingerprint is
+        in the list of allowed fingerprints; if it is not, getmail will abort 
+        the connection.  Getmail will log the fingerprint of the server's certificate
+        if you supply the <span class="file">--fingerprint</span> commandline option.
+        <strong>Note: this option is only available with Python 2.6 or higher.</strong>
+    </li>
+</ul>
+
 <h4 id="retriever-simplepop3">SimplePOP3Retriever</h4>
 <p>
     The SimplePOP3Retriever class takes the
@@ -741,18 +842,6 @@ mailboxes = ALL
         <a href="#retriever-simplepop3">SimplePOP3Retriever</a>
         for definition.
     </li>
-    <li>
-        keyfile
-        (<a href="#parameter-string">string</a>)
-        &mdash; use the specified PEM-formatted key file in the SSL negotiation.
-        Note that no certificate or key validation is done.
-    </li>
-    <li>
-        certfile
-        (<a href="#parameter-string">string</a>)
-        &mdash; use the specified PEM-formatted certificate file in the SSL
-        negotiation.  Note that no certificate or key validation is done.
-    </li>
 </ul>
 
 <h4 id="retriever-brokenpop3ssl">BrokenUIDLPOP3SSLRetriever</h4>
@@ -773,14 +862,14 @@ mailboxes = ALL
         keyfile
         (<a href="#parameter-string">string</a>)
         &mdash; see
-        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
     </li>
     <li>
         certfile
         (<a href="#parameter-string">string</a>)
         &mdash; see
-        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
     </li>
 </ul>
@@ -810,15 +899,39 @@ mailboxes = ALL
         keyfile
         (<a href="#parameter-string">string</a>)
         &mdash; see
-        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
     </li>
     <li>
         certfile
         (<a href="#parameter-string">string</a>)
         &mdash; see
-        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
+    </li>
+    <li>
+        ca_certs
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_ciphers
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_version
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_fingerprints
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
     </li>
 </ul>
 
@@ -896,14 +1009,14 @@ envelope_recipient = delivered-to:1
         keyfile
         (<a href="#parameter-string">string</a>)
         &mdash; see
-        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
     </li>
     <li>
         certfile
         (<a href="#parameter-string">string</a>)
         &mdash; see
-        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
     </li>
 </ul>
@@ -1005,15 +1118,39 @@ envelope_recipient = delivered-to:1
         keyfile
         (<a href="#parameter-string">string</a>)
         &mdash; see
-        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
     </li>
     <li>
         certfile
         (<a href="#parameter-string">string</a>)
         &mdash; see
-        <a href="#retriever-simplepop3ssl">SimplePOP3SSLRetriever</a>
+        <a href="#retriever-ssl-client">SSL Client Parameters</a>
         for definition.
+    </li>
+    <li>
+        ca_certs
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_ciphers
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_version
+        (<a href="#parameter-string">string</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
+    </li>
+    <li>
+        ssl_fingerprints
+        (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        for definition
     </li>
 </ul>
 
@@ -2732,7 +2869,7 @@ type = Filter_TMDA
 <p>
     If you are using a single getmailrc file with an IMAP server that understands 
     the IDLE extension from <a href="http://www.rfc-editor.org/rfc/rfc2177.txt">RFC 2177</a>,
-    you can use the --rcfile=<span class="meta">MAILBOX</span> option to specify
+    you can use the --idle=<span class="meta">MAILBOX</span> option to specify
     that getmail should wait on the server to notify getmail of new mail in the
     specified mailbox after getmail is finished retrieving mail.
 </p>

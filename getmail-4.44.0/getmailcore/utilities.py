@@ -9,6 +9,10 @@ __all__ = [
     'decode_crappy_text',
     'format_header',
     'check_ssl_key_and_cert',
+    'check_ca_certs',
+    'check_ssl_version',
+    'check_ssl_fingerprints',
+    'check_ssl_ciphers',
     'deliver_maildir',
     'eval_bool',
     'expand_user_vars',
@@ -39,6 +43,18 @@ import pwd
 import grp
 import getpass
 import commands
+import sys
+
+# hashlib only present in python2.5, ssl in python2.6; used together
+# in SSL functionality below
+try:
+    import ssl
+except ImportError:
+    ssl = None
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
 
 # Optional gnome-keyring integration
 try:
@@ -509,6 +525,83 @@ def check_ssl_key_and_cert(conf):
         )
     return (keyfile, certfile)
 
+#######################################
+def check_ca_certs(conf):
+    ca_certs = conf['ca_certs']
+    if ca_certs is not None:
+        ca_certs = expand_user_vars(ca_certs)
+        if ssl is None:
+            raise getmailConfigurationError(
+                'specifying ca_certs not supported by this installation of '
+                'Python; requires Python 2.6'
+            )
+    if ca_certs and not os.path.isfile(ca_certs):
+        raise getmailConfigurationError(
+            'optional ca_certs must be path to a valid file'
+        )
+    return ca_certs
+
+#######################################
+def check_ssl_version(conf):
+    ssl_version = conf['ssl_version']
+    if ssl_version is None:
+        return None
+    if ssl is None:
+        raise getmailConfigurationError(
+            'specifying ssl_version not supported by this installation of '
+            'Python; requires Python 2.6'
+        )
+    ssl_version = ssl_version.lower()
+    if ssl_version == 'sslv23':
+        return ssl.PROTOCOL_SSLv23
+    elif ssl_version == 'sslv3':
+        return ssl.PROTOCOL_SSLv3
+    elif ssl_version == 'tlsv1':
+        return ssl.PROTOCOL_TLSv1
+    elif ssl_version == 'tlsv1_1' and 'PROTOCOL_TLSv1_1' in dir(ssl):
+        return ssl.PROTOCOL_TLSv1_1
+    elif ssl_version == 'tlsv1_2' and 'PROTOCOL_TLSv1_2' in dir(ssl):
+        return ssl.PROTOCOL_TLSv1_2
+    else:
+        raise getmailConfigurationError(
+            'unknown or unsupported ssl_version'
+        )
+
+#######################################
+def check_ssl_fingerprints(conf):
+    ssl_fingerprints = conf['ssl_fingerprints']
+    if ssl_fingerprints is ():
+        return ()
+    if ssl is None or hashlib is None:
+        raise getmailConfigurationError(
+            'specifying ssl_fingerprints not supported by this installation of '
+            'Python; requires Python 2.6'
+        )
+
+    normalized_fprs = []
+    for fpr in ssl_fingerprints:
+        fpr = fpr.lower().replace(':','')
+        if len(fpr) != 64:
+            raise getmailConfigurationError(
+                'ssl_fingerprints must each be the SHA256 certificate hash in hex (with or without colons)'
+            )
+        normalized_fprs.append(fpr)
+    return normalized_fprs
+
+#######################################
+def check_ssl_ciphers(conf):
+    ssl_ciphers = conf['ssl_ciphers']
+    if ssl_ciphers:
+        if sys.version_info < (2, 7, 0):
+            raise getmailConfigurationError(
+                'specifying ssl_ciphers not supported by this installation of '
+                'Python; requires Python 2.7'
+            )
+        if re.search(r'[^a-zA-z0-9, :!\-+@]', ssl_ciphers):
+            raise getmailConfigurationError(
+                'invalid character in ssl_ciphers'
+            )
+    return ssl_ciphers
 
 #######################################
 keychain_password = None

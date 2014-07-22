@@ -53,6 +53,23 @@ try:
 except ImportError:
     pass
 
+# hashlib only present in python2.5, ssl in python2.6; used together
+# in SSL functionality below
+try:
+    import ssl
+except ImportError:
+    ssl = None
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+
+try:
+    from email.header import decode_header
+except ImportError, o:
+    # python < 2.5
+    from email.Header import decode_header
+
 from getmailcore.compatibility import *
 from getmailcore.exceptions import *
 from getmailcore.constants import *
@@ -259,6 +276,35 @@ class IMAPinitMixIn(object):
                        + os.linesep)
 
 
+#######################################
+class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
+    # Similar to above, but with extended support for SSL certificate checking,
+    # fingerprints, etc.
+    def __init__(self, host='', port=imaplib.IMAP4_SSL_PORT, keyfile=None, 
+                 certfile=None, ssl_version=None, ca_certs=None, 
+                 ssl_ciphers=None):
+       self.ssl_version = ssl_version
+       self.ca_certs = ca_certs
+       self.ssl_ciphers = ssl_ciphers
+       imaplib.IMAP4_SSL.__init__(self, host, port, keyfile, certfile)
+
+    def open(self, host='', port=imaplib.IMAP4_SSL_PORT):
+       self.host = host
+       self.port = port
+       self.sock = socket.create_connection((host, port))
+       extra_args = {}
+       if self.ssl_version:
+           extra_args['ssl_version'] = self.ssl_version
+       if self.ca_certs:
+           extra_args['cert_reqs'] = ssl.CERT_REQUIRED
+           extra_args['ca_certs'] = self.ca_certs
+       if self.ssl_ciphers:
+           extra_args['ciphers'] = self.ssl_ciphers
+
+       self.sslobj = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, 
+                                     **extra_args)
+       self.file = self.sslobj.makefile('rb')
+
 
 #######################################
 class IMAPSSLinitMixIn(object):
@@ -272,8 +318,39 @@ class IMAPSSLinitMixIn(object):
                 'SSL not supported by this installation of Python'
             )
         (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
+        ca_certs = check_ca_certs(self.conf)
+        ssl_version = check_ssl_version(self.conf)
+        ssl_fingerprints = check_ssl_fingerprints(self.conf)
+        ssl_ciphers = check_ssl_ciphers(self.conf)
+        using_extended_certs_interface = False
         try:
-            if keyfile:
+            if ca_certs or ssl_version or ssl_ciphers:
+                using_extended_certs_interface = True
+                # Python 2.6 or higher required, use above class instead of
+                # vanilla stdlib one
+                msg = ''
+                if keyfile:
+                    msg += 'with keyfile %s, certfile %s' % (keyfile, certfile)
+                if ssl_version:
+                    if msg:
+                        msg += ', '
+                    msg += ('using protocol version %s' 
+                            % self.conf['ssl_version'].upper())
+                if ca_certs:
+                    if msg:
+                        msg += ', '
+                    msg += 'with ca_certs %s' % ca_certs
+
+                self.log.trace(
+                    'establishing IMAP SSL connection to %s:%d %s'
+                    % (self.conf['server'], self.conf['port'], msg)
+                    + os.linesep
+                )
+                self.conn = IMAP4_SSL_EXTENDED(
+                    self.conf['server'], self.conf['port'], keyfile, certfile, 
+                    ssl_version, ca_certs, ssl_ciphers
+                )
+            elif keyfile:
                 self.log.trace(
                     'establishing IMAP SSL connection to %s:%d with keyfile '
                     '%s, certfile %s'
@@ -292,6 +369,36 @@ class IMAPSSLinitMixIn(object):
                 self.conn = imaplib.IMAP4_SSL(self.conf['server'],
                                               self.conf['port'])
             self.setup_received(self.conn.sock)
+            if ssl and hashlib:
+                sslobj = self.conn.ssl()
+                peercert = sslobj.getpeercert(True)
+                ssl_cipher = sslobj.cipher()
+                if ssl_cipher:
+                    ssl_cipher = '%s:%s:%s' % ssl_cipher
+                if not peercert:
+                    actual_hash = None
+                else:
+                    actual_hash = hashlib.sha256(peercert).hexdigest().lower()
+            else:
+                actual_hash = None
+                ssl_cipher = None
+
+            if ssl_fingerprints:
+                if not actual_hash:
+                    raise getmailOperationError(
+                        'socket ssl_fingerprints mismatch (no cert provided)'
+                    )
+
+                any_matches = False
+                for expected_hash in ssl_fingerprints:
+                    if expected_hash == actual_hash:
+                        any_matches = True
+                if not any_matches:
+                    raise getmailOperationError(
+                        'socket ssl_fingerprints mismatch (got %s)' 
+                        % actual_hash
+                    )
+
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
@@ -311,14 +418,25 @@ class IMAPSSLinitMixIn(object):
                     % (self.conf['server'], o)
                 )
             else:
-                raise getmailOperationError('socket error during connect (%s)' % o)
+                raise getmailOperationError('socket error during connect (%s)' 
+                                            % o)
         except socket.sslerror, o:
             raise getmailOperationError(
                 'socket sslerror during connect (%s)' % o
             )
 
-        self.log.trace('IMAP SSL connection %s established' % self.conn
-                       + os.linesep)
+        fingerprint_message = ('IMAP SSL connection %s established'
+                               % self.conn)
+        if actual_hash:
+            fingerprint_message += ' with fingerprint %s' % actual_hash
+        if ssl_cipher:
+            fingerprint_message += ' using cipher %s' % ssl_cipher
+        fingerprint_message += os.linesep
+
+        if self.app_options['fingerprint']:
+            self.log.info(fingerprint_message)
+        else:
+            self.log.trace(fingerprint_message)
 
 #
 # Base classes
@@ -1006,18 +1124,33 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                                             % g['mailbox'])
         return mailboxes
 
+    def close_mailbox(self):
+        # Close current mailbox so deleted mail is expunged.  One getmail
+        # user had a buggy IMAP server that didn't do the automatic expunge,
+        # so we do it explicitly here.
+        self.conn.expunge()
+        self.conn.close()
+        self.write_oldmailfile(self.mailbox_selected)
+        # And clear some state
+        self.mailbox_selected = False
+        self.mailbox = None
+        self.uidvalidity = None
+        self.msgnum_by_msgid = {}
+        self.msgid_by_msgnum = {}
+        self.sorted_msgnum_msgid = ()
+        self._mboxuids = {}
+        self._mboxuidorder = []
+        self.msgsizes = {}
+        self.oldmail = {}
+        self.__delivered = {}
+
     def select_mailbox(self, mailbox):
         self.log.trace()
         assert mailbox in self.mailboxes, (
             'mailbox not in config (%s)' % mailbox
         )
         if self.mailbox_selected is not False:
-            # Close current mailbox so deleted mail is expunged.
-            # Except one user reports that an explicit expunge is needed with 
-            # his server, or else the mail is never removed from the mailbox.
-            self.conn.expunge()
-            self.conn.close()
-            self.write_oldmailfile(self.mailbox_selected)
+            self.close_mailbox()
 
         self._clear_state()
 
@@ -1281,6 +1414,17 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                                    + os.linesep)
                     del self.oldmail[msgid]
             """
+            # Some IMAP servers change the available capabilities after 
+            # authentication, i.e. they present a limited set before login.
+            # The Python stlib IMAP4 class doesn't take this into account
+            # and just checks the capabilities immediately after connecting.
+            # Force a re-check now that we've authenticated.
+            (typ, dat) = self.conn.capability()
+            if dat == [None]:
+                # No response, don't update the stored capabilities
+                self.log.warn('no post-login CAPABILITY response from server\n')
+            else:
+                self.conn.capabilities = tuple(dat[-1].upper().split())
 
             if 'IDLE' in self.conn.capabilities:
                 self.supports_idle = True
@@ -1304,7 +1448,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             pass
         self.conn = None
 
-    def go_idle(self, folder, timeout=29*60):
+    def go_idle(self, folder, timeout=300):
         """Initiates IMAP's IDLE mode if the server supports it
 
         Waits until state of current mailbox changes, and then returns. Returns
@@ -1313,11 +1457,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         May throw getmailOperationError if the server refuses the IDLE setup
         (e.g. if the server does not support IDLE)
 
-        Default timeout is the maximum possible idle time according to RFC 2177.
+        Default timeout is 5 minutes.
         """
 
         if not self.supports_idle:
-            self.log.warning('IDLE not supported, so not idling')
+            self.log.warning('IDLE not supported, so not idling\n')
             raise getmailOperationError(
                 'IMAP4 IDLE requested, but not supported by server'
             )
@@ -1376,12 +1520,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             return
         try:
             if self.mailbox_selected is not False:
-                # Close current mailbox so deleted mail is expunged.
-                # Except one user reports that an explicit expunge is needed 
-                # with his server, or else the mail is never removed from the 
-                # mailbox.
-                self.conn.expunge()
-                self.conn.close()
+                self.close_mailbox()
             self.conn.logout()
         except imaplib.IMAP4.error, o:
             #raise getmailOperationError('IMAP error (%s)' % o)
@@ -1431,13 +1570,14 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         self.log.trace()
         msg = IMAPRetrieverBase._getmsgbyid(self, msgid)
         data = {}
-        for (name, val) in msg.headers():
+        for (name, encoded_value) in msg.headers():
             name = name.lower()
-            val = val.strip()
-            if name in data:
-                data[name].append(val)
-            else:
-                data[name] = [val]
+            for (val, encoding) in decode_header(encoded_value):
+                val = val.strip()
+                if name in data:
+                    data[name].append(val)
+                else:
+                    data[name] = [val]
 
         try:
             line = data[self.envrecipname][self.envrecipnum]

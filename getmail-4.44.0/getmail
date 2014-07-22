@@ -34,6 +34,7 @@ options_bool = (
     'received',
     'message_log_verbose',
     'message_log_syslog',
+    'fingerprint',
 )
 options_int = (
     'delete_after',
@@ -85,6 +86,7 @@ defaults = {
     'message_log_verbose' : False,
     'message_log_syslog' : False,
     'logfile' : None,
+    'fingerprint' : False,
 }
 
 
@@ -393,11 +395,13 @@ def go(configs, idle):
         log.debug('retriever %s finished\n' % retriever)
         try:
             if idle and not retriever.supports_idle:
-                log.info('--idle given, but chosen retriever does not support'
-                        'IDLE\n')
+                log.info('--idle given, but retriever does not support IDLE\n')
+                idle = False
+            if idle and sys.version < (2, 5, 0):
+                log.info('--idle requires Python 2.5 or higher\n')
                 idle = False
 
-            if not errorexit and idle:
+            if idle and not errorexit:
                 # TODO
                 # Okay, so what should really happen here is that when go_idle
                 # returns, getmail should use the *existing* connection to check
@@ -414,8 +418,12 @@ def go(configs, idle):
                 # value of idling, a failed connection will cause it to become
                 # False, which will make the main go() loop reconnect, which is
                 # what we want.
+                # Expunge and close the mailbox to  prevent the same messages
+                # being pulled again in some configurations.
+                retriever.close_mailbox()
                 try:
                     idling = retriever.go_idle(idle)
+                    # Returned from idle
                     configs.append(configs[0])
                     continue
                 except KeyboardInterrupt, o:
@@ -491,6 +499,11 @@ def main():
             '-v', '--verbose',
             dest='override_verbose', action='count',
             help='operate more verbosely (may be given multiple times)'
+        )
+        overrides.add_option(
+            '--fingerprint',
+            dest='override_fingerprint', action='store_true',
+            help='show SSL/TLS fingerprint and connection information'
         )
         overrides.add_option(
             '-q', '--quiet',
@@ -591,6 +604,7 @@ def main():
                 'message_log' : defaults['message_log'],
                 'message_log_verbose' : defaults['message_log_verbose'],
                 'message_log_syslog' : defaults['message_log_syslog'],
+                'fingerprint' : defaults['fingerprint'],
             }
             # Python's ConfigParser .getboolean() couldn't handle booleans in
             # the defaults. Submitted a patch; they fixed it a different way.
@@ -805,7 +819,7 @@ def main():
                 )
 
             # Apply overrides from commandline
-            for option in ('read_all', 'delete', 'verbose'):
+            for option in ('read_all', 'delete', 'verbose', 'fingerprint'):
                 val = getattr(options, 'override_%s' % option)
                 if val is not None:
                     log.debug('overriding option %s from commandline %s\n'
