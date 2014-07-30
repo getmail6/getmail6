@@ -353,7 +353,11 @@ Common retriever parameters
        Gnome keyring, and exit without retrieving mail. If this option is
        not recognized, your Python installation does not have Gnome
        keyring integration support, or Gnome indicates that the keyring is
-       not available.
+       not available. If using the OSX keychain on 10.9 "Mavericks" (or
+       later, presumably), some additional steps may be necessary to make
+       the password available to getmail via the keychain. See this
+       posting to the getmail users' mailing list by Alan Schmitt for
+       details.
 
    All IMAP retriever types also take the following optional parameters:
      * mailboxes (tuple of quoted strings) — a list of mailbox paths to

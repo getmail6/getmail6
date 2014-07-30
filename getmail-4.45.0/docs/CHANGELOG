@@ -1,3 +1,9 @@
+Version 4.45.0
+30 March 2014
+    -perform hostname-vs-certificate matching of SSL certificate if validating
+    the certifcate.  Thanks: "mancha".
+    -fix missing plaintext versions of documentation.
+
 Version 4.44.0
 22 March 2014
     -add extended SSL options for IMAP retrievers, allowing certificate 
