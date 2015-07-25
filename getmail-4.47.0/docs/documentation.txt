@@ -403,7 +403,6 @@ How to post
 Archives of the getmail-users' mailing list
 
    There are browsable archives of the list at
-   http://marc.theaimsgroup.com/?l=getmail&r=1&w=2 and
    http://news.gmane.org/gmane.mail.getmail.user . The GMANE getmail
    users' archive is also available via NNTP if you prefer to read it with
    a newsreader, rather than a web browser.

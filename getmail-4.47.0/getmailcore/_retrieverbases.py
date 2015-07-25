@@ -733,7 +733,7 @@ class RetrieverSkeleton(ConfigurableBase):
     def __init__(self, **args):
         self.headercache = {}
         self.deleted = {}
-        self.timestamp = int(time.time())
+        self.set_new_timestamp()
         self.__oldmail_written = False
         self.__initialized = False
         self.gotmsglist = False
@@ -741,6 +741,9 @@ class RetrieverSkeleton(ConfigurableBase):
         self.conn = None
         self.supports_idle = False
         ConfigurableBase.__init__(self, **args)
+
+    def set_new_timestamp(self):
+        self.timestamp = int(time.time())
 
     def _clear_state(self):
         self.msgnum_by_msgid = {}
@@ -1325,9 +1328,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     raise ValueError
                 name = parts.pop(0).lower()
                 r[name] = parts.pop(0)
-        except (ValueError, IndexError), o:
+        except (ValueError, IndexError, AttributeError), o:
             raise getmailOperationError(
-                'IMAP error (failed to parse UID response line "%s")' % line
+                'IMAP error (failed to parse attr response line "%s": %s)' 
+                % (line, o)
             )
         self.log.trace('got %s' % r + os.linesep)
         return r
@@ -1433,6 +1437,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     'FETCH', '1:%d' % msgcount, '(UID RFC822.SIZE)'
                 )
                 for line in response:
+                    if not line:
+                        # One user had a server that returned a null response
+                        # somehow -- try to just skip.
+                        continue
                     r = self._parse_imapattrresponse(line)
                     # Don't allow / in UIDs we store, as we look for that to 
                     # detect old-style oldmail files.  Can occur with IMAP, at 

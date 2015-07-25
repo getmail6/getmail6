@@ -424,6 +424,7 @@ def go(configs, idle):
                 try:
                     idling = retriever.go_idle(idle)
                     # Returned from idle
+                    retriever.set_new_timestamp()
                     configs.append(configs[0])
                     continue
                 except KeyboardInterrupt, o:

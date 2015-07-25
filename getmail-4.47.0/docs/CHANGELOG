@@ -1,3 +1,14 @@
+Version 4.47.0
+25 February 2015
+    -try to work around pathological breakage in one random POP server 
+    implementation.  Thanks: Michael Thomas Kockmeyer.
+    -remove dead marc.theaimsgroup.com list archive from docs.  Thanks:
+    Miroslav Rovis.
+    -bugfix: if you combined IMAP IDLE mode with delete_after, getmail would, 
+    after remaining connected to the server for the number of days configured,
+    begin deleting messages immediately after retrieval instead of after the
+    configured delay.  Now fixed.  Thanks: Johannes Weißl.
+
 Version 4.46.0
 6 April 2014
     -fix --idle checking Python version incorrectly, resulting in incorrect 
