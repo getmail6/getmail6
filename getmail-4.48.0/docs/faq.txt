@@ -952,11 +952,9 @@ ScanMail
    The paths to the various decompression utilities must be specified in
    this file as well.
 
-   Frankye Fattarelli had additional notes on using ClamAV with getmail in
-   a message to the mailing list that was archived here:
-   http://marc.theaimsgroup.com/?l=getmail&m=109128345509273&w=2 ... but
-   that site is now dead, and I don't know what message it was. You can
-   try finding it in the Gmane archive.
+   See the following mailing list message from Frankye Fattarelli for
+   additional notes on using ClamAV with getmail:
+   https://marc.info/?l=getmail&m=109128345509273&w=2
 
 Getting prettier output from ClamAV
 

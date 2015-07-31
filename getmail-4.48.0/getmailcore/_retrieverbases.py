@@ -233,6 +233,15 @@ EAI_FAIL = getattr(socket, 'EAI_FAIL', NO_OBJ)
 # Constant for POPSSL
 POP3_SSL_PORT = 995
 
+
+# Python added poplib._MAXLINE somewhere along the way.  As far as I can
+# see, it serves no purpose except to introduce bugs into any software
+# using poplib.  Any computer running Python will have at least some megabytes
+# of userspace memory; arbitrarily causing message retrieval to break if any
+# "line" exceeds 2048 bytes is absolutely stupid.
+poplib._MAXLINE = 1 << 20   # 1MB; decrease this if you're running on a VIC-20
+
+
 #
 # Mix-in classes
 #

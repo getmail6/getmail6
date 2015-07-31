@@ -1,3 +1,11 @@
+Version 4.48.0
+31 May 2015
+    -work around brain-damaged change in Python's poplib which causes 
+   message retrieval errors if any line of a message has more than
+   2048 characters in it.
+    -restore link to moved Marc mailing list archive.  Thanks:  
+    David J. Weller-Fahy.
+
 Version 4.47.0
 25 February 2015
     -try to work around pathological breakage in one random POP server 
