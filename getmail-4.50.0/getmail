@@ -159,14 +159,15 @@ def go(configs, idle):
             for mailbox in retriever.mailboxes:
                 if mailbox:
                     # For POP this is None and uninteresting
-                    log.debug('  checking mailbox %s ...\n' % mailbox)
+                    log.debug('  checking mailbox %s ...\n' 
+                              % mailbox.encode('utf-8'))
                 try:
                     retriever.select_mailbox(mailbox)
                 except getmailMailboxSelectError, o:
                     errorexit = True
                     log.info('  mailbox %s not selectable (%s) - verify the '
                                 'mailbox exists and you have sufficient '
-                                'permissions\n' % (mailbox, o))
+                                'permissions\n' % (mailbox.encode('utf-8'), o))
                     continue
                 nummsgs = len(retriever)
                 fmtlen = len(str(nummsgs))

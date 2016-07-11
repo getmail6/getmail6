@@ -634,9 +634,14 @@ if os.name == 'posix':
                 return None
             password = None
             for line in output.split('\n'):
-                match = re.match(r'password: "([^"]+)"', line)
-                if match:
-                    password = match.group(1)
+                #match = re.match(r'password: "([^"]+)"', line)
+                #if match:
+                #    password = match.group(1)
+                if 'password:' in line:
+                    pw = line.split(':', 1)[1].strip()
+                    if pw.startswith('"') and pw.endswith('"'):
+                        pw = pw[1:-1]
+                    password = pw
             if password is None:
                 logger.debug('No keychain password found for %s %s %s'
                              % (user, server, protocol))
