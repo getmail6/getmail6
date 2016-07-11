@@ -696,7 +696,8 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                     'or GID 0 by default'
                 )
             args = [self.conf['path'], self.conf['path']]
-            msginfo['mailbox'] = self.retriever.mailbox_selected or ''
+            msginfo['mailbox'] = (self.retriever.mailbox_selected 
+                                  or '').encode('utf-8')
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)
                 for (key, value) in msginfo.items():

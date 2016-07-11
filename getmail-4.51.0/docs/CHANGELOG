@@ -1,3 +1,8 @@
+Version 4.51.0
+11 September 2016
+    -fix exception when using MDA_External and an IMAP mailbox whose name 
+    contains non-ASCII chars.  Thanks:  "drtmk".
+
 Version 4.50.0
 11 July 2016
     -maybe fix handling of OSX keychain passwords containing double-quote chars.
