@@ -761,6 +761,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.msgsizes = {}
         self.oldmail = {}
         self.__delivered = {}
+        self.deleted = {}
         self.mailbox_selected = False
         
     def setup_received(self, sock):
@@ -1374,8 +1375,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def close_mailbox(self):
         # Close current mailbox so deleted mail is expunged.  One getmail
         # user had a buggy IMAP server that didn't do the automatic expunge,
-        # so we do it explicitly here.
-        self.conn.expunge()
+        # so we do it explicitly here if we've deleted any messages.
+        if self.deleted:
+            self.conn.expunge()
         self.conn.close()
         self.write_oldmailfile(self.mailbox_selected)
         # And clear some state

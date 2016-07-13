@@ -1,3 +1,9 @@
+Version 4.49.0
+13 January 2016
+    -make IMAP class only issue EXPUNGE command on mailbox close if we have
+    actually deleted any messages from the open mailbox.  Makes use of read-only
+    IMAP folders possible.  Thanks: Zoltan Padrah.
+
 Version 4.48.0
 31 May 2015
     -work around brain-damaged change in Python's poplib which causes 
