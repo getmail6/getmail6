@@ -1496,7 +1496,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 )
             self.log.debug('deleting message "%s"' % uid + os.linesep)
             response = self._parse_imapuidcmdresponse(
-                'STORE', uid, 'FLAGS', '(\Deleted)'
+                'STORE', uid, 'FLAGS', '(\Deleted \Seen)'
             )
         except imaplib.IMAP4.error, o:
             raise getmailOperationError('IMAP error (%s)' % o)

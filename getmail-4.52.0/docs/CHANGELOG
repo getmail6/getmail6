@@ -1,3 +1,21 @@
+Version 4.52.0
+22 October 2016
+    -add `ignore_header_shrinkage` parameter to Filter_external for users who
+    know it is normal for their particular filter to result in a smaller message
+    header than the source message, for example when the filter encapsulates
+    the original message in a simpler wrapper message.  Thanks: "RW", 
+    Tristan Miller, Francesco Ariis.
+    -EXPERIMENTAL: when deleting a message from an IMAP mailbox, set the \Seen 
+    flag in addition to the the \Deleted flag.  This apparently prevents 
+    the ever-innovatively-broken MSExchange from sending a spurious incorrect 
+    disposition-notification message to the sender of the message.  I do not 
+    know if this will cause problems with other broken IMAP server 
+    implementations; please send a report to the getmail-user's mailing list if
+    you see odd behaviour with this change.  Thanks: John Hein.
+    -enable socket timeouts for IMAP SSL classes by default.  They were disabled
+    in the code because they were incompatible with SSL in older versions of 
+    Python.  If you see problems with Python 2.6 or 2.7 now, please let me know.
+    
 Version 4.51.0
 11 September 2016
     -fix exception when using MDA_External and an IMAP mailbox whose name 

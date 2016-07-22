@@ -94,12 +94,13 @@ class FilterSkeleton(ConfigurableBase):
 
         # Check the filter was sane
         if len(newmsg.headers()) < len(msg.headers()):
-            # Warn user
-            self.log.warning(
-                'Warning: filter %s returned fewer headers (%d) than supplied '
-                '(%d)\n'
-                % (self, len(newmsg.headers()), len(msg.headers()))
-            )
+            if not self.conf.get('ignore_header_shrinkage', False):
+                # Warn user
+                self.log.warning(
+                    'Warning: filter %s returned fewer headers (%d) than '
+                        'supplied (%d)\n'
+                    % (self, len(newmsg.headers()), len(msg.headers()))
+                )
 
         # Copy attributes from original message
         newmsg.copyattrs(msg)
@@ -174,6 +175,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
         ConfString(name='user', required=False, default=None),
         ConfString(name='group', required=False, default=None),
         ConfBool(name='allow_root_commands', required=False, default=False),
+        ConfBool(name='ignore_header_shrinkage', required=False, default=False),
         ConfBool(name='ignore_stderr', required=False, default=False),
         ConfInstance(name='configparser', required=False),
     )

@@ -616,8 +616,9 @@ mailboxes = ALL
     <li>
         move_on_delete
         (<a href="#parameter-string">string</a>)
-        &mdash; if set, messages are moved to the named mail folder before being
-        deleted from their original location.  Note that if you configure
+        &mdash; if set, messages are moved to the named IMAP mail folder before 
+        being deleted from their original location.  The specified mail folder
+        must exist; getmail will not create it.  Note that if you configure
         getmail not to delete retrieved messages (the default behaviour), they
         will not be moved at all.
     </li>
@@ -2727,6 +2728,18 @@ message_log = ~/.getmail/log
         &mdash; see
         <a href="#conf-filters-classifier">Filter_classifier</a>
         for definition.
+    </li>
+    <li>
+        ignore_header_shrinkage
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; by default, getmail will warn if a filtered message's header
+        contains fewer fields than the source message had, to warn you if your
+        filter is unexpectedly deleting information from messages it handles.
+        If you know your filter can legitimately produce a message with a 
+        shorter header (such as if it encapsulates the original message), 
+        set this option to disable the warning.  <b>Do not simply set this
+        if you see the warning; you must understand whether your filter is
+        operating correctly or not before you use this</b>.
     </li>
     <li>
         ignore_stderr

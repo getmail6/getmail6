@@ -388,9 +388,10 @@ mailboxes = ALL
        if PEEK is not used to retrieve the message content. Versions of
        getmail prior to 4.26.0 did not use PEEK to retrieve messages.
      * move_on_delete (string) — if set, messages are moved to the named
-       mail folder before being deleted from their original location. Note
-       that if you configure getmail not to delete retrieved messages (the
-       default behaviour), they will not be moved at all.
+       IMAP mail folder before being deleted from their original location.
+       The specified mail folder must exist; getmail will not create it.
+       Note that if you configure getmail not to delete retrieved messages
+       (the default behaviour), they will not be moved at all.
      * use_kerberos (boolean) — whether to use Kerberos authentication
        with the IMAP server. If not set, normal password-based
        authenticaion is used. Note that when you use Kerberos
@@ -1438,6 +1439,15 @@ Filter_external
      * group (string) — see Filter_classifier for definition.
      * allow_root_commands (boolean) — see Filter_classifier for
        definition.
+     * ignore_header_shrinkage (boolean) — by default, getmail will warn
+       if a filtered message's header contains fewer fields than the
+       source message had, to warn you if your filter is unexpectedly
+       deleting information from messages it handles. If you know your
+       filter can legitimately produce a message with a shorter header
+       (such as if it encapsulates the original message), set this option
+       to disable the warning. Do not simply set this if you see the
+       warning; you must understand whether your filter is operating
+       correctly or not before you use this.
      * ignore_stderr (boolean) — see Filter_classifier for definition.
      * exitcodes_drop (tuple of integers) — see Filter_classifier for
        definition.
