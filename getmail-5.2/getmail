@@ -15,6 +15,7 @@ import pprint
 from optparse import OptionParser, OptionGroup
 import socket
 import signal
+import errno
 
 # Optional gnome-keyring integration
 try:

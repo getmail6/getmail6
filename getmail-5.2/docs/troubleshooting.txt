@@ -7,7 +7,7 @@
    please refer to the documentation included with that version of the
    software.
 
-   getmail is Copyright (c) 1998-2009 Charles Cazabon.
+   getmail is Copyright © 1998-2009 Charles Cazabon.
 
    getmail is licensed under the GNU General Public License version 2 (only).
    If you wish to obtain a license to distribute getmail under other terms,
@@ -30,7 +30,7 @@ Error messages
    current version, please use getmail version 3, which supports Python 1.5.2
    and later.
 
-  Configuration error: ...
+  Configuration error: …
 
    getmail detected an error in your configuration. Check your getmail rc
    file(s). getmail will do its best to point out the exact cause of the
@@ -108,12 +108,12 @@ Error messages
    A destination in the getmail rc file refers to another rc file section
    named section, but that section was not found in the file.
 
-  Retrieval error ...
+  Retrieval error …
 
    getmail detected an error while trying to retrieve a message. Some of the
    specific errors it may find include the following.
 
-    Retrieval error: server ... is broken; ...
+    Retrieval error: server … is broken; …
 
    The server claimed to have a particular message, but when getmail tried to
    retrieve it, the server returned an empty response in violation of the POP
@@ -124,7 +124,7 @@ Error messages
    webmail interface if you don't want to see this error message, and report
    the bug to the server administrator or Microsoft.
 
-  Delivery error ...
+  Delivery error …
 
    getmail detected an error after retrieving a message but before delivery
    was successfully completed. Some of the specific errors it may find
@@ -150,21 +150,21 @@ Error messages
 
    The specified mbox file does not appear to be a valid mbox file.
 
-  Error: ...
+  Error: …
 
    getmail detected an operational error. getmail will do its best to point
    out the exact cause of the error. Common causes are failures to connect to
    a remote mail server, timeouts during network operations, and other
    transient failures.
 
-    Error: server-info does not uniquely identify messages ...
+    Error: server-info does not uniquely identify messages …
 
    The POP3 server for this particular account was not able to uniquely
    identify the messages in the mailstore. You can use the
    BrokenUIDLPOP3Retriever class with this server instead, but functionality
    is limited because of the inability to identify messages properly.
 
-    Error: server-info failed to identify message X in UIDL output ...
+    Error: server-info failed to identify message X in UIDL output …
 
    The POP3 server for this particular account completely failed to identify
    one of the messages in the mailstore when the UIDL command was issued. The
@@ -184,9 +184,9 @@ Error messages
    BrokenUIDLPOP3Retriever class with this server instead, but functionality
    is limited because of the inability to identify messages properly.
 
-    Python(...) malloc: *** mmap(...) failed (...)
+    Python(…) malloc: *** mmap(…) failed (…)
 
-   ... followed by an Unhandled exception block and then MemoryError.
+   … followed by an Unhandled exception block and then MemoryError.
 
    getmail ran out of memory, usually due to a bug in Python's IMAP library
    which was fixed in early 2008.
@@ -203,7 +203,7 @@ Warning messages
    getmail may output various diagnostic warning messages. The common ones
    and their meanings are given below.
 
-  Warning: ...
+  Warning: …
 
    getmail detected a condition which might be problematic. Some of the
    specific warnings it may find include the following.
@@ -263,6 +263,6 @@ Unexpected Behaviour
    delay is in finding the fully-qualified hostname of your system. The fix
    is to ensure you have a valid mapping of address-to-hostname for all the
    addresses in your system. You can do this in your /etc/hosts file, in your
-   authoritative content DNS server, or in another system-specific manner -
+   authoritative content DNS server, or in another system-specific manner —
    please contact your OS vendor (or its public support mailing list) for
    assistance.

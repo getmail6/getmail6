@@ -64,6 +64,8 @@ Table of Contents
                     # Does getmail support SSL?
                     # Does getmail rewrite mail headers when it retrieves
                       mail?
+                    # What are these oldmail* files? Can I delete or trim
+                      them?
                     # Can I upgrade from getmail 3 to getmail 4/5? What
                       about my "oldmail" files?
                     # Why did you write getmail? Why not just use
@@ -297,6 +299,17 @@ Does getmail rewrite mail headers when it retrieves mail?
    add a new Received: header field and a new Delivered-To: header field,
    but does not rewrite existing headers. You can disable the creation of
    these header fields.
+
+What are these oldmail* files? Can I delete or trim them?
+
+   getmail stores its state - its "memory" of what it has seen in your
+   POP/IMAP account - in the oldmail files.
+
+   Do NOT delete or edit these files. You'll make getmail re-retrieve all
+   your old mail, or even prevent getmail from running. The files are tiny
+   by modern storage standards; you could have a million of these files
+   and still not have to worry about the disk space they take up for a
+   thousand years.
 
 Can I upgrade from getmail 3 to getmail 4/5? What about my "oldmail" files?
 

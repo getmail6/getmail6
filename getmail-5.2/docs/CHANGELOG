@@ -1,3 +1,8 @@
+Version 5.2
+4 October 2017
+    -bugfix: disconnection during IMAP IDLE could result in an error message
+    rather than silently exiting.  Thanks: David Gray.
+
 Version 5.1
 15 July 2017
     -bugfix: if password_command parameter was used with a non-existent program,

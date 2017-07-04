@@ -107,6 +107,7 @@
                 <li><a href="faq.html#faq-about-spam">Does getmail support spam filtering of retrieved messages?</a></li>
                 <li><a href="faq.html#faq-about-ssl">Does getmail support SSL?</a></li>
                 <li><a href="faq.html#faq-about-rewrite">Does getmail rewrite mail headers when it retrieves mail?</a></li>
+                <li><a href="faq.html#faq-about-oldmail">What are these oldmail* files?  Can I delete or trim them?</a></li>
                 <li><a href="faq.html#faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4/5?  What about my &quot;oldmail&quot; files?</a></li>
                 <li><a href="faq.html#faq-about-why">Why did you write getmail?  Why not just use fetchmail?</a></li>
                 </ul>
@@ -404,6 +405,18 @@
     <span class="file">Delivered-To:</span>
     header field, but does not rewrite existing headers.  You can disable the
     creation of these header fields.
+</p>
+
+<h3 id="faq-about-oldmail">What are these oldmail* files?  Can I delete or trim them?</h3>
+<p>
+    getmail stores its state - its &quot;memory&quot; of what it has seen in your
+    POP/IMAP account - in the oldmail files.
+</p>
+<p>
+    <b>Do NOT delete or edit these files.</b>  You'll make getmail re-retrieve all
+    your old mail, or even prevent getmail from running.  The files are tiny by modern
+    storage standards; you could have a million of these files and still not have to
+    worry about the disk space they take up for a thousand years.
 </p>
 
 <h3 id="faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4/5?  What about my &quot;oldmail&quot; files?</h3>
