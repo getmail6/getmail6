@@ -1,3 +1,8 @@
+Version 5.3
+5 October 2017
+    -bugfix: another case where an error condition resulted in getmail not
+    displaying the correct message.  Thanks: "ng0".
+
 Version 5.2
 4 October 2017
     -bugfix: disconnection during IMAP IDLE could result in an error message

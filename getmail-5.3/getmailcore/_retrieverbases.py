@@ -791,7 +791,7 @@ class RetrieverSkeleton(ConfigurableBase):
             self.remoteaddr = '[%s]:%s' % serveraddr[:2]
         else:
             # Shouldn't happen
-            self.log.warn('unexpected peer address format %s', str(serveraddr))
+            self.log.warning('unexpected peer address format %s', str(serveraddr))
             self.remoteaddr = str(serveraddr)
         self.received_from = '%s (%s)' % (self.conf['server'], 
                                           self.remoteaddr)
@@ -1122,7 +1122,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 args = self.conf['password_command'][1:]
                 (rc, stdout, stderr) = run_command(command, args)
                 if stderr:
-                    self.log.warn(
+                    self.log.warning(
                         'External password program "%s" wrote to stderr: %s',
                         command, stderr
                     )
@@ -1664,7 +1664,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 args = self.conf['password_command'][1:]
                 (rc, stdout, stderr) = run_command(command, args)
                 if stderr:
-                    self.log.warn(
+                    self.log.warning(
                         'External password program "%s" wrote to stderr: %s',
                         command, stderr
                     )
@@ -1729,7 +1729,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             (typ, dat) = self.conn.capability()
             if dat == [None]:
                 # No response, don't update the stored capabilities
-                self.log.warn('no post-login CAPABILITY response from server\n')
+                self.log.warning('no post-login CAPABILITY response from server\n')
             else:
                 self.conn.capabilities = tuple(dat[-1].upper().split())
 

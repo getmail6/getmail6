@@ -111,4 +111,8 @@ class _Logger(object):
         '''Log a message with level CRITICAL.'''
         self.log(CRITICAL, msg)
 
+    # aliases
+    warn = warning
+
 Logger = _Logger()
+

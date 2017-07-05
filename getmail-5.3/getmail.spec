@@ -2,7 +2,7 @@
 
 Summary: POP3 mail retriever with reliable Maildir delivery
 Name: getmail
-Version: 5.2
+Version: 5.3
 Release: 1
 License: GPL
 Group: Applications/Internet
@@ -52,6 +52,9 @@ should not be attempted over NFS.  getmail is written entirely in python.
 %{python_sitelib}/getmailcore/
 
 %changelog
+* Thu Oct 05 2017 Charles Cazabon <charlesc-getmail-rpm@pyropus.ca>
+-update to version 5.3
+
 * Wed Oct 04 2017 Charles Cazabon <charlesc-getmail-rpm@pyropus.ca>
 -update to version 5.2
 
