@@ -791,7 +791,7 @@ class RetrieverSkeleton(ConfigurableBase):
             self.remoteaddr = '[%s]:%s' % serveraddr[:2]
         else:
             # Shouldn't happen
-            self.log.warning('unexpected peer address format %s', str(serveraddr))
+            self.log.warning('unexpected peer address format %s' % str(serveraddr))
             self.remoteaddr = str(serveraddr)
         self.received_from = '%s (%s)' % (self.conf['server'], 
                                           self.remoteaddr)
@@ -1123,8 +1123,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 (rc, stdout, stderr) = run_command(command, args)
                 if stderr:
                     self.log.warning(
-                        'External password program "%s" wrote to stderr: %s',
-                        command, stderr
+                        'External password program "%s" wrote to stderr: %s'
+                        % (command, stderr)
                     )
                 if rc:
                     # program exited nonzero
@@ -1665,8 +1665,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 (rc, stdout, stderr) = run_command(command, args)
                 if stderr:
                     self.log.warning(
-                        'External password program "%s" wrote to stderr: %s',
-                        command, stderr
+                        'External password program "%s" wrote to stderr: %s'
+                        % (command, stderr)
                     )
                 if rc:
                     # program exited nonzero

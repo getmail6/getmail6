@@ -1,3 +1,7 @@
+Version 5.4
+6 October 2017
+    -bugfix: fix another error in logging an error condition.  Thanks: "ng0".
+
 Version 5.3
 5 October 2017
     -bugfix: another case where an error condition resulted in getmail not
