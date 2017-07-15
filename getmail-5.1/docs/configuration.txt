@@ -364,7 +364,12 @@ Common retriever parameters
        password by running an arbitrary external program. The program must
        write the password and nothing else to stdout, and must exit with a
        status of 0 on success. Note that the password parameter (above)
-       overrides this parameter; specify one or the other, not both.
+       overrides this parameter; specify one or the other, not both. This
+       parameter is specified as the program to run as the first string in
+       the tuple, and all remaining strings are arguments passed to that
+       program.
+password_command = ("/path/to/password-retriever", "-p", "myaccount@example.org"
+)
 
    All IMAP retriever types also take the following optional parameters:
      * mailboxes (tuple of quoted strings) — a list of mailbox paths to

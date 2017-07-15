@@ -46,6 +46,7 @@ import getpass
 import commands
 import sys
 import tempfile
+import errno
 try:
     import subprocess
 except ImportError, o:
