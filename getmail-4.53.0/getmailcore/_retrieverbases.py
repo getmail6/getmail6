@@ -430,8 +430,19 @@ class Py24POP3SSLinitMixIn(object):
             )
 
         self.conn.sock.setblocking(1)
-        self.log.trace('POP3 connection %s established' % self.conn
-                       + os.linesep)
+
+        fingerprint_message = ('POP3 SSL connection %s established'
+                               % self.conn)
+        if actual_hash:
+            fingerprint_message += ' with fingerprint %s' % actual_hash
+        if ssl_cipher:
+            fingerprint_message += ' using cipher %s' % ssl_cipher
+        fingerprint_message += os.linesep
+
+        if self.app_options['fingerprint']:
+            self.log.info(fingerprint_message)
+        else:
+            self.log.trace(fingerprint_message)
 
 
 #######################################

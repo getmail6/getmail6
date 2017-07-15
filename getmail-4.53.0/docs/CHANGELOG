@@ -1,3 +1,9 @@
+Version 4.53.0
+15 January 2017
+    -fix plaintext version of docs not generated correctly.  Thanks: Elijah.
+    -fix `getmail --fingerprint` not logging server TLS fingerprint correctly
+    with SimplePOP3SSLRetriever.  Thanks: Gabriel Kihlman.
+
 Version 4.52.0
 22 October 2016
     -add `ignore_header_shrinkage` parameter to Filter_external for users who
