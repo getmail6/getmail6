@@ -1,0 +1,69 @@
+The docs have not been updated for v5 yet, but v5 is intended to be almost
+entirely compatible with v4 config files, so those docs still apply.
+
+Until the docs are updated, here are the changes you need to know about
+getmail v5:
+
+ * Python 2.5 or higher is required; some functionality requires Python 2.6
+ or higher.  I doubt it will work on Python 3 as-is, but it might work after 
+ converting with 2to3.  I haven't tried it.
+ 
+ * the logging code is significantly rewritten.  getmail's output may look
+ somewhat different when running.  The message log contents will definitely
+ look different.  If you notice something "broken" in the output or logging,
+ please report it.  One issue I know of is that getmail will spit
+ out a 'No handlers could be found for logger "msglog"' warning; this will 
+ be fixed in a later alpha.
+ 
+ In the near future I'll be adding a feature for power users that will allow
+ significantly more flexibility with logging and output than getmail has
+ traditionally had.
+ 
+ * if you use an SSL retriever class, this is the biggest (and 
+ backwards-incompatible) change - existing getmailrc files will need minor
+ additions before you can use them.  Note I don't have an easy way to do
+ extensive testing of SSL functionality (the test SSL servers I have access
+ to use self-signed certificates), so I'm particularly looking forward
+ to reports on this.
+ 
+ SSL retrievers have all grown two new configuration items:
+ 
+ certificatemode - must be set to one of (case-insensitive):
+   "required" - server must present an SSL certificate, and getmail/Python
+        will attempt to validate it with a specified (see below) certificate
+        chain/Certifying Authority file.
+   "optional" - server may or may not provide a certificate; if provided,
+        it will be validated as above.
+   "ignored" - getmail doesn't care whether the server presents a certificate,
+        and doesn't attempt to validate it.
+
+    The default is "required".  Note that certificate validation requires 
+    Python 2.6 - if you use Python 2.5.x, you *must* set this to "ignored"
+    or getmail will complain.  "ignored" gives you the equivalent of getmail
+    v4 behaviour.
+    Note that SSL functionality is also an optional component in Python - most
+    prepackaged versions include it, but if you compile Python yourself on a 
+    system that lacks the OpenSSL development headers files, you'll end up with
+    an SSL-less Python.  I don't know if it's possible to have basic SSL 
+    functionality with Python 2.6 but still lack the certificate-validation 
+    code - I would appreciate reports about this.
+
+ certificatesfile - if certificatemode is set to anything other than "ignored",
+    getmail/Python requires a "CA certs" chain file to perform certificate 
+    validation with.  Your system probably provides such a file (as part of 
+    openssl or otherwise; for example, check files in /etc/ssl/certs/), or you 
+    can download one from one of the normal certifying authorities.  
+    The specifics of how what kind of file is expected are documented here, 
+    along with links to some that you can download:
+    http://docs.python.org/library/ssl.html#ssl-certificates
+    If the mail server you're using provides a self-signed certificate, or one
+    signed by an authority that can't be validated with your certs file,
+    the connection *should* fail with an appropriate error message.
+
+
+Please send any reports, questions, comments, or suggestions on getmail 5 to the
+getmail5-alpha mailing list.
+
+Thanks!
+
+Charles

@@ -1,0 +1,26 @@
+Metadata-Version: 1.1
+Name: getmail
+Version: 5.0
+Summary: a mail retrieval, sorting, and delivering system
+Home-page: http://pyropus.ca/software/getmail/
+Author: Charles Cazabon
+Author-email: charlesc-getmail@pyropus.ca
+License: GNU GPL version 2
+Download-URL: http://pyropus.ca/software/getmail/#download
+Description: getmail is a multi-protocol mail retrieval system withsupport for simple and domain POP3 and IMAP4 mailboxes, domain SDPS mailboxes, POP3-over-SSL and IMAP-over-SSL, mail sorting, message filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and other advanced features.
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Operating System :: POSIX
+Classifier: Programming Language :: Python
+Classifier: Topic :: Communications :: Email
+Classifier: Topic :: Communications :: Email :: Filters
+Classifier: Topic :: Communications :: Email :: Post-Office :: IMAP
+Classifier: Topic :: Communications :: Email :: Post-Office :: POP3
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Utilities

@@ -1,0 +1,1740 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="content-type" content="application/xhtml+xml;charset=iso-8859-1" />
+    <title>getmail frequently-asked questions (FAQs) (version 5)</title>
+    <meta name="author" content="Charles Cazabon" />
+    <meta name="description" content="Frequently-asked questions about getmail version 5" />
+    <meta name="keywords" content="getmail FAQ, getmail 5 FAQ, getmail 4 FAQ, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
+    <link rel="Contents Up Index" title="Charles Cazabon's Software" href="../" />
+    <style type="text/css" media="all">@import "getmaildocs.css";</style>
+    <style type="text/css" media="all">@import "/style/styles.css";</style>
+</head>
+<body id="top">
+    <div class="content">
+
+<!----><h1 id="title">getmail documentation</h1>
+<p class="introduction">
+    This is the documentation for getmail version 5.  Version 5 includes
+    numerous changes from version 3.x; if you are using getmail version 3,
+    please refer to the documentation included with that version of the
+    software.
+</p>
+<p class="about">
+    getmail is Copyright &copy; 1998-2009 Charles Cazabon.
+</p>
+<p class="about">
+    getmail is licensed under the
+    <a href="COPYING">GNU General Public License version 2</a>
+    (only). If you wish to obtain a license to distribute getmail under other
+    terms, please contact me directly.
+</p>
+
+<h1 id="toc">Table of Contents</h1>
+<ul>
+    <li><a href="documentation.html">getmail documentation (version 5)</a></li>
+    <li>
+        <ul>
+        <li><a href="documentation.html#title">getmail documentation</a></li>
+        <li>
+            <ul>
+            <li><a href="documentation.html#features">Features</a></li>
+            <li><a href="documentation.html#v4differences">Differences from previous versions</a></li>
+            <li><a href="documentation.html#requirements">Requirements</a></li>
+            <li><a href="documentation.html#obtaining">Obtaining getmail</a></li>
+            <li><a href="documentation.html#installing">Installing getmail</a></li>
+            <li><a href="documentation.html#mailing-lists">getmail mailing lists</a></li>
+            </ul>
+        </li>
+        </ul>
+    </li>
+    <li><a href="configuration.html">getmail configuration (version 5)</a></li>
+    <li>
+        <ul>
+        <li><a href="configuration.html#configuring">Configuring getmail</a></li>
+        <li>
+            <ul>
+            <li><a href="configuration.html#rcfile">Creating a getmail rc file</a></li>
+            </ul>
+        </li>
+        <li><a href="configuration.html#running">Running getmail</a></li>
+        <li>
+            <ul>
+            <li><a href="configuration.html#running-commandline-options">Commandline options</a></li>
+            <li><a href="configuration.html#running-mda">Using getmail as an MDA</a></li>
+            <li><a href="configuration.html#running-fetch">Using getmail_fetch to retrieve mail from scripts</a></li>
+            </ul>
+        </li>
+        </ul>
+    </li>
+    <li><a href="troubleshooting.html">getmail troubleshooting (version 5)</a></li>
+    <li>
+        <ul>
+        <li><a href="troubleshooting.html#troubleshooting">Troubleshooting problems</a></li>
+        <li>
+            <ul>
+            <li><a href="troubleshooting.html#error-messages">Error messages</a></li>
+            <li><a href="troubleshooting.html#warning-messages">Warning messages</a></li>
+            <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
+            </ul>
+        </li>
+        </ul>
+    </li>
+    <li><a href="faq.html">getmail frequently-asked questions (FAQs) (version 5)</a></li>
+    <li>
+        <ul>
+        <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
+        <li>
+            <ul>
+            <li><a href="faq.html#faq-about">About getmail</a></li>
+            <li>
+                <ul>
+                <li><a href="faq.html#faq-about-what">What is getmail?</a></li>
+                <li><a href="faq.html#faq-about-platforms">What platforms/machines does getmail run on?</a></li>
+                <li>
+                    <ul>
+                    <li><a href="faq.html#faq-about-platforms-windows">Does getmail run on MS Windows?</a></li>
+                    <li><a href="faq.html#faq-about-platforms-mac">Does getmail run on Macintosh systems?</a></li>
+                    <li><a href="faq.html#faq-about-platforms-unix">Does getmail require Unix/Linux?</a></li>
+                    </ul>
+                </li>
+                <li><a href="faq.html#faq-about-support">How can I get support for getmail?</a></li>
+                <li><a href="faq.html#faq-about-bug">I think I found a bug!  How do I report it?</a></li>
+                <li><a href="faq.html#faq-about-random-feature">I have a neat idea for random feature &quot;foo&quot; &hellip; how do I get you to implement it?</a></li>
+                <li><a href="faq.html#faq-about-random-feature-rejected">Why won't you implement random feature &quot;foo&quot;?</a></li>
+                <li><a href="faq.html#faq-about-virus">Does getmail support virus scanning of retrieved messages?</a></li>
+                <li><a href="faq.html#faq-about-spam">Does getmail support spam filtering of retrieved messages?</a></li>
+                <li><a href="faq.html#faq-about-ssl">Does getmail support SSL?</a></li>
+                <li><a href="faq.html#faq-about-rewrite">Does getmail rewrite mail headers when it retrieves mail?</a></li>
+                <li><a href="faq.html#faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4/5?  What about my &quot;oldmail&quot; files?</a></li>
+                <li><a href="faq.html#faq-about-why">Why did you write getmail?  Why not just use fetchmail?</a></li>
+                </ul>
+            </li>
+            <li><a href="faq.html#faq-configuring">Configuring getmail</a></li>
+            <li>
+                <ul>
+                <li><a href="faq.html#faq-configuring-domain-mailbox">What is a &quot;domain mailbox&quot;?</a></li>
+                <li><a href="faq.html#faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</a></li>
+                <li><a href="faq.html#faq-configuring-root">Will getmail deliver mail as root?</a></li>
+                <li><a href="faq.html#faq-configuring-maildir">What's a maildir?</a></li>
+                <li><a href="faq.html#faq-configuring-mboxrd">What's &quot;mboxrd&quot; format?</a></li>
+                <li><a href="faq.html#faq-configuring-envelope">What's this &quot;envelope sender&quot; and &quot;envelope recipient&quot; stuff?</a></li>
+                <li>
+                    <ul>
+                    <li><a href="faq.html#faq-configuring-envelope-header">Message header vs. message envelope</a></li>
+                    <li><a href="faq.html#faq-configuring-envelope-bcc">Receiving messages without your address in the message header</a></li>
+                    <li><a href="faq.html#faq-configuring-envelope-record">Responsibility for recording the message envelope</a></li>
+                    <li><a href="faq.html#faq-configuring-envelope-multidrop">How this relates to domain or multidrop mailboxes</a></li>
+                    </ul>
+                </li>
+                <li><a href="faq.html#faq-configuring-simple">This rc stuff seems complicated.  Does it have to be?</a></li>
+                </ul>
+            </li>
+            <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
+            <li>
+                <ul>
+                <li><a href="faq.html#faq-how-multi">How do I retrieve mail from multiple accounts?</a></li>
+                <li><a href="faq.html#faq-how-filter">How do I get getmail to deliver messages to different mailboxes based on &hellip;</a></li>
+                <li><a href="faq.html#faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</a></li>
+                <li><a href="faq.html#faq-how-no-received">How do I stop getmail adding a Received: header to messages?</a></li>
+                <li><a href="faq.html#faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</a></li>
+                <li><a href="faq.html#faq-how-create-maildir">How do I create a maildir?</a></li>
+                <li><a href="faq.html#faq-how-create-mboxrd">How do I create an mboxrd file?</a></li>
+                <li><a href="faq.html#faq-how-mh">How do I make getmail deliver messages to an mh folder?</a></li>
+                <li><a href="faq.html#faq-how-daemon">How do I run getmail in &quot;daemon&quot; mode?</a></li>
+                <li><a href="faq.html#faq-how-maxpersession">How do I make getmail stop after retrieving X messages so that the server actually flushes deleted messages?</a></li>
+                <li><a href="faq.html#faq-how-hotmail">How do I make getmail retrieve mail from Hotmail?</a></li>
+                <li><a href="faq.html#faq-how-to">I'm using getmail.  How do I make it &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="faq.html#faq-how-to-tempstop">I'm running getmail from cron.  How do I temporarily stop it?</a></li>
+                    <li><a href="faq.html#faq-how-to-mutex">How do I stop multiple instances of getmail from running at the same time?</a></li>
+                    </ul>
+                </li>
+                </ul>
+            </li>
+            <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
+            <li>
+                <ul>
+                <li><a href="faq.html#faq-integrating-spamassassin">How do I use SpamAssassin with getmail?</a></li>
+                <li><a href="faq.html#faq-integrating-clamav">How do I use ClamAV with getmail?</a></li>
+                <li>
+                    <ul>
+                    <li><a href="faq.html#faq-integrating-clamav-prettier">Getting prettier output from ClamAV</a></li>
+                    </ul>
+                </li>
+                <li><a href="faq.html#faq-integrating-fprot">How do I use F-Prot with getmail?</a></li>
+                <li><a href="faq.html#faq-integrating-procmail">How do I use procmail with getmail?</a></li>
+                <li><a href="faq.html#faq-integrating-maildrop">How do I use maildrop with getmail?</a></li>
+                <li><a href="faq.html#faq-integrating-tmda">How do I use TMDA with getmail?</a></li>
+                <li>
+                    <ul>
+                    <li><a href="faq.html#faq-integrating-gmail">How can I get Gmail labels with getmail?</a></li>
+                    </ul>
+                </li>
+                </ul>
+            </li>
+            <li><a href="faq.html#faq-notabug">I think I found this bug in getmail &hellip;</a></li>
+            <li>
+                <ul>
+                <li><a href="faq.html#faq-notabug-gmail-bug">getmail doesn't download all my mail from Gmail &hellip;</a></li>
+                <li><a href="faq.html#faq-notabug-futurewarning">FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up</a></li>
+                <li><a href="faq.html#faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</a></li>
+                <li><a href="faq.html#faq-notabug-brokenpopserver">operation error (SimplePOP3Retriever: [...] does not uniquely identify messages [...] see documentation or use BrokenUIDLPOP3Retriever instead</a></li>
+                <li><a href="faq.html#faq-notabug-osx-realloc">MemoryError on OS X</a></li>
+                <li><a href="faq.html#faq-notabug-memory">MemoryError when using IMAP</a></li>
+                </ul>
+            </li>
+            </ul>
+        </li>
+        </ul>
+    </li>
+</ul>
+
+<!-- ********************************************************************** -->
+
+<h1 id="faq">Frequently-Asked Questions (FAQs)</h1>
+<p>
+    The following questions about getmail are answered more-or-less frequently.
+    Please also read the
+    <a href="troubleshooting.html#unexpected-behaviour">unexpected behaviour section</a>
+    of the
+    <a href="troubleshooting.html">troubleshooting document</a>.
+</p>
+
+<!-- ********************************************************************** -->
+<h2 id="faq-about">About getmail</h2>
+
+<h3 id="faq-about-what">What is getmail?</h3>
+<p>
+    getmail is a mail retriever with support for POP3, POP3-over-SSL, IMAP4,
+    IMAP4-over-SSL, and SDPS mail accounts. It supports normal single-user mail
+    accounts and multidrop (domain) mailboxes. getmail is written in Python, and
+    licensed under the
+    <a href="COPYING">GNU General Public License version 2</a>.
+</p>
+
+<h3 id="faq-about-platforms">What platforms/machines does getmail run on?</h3>
+<p>
+    getmail runs on basically any platform.  It's designed to, and written
+    in a language that helps to maintain cross-platform compatibility.
+    getmail is known to run on the following platforms:
+</p>
+<ul>
+    <li>Linux-based GNU systems (all distributions)</li>
+    <li>HURD-based GNU systems</li>
+    <li>FreeBSD</li>
+    <li>OpenBSD</li>
+    <li>NetBSD</li>
+    <li>HP/UX</li>
+    <li>Sun Solaris</li>
+    <li>IBM AIX</li>
+    <li>Digital/Compaq Tru64 (a.k.a OSF/1) UNIX</li>
+    <li>SGI Irix</li>
+    <li>other commercial Unices</li>
+    <li>Digital VMS / OpenVMS</li>
+    <li>BeOS</li>
+    <li>Amiga OS</li>
+    <li>OS/2</li>
+    <li>Cygwin on Windows</li>
+    <li>Macintosh OS X</li>
+    <li>Macintosh OS 9</li>
+</ul>
+<p>
+    But getmail will also run on other, less common platforms.  The only real
+    requirement is that Python run on that platform, and porting Python is
+    generally very easy.
+</p>
+
+<h4 id="faq-about-platforms-windows">Does getmail run on MS Windows?</h4>
+<p>
+    Yes, under the free <a href="http://cygwin.com/">Cygwin</a> package.
+    Running recent versions of Python under Cygwin requires a process known
+    as &quot;rebasing&quot; your Cygwin installation; you can find details
+    in
+    <a href="http://mail.python.org/pipermail/python-dev/2003-July/036932.html">this Python developers' mailing list message</a>.
+</p>
+
+<h4 id="faq-about-platforms-mac">Does getmail run on Macintosh systems?</h4>
+<p>
+    <a href="#faq-about-platforms">Yes.</a>
+</p>
+
+<h4 id="faq-about-platforms-unix">Does getmail require Unix/Linux?</h4>
+<p>
+    <a href="#faq-about-platforms">No.</a>
+</p>
+
+<h3 id="faq-about-support">How can I get support for getmail?</h3>
+<p>
+    getmail is
+    <a href="http://www.fsf.org/">Free Software</a>.
+    As such, it comes with no warranty.  However, I will do my best to support
+    getmail on a voluntary basis through the
+    <a href="documentation.html#mailing-list-users">getmail mailing list</a>.
+</p>
+<p>
+    If you are using getmail in a commercial or other environment where problems
+    cost money, consider contacting me privately for commercial support, by
+    emailing &lt;charlesc-getmail-support @ pyropus.ca&gt;
+</p>
+<p>
+    If you have questions about getmail, the first step is to read the
+    <a href="documentation.html">documentation</a>,
+    and the remainder of the Frequently Asked Questions. If your question isn't
+    answered there, search the
+    <a href="documentation.html#mailing-list-users-archive">getmail mailing list archives</a>.
+</p>
+<p>
+    If you still haven't found an answer to your question, please subscribe to
+    the
+    <a href="documentation.html#mailing-list-users">getmail users' mailing list</a>
+    by sending a blank email to &lt;getmail-subscribe @
+    lists.pyropus.ca&gt;. If you post your question there, I will see it.
+    As an additional bonus, your question may be answered by another member of
+    the list.
+</p>
+
+<h3 id="faq-about-bug">I think I found a bug!  How do I report it?</h3>
+<p class="important">
+    First, make sure that you are running the latest version.  You can always
+    find what is the latest version by checking this page at the original
+    web site:
+    <br />
+    <a href="http://pyropus.ca/software/getmail/">http://pyropus.ca/software/getmail/</a>.
+    <br />
+    If you running an older version of the software, chances are whatever bug
+    you may have found has already been fixed.
+</p>
+<p>
+    Ideally, you should join the
+    <a href="documentation.html#mailing-list-users">mailing list</a>
+    and send your bug report there.  You should include the following
+    information:
+</p>
+<ul>
+    <li>getmail version</li>
+    <li>Python version</li>
+    <li>any error message which getmail displayed</li>
+    <li>
+        the output from running getmail with your normal options plus
+        <span class="sample">--dump</span>
+    </li>
+    <li>
+        if your problem is getmail not determining the proper local recipient,
+        please include the output of running getmail with your normal options
+        plus
+        <span class="sample">--trace</span>,
+        showing the retrieval of
+        <strong>one</strong>
+        problematic message.
+    </li>
+</ul>
+<p>
+    If you absolutely cannot sign up for the mailing list, send the report to me
+    directly at
+    &lt;charlesc-getmail-bugs @ pyropus.ca&gt;.
+    I may not be able to respond to all reports privately, but I will
+    try to address any bugs I find out about this way.
+</p>
+
+<h3 id="faq-about-random-feature">I have a neat idea for random feature &quot;foo&quot; &hellip; how do I get you to implement it?</h3>
+<p>
+    Follow the same instructions as for reporting bugs above &mdash; yes, that
+    means I would prefer you submit your idea to the getmail users' mailing list.
+    That will lead to a useful discussion if your feature has not been proposed
+    before.
+</p>
+
+<h3 id="faq-about-random-feature-rejected">Why won't you implement random feature &quot;foo&quot;?</h3>
+<p>
+    Every line of code added to getmail has a certain cost.  Every feature
+    added requires code, documentation, and support.  Adding features increases
+    the complexity of the software, confuses users, and leads to higher support
+    costs.  I therefore weigh features very carefully as a cost-versus-benefit
+    tradeoff before deciding whether to add them.
+</p>
+<p>
+    Some users are confused by this.  They think that a feature you don't use
+    has no cost, and therefore if it has any value to anyone, it should be
+    added.  That simply isn't the case; the costs of an unused feature are
+    simply borne by others, including me.
+</p>
+<p>
+    If you have asked me to add some feature, and I've said no, this may be
+    the reason.  Other possibilities include me simply not having had sufficient
+    time to implement it yet.
+</p>
+
+<h3 id="faq-about-virus">Does getmail support virus scanning of retrieved messages?</h3>
+<p>
+    Yes.  You can use getmail message filtering options to do this with an
+    external virus scanning program, or invoke your virus scanning program
+    during delivery with getmail's support for external MDAs.
+</p>
+<p>
+    Also see the FAQ about
+    <a href="#faq-integrating-clamav">using getmail with the ClamAV program</a>.
+</p>
+
+<h3 id="faq-about-spam">Does getmail support spam filtering of retrieved messages?</h3>
+<p>
+    Yes.  You can use getmail message filtering options to do this with an
+    external spam filtering program, or invoke your spam filtering program
+    during delivery with getmail's support for external MDAs.
+</p>
+<p>
+    Also see the FAQ about
+    <a href="#faq-integrating-spamassassin">using getmail with the SpamAssassin program</a>.
+</p>
+
+<h3 id="faq-about-ssl">Does getmail support SSL?</h3>
+<p>
+    Yes.  getmail has built in support for POP3-over-SSL and IMAP4-over-SSL.
+</p>
+
+<h3 id="faq-about-rewrite">Does getmail rewrite mail headers when it retrieves mail?</h3>
+<p>
+    No.  Rewriting message header fields is bad for many reasons; the biggest
+    problem is that it causes a loss of critical technical information necessary
+    to track down many mail problems.  getmail will add a new
+    <span class="file">Received:</span>
+    header field and a new
+    <span class="file">Delivered-To:</span>
+    header field, but does not rewrite existing headers.  You can disable the
+    creation of these header fields.
+</p>
+
+<h3 id="faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4/5?  What about my &quot;oldmail&quot; files?</h3>
+<p>
+    Yes.  getmail version 4/5 uses exactly the same
+    <span class="file">oldmail-<span class="meta">server</span>-<span class="meta">port</span>-<span class="meta">username</span></span>
+    naming convention for its oldmail files.  The only difference is that
+    version 4/5 escapes a couple of additional characters in this string so that
+    it is truly cross-platform compatible.  If you upgrade from version 3 to
+    version 4/5, getmail will still remember which messages you've already
+    retrieved.
+</p>
+<p>
+    To upgrade, do the following:
+</p>
+<ol>
+    <li>
+        Rename your old getmail rc file, creating a new file in
+        <span class="file">~/.getmail/getmailrc</span>.
+    </li>
+    <li>
+        Create a new
+        <span class="file">[options]</span>
+        section, containing the appropriate values from your version 3 rc file
+        <span class="file">[defaults]</span>
+        section.
+    </li>
+    <li>
+        Create a new
+        <span class="file">[retriever]</span>
+        section, using your previous server configuration values in a new
+        <span class="file">type = SimplePOP3Retriever</span>
+        or
+        <span class="file">type = MultidropPOP3Retriever</span>
+        as appropriate.
+    </li>
+    <li>
+        Create a new
+        <span class="file">[destination]</span>
+        section, using your previous destination path values in a new
+        <span class="file">type = Maildir</span>,
+        <span class="file">type = Mboxrd</span>,
+        <span class="file">type = MDA_external</span>,
+        or
+        <span class="file">type = MultiSorter</span>
+        destination as appropriate.
+    </li>
+    <li>
+        If you were retrieving messages from multiple mail accounts in a
+        single version 3 getmail rc file, split them up into one account per
+        version 5 rc file.
+    </li>
+</ol>
+<p>
+    That's it.
+</p>
+
+<h3 id="faq-about-why">Why did you write getmail?  Why not just use fetchmail?</h3>
+<p>
+    Short answer:  &hellip; well, the short answer is mostly unprintable.
+    The long answer is &hellip; well, long:
+</p>
+<p>
+    I do not like some of the design choices which were made with fetchmail.
+    getmail does things a little differently, and for my purposes, better. In
+    addition, most people find getmail easier to configure and use than
+    fetchmail.  Perhaps most importantly, getmail goes to great lengths to
+    ensure that mail is never lost, while fetchmail (in its default
+    configuration) frequently loses mail, causes mail loops, bounces legitimate
+    messages, and causes many other problems.
+</p>
+<p>
+    When people have pointed out problems in fetchmail's design and
+    implementation, it's maintainer has frequently ignored them, or (worse yet)
+    gone in the completely wrong direction in the name of &quot;fixing&quot; the
+    problems.  For instance, fetchmail's configuration file syntax has been
+    criticized as being needlessly difficult to write; instead of cleaning up
+    the syntax, the maintainer instead included a GUI configuration-file-writing
+    program, leading to
+    <a href="http://www.crackmonkey.org/pipermail/crackmonkey/2003q3/037098.html">comments</a>
+    like:
+</p>
+<blockquote cite="http://www.crackmonkey.org/pipermail/crackmonkey/2003q3/037098.html">
+    <p>
+        The punchline is that fetchmail sucks, even if it does have
+        giddily-engineered whizbang configurator apps.
+    </p>
+</blockquote>
+<p>
+    As an example,
+    <a href="http://cr.yp.to/djb.html">Dan Bernstein</a>,
+    author of
+    <a href="http://cr.yp.to/qmail.html">qmail</a>
+    and
+    <a href="http://cr.yp.to/software.html">other software packages</a>,
+    once noted to the qmail list:
+</p>
+<blockquote cite="http://www.mail-archive.com/qmail@id.wustl.edu/msg06997.html">
+    <p>
+        Last night, root@xxxxxxxxxxxxxxxxx reinjected thirty old messages from
+        various authors to qmail@xxxxxxxxxxxxxx
+    </p>
+    <p>
+        This sort of idiocy happens much more often than most subscribers know,
+        thanks to a broken piece of software by Eric Raymond called fetchmail.
+        Fortunately, qmail and ezmlm have loop-prevention mechanisms that stop
+        these messages before they are distributed to subscribers. The messages
+        end up bouncing to the wrong place, thanks to another fetchmail bug, but
+        at least the mailing list is protected.
+    </p>
+    <p>
+          --D. J. Bernstein
+    </p>
+</blockquote>
+<p>
+    The maintainer also ignored dozens of complaints about fetchmail's
+    behaviour, stating (by fiat) that fetchmail was bug-free and had entered
+    &quot;maintenance mode&quot;, allowing him to ignore further bug reports.
+</p>
+<p>
+    fetchmail's default configuration values frequently cause lost or
+    misdirected mail, and seem to be chosen to cause maximum pain and
+    inconvenience.  From fetchmail's to-do file (emphasis mine):
+</p>
+<blockquote>
+    <p>
+        <em>Maybe</em> refuse multidrop configuration unless
+        &quot;envelope&quot; is _explicitly_ configured
+        &hellip;
+        This would prevent a significant class of shoot-self-in-foot
+        problems.
+    </p>
+    <p>
+        <em>perhaps</em> treat a delivery as &quot;temporarily failed&quot;
+        &hellip;
+        This is so you don't lose mail if you configure the wrong envelope
+        header.
+    </p>
+</blockquote>
+<p>
+    fetchmail is famous for mangling messages it retrieves, rather than
+    leaving them alone as a mail-handling program should.  getmail will add
+    trace information to messages (so you can see what happened, and when),
+    but will otherwise leave message content alone.
+</p>
+<p>
+    In addition, fetchmail has a long history of security problems:
+</p>
+<ul>
+    <li>
+        versions released before 20 June 2001 contain a buffer overflow, which
+        can be remotely exploited (see
+        <a href="http://www.securityfocus.com/bid/2877">www.securityfocus.com/bid/2877</a>
+        for details).  getmail is not vulnerable to buffer overflows, because
+        buffers in Python are dynamically sized.
+    </li>
+    <li>
+        Another remotely-exploitable security hole discovered in fetchmail in June 2002;
+        <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2002-0146">
+            versions prior to 5.9.10 (released in June 2002) are exploitable
+        </a>.
+    </li>
+    <li>
+        Reading fetchmail's UPDATES file, it appears that another security
+        problem was fixed in 5.9.12, where a server could crash fetchmail on
+        64-bit platforms.  Also worrying is a mention that it includes a fix for
+        &quot;password shrouding&quot;.
+    </li>
+    <li>
+        Another remotely-exploitable security hole in fetchmail discovered in
+        September 2002;
+        <a href="http://security.e-matters.de/advisories/032002.html">
+            this hole
+        </a>
+        lets an attacker run arbitrary code on the victim's computer.
+    </li>
+    <li>
+        Another remotely-exploitable security hole in fetchmail discovered in
+        December 2002; once again, a remote attacker can run arbitrary code on
+        the machine running fetchmail in its default configuration.  See
+        <a href="http://security.e-matters.de/advisories/052002.html">
+            this advisory
+        </a>
+        for details.
+    </li>
+    <li>
+        January 2003:
+        <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=3DCAN-2002-1365">
+            More buffer overflows in fetchmail let attackers run arbitrary code
+        </a>.
+    </li>
+    <li>
+        October 2003:
+        <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2003-0792">
+            Anyone can cause fetchmail to crash by sending you a message
+        </a>.
+        Other problems are
+        <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2003-0790">
+            here
+        </a>,
+        and
+        <a href="http://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=fetchmail">
+            I might have missed some
+        </a>.
+    </li>
+    <li>
+        Just in case you thought fetchmail was all better now, there's still
+    new security problems being discovered in it.  In December, 2005,
+    it was revealed that
+    <a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-4348">anyone can send a fetchmail multidrop user a message that causes fetchmail to crash</a>.
+    </li>
+</ul>
+<p>
+    In July, 2004, it was noted that there may be at least 2 unfixed denial-of-service attacks,
+    2 unfixed remote-code-execution, 2 unfixed remote-user-access, and 3 unfixed
+    remote-shell attacks against fetchmail.  See
+    <a href="http://www.mail-archive.com/euglug@euglug.org/msg00971.html">http://www.mail-archive.com/euglug@euglug.org/msg00971.html</a>
+    for details
+</p>
+<p>
+    I've given up even trying to stay abreast of the various security holes in
+    fetchmail, but others have noted continuing problems, including:
+</p>
+<ul>
+    <li>
+        <a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2005-2335">another
+        arbitrary code execution vulnerability</a>
+        announced on 21 July 2005.
+    </li>
+</ul>
+<p>
+    The fetchmail authors' boneheaded decision to create a configuration-file
+    GUI editor (rather than actually giving fetchmail a sane configuration
+    syntax) also came back to bite them in the ass:  in October 2005, it
+    became known that fetchmailconf created its files in such a way that
+    <a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-3088">users' passwords could be read</a> during file creation.
+</p>
+<p>
+    Addendum, January 2007: since I wrote the above, the following new security
+    problems have been discovered in fetchmail:
+</p>
+<ul>
+    <li><a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-4348">CVE-2005-4348</a> - anyone can crash fetchmail by sending messages without headers</li>
+    <li><a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-0321">CVE-2006-0321</a> - anyone can crash fetchmail by sending a message that fetchmail tries to bounce</li>
+    <li><a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-5867">CVE-2006-5867</a> - fetchmail can transmit passwords in plaintext even if the user has configured it not to</li>
+    <li><a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-5974">CVE-2006-5974</a> - anyone can cause fetchmail to crash by triggering certain error code paths</li>
+</ul>
+<p>
+    But don't just take my word for it; see
+    <a href="http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724">
+        http://docs.freebsd.org/cgi/mid.cgi?200102172349.QAA11724
+    </a>
+    and
+    <a href="http://web.archive.org/web/20080621090439/http://esr.1accesshost.com/">http://esr.1accesshost.com/</a> (note: 
+    went offline sometime in 2009 or 2010; the content is still available at
+    http://web.archive.org/web/20080621090439/http://esr.1accesshost.com/ ).
+</p>
+<p>
+    getmail users have not had to worry about any of these security holes or
+    design and implementation errors.
+</p>
+
+<!-- ********************************************************************** -->
+<h2 id="faq-configuring">Configuring getmail</h2>
+
+<h3 id="faq-configuring-domain-mailbox">What is a &quot;domain mailbox&quot;?</h3>
+<p>
+    A domain (or multidrop) mailbox is a POP3 mailbox which receives mail for
+    all users in a given domain.  Normal mailboxes contain mail for a single
+    user (like
+    <span class="file">jason@myisp.co.uk</span>);
+    some Internet Service Providers which provide webhosting or other services
+    will provide a POP3 mailbox which receives mail for all addresses in a given
+    domain (i.e. mail for
+    <span class="file">service@smallcompany.net</span>,
+    <span class="file">sales@smallcompany.net</span>,
+    and indeed anything
+    <span class="file">@smallcompany.net</span>
+    ends up in the same POP3 mailbox).
+</p>
+<p>
+    getmail provides a method of retrieving mail from a domain mailbox and
+    distributing it among the various users automatically.  The retriever
+    classes
+    <a href="configuration.html#retriever-multidroppop3">MultidropPOP3Retriever</a>,
+    <a href="configuration.html#retriever-multidroppop3ssl">MultidropPOP3SSLRetriever</a>,
+    <a href="configuration.html#retriever-multidropsdps">MultidropSDPSRetriever</a>,
+    <a href="configuration.html#retriever-multidropimap">MultidropIMAPRetriever</a>,
+    and
+    <a href="configuration.html#retriever-multidropimapssl">MultidropIMAPSSLRetriever</a>
+    provide this capability.
+</p>
+<p>
+    See the
+    <a href="configuration.html#conf-retriever-multidrop">documentation on the
+        <span class="file">[retriever]</span>
+    section</a>
+    for details of what the requirements for a multidrop mailbox are.
+    getmail user Matthias Andree also has a
+    <a href="http://www.dt.e-technik.uni-dortmund.de/~ma/mail/multidrop">web page about multidrop mailboxes</a>.
+</p>
+
+<h3 id="faq-configuring-mta">Do I have to run sendmail or another MTA to use getmail?</h3>
+<p>
+    No.  getmail delivers directly to maildirs, mboxrd files, or via arbitrary
+    MDAs, and never injects mail via SMTP, so no MTA is necessary.
+</p>
+
+<h3 id="faq-configuring-root">Will getmail deliver mail as root?</h3>
+<p>
+    No.  When run as the root user on a Unix-like system, getmail drops
+    privileges (switches to an unprivileged group and user id) before delivering
+    to maildirs or mboxrd files.  You can specify the user explicitly, or
+    let getmail use the owner of the maildir or mboxrd file.
+</p>
+<p>
+    If getmail attempts to deliver mail and finds it has UID 0 or GID 0, it
+    will refuse the delivery and print an error message.
+</p>
+
+<h3 id="faq-configuring-maildir">What's a maildir?</h3>
+<p>
+    A maildir is a mail storage format invented by D. J. Bernstein (author of
+    qmail) that requires no file locking to deliver to safely and reliably, even
+    over NFS.  getmail natively supports delivery to maildirs.
+</p>
+<p>
+    See
+    <a href="http://qmail.org/man/man5/maildir.html">http://qmail.org/man/man5/maildir.html</a>
+    and
+    <a href="http://cr.yp.to/proto/maildir.html">http://cr.yp.to/proto/maildir.html</a>
+    for details.
+</p>
+
+<h3 id="faq-configuring-mboxrd">What's &quot;mboxrd&quot; format?</h3>
+<p>
+    There are various sub-types of the mbox mail storage format.  mboxrd is
+    the most reliable of them, though (like all mbox types) it still relies
+    on file locking and is therefore more easily corrupted than maildir format.
+    In particular, using mbox files with multiple writers over NFS can be
+    problematic.
+</p>
+<p>
+    For details on the differences between the various mbox sub-types, see
+    <a href="http://qmail.org/man/man5/mbox.html">http://qmail.org/man/man5/mbox.html</a>.
+</p>
+
+<h3 id="faq-configuring-envelope">What's this &quot;envelope sender&quot; and &quot;envelope recipient&quot; stuff?</h3>
+<p>
+    The &quot;envelope&quot; of an email message is &quot;message
+    metadata&quot;; that is, the message is information, and the envelope is
+    information about the message (information about other information).
+    Knowing this is critical to understanding what a domain or multidrop mailbox
+    is, how it works, and what getmail can do for you.
+</p>
+<p>
+    <a href="http://cr.yp.to/smtp/mail.html">Others have tried to explain this</a>
+    with varying degrees of success.  I'll use the standard analogy of normal
+    postal (i.e. non-electronic) mail:
+</p>
+<h4 id="faq-configuring-envelope-header">Message header vs. message envelope</h4>
+<p>
+    When you receive a letter (a reply from the customer-disservice department
+    of your telephone company, say) it arrives in an envelope.  You tear it
+    open, remove the letter, and read it.  At the top of the letter is the
+    telephone company's return address, followed by the date the letter was
+    written.  Your name and mailing address follow that, and then the remainder
+    of the letter.
+</p>
+<p>
+    The important thing to keep in mind is that the contents of the letter
+    (including the addresses just discussed) are never looked at by the post
+    office.  If they can't deliver the letter (your mailing address on the
+    envelope got smudged in the rain), they'll return it to the address listed
+    in the top-left corner of the envelope.  They don't check to make sure that
+    the address listed there is the same as the one listed at the top of the
+    letter. Similarly, when they can successfully deliver it, they don't check
+    to make sure that the recipient name and address on the envelope matches the
+    one listed on the letter between the date and the salutation.
+</p>
+<p>
+    The message header fields
+    <span class="file">From:</span>
+    and
+    <span class="file">Resent-from:</span>
+    are equivalent to the block of address information at the top of the letter;
+    it usually contains the name and address of the sender of the message,
+    but it is never actually used in the delivery of the message.
+    Similarly, the
+    <span class="file">To:</span>,
+    <span class="file">cc:</span>,
+    <span class="file">Resent-to:</span>,
+    <span class="file">and Resent-cc:</span>
+    header fields are the equivalent of the block of address information between
+    the date and the salutation on the letter; they usually contain the names
+    and addresses of the intended recipients of the message, but they too are
+    not used in the delivery of the message.
+</p>
+<h4 id="faq-configuring-envelope-bcc">Receiving messages without your address in the message header</h4>
+<p>
+    You might open an envelope addressed to you and find that the letter inside
+    makes no mention of your name.  Your name and address don't appear anywhere
+    in the letter, but it was still successfully delivered to you based on the
+    envelope information.  There's nothing strange about this.  If someone else
+    opens your mail for you, discards the envelopes, and places the contents
+    in your in-basket, you might wonder how some of it ended up there, because
+    there's nothing to connect you with the message contents.
+</p>
+<p>
+    Email is exactly like this.  Each message has two parts, the message
+    contents, and the message envelope.  The message contents include the
+    message header, and the message body.  The message envelope is made up of
+    exactly one envelope sender address (which can be empty) and one or more
+    envelope recipient addresses.  If the message cannot be delivered for any
+    reason, and the envelope sender address is
+    <strong>not</strong>
+    empty, the message
+    <strong>must</strong>
+    be returned to the envelope sender address by the mail transfer agent (MTA)
+    which last accepted responsibility for delivering the message.
+    These notifications are known as &quot;bounce messages&quot; or
+    sometimes as &quot;non-delivery notifications&quot;.  Bounce messages are
+    sent using the empty envelope return path, to prevent mail loops from
+    occurring when a bounce message itself cannot be delivered.
+</p>
+<p>
+    Confusion often arises among novice users about the difference between the
+    message header and the message envelope; they seem to believe that they
+    are not independant.  This appears to be an artifact of their use of
+    simple-minded GUI mail user agents (MUAs) that do not allow them to set
+    the envelopes of their messages explicitly, but instead simply use the
+    contents of the From: header field as the envelope sender address, and
+    any addresses found in
+    <span class="file">To:</span>,
+    <span class="file">cc:</span>,
+    and
+    <span class="file">bcc:</span>
+    header fields as the envelope recipient addresses.  While these are
+    sensible
+    <em>as default values</em>,
+    more powerful MUAs allow the user to override this choice.
+</p>
+<h4 id="faq-configuring-envelope-record">Responsibility for recording the message envelope</h4>
+<p>
+    The last MTA to receive a message (usually the one running on the POP or
+    IMAP server where you retrieve your mail from) essentially acts as your
+    correspondence secretary, accepting your mail from the postman, opening it,
+    and placing it into your in-basket.  Note that this would normally destroy
+    the important information contained in the message envelope.  To prevent
+    this loss of information, this MTA is supposed to copy the information from
+    the envelope into new fields in the header of the message content, as if
+    your secretrary copied the sender and recipient addresses onto the back of
+    your letters in felt pen.  Unfortunately, some MTAs do not always do this
+    properly, and envelope information can then be lost.  When this happens,
+    it makes dealing with certain types of mail messages problematic:
+</p>
+<ul>
+    <li>
+        bcc'd messages (bcc stands for blind carbon copy), where you are an
+        envelope recipient, but your address does not appear in the message
+        content (i.e., your address does not appear in a
+        <span class="file">To:</span>,
+        <span class="file">cc:</span>,
+        or similar message header field).  With bcc'd messages, the
+        <span class="file">From:</span>
+        header field contains the name and address of the author of the message,
+        and the
+        <span class="file">To:</span>
+        and
+        <span class="file">cc:</span>
+        header fields contain the names and addresses of the other, non-blind
+        recipients of the message.
+    </li>
+    <li>
+        mailing list messages, where you are an envelope recipient, but your
+        address does not appear in the message content (i.e., your address does
+        not appear in a
+        <span class="file">To:</span>,
+        <span class="file">cc:</span>,
+        or similar message header field).  Mailing list messages have the
+        envelope sender address set to the mailing list manager (so that it
+        can monitor &quot;bad&quot; list addresses for bounces), while the
+        <span class="file">From:</span>
+        header field contains the name and address of the author of the
+        message.  The envelope recipient addresses of mailing list messages
+        are the addresses of the list subscribers, while the
+        <span class="file">To:</span>
+        header field usually contains the address of the mailing list.
+    </li>
+    <li>
+        other, less common cases.
+    </li>
+</ul>
+<p>
+    MTAs are supposed to record the envelope sender address by placing it into a
+    new
+    <span class="file">Return-Path:</span>
+    header field at the top of the message.  They should then record the
+    envelope recipient address(es) in another new header field; sometimes this
+    header field is named
+    <span class="file">Delivered-To:</span>,
+    but it can also be
+    <span class="file">Envelope-To:</span>
+    or one of a few other names.
+</p>
+<h4 id="faq-configuring-envelope-multidrop">How this relates to domain or multidrop mailboxes</h4>
+<p>
+    A domain or multidrop mailbox is one which receives mail for multiple email
+    addresses (commonly all addresses in a given domain).  If you do not want
+    all of this mail to go to one person, you need to know who the messages
+    were originally addressed to after retrieving them from the POP/IMAP
+    multidrop mailbox.  You
+    <strong>cannot</strong>
+    do this by looking at the
+    <span class="file">To:</span>,
+    <span class="file">cc:</span>,
+    or other informational message header fields, because they do not actually
+    reflect the message envelope at the time of delivery.  Instead, you have
+    to reconstruct the envelope information from the message header fields
+    which the MTA on the server used to record it at the time of delivery.
+</p>
+<p>
+    If the final MTA does not record the message envelope (the envelope sender,
+    and all envelope recipient addresses in the domain mailbox the message was
+    sent to), then
+    <em>mail will be lost or misdirected
+    <strong>regardless</strong>
+    of which software you use to access the mailbox</em>.
+    The mailbox cannot actually be said to be a domain mailbox in this case; the
+    defining characteristic of a domain mailbox is that it records the envelope
+    correctly. The configuration of the MTA running on the server needs to be
+    fixed so that the envelope is properly recorded for every message it
+    receives.
+</p>
+
+<h3 id="faq-configuring-simple">This rc stuff seems complicated.  Does it have to be?</h3>
+<p>
+    The configuration file format is actually very simple; you don't need
+    to worry about most of it if you're not interested in using those features.
+    The simplest and most common getmail rc file configuration will be for
+    users who want to retrieve all mail from a single-user POP3 mailbox,
+    deliver those messages to a maildir or mbox file, and delete the mail from
+    the server.  For maildir, that configuration is:
+</p>
+<pre class="example">
+[options]
+delete = True
+
+[retriever]
+type = SimplePOP3Retriever
+server = my-pop3-servername
+username = my-pop3-username
+password = my-pop3-password
+
+[destination]
+type = Maildir
+path = ~/Maildir/
+</pre>
+<p>
+    For an mbox file, that configuration is:
+</p>
+<pre class="example">
+[options]
+delete = True
+
+[retriever]
+type = SimplePOP3Retriever
+server = my-pop3-servername
+username = my-pop3-username
+password = my-pop3-password
+
+[destination]
+type = Mboxrd
+path = ~/inbox
+</pre>
+
+<!-- ********************************************************************** -->
+<h2 id="faq-how">How do I &hellip;</h2>
+
+<h3 id="faq-how-multi">How do I retrieve mail from multiple accounts?</h3>
+<p>
+    Create a separate getmail rc file for each account, and run getmail with
+    multiple
+    <span class="file">--rcfile</span>
+    options.
+</p>
+<p>
+    Of course, it's really easy to script this for a large number of
+    <span class="file">rc-*</span>
+    files.  You might create a script in
+    <span class="file">$HOME/bin/run-getmail.sh</span>
+    containing:
+</p>
+<pre class="example">
+#!/bin/sh
+set -e
+cd /path/to/my-rc-directory
+rcfiles=""
+for file in rc-* ; do
+  rcfiles="$rcfiles --rcfile $file"
+done
+exec /path/to/getmail $rcfiles $@
+</pre>
+<p>
+    See any beginner's tutorial on Unix shell scripting for details.
+</p>
+
+<h3 id="faq-how-filter">How do I get getmail to deliver messages to different mailboxes based on &hellip;</h3>
+<p>
+    If you want getmail to sort messages based on who they're from, or what address appears in the
+    <span class="file">To:</span>
+    or
+    <span class="file">cc:</span>
+    header fields, or based on the
+    <span class="file">Subject:</span>
+    field contents, or anything like that, pick a filtering MDA
+    (like maildrop or procmail), and call it from a getmail
+    <a href="configuration.html#destination-mdaexternal"><span class="file">MDA_external</span></a>
+    destination.
+</p>
+
+<h3 id="faq-how-no-delivered-to">How do I stop getmail adding a Delivered-To: header to messages?</h3>
+<p>
+    Use the
+    <a href="configuration.html#conf-options">delivered_to</a>
+    <span class="file">[options]</span>
+    parameter.
+</p>
+
+<h3 id="faq-how-no-received">How do I stop getmail adding a Received: header to messages?</h3>
+<p>
+    Use the
+    <a href="configuration.html#conf-options">received</a>
+    <span class="file">[options]</span>
+    parameter.
+</p>
+
+<h3 id="faq-how-smtp">How do I make getmail deliver messages by re-injecting with SMTP?</h3>
+<p>
+    You don't need to.  getmail can deliver to maildirs, mboxrd files, or
+    through arbitrary external MDAs.
+</p>
+<p>
+    If you still think you need to, you can use getmail's
+    <a href="configuration.html#destination-mdaexternal">external MDA support</a>
+    to do so.
+</p>
+
+<h3 id="faq-how-create-maildir">How do I create a maildir?</h3>
+<p>
+    Use the
+    <span class="file">maildirmake</span>
+    command, if you have it installed.  Otherwise, run the following command
+    from your shell:
+</p>
+<pre class="example">
+$ mkdir -p /path/to/Maildir/{cur,new,tmp}
+</pre>
+<p>
+    Some other maildir-aware programs ship with their own maildir-creation
+    programs; you can use those, or make the above shell command a shellscript
+    or alias if you like.
+</p>
+
+<h3 id="faq-how-create-mboxrd">How do I create an mboxrd file?</h3>
+<p>
+    Create a completely empty (i.e. zero bytes long) file via your favourite
+    method.  The standard utility
+    <span class="file">touch</span>
+    is commonly used:
+</p>
+<pre class="example">
+$ touch /path/to/mboxrd
+</pre>
+
+<h3 id="faq-how-mh">How do I make getmail deliver messages to an mh folder?</h3>
+<p>
+    <a href="http://www.ics.uci.edu/~mh/">mh</a>
+    clients (and
+    <a href="http://www.nongnu.org/nmh/">nmh</a>,
+    or &quot;new mh&quot; clients)
+    include a command for delivering a message into your mh folder.  In nmh,
+    this command is called
+    <span class="file">rcvstore</span>.
+    You use it as an external message delivery agent (MDA) with getmail's
+    <a href="configuration.html#destination-mdaexternal">MDA_external</a>
+    destination.  Ensure your
+    <span class="file">$HOME/.mh_profile</span>
+    file is configured properly; getmail user Frankye Fattarelli suggests a
+    line like the following is necessary to indicate the path to your mh
+    mail root:
+</p>
+<pre class="example">
+Path: Mail
+</pre>
+<p>
+    Then use MDA_external like this (which, after adjusting the path of the
+    command to reflect your mh/nmh installation, should work with either mh or
+    nmh):
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /usr/local/libexec/nmh/rcvstore
+arguments = (&quot;+inbox&quot;, )
+</pre>
+<p>
+    Thanks to Frankye Fattarelli for contributing this answer.
+</p>
+
+<h3 id="faq-how-daemon">How do I run getmail in &quot;daemon&quot; mode?</h3>
+<p>
+    getmail does not have, and does not need, any special &quot;daemon mode&quot;.
+    You just run getmail under whatever process-supervision or periodic-job
+    system you already have on your system.
+</p>
+<p>
+    For example, if you use daemontools/svscan/supervise, you can configure a getmail
+    &quot;service&quot; using a simple run script like:
+</p>
+<pre class="example">
+#!/bin/sh
+
+/path/to/getmail [options]
+sleep 1800
+</pre>
+<p>
+    That example would run getmail continuously, sleeping for 30 minutes between
+    runs.  You can probably work out similar scripts for other process-supervision
+    systems.
+</p>
+<p>
+    If you don't have such a system, you can use your system's cron utility to run getmail
+    periodically, but you absolutely have to prevent multiple copies of getmail from being
+    run by cron simultaneously.  Most versions of cron have no protection for this built-in,
+    so you have to use setlock or flock or a similar utility to prevent it.  For more
+    details, see <a href="#faq-how-to-mutex">How do I stop multiple instances of getmail from running at the same time?</a>
+    below.  <b>If you do not prevent multiple copies of getmail running against the same server
+    (and IMAP folder) simultaneously, you will get odd behaviour, including retrieving
+    the same messages multiple times.</b>
+</p>
+
+<h3 id="faq-how-maxpersession">How do I make getmail stop after retrieving X messages so that the server actually flushes deleted messages?</h3>
+<p>
+    Use the
+    <a href="configuration.html#conf-options"><span class="file">max_messages_per_session</span></a>
+    option to limit the number of messages getmail will process in a single
+    session.  Some users with flaky servers use this option to reduce the
+    chances of seeing messages more than once if the server dies in mid-session.
+</p>
+
+<h3 id="faq-how-hotmail">How do I make getmail retrieve mail from Hotmail?</h3>
+<p>
+    Well, you could write a retriever that speaks Hotmail's proprietary,
+    undocumented, and unsupported access protocol (or pay me to write one),
+    or simply set up the POP3 proxy from the
+    <a href="http://httpmail.sourceforge.net/">httpmail</a>
+    package, and have getmail retrieve mail from that POP3 proxy.
+</p>
+
+<h3 id="faq-how-to">I'm using getmail.  How do I make it &hellip;</h3>
+<p>
+    These are supplementary questions I occasionally see about doing various
+    things to enhance a
+    <span class="file">getmail</span>
+    setup.  The solution to many of them is to use a standard Unix technique
+    of some sort to make the system behave in a certain manner, or otherwise
+    change the behaviour of something that's actually outside of
+    <span class="file">getmail</span>
+    proper.
+</p>
+
+<h4 id="faq-how-to-tempstop">I'm running getmail from cron.  How do I temporarily stop it?</h4>
+<p>
+    Some people ask about temporarily stopping
+    <span class="file">getmail</span>
+    from running from a
+    <span class="file">cron</span>
+    job, possibly because the mail server is down and they don't want to see
+    the warnings
+    <span class="file">cron</span>
+    mails them.
+</p>
+<p>
+    The easiest method is to comment out
+    <span class="file">getmail</span>
+    from your
+    <span class="file">crontab</span>
+    file:
+</p>
+<ol>
+    <li>
+        Run
+        <pre class="example">$ crontab -e</pre>
+        to edit your
+        <span class="file">crontab</span>
+        file.
+    </li>
+    <li>
+        Place a # (pound) character at the start of the line containing the call
+        to
+        <span class="file">getmail</span>.
+    </li>
+    <li>
+        Save the changed file.
+    </li>
+</ol>
+<p>
+    When you want to re-enable getmail, edit the file again and un-do the
+    above change.
+</p>
+<p>
+    If you need to do this on a regular basis, you can instead use a
+    &quot;flag file&quot; to tell the system whether or not to run
+    <span class="file">getmail</span>:
+</p>
+<p>
+    Change your
+    <span class="file">cron</span>
+    job or shellscript that normally launches
+    <span class="file">getmail</span>
+    to check for the presence of a certain file first, and have it not run
+    <span class="file">getmail</span>
+    if that file is present.  For example, your
+    <span class="file">crontab</span>
+    entry could be changed to do this:
+</p>
+<pre class="example">
+    [ -f ~/.getmail/do-not-run ] || /path/to/getmail
+</pre>
+<p>
+    When you don't want getmail to run,
+    <span class="file">touch</span>
+    that file:
+</p>
+<pre class="example">
+    $ touch ~/.getmail/do-not-run
+</pre>
+<p>
+    When you want getmail to run again, delete it:
+</p>
+<pre class="example">
+    $ rm -f ~/.getmail/do-not-run
+</pre>
+<p>
+    This is even safe for scripting, as creating and removing the file are
+    atomic operations under Unix.
+</p>
+
+<h4 id="faq-how-to-mutex">How do I stop multiple instances of getmail from running at the same time?</h4>
+<p>
+    getmail has no problems running multiple instances in parallel, though you
+    shouldn't attempt to use the same getmail rc file from two different
+    instances at the same time.  If you need to prevent two instances of getmail
+    from running simultaneously, use any standard Unix method of providing a
+    mutex for this purpose.  One example would be to run getmail under a
+    program like
+    <span class="file">setlock</span>
+    (part of the
+    <a href="http://cr.yp.to/daemontools.html"><span class="file">daemontools</span></a>
+    package).  Change your script or
+    <span class="file">crontab</span>
+    file to invoke getmail like this:
+</p>
+<pre class="example">
+/path/to/setlock -n /path/to/lockfile /path/to/getmail [getmail options]
+</pre>
+<p>
+    There are other programs that provide functionality similar to
+    <span class="file">setlock</span>.
+</p>
+
+<!-- ********************************************************************** -->
+<h2 id="faq-integrating">Using getmail with other software</h2>
+<p>
+    getmail user Frankye Fattarelli contributed to the following questions
+    about integrating getmail with SpamAssassin and ClamAV.
+</p>
+
+<h3 id="faq-integrating-spamassassin">How do I use SpamAssassin with getmail?</h3>
+<p>
+    <a href="http://useast.spamassassin.org/index.html">SpamAssassin</a>
+    can be run in standalone mode or in a client/server configuration.
+    In both configurations, SpamAssassin accepts a wide variety of arguments;
+    please refer to SpamAssassin's manual pages or
+    <a href="http://useast.spamassassin.org/doc.html">online documentation</a>
+    for details.
+</p>
+<p>
+    To filter messages through SpamAssassin in a client/server configuration
+    (i.e. with the
+    <span class="file">spamd</span>
+    daemon), use a configuration like this:
+</p>
+<pre class="example">
+[filter]
+type = Filter_external
+path = /usr/local/bin/spamc
+arguments = (&quot;-s 10000&quot;, )
+</pre>
+<p>
+    The value supplied to the
+    <span class="file">-s</span>
+    option is the maximum message size accepted (in bytes).  The default
+    is 250k.
+</p>
+<p>
+    A similar configuration without the
+    <span class="file">spamd</span>
+    daemon would be:
+</p>
+<pre class="example">
+[filter]
+type = Filter_external
+path = /usr/local/bin/spamassassin
+arguments = (&quot;--report&quot;, )
+</pre>
+<p>
+    The
+    <span class="file">--report</span>
+    option sends the message to the various spam-blocker databases and tags it
+    as spam in your bayesian database.
+</p>
+<p>
+    Note that if you are using Bayesian (learning) filtering, and you've put
+    your SpamAssassin filter
+    <em>after</em>
+    any getmail
+    <span class="file">Filter_classifier</span>,
+    you may have a problem with your learning filter learning getmail's
+    header fields.  That is, the headers added by the other filters may get
+    learned, and affect your database.  To prevent this, ensure that
+    SpamAssassin ignores these fields by adding the following to your
+    SpamAssassin configuration:
+</p>
+<pre class="example">
+bayes_ignore_header X-getmail-filter-classifier
+</pre>
+
+<h3 id="faq-integrating-clamav">How do I use ClamAV with getmail?</h3>
+<p>
+    You should also read <a href="http://article.gmane.org/gmane.mail.getmail.user/1486">this message</a>
+    in the getmail users' mailing list archives and the ClamAV documentation if
+    you want to use ClamAV with getmail.
+</p>
+<p>
+    <a href="http://www.clamav.net/">ClamAV</a>,
+    like SpamAssassin, can by used in standalone or client/server
+    configurations.  In either case, you need to add the
+    <span class="file">StreamSaveToDisk</span>
+    option to your
+    <span class="file">clamav.conf</span>
+    file to enable scanning from stdin.
+</p>
+<p>
+    To use ClamAV without the
+    <span class="file">clamd</span>
+    daemon, use a filter configuration like this:
+</p>
+<pre class="example">
+[filter]
+type = Filter_classifier
+path = /usr/local/bin/clamscan
+arguments = (&quot;--stdout&quot;, &quot;--no-summary&quot;,
+    &quot;--mbox&quot;, &quot;--infected&quot;, &quot;-&quot;)
+exitcodes_drop = (1,)
+</pre>
+<p>
+    The above assumes you do
+    <em>not</em>
+    want the infected emails to be delivered.  If you do want them delivered,
+    you would use a slightly different configuration:
+</p>
+<pre class="example">
+[filter]
+type = Filter_classifier
+path = /usr/local/bin/clamscan
+arguments = (&quot;--stdout&quot;, &quot;--no-summary&quot;,
+    &quot;--mbox&quot;, &quot;--infected&quot;, &quot;-&quot;)
+exitcodes_keep = (0,1)
+</pre>
+<p>
+    To use ClamAV with the
+    <span class="file">clamd</span>
+    daemon, use a filter configuration like this:
+</p>
+<pre class="example">
+[filter]
+type = Filter_classifier
+path = /usr/local/bin/clamdscan
+arguments = (&quot;--stdout&quot;, &quot;--disable-summary&quot;, &quot;-&quot;)
+exitcodes_drop = (1, )
+</pre>
+<p>
+    As with Clamscan (above), if you do want the infected messages delivered
+    instead of dropped, you should modify your configuration as follows:
+</p>
+<pre class="example">
+[filter]
+type = Filter_classifier
+path = /usr/local/bin/clamdscan
+arguments = (&quot;--stdout&quot;, &quot;--disable-summary&quot;, &quot;-&quot;)
+exitcodes_keep = (0,1)
+</pre>
+<p>
+    You may find it necessary to specify the paths of some decompression
+    utilities used by ClamAV with additional arguments like:
+</p>
+<pre class="example">
+arguments = ( &hellip;,
+    &quot;--unzip=/usr/local/bin/unzip&quot;,
+    &quot;--unrar=/usr/local/bin/unrar&quot;,
+    &quot;--unarj=/usr/local/bin/unarj&quot;,
+    &quot;--lha=/usr/local/bin/lha&quot;,
+    &quot;--jar=/usr/local/bin/unzip&quot;,
+    &quot;--tar=/usr/bin/tar&quot;,
+    &quot;--tgz=/usr/bin/tar&quot;
+</pre>
+<p>
+    Note: if you want to use the daemonized (client/server) version of ClamAV,
+    ensure that your
+    <span class="file">clamav.conf</span>
+    file contains:
+</p>
+<pre class="example">
+ScanMail
+</pre>
+<p>
+    The paths to the various decompression utilities must be specified in this
+    file as well.
+</p>
+<p>
+    See the following mailing list message from Frankye Fattarelli for
+    additional notes on using ClamAV with getmail:
+    <a href="https://marc.info/?l=getmail&amp;m=109128345509273&amp;w=2">https://marc.info/?l=getmail&amp;m=109128345509273&amp;w=2</a>
+</p>
+
+<h4 id="faq-integrating-clamav-prettier">Getting prettier output from ClamAV</h4>
+<p>
+    Using getmail's Filter_classifier, the output of your filtering program
+    (in this case ClamAV) is placed into a
+    <span class="file">X-getmail-filter-classifier:</span>
+    header field in the message.  This can make auditing the actions of
+    filters difficult if you use multiple filters and cannot tell which
+    filter added which line.
+</p>
+<p>
+    To correct this, you can use an additional filter to change the name of
+    the added filter header lines immediately after each filter is run.
+    For example,
+    <span class="file">reformail</span>,
+    from the
+    <a href="http://www.flounder.net/~mrsam/maildrop/">maildrop</a>
+    package (which is in turn part of the
+    <a href="http://www.courier-mta.org/">Courier MTA</a>
+    ) can be used in this fashion to rename the added header fields
+    (say, to &quot;X-mypersonalmailscan&quot;) with a filter configuration
+    like this:
+</p>
+<pre class="example">
+type = Filter_external
+path = /usr/local/bin/reformail
+arguments = (&quot;-R&quot;, &quot;X-getmail-filter-classifier:&quot;,
+    &quot;X-mypersonalmailscan:&quot;)
+</pre>
+<p>
+    Simply ensure ClamAV is invoked as the first filter, and this is invoked
+    as the second filter (or immediately after the ClamAV filter, if it is
+    the second, third, etc. filter).
+</p>
+
+<h3 id="faq-integrating-fprot">How do I use F-Prot with getmail?</h3>
+<p>
+    getmail user Kai Raven reports that getmail and F-Prot work fine together
+    with the following getmailrc filter configuration:
+</p>
+<pre class="example">
+[filter]
+type = Filter_external
+path = /usr/local/bin/f-prot-wrapper.sh
+</pre>
+<p>
+    The wrapper script
+    <span class="file">f-prot-wrapper.sh</span>
+    is a small shellscript by Ali Onur Cinar, and
+    <a href="http://www.zdo.com/articles/res/f-prot-wrapper.sh">can be downloaded from his website</a>.
+</p>
+
+<h3 id="faq-integrating-procmail">How do I use procmail with getmail?</h3>
+<p>
+    Simply invoke
+    <span class="file">procmail</span>
+    as an
+    <a href="configuration.html#destination-mdaexternal">external MDA</a>.
+    <span class="file">procmail</span>
+    requires that one of the following be true:
+</p>
+<ul>
+    <li>
+        that the message begin with a Unix &quot;From &quot; line
+        (the mbox message delimiter)
+    </li>
+    <li>
+        that
+        <span class="file">procmail</span>
+        is invoked with the
+        <span class="file">-f</span>
+        option supplying the envelope sender, so that it may generate the
+        &quot;From &quot; line
+    </li>
+</ul>
+<p>
+    To have getmail generate and prepend the &quot;From &quot; line to the
+    start of the message, set the MDA_external
+    parameter
+    <span class="file">unixfrom</span>
+    to True:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/procmail
+unixfrom = True
+</pre>
+<p>
+    To supply the
+    <span class="file">-f</span>
+    option to procmail, do something like this:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/procmail
+arguments = (&quot;-f&quot;, &quot;%(sender)&quot;)
+</pre>
+
+<h3 id="faq-integrating-maildrop">How do I use maildrop with getmail?</h3>
+<p>
+    Simply invoke maildrop as an
+    <a href="configuration.html#destination-mdaexternal">external MDA</a>.
+    maildrop requires that the message begin with a Unix &quot;From &quot; line
+    (the mbox message delimiter), so you'll need to either set the MDA_external
+    parameter unixfrom to True, or supply arguments that tell maildrop to
+    recreate this line. One of the following would be fine:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/maildrop
+arguments = (&quot;-f&quot;, &quot;%(sender)&quot;)
+</pre>
+<p>
+    Or:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/maildrop
+unixfrom = True
+</pre>
+<p>
+    If you want to specify a maildrop rc file as one of its arguments, that
+    would be something like:
+</p>
+<pre class="example">
+[destination]
+type = MDA_external
+path = /path/to/maildrop
+arguments = (&quot;-f&quot;, &quot;%(sender)&quot;, &quot;~/.maildroprc&quot;)
+</pre>
+
+<h3 id="faq-integrating-tmda">How do I use TMDA with getmail?</h3>
+<p>
+    Simply use the
+    <a href="configuration.html#conf-filters-tmda">Filter_TMDA</a>
+    module as a message filter:
+</p>
+<pre class="example">
+[filter-X]
+type = Filter_TMDA
+</pre>
+<p>
+    See the documentation for details on optional parameters to the
+    <a href="configuration.html#conf-filters-tmda">Filter_TMDA module</a>.
+</p>
+
+<h4 id="faq-integrating-gmail">How can I get Gmail labels with getmail?</h4>
+<p>
+    As of getmail version 4.34.0, getmail retrieves the labels and other metadata
+    that Gmail makes available via an IMAP extension, and records that information
+    in the message headers
+    <span class="file">X-GMAIL-LABELS:</span>,
+    <span class="file">X-GMAIL-THRID:</span>,
+    and <span class="file">X-GMAIL-MSGID:</span>.
+</p>
+
+<!-- ********************************************************************** -->
+<h2 id="faq-notabug">I think I found this bug in getmail &hellip;</h2>
+<p>
+    I get frequent reports like the following, which aren't bugs in getmail.
+    Please read them before reporting them to me.
+</p>
+
+<h3 id="faq-notabug-gmail-bug">getmail doesn't download all my mail from Gmail &hellip;</h3>
+<p>
+    There's a couple of different problems here.  One is that Google's Gmail service violates
+    the POP3 protocol by removing messages from the POP3 view of the mailbox without the user
+    issuing a DELE command.  They do this as soon as an RETR command is given, so if getmail
+    tries to download a message and it fails for any reason (delivery fails due to a full disk,
+    or the Gmail server fails to respond, or the network connection dies before the transfer is
+    complete, or the Gmail server fails to respond to the QUIT command, or &hellip;),
+    the next time getmail connects to that Gmail account, Gmail will have &quot;helpfully&quot;
+    deleted the message from the POP3 mailbox, even though getmail never issued a DELE command.
+    So Gmail silently destroys mail, from a POP3 perspective.  There's nothing getmail can do
+    about this.
+</p>
+<p>
+    Note this feature of Gmail is <strong>not</strong> well-publicized.  The only mention I
+    can find of it is here:
+    <a href="http://mail.google.com/support/bin/answer.py?answer=13291&amp;topic=1555">http://mail.google.com/support/bin/answer.py?answer=13291&amp;topic=1555</a>
+</p>
+<p>
+    The other issue here is that Google doesn't include mail from your trash or spam folders in
+    the POP3 view, so getmail can't see those messages either.  That's generally less of an issue,
+    provided their spam filters never give false positive results (ha!).
+</p>
+
+<h3 id="faq-notabug-futurewarning">FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up</h3>
+<p>
+    Various people have reported this &quot;bug&quot; in getmail, where they
+    see the following warning when getmail is run:
+</p>
+<pre class="example">
+/usr/lib/python2.3/optparse.py:668: FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up
+  return (&quot;&lt;%s at 0x%x: %r&gt;&quot;
+</pre>
+<p>
+    This warning is a bug in Python 2.3.4's
+    <span class="file">optparse.py</span>
+    module, not in getmail.  Feel free to report it to the Python team if the
+    most recent release of Python hasn't fixed it.  I reported it in June, 2004.
+</p>
+
+<h3 id="faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</h3>
+<p>
+    Various people have reported this &quot;bug&quot; in getmail &mdash; it's
+    actually a bug in some versions of Python 2.3.X.  It was fixed in Python
+    version 2.3.3.  getmail 5 detects problematic versions of Python and refuses
+    to run, but you can still encounter this problem with getmail version 3
+    if you try to run it with a broken Python version.
+</p>
+
+<h3 id="faq-notabug-brokenpopserver">operation error (SimplePOP3Retriever: [...] does not uniquely identify messages [...] see documentation or use BrokenUIDLPOP3Retriever instead</h3>
+<p>
+    The server you're trying to use does not properly uniquely identify messages
+    (getmail noticed when it saw the same &quot;unique&quot; identifier twice in
+    the same mailbox at the same time).  getmail needs these identifiers to be
+    unique so that it can properly tell the difference between new and old
+    messages.
+</p>
+<p>
+    If you see this error message, and you've configured getmail to retrieve
+    and immediately delete all messages, just switch to using the
+    BrokenUIDLPOP3Retriever class (or its SSL variant) -- it'll work fine.
+</p>
+<p>
+    If you see this error message, and you're trying to leave messages on the
+    server after retrieval (permanently, or for a few days with
+    <span class="sample">delete_after</span>),
+    you have a few options to try to resolve it:
+</p>
+<ul>
+    <li>
+        If your provider also offers IMAP access to your mailbox, try one of
+        the IMAP retrievers instead.
+    </li>
+    <li>
+        Change your configuration so you're not leaving messages on the server,
+        and use BrokenUIDLPOP3Retriever instead.
+    </li>
+    <li>
+        Talk to your mail hosting provider, and see if they can fix their
+        POP3 software so that it doesn't have this problem any more.
+    </li>
+</ul>
+
+<h3 id="faq-notabug-osx-realloc">MemoryError on OS X</h3>
+<p>
+    If you see errors like this while running getmail on Macintosh OS X:
+</p>
+<pre class="example">
+python2.5(27172) malloc: *** vm_allocate(size=15699968) failed (error code=3)
+python2.5(27172) malloc: *** error: can't allocate region
+python2.5(27172) malloc: *** set a breakpoint in szone_error to debug
+[...]
+</pre>
+<p>
+    ... which then end with <span class="sample">MemoryError</span>,
+    please report the problem to Apple.
+    The
+    <a href="http://bugs.python.org/issue1092502">OS X implementation of realloc() is broken</a>,
+    and there's nothing getmail can do about it.
+</p>
+
+<h3 id="faq-notabug-memory">MemoryError when using IMAP</h3>
+<p>
+    If you see errors like this while running getmail configured to retrieve
+    mail via IMAP or IMAP-over-SSL:
+</p>
+<pre class="example">
+Python(24006) malloc: *** mmap(size=9875456) failed (error code=12)
+[...]
+</pre>
+<p>
+    ... which then end with <span class="sample">MemoryError</span>,
+    you've run into
+    <a href="http://bugs.python.org/issue1389051">a bug in Python's IMAP library</a>.
+    It's fixed in the most recent versions of Python 2.5 and 2.6.  This bug can
+    cause getmail to grow to a huge size, vastly out of proportion to the size
+    of the message it's retrieving, at which point Python may fail or be killed
+    when the system runs out of memory.
+</p>
+<p>
+    Upgrade your Python installation to the newest Python 2.5 or 2.6 version to
+    fix the problem, or use POP3 instead of IMAP to work around it.
+</p>
+
+
+        <!--#include virtual="/include/footer-xhtml11.html"-->
+    </div>
+    <!--#include virtual="/include/menu-top.html"-->
+    <!--#include virtual="/include/header.html"-->
+</body>
+</html>

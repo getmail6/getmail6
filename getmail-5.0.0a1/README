@@ -1,0 +1,54 @@
+getmail version 4 -- a flexible, extensible mail retrieval system with
+support for POP3, IMAP4, SSL variants of both, maildirs, mboxrd files,
+external MDAs, arbitrary message filtering, single-user and domain-mailboxes,
+and many other useful features.
+
+getmail is Copyright (C) 1998-2010 Charles Cazabon.
+getmail is licensed for use under the GNU General Public License version 2
+(only).  See docs/COPYING for specific terms and distribution information.
+
+getmail version 4 requires Python version 2.3.3 or later.  You can have
+several installed versions of Python peacefully co-existing, see
+python.org for details.
+
+To install:  getmail v.4 uses the standard Python distutils.  Do the following
+  as a regular user:
+
+    python setup.py build
+
+  Then (probably as root), do:
+
+    python setup.py install
+
+  This will install the software as follows:
+
+    -the four scripts will be installed in <PREFIX>/bin/
+    -the Python files will be installed under the site-packages directory of
+     your Python installation (typically /usr/local/lib/pythonXXX or
+     /usr/lib/pythonXXX, but may be elsewhere -- this is detected automatically)
+    -the documentation will be installed under <PREFIX>/doc/getmail-<version>/
+    -the man pages will be installed under <PREFIX>/man/
+
+  <PREFIX> is the directory Python was configured to install under (typically
+  either /usr/local/ or /usr/, but may be another value).  See the file
+  docs/documentation.html or docs/documentation.txt for details on installing
+  files to directories other than these defaults.
+
+The four scripts included in the package (getmail, getmail_maildir,
+getmail_mbox, and getmail_fetch) will have their "#!"-interpreter line
+automatically modified to invoke the Python interpreter you run the setup
+script with.  If you later remove this version of Python, and the newer version
+does not provide a link to the interpreter with that name, you will have to
+modify the scripts or re-run the setup.py script.
+
+See the HTML documentation for details on setting up and using getmail.  It is
+included in the docs subdirectory of the distribution tarball, and will be
+installed in <PREFIX>/doc/getmail-<version>/ (by default).  10-second summary
+for personal use:
+
+  1. Install getmail
+  2. mkdir -m 700 ~/.getmail
+  3. Create ~/.getmail/getmailrc by following the instructions.
+  4. Run `getmail`.
+
+See docs/BUGS for instructions on reporting bugs in this software.
