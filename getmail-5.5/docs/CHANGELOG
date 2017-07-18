@@ -1,3 +1,9 @@
+Version 5.5
+18 December 2017
+    -feature request: added record_mailbox configuration parameter, to allow
+    turning off the header getmail adds with this information.
+    Thanks: Daniel Kahn Gillmor, Osamu Aoki,  Josh Triplett.
+
 Version 5.4
 6 October 2017
     -bugfix: fix another error in logging an error condition.  Thanks: "ng0".

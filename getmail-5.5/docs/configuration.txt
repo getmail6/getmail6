@@ -404,6 +404,11 @@ mailboxes = ALL
        The specified mail folder must exist; getmail will not create it.
        Note that if you configure getmail not to delete retrieved messages
        (the default behaviour), they will not be moved at all.
+     * record_mailbox (boolean) — whether to add a
+       X-getmail-retrieved-from-mailbox: header field to retrieved
+       messages, containing the name of the selected mailbox that the
+       message was retrieved from. This is on by default, but can be
+       disabled.
      * use_kerberos (boolean) — whether to use Kerberos authentication
        with the IMAP server. If not set, normal password-based
        authenticaion is used. Note that when you use Kerberos

@@ -383,6 +383,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
                            default="('INBOX', )", allow_specials=('ALL',)),
         ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
+        ConfBool(name='record_mailbox', required=False, default=True),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
         # .authenticate(), so we can't do this yet (?).
         ConfBool(name='use_cram_md5', required=False, default=False),
@@ -425,6 +426,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
                            default="('INBOX', )", allow_specials=('ALL',)),
         ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
+        ConfBool(name='record_mailbox', required=False, default=True),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
         ConfFile(name='ca_certs', required=False, default=None),
@@ -472,6 +474,7 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
                            default="('INBOX', )", allow_specials=('ALL',)),
         ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
+        ConfBool(name='record_mailbox', required=False, default=True),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
         # .authenticate(), so we can't do this yet (?).
         ConfBool(name='use_cram_md5', required=False, default=False),
@@ -515,6 +518,7 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
                            default="('INBOX', )", allow_specials=('ALL',)),
         ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
+        ConfBool(name='record_mailbox', required=False, default=True),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
         ConfFile(name='ca_certs', required=False, default=None),
@@ -544,3 +548,4 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
         self.log.trace()
         self.log.info('MultidropIMAPSSLRetriever(%s)' % self._confstring()
                       + os.linesep)
+

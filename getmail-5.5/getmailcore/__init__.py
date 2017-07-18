@@ -16,7 +16,7 @@ if sys.hexversion < 0x2030300:
     raise ImportError('getmail version 4 requires Python version 2.3.3'
                       ' or later')
 
-__version__ = '5.4'
+__version__ = '5.5'
 
 __all__ = [
     'baseclasses',

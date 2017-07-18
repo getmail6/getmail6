@@ -637,6 +637,13 @@ mailboxes = ALL
         will not be moved at all.
     </li>
     <li>
+        record_mailbox
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; whether to add a X-getmail-retrieved-from-mailbox: header field
+        to retrieved messages, containing the name of the selected mailbox that
+        the message was retrieved from.  This is on by default, but can be disabled.
+    </li>
+    <li>
         use_kerberos
         (<a href="#parameter-boolean">boolean</a>)
         &mdash; whether to use Kerberos authentication with the IMAP server.

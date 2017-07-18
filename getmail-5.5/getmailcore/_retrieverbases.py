@@ -1582,8 +1582,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                                             % msgid)
 
             # record mailbox retrieved from in a header
-            msg.add_header('X-getmail-retrieved-from-mailbox', 
-                           self.mailbox_selected)
+            if self.conf['record_mailbox']:
+                msg.add_header('X-getmail-retrieved-from-mailbox', 
+                               self.mailbox_selected)
 
             # google extensions: apply labels, etc
             if 'X-GM-EXT-1' in self.conn.capabilities:
