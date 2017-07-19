@@ -1,3 +1,7 @@
+Version 4.54.0
+19 February 2017
+    -fix error running getmail_fetch introduced in 4.53.0.  Thanks: "fsckd".
+
 Version 4.53.0
 15 January 2017
     -fix plaintext version of docs not generated correctly.  Thanks: Elijah.

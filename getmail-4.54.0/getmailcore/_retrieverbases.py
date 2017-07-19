@@ -439,7 +439,7 @@ class Py24POP3SSLinitMixIn(object):
             fingerprint_message += ' using cipher %s' % ssl_cipher
         fingerprint_message += os.linesep
 
-        if self.app_options['fingerprint']:
+        if self.app_options.get('fingerprint', False):
             self.log.info(fingerprint_message)
         else:
             self.log.trace(fingerprint_message)

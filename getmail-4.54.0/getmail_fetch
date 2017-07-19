@@ -9,6 +9,7 @@ if sys.hexversion < 0x2030300:
 import os
 import socket
 import poplib
+import new
 from optparse import OptionParser
 
 try:
@@ -132,6 +133,10 @@ def main():
         if len(args) != 4:
             raise getmailOperationError('incorrect arguments; try --help'
                                         % args)
+
+        def get(self, key, value=None):
+            return getattr(self, key, value)
+        options.get = new.instancemethod(get, options, options.__class__)
 
         msg = None
         if options.message is not None:
