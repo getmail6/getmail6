@@ -1,3 +1,8 @@
+Version 5.6
+02 April 2018
+    -fix references to version 4 in README.  Thanks: Daniel Kahn Gillmor.
+    -add Gmail-specific XOAUTH2 login support for IMAP.  Thanks: Stefan Krah.
+
 Version 5.5
 18 December 2017
     -feature request: added record_mailbox configuration parameter, to allow

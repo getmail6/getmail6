@@ -1695,6 +1695,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                         'login_cram_md5', self.conf['username'],
                         self.conf['password']
                     )
+                elif self.conf['use_xoauth2']:
+                    # octal 1 / ctrl-A used as separator
+                    auth = 'user=%s\1auth=Bearer %s\1\1' % (self.conf['username'],
+                                                            self.conf['password'])
+                    self.conn.authenticate('XOAUTH2', lambda unused: auth)
                 else:
                     self._parse_imapcmdresponse('login', self.conf['username'],
                                                 self.conf['password'])

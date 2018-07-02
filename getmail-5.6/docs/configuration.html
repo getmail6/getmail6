@@ -570,7 +570,7 @@ type = <span class="meta">typename</span>
         via the keychain.  See <a href="http://article.gmane.org/gmane.mail.getmail.user/5120">this
         posting to the getmail users' mailing list by Alan Schmitt</a> for details.
     </li>
-    <li>
+    <li id="password_command">
         password_command
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
         &mdash; retrieve the account password by running an arbitrary external 
@@ -655,6 +655,24 @@ mailboxes = ALL
         support is installed; check your OS distribution or see
         <a href="http://honk.sigxcpu.org/projects/pykerberos/">http://honk.sigxcpu.org/projects/pykerberos/"</a>
         for details.
+    </li>
+    <li>
+        use_xoauth2
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; whether to use XOAUTH2 for login with the IMAP server.
+        If not set, normal password-based authenticaion is used.  This is
+        currently only supported with Gmail; if anyone extends this to support
+        other IMAP providers, please let me know so I can include such support
+        in getmail.  <strong>Note that using XOAUTH2 is no more secure than a
+        regular getmail configuration with a mode 0600 getmailrc file</strong>.
+        You will need to set <a href="#password_command">password_command</a>
+        as well to tell getmail to invoke the getmail-gmail-xoauth-tokens
+        helper program; that script requires a positional argument to tell it
+        where to read the initial tokens from and where it writes the access
+        and refresh tokens to, and the file requires manual initial setup.
+        This functionality was contributed by Stefan Krah, who has
+        <a href="http://www.bytereef.org/howto/oauth2/getmail.html">additional
+        information about using it here</a>.
     </li>
 </ul>
 

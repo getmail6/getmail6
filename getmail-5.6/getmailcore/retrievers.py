@@ -388,6 +388,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
         # .authenticate(), so we can't do this yet (?).
         ConfBool(name='use_cram_md5', required=False, default=False),
         ConfBool(name='use_kerberos', required=False, default=False),
+        ConfBool(name='use_xoauth2', required=False, default=False),
     )
     received_from = None
     received_with = 'IMAP4'
@@ -437,6 +438,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
         # .authenticate(), so we can't do this yet (?).
         ConfBool(name='use_cram_md5', required=False, default=False),
         ConfBool(name='use_kerberos', required=False, default=False),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         ConfString(name='ssl_cert_hostname', required=False, default=None),
     )
     received_from = None
@@ -479,6 +481,7 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
         # .authenticate(), so we can't do this yet (?).
         ConfBool(name='use_cram_md5', required=False, default=False),
         ConfBool(name='use_kerberos', required=False, default=False),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         ConfString(name='envelope_recipient'),
     )
     received_from = None
@@ -529,6 +532,7 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
         # .authenticate(), so we can't do this yet (?).
         ConfBool(name='use_cram_md5', required=False, default=False),
         ConfBool(name='use_kerberos', required=False, default=False),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         ConfString(name='envelope_recipient'),
         ConfString(name='ssl_cert_hostname', required=False, default=None),
     )

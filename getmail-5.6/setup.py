@@ -92,10 +92,11 @@ setup(
         'getmailcore'
     ],
     scripts=[
-    'getmail',
-    'getmail_fetch',
-    'getmail_maildir',
-    'getmail_mbox'
+        'getmail',
+        'getmail_fetch',
+        'getmail_maildir',
+        'getmail_mbox',
+        'getmail-gmail-xoauth-tokens',
     ],
     data_files=[
         (GETMAILDOCDIR, [
