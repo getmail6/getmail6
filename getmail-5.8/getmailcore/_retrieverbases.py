@@ -1706,7 +1706,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             except imaplib.IMAP4.abort, o:
                 raise getmailLoginRefusedError(o)
             except imaplib.IMAP4.error, o:
-                if o.startswith('[UNAVAILABLE]'):
+                if str(o).startswith('[UNAVAILABLE]'):
                     raise getmailLoginRefusedError(o)
                 else:
                     raise getmailCredentialError(o)

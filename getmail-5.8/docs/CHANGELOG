@@ -1,3 +1,8 @@
+Version 5.8
+9 November 2018
+    -fix problem handling IMAP errors introduced in 5.7.  Thanks: 
+    Andreas Reuleaux.
+
 Version 5.7
 30 October 2018
     -when users specify an SSL version that no longer exists in the Python
