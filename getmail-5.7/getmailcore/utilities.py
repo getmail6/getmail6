@@ -558,21 +558,27 @@ def check_ssl_version(conf):
             'specifying ssl_version not supported by this installation of '
             'Python; requires Python 2.6'
         )
+    def get_or_fail(version, symbol):
+        if symbol is not None:
+            v = getattr(ssl, symbol, None)
+            if v is not None:
+                return v
+        raise getmailConfigurationError(
+            'unknown or unsupported ssl_version "%s"' % version
+        )
+
     ssl_version = ssl_version.lower()
     if ssl_version == 'sslv23':
-        return ssl.PROTOCOL_SSLv23
+        return get_or_fail(ssl_version, 'PROTOCOL_SSLv23')
     elif ssl_version == 'sslv3':
-        return ssl.PROTOCOL_SSLv3
+        return get_or_fail(ssl_version, 'PROTOCOL_SSLv3')
     elif ssl_version == 'tlsv1':
-        return ssl.PROTOCOL_TLSv1
+        return get_or_fail(ssl_version, 'PROTOCOL_TLSv1')
     elif ssl_version == 'tlsv1_1' and 'PROTOCOL_TLSv1_1' in dir(ssl):
-        return ssl.PROTOCOL_TLSv1_1
+        return get_or_fail(ssl_version, 'PROTOCOL_TLSv1_1')
     elif ssl_version == 'tlsv1_2' and 'PROTOCOL_TLSv1_2' in dir(ssl):
-        return ssl.PROTOCOL_TLSv1_2
-    else:
-        raise getmailConfigurationError(
-            'unknown or unsupported ssl_version'
-        )
+        return get_or_fail(ssl_version, 'PROTOCOL_TLSv1_2')
+    return get_or_fail(ssl_version, None)
 
 #######################################
 def check_ssl_fingerprints(conf):

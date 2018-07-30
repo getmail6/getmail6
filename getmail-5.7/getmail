@@ -373,6 +373,12 @@ def go(configs, idle):
             if options['logfile']:
                 options['logfile'].write('credential/login error (%s)' % o)
 
+        except getmailLoginRefusedError, o:
+            retriever.abort()
+            log.error('%s: login refused error (%s)\n' % (configfile, o))
+            if options['logfile']:
+                options['logfile'].write('login refused error (%s)' % o)
+
         except getmailOperationError, o:
             errorexit = True
             retriever.abort()

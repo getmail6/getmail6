@@ -761,7 +761,11 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         &mdash; advanced option to control which SSL version getmail tries to
         use to connect to the server; the default is &quot;sslv23&quot;.  Another
         useful value is probably &quot;sslv3&quot;.  The available option values
-        are taken from the Python ssl module.
+        are taken from the Python ssl module.  Note that this option exists
+        only to help in connecting certain legacy, out-of-date, broken servers;
+        most users should not specify this option at all.  Using this option
+        without knowing what you are doing can reduce the effectiveness of
+        your encrypted connection.
         <strong>Note: this option is only available with Python 2.6 or higher.</strong>
     </li>
     <li>
