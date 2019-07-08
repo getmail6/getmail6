@@ -1,3 +1,8 @@
+Version 5.9
+    -documentation-only update; add note with workaround for Gmail SSL
+    connections with OpenSSL 1.1.1 and later.
+    -update copyright dates.
+
 Version 5.8
 9 November 2018
     -fix problem handling IMAP errors introduced in 5.7.  Thanks: 

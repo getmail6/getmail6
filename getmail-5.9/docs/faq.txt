@@ -5,7 +5,7 @@ getmail documentation
    please refer to the documentation included with that version of the
    software.
 
-   getmail is Copyright © 1998-2009 Charles Cazabon.
+   getmail is Copyright © 1998-2019 Charles Cazabon.
 
    getmail is licensed under the GNU General Public License version 2
    (only). If you wish to obtain a license to distribute getmail under
@@ -139,6 +139,7 @@ Table of Contents
                       or use BrokenUIDLPOP3Retriever instead
                     # MemoryError on OS X
                     # MemoryError when using IMAP
+                    # Errors connecting to Gmail with OpenSSL 1.1.1
 
 Frequently-Asked Questions (FAQs)
 
@@ -1184,3 +1185,14 @@ Python(24006) malloc: *** mmap(size=9875456) failed (error code=12)
    Upgrade your Python installation to the newest Python 2.5 or 2.6
    version to fix the problem, or use POP3 instead of IMAP to work around
    it.
+
+Errors connecting to Gmail with OpenSSL 1.1.1
+
+   If you experience connection/SSL errors connecting to Gmail servers,
+   and your OpenSSL is version 1.1.1 or higher, the problem is that Gmail
+   is failing the connection on the basis that SNI is not in use. To work
+   around the problem, add the ssl_version option to your retriever
+   configuration and specify TLS v1.2 as the protocol to use:
+[retriever]
+...
+ssl_version = tlsv1_2

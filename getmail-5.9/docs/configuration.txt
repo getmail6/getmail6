@@ -5,7 +5,7 @@ getmail documentation
    please refer to the documentation included with that version of the
    software.
 
-   getmail is Copyright © 1998-2009 Charles Cazabon.
+   getmail is Copyright © 1998-2019 Charles Cazabon.
 
    getmail is licensed under the GNU General Public License version 2
    (only). If you wish to obtain a license to distribute getmail under
@@ -498,7 +498,9 @@ openssl s_client -showcerts -connect HOST:PORT < /dev/null 2>/dev/null \
        out-of-date, broken servers; most users should not specify this
        option at all. Using this option without knowing what you are doing
        can reduce the effectiveness of your encrypted connection. Note:
-       this option is only available with Python 2.6 or higher.
+       this option is only available with Python 2.6 or higher. Note: see
+       the FAQ for details on how to work around Gmail connection problems
+       with OpenSSL v.1.1.1 and later.
      * ssl_fingerprints (tuple of quoted strings) — advanced option to
        notice when the server's SSL certificate changes. Supply a list of
        one or more SHA256 certificate fingerprints, and getmail will
