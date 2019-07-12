@@ -66,6 +66,37 @@ except ImportError:
 
 # If we have an ssl module:
 if ssl:
+    has_sni = getattr(ssl, 'HAS_SNI', False)
+    # Monkey-patch SNI use into SSL.wrap_socket() if supported
+    if has_sni:
+        def _wrap_socket(sock, keyfile=None, certfile=None,
+                         server_side=False, cert_reqs=ssl.CERT_NONE,
+                         ssl_version=ssl.PROTOCOL_TLS, ca_certs=None,
+                         do_handshake_on_connect=True,
+                         suppress_ragged_eofs=True,
+                         ciphers=None, server_hostname=None):
+            return ssl.SSLSocket(sock=sock, keyfile=keyfile, certfile=certfile,
+                                 server_side=server_side, cert_reqs=cert_reqs,
+                                 ssl_version=ssl_version, ca_certs=ca_certs,
+                                 do_handshake_on_connect=do_handshake_on_connect,
+                                 suppress_ragged_eofs=suppress_ragged_eofs,
+                                 ciphers=ciphers, server_hostname=server_hostname)
+    else:
+        # no SNI support
+        def _wrap_socket(sock, keyfile=None, certfile=None,
+                         server_side=False, cert_reqs=ssl.CERT_NONE,
+                         ssl_version=ssl.PROTOCOL_TLS, ca_certs=None,
+                         do_handshake_on_connect=True,
+                         suppress_ragged_eofs=True,
+                         ciphers=None, server_hostname=None):
+            return ssl.SSLSocket(sock=sock, keyfile=keyfile, certfile=certfile,
+                                 server_side=server_side, cert_reqs=cert_reqs,
+                                 ssl_version=ssl_version, ca_certs=ca_certs,
+                                 do_handshake_on_connect=do_handshake_on_connect,
+                                 suppress_ragged_eofs=suppress_ragged_eofs,
+                                 ciphers=ciphers)
+    ssl.wrap_socket = _wrap_socket
+
     # Is it recent enough to have hostname matching (Python 3.2+)?
     try:
         ssl_match_hostname = ssl.match_hostname
@@ -304,7 +335,7 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
             break
         if not self.sock:
             raise socket.error(msg)
-        extra_args = {}
+        extra_args = { 'server_hostname': host }
         if self.ssl_version:
             extra_args['ssl_version'] = self.ssl_version
         if self.ca_certs:
@@ -544,7 +575,7 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
        self.host = host
        self.port = port
        self.sock = socket.create_connection((host, port))
-       extra_args = {}
+       extra_args = { 'server_hostname': host }
        if self.ssl_version:
            extra_args['ssl_version'] = self.ssl_version
        if self.ca_certs:

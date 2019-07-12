@@ -1191,8 +1191,9 @@ Errors connecting to Gmail with OpenSSL 1.1.1
    If you experience connection/SSL errors connecting to Gmail servers,
    and your OpenSSL is version 1.1.1 or higher, the problem is that Gmail
    is failing the connection on the basis that SNI is not in use. To work
-   around the problem, add the ssl_version option to your retriever
-   configuration and specify TLS v1.2 as the protocol to use:
+   around the problem, upgrade to getmail v.5.10 or later, or tell getmail
+   to use TLSv1.2 rather than TLS1.3 in your retriever configuration and
+   specify TLS v1.2 as the protocol to use:
 [retriever]
 ...
 ssl_version = tlsv1_2
