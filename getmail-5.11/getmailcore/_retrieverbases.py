@@ -67,11 +67,15 @@ except ImportError:
 # If we have an ssl module:
 if ssl:
     has_sni = getattr(ssl, 'HAS_SNI', False)
+    proto_best = getattr(ssl, 'PROTOCOL_TLS', None)
+    if not proto_best:
+        proto_best = getattr(ssl, 'PROTOCOL_SSLv23', None)
+
     # Monkey-patch SNI use into SSL.wrap_socket() if supported
     if has_sni:
         def _wrap_socket(sock, keyfile=None, certfile=None,
                          server_side=False, cert_reqs=ssl.CERT_NONE,
-                         ssl_version=ssl.PROTOCOL_TLS, ca_certs=None,
+                         ssl_version=proto_best, ca_certs=None,
                          do_handshake_on_connect=True,
                          suppress_ragged_eofs=True,
                          ciphers=None, server_hostname=None):
@@ -85,7 +89,7 @@ if ssl:
         # no SNI support
         def _wrap_socket(sock, keyfile=None, certfile=None,
                          server_side=False, cert_reqs=ssl.CERT_NONE,
-                         ssl_version=ssl.PROTOCOL_TLS, ca_certs=None,
+                         ssl_version=proto_best, ca_certs=None,
                          do_handshake_on_connect=True,
                          suppress_ragged_eofs=True,
                          ciphers=None, server_hostname=None):

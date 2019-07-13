@@ -1,4 +1,10 @@
+Version 5.11
+13 February 2019
+    -bugfix: the SNI change did not work correctly with Python < 2.7.13;
+    should be fixed now.  Thanks: Scott Robbins.
+
 Version 5.10
+12 February 2019
     -experimental: when SSL SNI support is present in the underlying Python
     (and OpenSSL), send SNI by default in the SSL setup.  This should work
     around Gmail's brokenness with TLSv.1.3 connections when SNI is not sent.
