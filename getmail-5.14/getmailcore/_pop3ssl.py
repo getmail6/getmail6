@@ -36,7 +36,7 @@ class sslsocket(object):
     def __init__(self, sock, keyfile=None, certfile=None):
         log.trace()
         self.sock = sock
-        self.sock.setblocking(1)
+        #self.sock.setblocking(1)
         if keyfile and certfile:
             self.ssl = socket.ssl(self.sock, keyfile, certfile)
         else:

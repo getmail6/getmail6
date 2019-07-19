@@ -1,3 +1,10 @@
+Version 5.14
+19 August 2019
+    -remove socket setblocking() calls which should be no longer needed,
+    and which may have caused hangups.  Thanks: Viacheslav Chimishuk.
+    -correct version number string in error message.  Thanks: Piet van
+    Oostrum.
+
 Version 5.13
 22 February 2019
     -second attempt at fixing SNI change with Python < 2.7.  Thanks: "Cimbal".

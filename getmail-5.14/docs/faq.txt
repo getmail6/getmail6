@@ -868,12 +868,19 @@ How do I stop multiple instances of getmail from running at the same time?
 
    getmail has no problems running multiple instances in parallel, though
    you shouldn't attempt to use the same getmail rc file from two
-   different instances at the same time. If you need to prevent two
-   instances of getmail from running simultaneously, use any standard Unix
-   method of providing a mutex for this purpose. One example would be to
-   run getmail under a program like setlock (part of the daemontools
-   package). Change your script or crontab file to invoke getmail like
-   this:
+   different instances at the same time; it will probably cause getmail to
+   deliver duplicate copies of messages, "forget" that it has seen
+   particular messages before, and other similar problems.
+
+   In particular, if you're running getmail from a crontab, you must do
+   something to prevent cron from starting getmail if the previous
+   invocation is still running.
+
+   If you need to prevent two instances of getmail from running
+   simultaneously, use any standard Unix method of providing a mutex for
+   this purpose. One example would be to run getmail under a program like
+   setlock (part of the daemontools package). Change your script or
+   crontab file to invoke getmail like this:
 /path/to/setlock -n /path/to/lockfile /path/to/getmail [getmail options]
 
    There are other programs that provide functionality similar to setlock.

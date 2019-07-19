@@ -1271,10 +1271,19 @@ sleep 1800
 <p>
     getmail has no problems running multiple instances in parallel, though you
     shouldn't attempt to use the same getmail rc file from two different
-    instances at the same time.  If you need to prevent two instances of getmail
-    from running simultaneously, use any standard Unix method of providing a
-    mutex for this purpose.  One example would be to run getmail under a
-    program like
+    instances at the same time; it will probably cause getmail to deliver duplicate
+    copies of messages, &quot;forget&quot; that it has seen particular messages before,
+    and other similar problems.
+</p>
+<p>
+    In particular, if you're running getmail from a crontab, you <strong>must</strong> do
+    something to prevent cron from starting getmail if the previous invocation is still
+    running.
+</p>
+<p>
+    If you need to prevent two instances of getmail from running simultaneously, use
+    any standard Unix method of providing a mutex for this purpose.  One example would
+    be to run getmail under a program like
     <span class="file">setlock</span>
     (part of the
     <a href="http://cr.yp.to/daemontools.html"><span class="file">daemontools</span></a>

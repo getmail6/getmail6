@@ -474,7 +474,7 @@ class Py24POP3SSLinitMixIn(object):
                 % (self.conf['server'], o)
             )
 
-        self.conn.sock.setblocking(1)
+        #self.conn.sock.setblocking(1)
 
         fingerprint_message = ('POP3 SSL connection %s established'
                                % self.conn)
