@@ -70,8 +70,7 @@ if ssl:
     proto_best = getattr(ssl, 'PROTOCOL_TLS', None)
     if not proto_best:
         proto_best = getattr(ssl, 'PROTOCOL_SSLv23', None)
-    has_ciphers = (sys.version_info.major, sys.version_info.minor) >= (2, 7)
-
+    has_ciphers = sys.hexversion >= 0x2070000
 
     # Monkey-patch SNI use into SSL.wrap_socket() if supported
     if has_sni:

@@ -1,3 +1,7 @@
+Version 5.13
+22 February 2019
+    -second attempt at fixing SNI change with Python < 2.7.  Thanks: "Cimbal".
+
 Version 5.12
 22 February 2019
     -bugfix: the SNI change broke something else with Python 2.6 and earlier;
