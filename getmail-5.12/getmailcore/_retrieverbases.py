@@ -70,6 +70,8 @@ if ssl:
     proto_best = getattr(ssl, 'PROTOCOL_TLS', None)
     if not proto_best:
         proto_best = getattr(ssl, 'PROTOCOL_SSLv23', None)
+    has_ciphers = (sys.version_info.major, sys.version_info.minor) >= (2, 7)
+
 
     # Monkey-patch SNI use into SSL.wrap_socket() if supported
     if has_sni:
@@ -79,12 +81,15 @@ if ssl:
                          do_handshake_on_connect=True,
                          suppress_ragged_eofs=True,
                          ciphers=None, server_hostname=None):
-            return ssl.SSLSocket(sock=sock, keyfile=keyfile, certfile=certfile,
-                                 server_side=server_side, cert_reqs=cert_reqs,
-                                 ssl_version=ssl_version, ca_certs=ca_certs,
-                                 do_handshake_on_connect=do_handshake_on_connect,
-                                 suppress_ragged_eofs=suppress_ragged_eofs,
-                                 ciphers=ciphers, server_hostname=server_hostname)
+            kwargs = dict(sock=sock, keyfile=keyfile, certfile=certfile,
+                          server_side=server_side, cert_reqs=cert_reqs,
+                          ssl_version=ssl_version, ca_certs=ca_certs,
+                          do_handshake_on_connect=do_handshake_on_connect,
+                          suppress_ragged_eofs=suppress_ragged_eofs,
+                          ciphers=ciphers, server_hostname=server_hostname)
+            if not has_ciphers:
+                kwargs.pop('ciphers', None)
+            return ssl.SSLSocket(**kwargs)
     else:
         # no SNI support
         def _wrap_socket(sock, keyfile=None, certfile=None,
@@ -93,12 +98,15 @@ if ssl:
                          do_handshake_on_connect=True,
                          suppress_ragged_eofs=True,
                          ciphers=None, server_hostname=None):
-            return ssl.SSLSocket(sock=sock, keyfile=keyfile, certfile=certfile,
-                                 server_side=server_side, cert_reqs=cert_reqs,
-                                 ssl_version=ssl_version, ca_certs=ca_certs,
-                                 do_handshake_on_connect=do_handshake_on_connect,
-                                 suppress_ragged_eofs=suppress_ragged_eofs,
-                                 ciphers=ciphers)
+            kwargs = dict(sock=sock, keyfile=keyfile, certfile=certfile,
+                          server_side=server_side, cert_reqs=cert_reqs,
+                          ssl_version=ssl_version, ca_certs=ca_certs,
+                          do_handshake_on_connect=do_handshake_on_connect,
+                          suppress_ragged_eofs=suppress_ragged_eofs,
+                          ciphers=ciphers)
+            if not has_ciphers:
+                kwargs.pop('ciphers', None)
+            return ssl.SSLSocket(**kwargs)
     ssl.wrap_socket = _wrap_socket
 
     # Is it recent enough to have hostname matching (Python 3.2+)?
