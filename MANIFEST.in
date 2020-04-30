@@ -1,0 +1,15 @@
+include README
+include MANIFEST.in
+include getmail.spec
+include docs/*.txt
+include docs/*.html
+include docs/BUGS
+include docs/CHANGELOG
+include docs/COPYING
+include docs/THANKS
+include docs/TODO
+include docs/getmaildocs.css
+include docs/getmailrc-examples
+include docs/*.1
+include getmail getmail_fetch getmail_maildir getmail_mbox setup.py setup.cfg
+include getmailcore/*.py

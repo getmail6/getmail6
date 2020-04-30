@@ -1,0 +1,262 @@
+#
+# This file contains various examples of configuration sections to use
+# in your getmail rc file.  You need one file for each mail account you
+# want to retrieve mail from.  These files should be placed in your
+# getmail configuration/data directory (default: $HOME/.getmail/).
+# If you only need one rc file, name it getmailrc in that directory,
+# and you won't need to supply any commandline options to run getmail.
+#
+
+#
+# Example 1:  simplest case of retrieving mail from one POP3 server and
+# storing all messages in a maildir.
+#
+
+[retriever]
+type = SimplePOP3Retriever
+server = pop.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = Maildir
+path = ~jeffp/Maildir/
+
+#
+# Example 2:  same as (1), but operate quietly, delete messages from
+# the server after retrieving them, and log getmail's actions (in detail)
+# to a file.
+#
+
+[options]
+verbose = 0
+delete = true
+message_log = ~/.getmail/log
+message_log_verbose = true
+
+[retriever]
+type = SimplePOP3Retriever
+server = pop.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = Maildir
+path = ~jeffp/Maildir/
+
+#
+# Example 3: same as (1), but the mail account is accessed via IMAP4 instead
+# of POP3.
+#
+
+[retriever]
+type = SimpleIMAPRetriever
+server = mail.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = Maildir
+path = ~jeffp/Maildir/
+
+#
+# Example 4: same as (3), but retrieve mail from the INBOX, INBOX.spam, and
+# mailing-lists.getmail-users mail folders.
+#
+
+[retriever]
+type = SimpleIMAPRetriever
+server = mail.example.net
+username = jeff.plotzky
+password = mailpassword
+mailboxes = ("INBOX", "INBOX.spam", "mailing-lists.getmail-users")
+
+[destination]
+type = Maildir
+path = ~jeffp/Maildir/
+
+#
+# Example 5: same as (3), but move messages to the mail folder "sent-mail"
+# after retrieving them.  Note that you do this by setting delete and
+# move_on_delete options.
+#
+
+[options]
+delete = true
+
+[retriever]
+type = SimpleIMAPRetriever
+server = mail.example.net
+username = jeff.plotzky
+password = mailpassword
+move_on_delete = sent-mail
+
+[destination]
+type = Maildir
+path = ~jeffp/Maildir/
+
+#
+# Example 6:  same as (1), but deliver the messages to an mboxrd-format mbox
+# file as user "jeffp".
+#
+
+[retriever]
+type = SimplePOP3Retriever
+server = pop.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = Mboxrd
+path = ~jeffp/Mail/inbox
+user = jeffp
+
+#
+# Example 7:  same as (1), but deliver the messages through an external MDA
+# which takes several arguments.
+#
+
+[retriever]
+type = SimplePOP3Retriever
+server = pop.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = MDA_external
+path = /usr/local/bin/my-mda
+arguments = ("--message-from-stdin", "--scan-message", "--to-maildir",
+  "~jeffp/Maildir/")
+
+#
+# Example 8:  retrieve mail from a corporate POP3-SSL domain mailbox,
+# sort messages for several local users and deliver to maildirs in their
+# home directories (except Sam, who likes mbox files, and Christina, who
+# uses procmail for further sorting), and deliver all other mail to
+# Joe, who serves as postmaster for the company.  Sam also needs
+# to receive mail for "sam1", "sam23", etc, so we use a regular expression
+# matching "sam" plus zero or more decimal digits.
+#
+
+[retriever]
+type = MultidropPOP3SSLRetriever
+server = pop.example.net
+username = companylogin
+password = mailpassword
+# Our domain mailbox mailhost records the envelope recipient address in a
+# new Delivered-To: header field at the top of the message.
+envelope_recipient = delivered-to:1
+
+[destination]
+type = MultiSorter
+default = [postmaster]
+locals = (
+  ("jeffk@company.example.net",      "[jeff]"),
+  ("martinh@company.example.net",    "[martin]"),
+  (r"sam\D*@company.example.net",    "[sam]"),
+  ("c.fellowes@company.example.net", "[christina-procmail]")
+  )
+
+[postmaster]
+type = Maildir
+path = ~joe/Mail/postmaster/
+user = joe
+
+[jeff]
+type = Maildir
+path = ~jeffp/Maildir/
+user = jeffp
+
+[martin]
+type = Maildir
+path = ~martinh/Maildir/
+user = martinh
+
+[sam]
+type = Mboxrd
+path = ~sam/Mail/inbox
+user = sam
+
+[christina-procmail]
+type = MDA_external
+path = /usr/local/bin/procmail
+# procmail requires either that the message starts with an mboxrd-style
+# "From " line (which getmail can generate by setting "unixfrom" to True), or
+# that the -f option is provided as below.
+arguments = ("-f", "%(sender)", "-m", "/home/christina/.procmailrc")
+user = christina
+
+#
+# Example 9: same as (3), but use SpamAssassin to filter out spam,
+# and ClamAV to filter out MS worms.
+#
+
+[retriever]
+type = SimpleIMAPRetriever
+server = mail.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[filter-1]
+type = Filter_external
+path = /usr/local/bin/spamc
+
+[filter-2]
+type = Filter_classifier
+path = /usr/local/bin/clamscan
+arguments = ("--stdout", "--no-summary",
+    "--mbox", "--infected", "-")
+exitcodes_drop = (1,)
+
+[destination]
+type = Maildir
+path = ~jeffp/Maildir/
+
+#
+# Example 10: same as (3), but deliver all mail to two different local
+# mailboxes.
+#
+
+[retriever]
+type = SimpleIMAPRetriever
+server = mail.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = MultiDestination
+destinations = (
+    "~jeff/Maildir/",
+    "/var/log/mail-archive/current",
+    )
+
+#
+# Example 11:  retrieve mail from a simple (non-multidrop) POP3 mailbox.
+# Then extract addresses from the message header (see documentation for which
+# fields are examined), and deliver mail containing the address
+# <list1@domain.example.net> to ~/Mail/lists/list1/, mail containing the
+# address <list2@otherdomain.example.com> to ~/Mail/lists/list2/,
+# mail containing the address <othername@example.org> to ~/Mail/other/,
+# and all other mail gets delivered through the external MDA program
+# "my-mda" with some default arguments.
+#
+
+[retriever]
+type = SimplePOP3Retriever
+server = pop.example.net
+username = jeff.plotzky
+password = mailpassword
+
+[destination]
+type = MultiGuesser
+default = [my-mda]
+locals = (
+    ("list1@domain.example.net",        "~/Mail/lists/list1/"),
+    ("list2@otherdomain.example.com",   "~/Mail/lists/list2/"),
+    ("othername@example.org",           "~/Mail/other/"),
+    )
+
+[my-mda]
+type = MDA_external
+path = /path/to/my-mda
+arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")

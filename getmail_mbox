@@ -1,0 +1,79 @@
+#!/usr/bin/env python
+'''getmail_mbox
+Reads a message from stdin and delivers it to an mbox file specified as
+a commandline argument.  Expects the envelope sender address to be in the
+environment variable SENDER.
+Copyright (C) 2001-2019 Charles Cazabon <charlesc-getmail @ pyropus.ca>
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of version 2 (only) of the GNU General Public License as published by
+the Free Software Foundation.  A copy of this license should be included in the
+file COPYING.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+Street, Fifth Floor, Boston, MA 02110-1301 USA.
+'''
+import sys
+
+if sys.hexversion < 0x2030300:
+    raise ImportError('getmail version 5 requires Python version 2.3.3 '
+                      'or later')
+
+import os
+import email
+from getmailcore.exceptions import *
+from getmailcore.message import Message
+from getmailcore import logging, constants, destinations
+
+verbose = False
+path = None
+for arg in sys.argv[1:]:
+    if arg in ('-h', '--help'):
+        sys.stdout.write('Usage: %s mboxpath\n' % sys.argv[0])
+        raise SystemExit
+    elif arg in ('-v', '--verbose'):
+        verbose = True
+    elif not path:
+        path = arg
+    else:
+        raise SystemExit('Error: mbox path specified twice (was %s, now %s)'
+                         % (path, arg))
+
+if os.name == 'posix' and (os.geteuid() == 0 or os.getegid() == 0):
+    raise SystemExit('Error: do not run this program as user root')
+
+logger = logging.Logger()
+logger.addhandler(sys.stderr, constants.WARNING)
+if verbose:
+    logger.addhandler(sys.stdout, constants.INFO, constants.INFO)
+
+if not (path and (path.startswith('.') or path.startswith('/'))
+        and not path.endswith('/')):
+    raise SystemExit('Error: mbox must start with . or / and not end with /')
+
+if os.path.exists(path) and not os.path.isfile(path):
+    raise SystemExit('Error: %s is not an mbox' % path)
+
+msg = Message(fromfile=sys.stdin)
+if os.environ.has_key('SENDER'):
+    msg.sender = os.environ['SENDER']
+if os.environ.has_key('RECIPIENT'):
+    msg.recipient = os.environ['RECIPIENT']
+
+try:
+    dest = destinations.Mboxrd(path=path)
+    d = dest.deliver_message(msg, True, False)
+except getmailDeliveryError, o:
+    raise SystemExit('Error: delivery error delivering to mboxrd %s (%s)'
+                     % (path, o))
+except StandardError, o:
+    raise SystemExit('Error: other error delivering to mboxrd %s (%s)'
+                     % (path, o))
+
+if verbose:
+    sys.stdout.write('Delivered to mboxrd %s\n' % path)

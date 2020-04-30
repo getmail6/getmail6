@@ -1,0 +1,36 @@
+.TH getmail_maildir "1" "July 2004" "getmail 5" "User Commands"
+.SH NAME
+getmail_maildir \- read a message from stdin and deliver to a named maildir
+.SH SYNOPSIS
+.B getmail_maildir
+[\fIOPTION\fR] \fIPATH\fR
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+Deliver a mail message from standard input, to the maildir named PATH.  PATH
+must start with a dot or a slash and end with a slash.
+.PP
+.B getmail_maildir
+uses the SENDER environment variable to construct a
+.B Return-Path:
+header field and the contents of the RECIPIENT environment variable to construct
+a
+.B Delivered-To:
+header field at the top of the message.
+.TP
+\fB\-\-verbose, \-v\fR
+print a status message on success\fR
+.SH AUTHOR
+Written by Charles Cazabon.
+.SH "REPORTING BUGS"
+Report bugs to <charlesc-getmail-bugs@pyropus.ca>.
+.SH COPYRIGHT
+Copyright \(co 1998-2019 Charles Cazabon
+.br
+This is free software; see the file COPYING for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+The full documentation for
+.B getmail_maildir
+is maintained in HTML and plaintext formats.  See the included files for
+details.

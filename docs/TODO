@@ -1,0 +1,38 @@
+TODO
+====
+
+-additional documentation on extending getmail's capabilities
+
+DONE
+====
+
+-distutils setup script
+-convert POP3-based classes to use the MixIn classes for
+  SSL and non-SSL connections.
+-fix every-other-message problem with delete
+-break retrievers.py into smaller units
+-Multidrop IMAP support
+-make delete work with previously retrieved messages, and add delete_after
+-max_message_size
+-fix --quiet (first two lines output)
+-max_messages_per_session
+-make output cleaner when hitting max_messages_per_session
+-message_log
+-message_log_syslog
+-add "user" and "group" parameters to destinations and filters
+  that run in separate processes.
+-add allow_root_commands
+-allow command delivery in MultiSorter
+-add specified-section for program destinations in MultiSorter
+-port getmail_maildir and getmail_mbox wrappers
+-finish/clean up qmail-local destination
+-do something about the #! line in the scripts?  distutils now does this.
+-finish documentation
+-man pages
+-flush out getmailrc-example
+-Filter_TMDA filter class
+-RPM package
+-rewrite the distutils setup script to properly allow the user to specify
+  alternate installation directories for types of files
+-remove the raise statements in the outermost exception handlers from
+  the main script (when leaving beta)

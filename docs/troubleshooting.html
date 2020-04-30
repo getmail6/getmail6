@@ -1,0 +1,505 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="content-type" content="application/xhtml+xml;charset=iso-8859-1" />
+    <title>getmail troubleshooting (version 5)</title>
+    <meta name="author" content="Charles Cazabon" />
+    <meta name="description" content="Troubleshooting instructions for getmail version 5" />
+    <meta name="keywords" content="getmail troubleshooting, getmail 5 troubleshooting, getmail 4 troubleshooting, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
+    <link rel="Contents Up Index" title="Charles Cazabon's Software" href="../" />
+    <style type="text/css" media="all">@import "getmaildocs.css";</style>
+    <style type="text/css" media="all">@import "/style/styles.css";</style>
+</head>
+<body id="top">
+    <div class="content">
+
+<!----><h1 id="title">getmail documentation</h1>
+<p class="introduction">
+    This is the documentation for getmail version 5.  Version 5 includes
+    numerous changes from version 3.x; if you are using getmail version 3,
+    please refer to the documentation included with that version of the
+    software.
+</p>
+<p class="about">
+    getmail is Copyright &copy; 1998-2019 Charles Cazabon.
+</p>
+<p class="about">
+    getmail is licensed under the
+    <a href="COPYING">GNU General Public License version 2</a>
+    (only). If you wish to obtain a license to distribute getmail under other
+    terms, please contact me directly.
+</p>
+
+<h1 id="toc">Table of Contents</h1>
+<ul>
+    <li><a href="documentation.html">getmail documentation (version 5)</a></li>
+    <li>
+        <ul>
+        <li><a href="documentation.html#title">getmail documentation</a></li>
+        <li>
+            <ul>
+            <li><a href="documentation.html#features">Features</a></li>
+            <li><a href="documentation.html#v4differences">Differences from previous versions</a></li>
+            <li><a href="documentation.html#requirements">Requirements</a></li>
+            <li><a href="documentation.html#obtaining">Obtaining getmail</a></li>
+            <li><a href="documentation.html#installing">Installing getmail</a></li>
+            <li><a href="documentation.html#mailing-lists">getmail mailing lists</a></li>
+            </ul>
+        </li>
+        </ul>
+    </li>
+    <li><a href="configuration.html">getmail configuration (version 5)</a></li>
+    <li>
+        <ul>
+        <li><a href="configuration.html#configuring">Configuring getmail</a></li>
+        <li>
+            <ul>
+            <li><a href="configuration.html#rcfile">Creating a getmail rc file</a></li>
+            </ul>
+        </li>
+        <li><a href="configuration.html#running">Running getmail</a></li>
+        <li>
+            <ul>
+            <li><a href="configuration.html#running-commandline-options">Commandline options</a></li>
+            <li><a href="configuration.html#running-mda">Using getmail as an MDA</a></li>
+            <li><a href="configuration.html#running-fetch">Using getmail_fetch to retrieve mail from scripts</a></li>
+            </ul>
+        </li>
+        </ul>
+    </li>
+    <li><a href="troubleshooting.html">getmail troubleshooting (version 5)</a></li>
+    <li>
+        <ul>
+        <li><a href="troubleshooting.html#troubleshooting">Troubleshooting problems</a></li>
+        <li>
+            <ul>
+            <li><a href="troubleshooting.html#error-messages">Error messages</a></li>
+            <li>
+                <ul>
+                <li><a href="troubleshooting.html#errmsg-pyversion">ImportError: getmail version 5 requires Python version 2.3.3 or later</a></li>
+                <li><a href="troubleshooting.html#errmsg-config">Configuration error: &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="troubleshooting.html#errmsg-config-missing-parameter">Configuration error: missing required configuration parameter <span class="meta">name</span></a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-parameter-wrong-type">Configuration error: configuration value <span class="meta">name</span> (<span class="meta">value</span>) not of required type <span class="meta">type</span> (<span class="meta">why</span>)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-maildir-slash">Configuration error: maildir path missing trailing /</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-maildir-not">Configuration error: not a maildir (<span class="meta">path</span>)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-maildir-not2">Configuration error: ... (path: maildir subdirectory &quot;<span class="meta">path</span>&quot; does not exist)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-mboxrd-not">Configuration error: not an mboxrd file (<span class="meta">path</span>)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-mboxrd-missing">Configuration error: mboxrd does not exist</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-envelope-recipient">Configuration error: the <span class="meta">fieldname</span> header field does not record the envelope recipient address</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-root-commands">Configuration error: refuse to invoke external commands as root or GID 0 by default</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-no-command">Configuration error: no such command <span class="meta">path</span></a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-command-not-executable">Configuration error: <span class="meta">path</span> not executable</a></li>
+                    <li><a href="troubleshooting.html#errmsg-config-missing-section">Configuration error: destination specifies section name <span class="meta">section</span> which does not exist</a></li>
+                    </ul>
+                </li>
+                <li><a href="troubleshooting.html#errmsg-retrieval">Retrieval error &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="troubleshooting.html#errmsg-retrieval-missing">Retrieval error: server &hellip; is broken; &hellip;</a></li>
+                    </ul>
+                </li>
+                <li><a href="troubleshooting.html#errmsg-delivery">Delivery error &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="troubleshooting.html#errmsg-delivery-root-maildir">Delivery error: maildir delivery process failed (refuse to deliver mail as root)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-delivery-root-mbox">Delivery error: mbox delivery process failed (refuse to deliver mail as root)</a></li>
+                    <li><a href="troubleshooting.html#errmsg-delivery-not-mbox">Delivery error: mbox delivery process failed (not an mboxrd file)</a></li>
+                    </ul>
+                </li>
+                <li><a href="troubleshooting.html#errmsg-operation-">Error: &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="troubleshooting.html#errmsg-operation-notunique">Error: <span class="meta">server-info</span> does not uniquely identify messages &hellip;</a></li>
+                    <li><a href="troubleshooting.html#errmsg-operation-uidlbroken">Error: <span class="meta">server-info</span> failed to identify message <span class="meta">X</span> in UIDL output &hellip;</a></li>
+                    <li><a href="troubleshooting.html#errmsg-imapbug-memory">Python(&hellip;) malloc: *** mmap(&hellip;) failed (&hellip;)</a></li>
+                    </ul>
+                </li>
+                </ul>
+            </li>
+            <li><a href="troubleshooting.html#warning-messages">Warning messages</a></li>
+            <li>
+                <ul>
+                <li><a href="troubleshooting.html#warnmsg">Warning: &hellip;</a></li>
+                <li>
+                    <ul>
+                    <li><a href="troubleshooting.html#warnmsg-unknown-parameter">Warning: ignoring unknown parameter &quot;<span class="meta">parameter_name</span>&quot;</a></li>
+                    <li><a href="troubleshooting.html#warnmsg-filterheaders">Warning: filter <span class="meta">filter</span> returned fewer headers (X) than supplied (Y)</a></li>
+                    </ul>
+                </li>
+                </ul>
+            </li>
+            <li><a href="troubleshooting.html#unexpected-behaviour">Unexpected Behaviour</a></li>
+            <li>
+                <ul>
+                <li><a href="troubleshooting.html#unexpected-hostname">getmail uses the wrong hostname for my machine</a></li>
+                <li><a href="troubleshooting.html#unexpected-unknown">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> or <span class="file">Return-Path:</span>header field</a></li>
+                <li><a href="troubleshooting.html#unexpected-recipient">getmail isn't replacing my command argument &quot;%(recipient)&quot; with the message recipient address</a></li>
+                <li><a href="troubleshooting.html#unexpected-slow-startup">getmail seems to take longer than expected to initialize</a></li>
+                </ul>
+            </li>
+            </ul>
+        </li>
+        </ul>
+    </li>
+    <li><a href="faq.html">getmail frequently-asked questions (FAQs) (version 5)</a></li>
+    <li>
+        <ul>
+        <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
+        <li>
+            <ul>
+            <li><a href="faq.html#faq-about">About getmail</a></li>
+            <li><a href="faq.html#faq-configuring">Configuring getmail</a></li>
+            <li><a href="faq.html#faq-how">How do I &hellip;</a></li>
+            <li><a href="faq.html#faq-integrating">Using getmail with other software</a></li>
+            <li><a href="faq.html#faq-notabug">I think I found this bug in getmail &hellip;</a></li>
+            </ul>
+        </li>
+        </ul>
+    </li>
+</ul>
+
+<h1 id="troubleshooting">Troubleshooting problems</h1>
+<p>
+    If you have suggestions for additions or changes to this documentation, please
+    send them to the mailing list or me.
+</p>
+
+<!-- ********************************************************************** -->
+<h2 id="error-messages">Error messages</h2>
+<p>
+    getmail may output various diagnostic error messages.  The common ones and
+    their meanings are given below.
+</p>
+
+<!-- ********************************************************************** -->
+<h3 id="errmsg-pyversion" class="errmsg">ImportError: getmail version 5 requires Python version 2.3.3 or later</h3>
+<p>
+    You tried to run getmail 5 with a version of Python prior to Python 2.3.3.
+    This is unsupported.  If you cannot install a newer Python alongside your
+    current version, please use getmail version 3, which supports Python 1.5.2
+    and later.
+</p>
+
+<!-- ********************************************************************** -->
+<h3 id="errmsg-config" class="errmsg">Configuration error: &hellip;</h3>
+<p>
+    getmail detected an error in your configuration.  Check your getmail rc
+    file(s).  getmail will do its best to point out the exact cause of the
+    error.  Some of the specific errors it may find include the following.
+</p>
+
+<h4 id="errmsg-config-missing-parameter" class="errmsg">Configuration error: missing required configuration parameter <span class="meta">name</span></h4>
+<p>
+    A class object in your getmail rc file requires the parameter
+    <span class="meta">name</span>,
+    but it was not found in the appropriate section of the file.
+</p>
+
+<h4 id="errmsg-config-parameter-wrong-type" class="errmsg">Configuration error: configuration value <span class="meta">name</span> (<span class="meta">value</span>) not of required type <span class="meta">type</span> (<span class="meta">why</span>)</h4>
+<p>
+    The configuration parameter
+    <span class="meta">name</span>
+    must be of type
+    <span class="meta">type</span>,
+    but the supplied value
+    <span class="meta">value</span>
+    does not appear to be of that type. Further information may be present in
+    <span class="meta">why</span>.
+</p>
+<p>
+    The getmail documentation contains
+    <a href="configuration.html#parametertypes">descriptions of the syntax for each parameter type</a>.
+</p>
+
+<h4 id="errmsg-config-maildir-slash" class="errmsg">Configuration error: maildir path missing trailing /</h4>
+<p>
+    Maildir paths must start with dot or slash and end with a slash.
+</p>
+
+<h4 id="errmsg-config-maildir-not" class="errmsg">Configuration error: not a maildir (<span class="meta">path</span>)</h4>
+<p>
+    The specified maildir path
+    <span class="meta">path</span>
+    does not appear to be a valid maildir.  Check to ensure that it is a valid
+    maildir, and that getmail has permission to write to it.
+</p>
+
+<h4 id="errmsg-config-maildir-not2" class="errmsg">Configuration error: ... (path: maildir subdirectory &quot;<span class="meta">path</span>&quot; does not exist)</h4>
+<p>
+    The specified maildir path
+    <span class="meta">path</span>
+    does not appear to be a valid maildir, as it is missing one of the required
+    subdirectories.  Check to ensure that it is a valid
+    <a href="http://cr.yp.to/proto/maildir.html">maildir</a>
+    and that getmail has permission to write to it.
+</p>
+
+<h4 id="errmsg-config-mboxrd-not" class="errmsg">Configuration error: not an mboxrd file (<span class="meta">path</span>)</h4>
+<p>
+    The specified mboxrd path
+    <span class="meta">path</span>
+    does not appear to be a valid mboxrd file.  To avoid corrupting files in
+    the event of a user typo, getmail will not deliver messages to files that
+    do not appear to be valid mboxrd files.
+</p>
+
+<h4 id="errmsg-config-mboxrd-missing" class="errmsg">Configuration error: mboxrd does not exist</h4>
+<p>
+    The specified mboxrd does not exist.  getmail will not create mbox files;
+    ensure they exist before trying to deliver to them.
+</p>
+
+<h4 id="errmsg-config-envelope-recipient" class="errmsg">Configuration error: the <span class="meta">fieldname</span> header field does not record the envelope recipient address</h4>
+<p>
+    In a multidrop retriever configuration, you specified that the envelope
+    recipient was recorded in a header field that getmail knows does not
+    actually record that information.
+</p>
+
+<h4 id="errmsg-config-root-commands" class="errmsg">Configuration error: refuse to invoke external commands as root or GID 0 by default</h4>
+<p>
+    By default, getmail will not invoke external commands (in destinations or
+    filters) when it is running with root privileges, for security reasons.
+    See the documenation for possible solutions.
+</p>
+
+<h4 id="errmsg-config-no-command" class="errmsg">Configuration error: no such command <span class="meta">path</span></h4>
+<p>
+    An external command was specified as being located at path
+    <span class="meta">path</span>,
+    but the command executable was not found at that location.
+</p>
+
+<h4 id="errmsg-config-command-not-executable" class="errmsg">Configuration error: <span class="meta">path</span> not executable</h4>
+<p>
+    A specified external command at path
+    <span class="meta">path</span>
+    was found to not be an executable file.
+</p>
+
+<h4 id="errmsg-config-missing-section" class="errmsg">Configuration error: destination specifies section name <span class="meta">section</span> which does not exist</h4>
+<p>
+    A destination in the getmail rc file refers to another rc file section named
+    <span class="meta">section</span>,
+    but that section was not found in the file.
+</p>
+
+<!-- ********************************************************************** -->
+<h3 id="errmsg-retrieval" class="errmsg">Retrieval error &hellip;</h3>
+<p>
+    getmail detected an error while trying to retrieve a message.
+    Some of the specific errors it may find include the following.
+</p>
+<h4 id="errmsg-retrieval-missing" class="errmsg">Retrieval error: server &hellip; is broken; &hellip;</h4>
+<p>
+    The server claimed to have a particular message, but when getmail tried to 
+    retrieve it, the server returned an empty response in violation of the
+    POP or IMAP protocol.  getmail will skip on to the next message.
+</p>
+<p>
+    This problem is almost always with an MSExchange server, and is due
+    to bugs in MSExchange.  Delete the offending message from the mailbox
+    via the webmail interface if you don't want to see this error message,
+    and report the bug to the server administrator or Microsoft.
+</p>
+
+<!-- ********************************************************************** -->
+<h3 id="errmsg-delivery" class="errmsg">Delivery error &hellip;</h3>
+<p>
+    getmail detected an error after retrieving a message but before delivery was
+    successfully completed.
+    Some of the specific errors it may find include the following.
+</p>
+<h4 id="errmsg-delivery-root-maildir" class="errmsg">Delivery error: maildir delivery process failed (refuse to deliver mail as root)</h4>
+<p>
+    getmail will not deliver to a maildir as the root user.  You may specify an
+    alternate user to deliver as with the
+    <span class="file">user</span>
+    directive in the destination section of your
+    <span class="file">getmailrc</span>
+    file, or let getmail default to the user who is the owner of the maildir.
+</p>
+<h4 id="errmsg-delivery-root-mbox" class="errmsg">Delivery error: mbox delivery process failed (refuse to deliver mail as root)</h4>
+<p>
+    getmail will not deliver to an mbox file as the root user.  You may specify
+    an alternate user to deliver as with the
+    <span class="file">user</span>
+    directive in the destination section of your
+    <span class="file">getmailrc</span>
+    file, or let getmail default to the user who is the owner of the mbox file.
+</p>
+<h4 id="errmsg-delivery-not-mbox" class="errmsg">Delivery error: mbox delivery process failed (not an mboxrd file)</h4>
+<p>
+    The specified mbox file does not appear to be a valid mbox file.
+</p>
+
+
+<!-- ********************************************************************** -->
+<h3 id="errmsg-operation-" class="errmsg">Error: &hellip;</h3>
+<p>
+    getmail detected an operational error.  getmail will do its best to point
+    out the exact cause of the error.  Common causes are failures to connect
+    to a remote mail server, timeouts during network operations, and other
+    transient failures.
+</p>
+<h4 id="errmsg-operation-notunique" class="errmsg">Error: <span class="meta">server-info</span> does not uniquely identify messages &hellip;</h4>
+<p>
+    The POP3 server for this particular account was not able to uniquely identify
+    the messages in the mailstore.  You can use the
+    <span class="file">BrokenUIDLPOP3Retriever</span> class with this server instead,
+    but functionality is limited because of the inability to identify messages
+    properly.
+</p>
+
+<h4 id="errmsg-operation-uidlbroken" class="errmsg">Error: <span class="meta">server-info</span> failed to identify message <span class="meta">X</span> in UIDL output &hellip;</h4>
+<p>
+    The POP3 server for this particular account completely failed to identify
+    one of the messages in the mailstore when the UIDL command was issued.
+    The POP server is in violation of the POP3 protocol, and getmail has no way
+    to identify the message in question.
+</p>
+<p>
+    The most common cause of this is servers that use the contents of the
+    Message-ID: header field as the UIDL value for the message - some messages
+    (usually spam) lack a Message-ID: header field entirely, causing these
+    servers to emit blank UIDL values for these messages, which is not
+    permitted by the POP3 protocol.  You may be able to work around the problem
+    by deleting the problematic message(s) from the mailstore by other means
+    (such as a webmail interface provided by your POP3 mailhost).
+</p>
+<p>
+    Otherwise, you'll need to either ask the postmaster of the POP3 mail host
+    to fix the POP3 software they're using.  In the meantime, you can use the
+    <span class="file">BrokenUIDLPOP3Retriever</span> class with this server
+    instead, but functionality is limited because of the inability to identify
+    messages properly.
+</p>
+
+<h4 id="errmsg-imapbug-memory" class="errmsg">Python(&hellip;) malloc: *** mmap(&hellip;) failed (&hellip;)</h4>
+<p>
+    &hellip; followed by an <span class="file">Unhandled exception</span> block
+    and then <span class="file">MemoryError</span>.
+</p>
+<p>
+    getmail ran out of memory, usually due to
+    <a href="http://bugs.python.org/issue1389051">a bug in Python's IMAP library</a>
+    which was fixed in early 2008.
+</p>
+<p>
+    If you are using IMAP and run into this problem retrieving messages that
+    aren't hundreds of megabytes in size, you can almost certainly fix it by
+    upgrading your Python installation to the latest 2.5.x or 2.6.x release.
+    Note that if you switch from Python 2.5.x to Python 2.6.x, you'll need to
+    re-install getmail with <span class="file">python setup.py install</span>
+    from the getmail source directory.
+</p>
+
+<!-- ********************************************************************** -->
+<h2 id="warning-messages">Warning messages</h2>
+<p>
+    getmail may output various diagnostic warning messages.  The common ones and
+    their meanings are given below.
+</p>
+
+<!-- ********************************************************************** -->
+<h3 id="warnmsg" class="warnmsg">Warning: &hellip;</h3>
+<p>
+    getmail detected a condition which might be problematic.
+    Some of the specific warnings it may find include the following.
+</p>
+
+<h4 id="warnmsg-unknown-parameter" class="warnmsg">Warning: ignoring unknown parameter &quot;<span class="meta">parameter_name</span>&quot;</h4>
+<p>
+    A getmail rc file contained an unknown parameter.  This usually indicates
+    that you've put the parameter in the wrong section of the file (such as
+    putting the
+    <span class="file">read_all</span>
+    parameter in the
+    <span class="file">[retriever]</span>
+    section instead of in the
+    <span class="file">[options]</span>
+    section).
+</p>
+
+<h4 id="warnmsg-filterheaders" class="warnmsg">Warning: filter <span class="meta">filter</span> returned fewer headers (X) than supplied (Y)</h4>
+<p>
+    A
+    <a href="configuration.html#conf-filters">message filter</a>
+    appeared to incorrectly remove header fields from the header of a message
+    which it handled.  getmail warns you about this so that you can check your
+    filter for proper operation.  Filters should add information to the message
+    header or leave it alone; check the configuration for the filter program you
+    are using.
+</p>
+
+<!-- ********************************************************************** -->
+
+<h2 id="unexpected-behaviour">Unexpected Behaviour</h2>
+<p>
+    If getmail is behaving in a manner other that you expected, see the
+    following sections.
+</p>
+
+<h3 id="unexpected-hostname">getmail uses the wrong hostname for my machine</h3>
+<p>
+    If getmail records a hostname other than the &quot;right&quot; one for
+    your host (in its Received: trace header fields), check your
+    <span class="file">/etc/hosts</span>
+    file and make sure the &quot;right&quot; name is the first hostname
+    listed for any of the addresses of the machine.
+</p>
+
+<h3 id="unexpected-unknown">getmail puts &quot;unknown&quot; in the <span class="file">Delivered-To:</span> or <span class="file">Return-Path:</span>header field</h3>
+<p>
+    getmail records the envelope recipient address in the
+    <span class="file">Delivered-To:</span>
+    header field, and the envelope sender in the
+    <span class="file">Return-Path:</span>
+    header field.  If this information is not available (because you're not
+    using a multidrop retriever class, or the MTA on the POP/IMAP server is
+    broken, for example), getmail uses the string &quot;unknown&quot;.  You can
+    disable the creation of the
+    <span class="file">Delivered-To:</span>
+    header field if you wish.
+</p>
+
+<h3 id="unexpected-recipient">getmail isn't replacing my command argument &quot;%(recipient)&quot; with the message recipient address</h3>
+<p>
+    The
+    <span class="file">%(recipient)</span>,
+    <span class="file">%(local)</span>,
+    and
+    <span class="file">%(domain)</span>
+    replacement strings are only replaced if the message is retrieved with
+    a multidrop retriever class; otherwise, getmail does not &quot;know&quot;
+    the recipient address of the message, and therefore cannot perform this
+    replacement.
+</p>
+
+<h3 id="unexpected-slow-startup">getmail seems to take longer than expected to initialize</h3>
+<p>
+    If getmail takes more than a few seconds to initialize, run the following
+    command to test:
+</p>
+<pre class="example">
+python -c &quot;import socket; print socket.getfqdn()&quot;
+</pre>
+<p>
+    If this seems to take a similarly long period of time to complete, the delay
+    is in finding the fully-qualified hostname of your system.  The fix is to
+    ensure you have a valid mapping of address-to-hostname for all the addresses
+    in your system.  You can do this in your
+    <span class="file">/etc/hosts</span>
+    file, in your authoritative content DNS server, or in another
+    system-specific manner &mdash; please contact your OS vendor (or its
+    public support mailing list) for assistance.
+</p>
+        <!--#include virtual="/include/footer-xhtml11.html"-->
+    </div>
+    <!--#include virtual="/include/menu-top.html"-->
+    <!--#include virtual="/include/header.html"-->
+</body>
+</html>

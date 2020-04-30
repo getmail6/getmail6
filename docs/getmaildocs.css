@@ -1,0 +1,34 @@
+body  { background: white; color: black; font-family: sans-serif; font-size: 100%; padding-bottom: 20em; }
+p { margin: 0.1em; padding: 0.5em; }
+p.introduction { padding: 2em; color: black; background-color: #f0f0f0; }
+.about { font-size: 80%; }
+.title { font-weight: bold; text-decoration: underline; }
+.file { font-family: monospace; font-size: 130%; color: #700000; background-color: transparent; }
+pre.example {
+	display : block;
+	margin: 1em;
+	padding: 0 1em 1em 1em;
+	font-family: monospace;
+	white-space: pre;
+	color: black;
+	background-color: #f0f0f0; 
+}
+li pre.example {
+	display : block;
+	margin: 1em;
+	padding: 1em;
+	font-family: monospace;
+	white-space: pre;
+	color: black;
+	background-color: #f0f0f0; 
+}
+.meta { font-style: italic; color: #0000c0; background-color: transparent; }
+.meta:before { content: "<"; }
+.meta:after { content: ">"; }
+.sample { font-family: monospace; font-size: 130%; color: #000070; background-color: transparent; }
+.note { font-style: italic; }
+.warning { color: red; background-color: transparent; }
+.important { font-weight: bold; color: black; background-color: #e0e0ff; }
+.errmsg,.warnmsg { font-family: monospace; font-size: 150%; }
+
+hr.divider { margin-top: 5em; }
