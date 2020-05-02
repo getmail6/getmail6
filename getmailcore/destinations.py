@@ -28,7 +28,7 @@ import os
 import re
 import tempfile
 import types
-import email.Utils
+import email.utils
 
 import pwd
 
@@ -74,7 +74,7 @@ class DeliverySkeleton(ConfigurableBase):
         ConfigurableBase.__init__(self, **args)
         try:
             self.initialize()
-        except KeyError, o:
+        except KeyError as o:
             raise getmailConfigurationError(
                 'missing required configuration parameter %s' % o
             )
@@ -120,7 +120,7 @@ class Maildir(DeliverySkeleton, ForkingBase):
         self.dcount = 0
         try:
             self.conf['filemode'] = int(self.conf['filemode'], 8)
-        except ValueError, o:
+        except ValueError as o:
             raise getmailConfigurationError('filemode %s not valid: %s'
                                             % (self.conf['filemode'], o))
 
@@ -155,7 +155,7 @@ class Maildir(DeliverySkeleton, ForkingBase):
             stdout.flush()
             os.fsync(stdout.fileno())
             os._exit(0)
-        except StandardError, o:
+        except StandardError as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             stderr.write('maildir delivery process failed (%s)' % o)
@@ -296,7 +296,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                 try:
                     os.utime(self.conf['path'], (status_old.st_atime,
                              status_new.st_mtime))
-                except OSError, o:
+                except OSError as o:
                     # Not root or owner; readers will not be able to reliably
                     # detect new mail.  But you shouldn't be delivering to
                     # other peoples' mboxes unless you're root, anyways.
@@ -306,7 +306,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
 
                 unlock_file(f, self.conf['locktype'])
 
-            except IOError, o:
+            except IOError as o:
                 try:
                     if not f.closed:
                         # If the file was opened and we know how long it was,
@@ -325,7 +325,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
 
             os._exit(0)
 
-        except StandardError, o:
+        except StandardError as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             stderr.write('mbox delivery process failed (%s)' % o)
@@ -512,7 +512,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
                 )
 
             os.execl(*args)
-        except StandardError, o:
+        except StandardError as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             stderr.write('exec of qmail-local failed (%s)' % o)
@@ -705,7 +705,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                 args.append(arg)
             self.log.debug('about to execl() with args %s\n' % str(args))
             os.execl(*args)
-        except StandardError, o:
+        except StandardError as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             stderr.write('exec of command %s failed (%s)'
@@ -857,7 +857,7 @@ class MultiDestination(MultiDestinationBase):
         for item in dests:
             try:
                 dest = self._get_destination(item)
-            except getmailConfigurationError, o:
+            except getmailConfigurationError as o:
                 raise getmailConfigurationError('%s destination error %s'
                                                 % (item, o))
             self._destinations.append(dest)
@@ -914,13 +914,13 @@ class MultiSorterBase(MultiDestinationBase):
             for (pattern, path) in _locals:
                 try:
                     dest = self._get_destination(path)
-                except getmailConfigurationError, o:
+                except getmailConfigurationError as o:
                     raise getmailConfigurationError(
                         'pattern %s destination error %s' % (pattern, o)
                     )
                 self.targets.append((re.compile(pattern, re.IGNORECASE), dest))
                 self._destinations.append(dest)
-        except re.error, o:
+        except re.error as o:
             raise getmailConfigurationError('invalid regular expression %s' % o)
 
     def _confstring(self):

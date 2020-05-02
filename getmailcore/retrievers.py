@@ -157,7 +157,7 @@ class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
                 self.msgid_by_msgnum[msgnum] = msgnum
                 self.msgsizes[msgnum] = msgsize
             self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
-        except poplib.error_proto, o:
+        except poplib.error_proto as o:
             raise getmailOperationError('POP error (%s)' % o)
         self.gotmsglist = True
 
@@ -355,7 +355,7 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
         try:
             msgnum = self._getmsgnumbyid(msgid)
             resp, lines, octets = self.conn._longcmd('*ENV %i' % msgnum)
-        except poplib.error_proto, o:
+        except poplib.error_proto as o:
             raise getmailConfigurationError(
                 'server does not support *ENV (%s)' % o
             )

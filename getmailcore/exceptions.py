@@ -17,7 +17,7 @@ __all__ = [
 ]
 
 # Base class for all getmail exceptions
-class getmailError(StandardError):
+class getmailError(Exception):
     '''Base class for all getmail exceptions.'''
     pass
 
