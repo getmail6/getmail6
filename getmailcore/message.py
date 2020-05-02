@@ -10,21 +10,17 @@ __all__ = [
 import sys
 import os
 import time
-import cStringIO
+from io import StringIO
 import re
 import email
-import email.Errors
-import email.Utils
-import email.Parser
-from email.Generator import Generator
+import email.errors
+import email.utils
+import email.parser
+from email.generator import Generator
 try:
     from email.header import Header
-except ImportError, o:
-    try:
-        from email.Header import Header
-    except ImportError, o:
-        # Python < 2.5
-        from email import Header
+except ImportError as o:
+    from email.header import Header
 
 from getmailcore.exceptions import *
 from getmailcore.utilities import mbox_from_escape, format_header, \
@@ -111,19 +107,19 @@ class Message(object):
         if fromlines:
             try:
                 self.__msg = parser.parsestr(os.linesep.join(fromlines))
-            except email.Errors.MessageError, o:
+            except email.Errors.MessageError as o:
                 self.__msg = corrupt_message(o, fromlines=fromlines)
             self.__raw = os.linesep.join(fromlines)
         elif fromstring:
             try:
                 self.__msg = parser.parsestr(fromstring)
-            except email.Errors.MessageError, o:
+            except email.Errors.MessageError as o:
                 self.__msg = corrupt_message(o, fromstring=fromstring)
             self.__raw = fromstring
         elif fromfile:
             try:
                 self.__msg = parser.parse(fromfile)
-            except email.Errors.MessageError, o:
+            except email.Errors.MessageError as o:
                 # Shouldn't happen
                 self.__msg = corrupt_message(o, fromstring=fromfile.read())
             # fromfile is only used by getmail_maildir, getmail_mbox, and
@@ -182,7 +178,7 @@ class Message(object):
             receivedline = ''
         # From_ handled above, always tell the generator not to include it
         try:
-            tmpf = cStringIO.StringIO()
+            tmpf = StringIO()
             gen = Generator(tmpf, False, 0)
             gen.flatten(self.__msg, False)
             strmsg = tmpf.getvalue()
@@ -191,7 +187,7 @@ class Message(object):
                 strmsg = RE_FROMLINE.sub(r'>\1', strmsg)
             return (fromline + rpline + dtline + receivedline 
                     + os.linesep.join(strmsg.splitlines() + ['']))
-        except TypeError, o:
+        except TypeError as o:
             # email module chokes on some badly-misformatted messages, even
             # late during flatten().  Hope this is fixed in Python 2.4.
             if self.__raw is None:

@@ -10,7 +10,7 @@ __all__ = [
 
 import sys
 import imaplib
-import new
+import types
 
 
 if sys.version_info < (2, 4, 0):
@@ -26,7 +26,7 @@ if sys.version_info < (2, 5, 0):
     # Python < 2.5.0 has a bug with the readonly flag on imaplib's select().
     # Monkey-patch it in.
 
-    def py25_select(self, mailbox='INBOX', readonly=False):
+    def py_select(self, mailbox='INBOX', readonly=False):
         """Select a mailbox.
 
         Flush all untagged responses.
@@ -57,7 +57,7 @@ if sys.version_info < (2, 5, 0):
             raise self.readonly('%s is not writable' % mailbox)
         return typ, self.untagged_responses.get('EXISTS', [None])
 
-    imaplib.IMAP4.select = new.instancemethod(py25_select, None, imaplib.IMAP4)
+    imaplib.IMAP4.select = types.MethodType(py_select, None, imaplib.IMAP4)
 
 
 if sys.version_info < (2, 5, 3):
@@ -75,5 +75,5 @@ if sys.version_info < (2, 5, 3):
             chunks.append(data)
         return ''.join(chunks)
 
-    imaplib.IMAP4_SSL.read = new.instancemethod(fixed_read, None, 
+    imaplib.IMAP4_SSL.read = types.MethodType(fixed_read, None,
                                                 imaplib.IMAP4_SSL)

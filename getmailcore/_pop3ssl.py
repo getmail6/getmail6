@@ -99,7 +99,7 @@ class sslsocket(object):
                     log.trace('end of loop\n')
             log.trace('returning line "%r"\n' % line)
             return line
-        except (socket.sslerror, socket.error), o:
+        except (socket.sslerror, socket.error) as o:
             raise getmailOperationError(
                 'socket/ssl error while reading from server (%s)' % o
             )
@@ -130,14 +130,14 @@ class POP3SSL(POP3):
                     self.sock = sslsocket(self.rawsock, keyfile, certfile)
                 else:
                     self.sock = sslsocket(self.rawsock)
-            except socket.error, msg:
+            except socket.error as msg:
                 if self.rawsock:
                     self.rawsock.close()
                 self.rawsock = None
                 continue
             break
         if not self.sock:
-            raise socket.error, msg
+            raise socket.error(msg)
         self._debugging = 0
         self.welcome = self._getresp()
 
@@ -147,7 +147,7 @@ class POP3SSL(POP3):
     def _getline(self):
         line = self.sock.readline()
         if self._debugging > 1:
-            print '*get*', `line`
+            print('*get*', line)
         if not line:
             raise error_proto('-ERR EOF')
         octets = len(line)
@@ -165,7 +165,7 @@ class POP3SSL(POP3):
         """
         try:
             resp = self._shortcmd('QUIT')
-        except (error_proto, socket.error), val:
+        except (error_proto, socket.error) as val:
             resp = val
         self.sock.close()
         del self.sock
