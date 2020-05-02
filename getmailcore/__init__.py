@@ -12,11 +12,16 @@ You should have received a copy of the license in the file COPYING.
 '''
 
 import sys
-if sys.hexversion < 0x2030300:
-    raise ImportError('getmail version 5 requires Python version 2.3.3'
-                      ' or later')
 
-__version__ = '5.14'
+__version__ = '6.00'
+
+# ROLAND: yet to determine
+__py_required__ = '2.7.18'
+__py_required_hex__ = 0x20712f0
+
+if sys.hexversion < __py_required_hex__:
+    raise ImportError('getmail version %s requires Python version %s '
+                      'or later'%(__version__,__py_required__)
 
 __all__ = [
     'baseclasses',

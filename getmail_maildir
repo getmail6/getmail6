@@ -20,10 +20,6 @@ Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
 import sys
 
-if sys.hexversion < 0x2030300:
-    raise ImportError('getmail version 5 requires Python version 2.3.3 '
-                      'or later')
-
 import os
 
 from getmailcore.message import Message
@@ -64,10 +60,10 @@ if os.environ.has_key('RECIPIENT'):
 
 try:
     d = deliver_maildir(path, msg.flatten(True, False), hostname)
-except getmailDeliveryError, o:
+except getmailDeliveryError as o:
     raise SystemExit('Error: delivery error delivering to maildir %s (%s)'
                      % (path, o))
-except StandardError, o:
+except StandardError as o:
     raise SystemExit('Error: other error delivering to maildir %s (%s)'
                      % (path, o))
 

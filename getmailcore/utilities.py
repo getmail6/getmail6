@@ -631,7 +631,7 @@ if os.name == 'posix':
             else:
                 # This will break.
                 protocol = '????'
-            
+
             # wish we could pass along a comment to this thing for the user prompt
             cmd = "%s find-internet-password -g -a '%s' -s '%s' -r '%s'" % (
                 osx_keychain_binary, user, server, protocol

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-if sys.hexversion < 0x2030300:
-    raise ImportError('getmail version 4 requires Python version 2.3.3 or later')
 
 import os.path
 from distutils.core import setup

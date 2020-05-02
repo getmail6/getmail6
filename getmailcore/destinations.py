@@ -28,7 +28,11 @@ import os
 import re
 import tempfile
 import types
-import email.utils
+
+try:
+    import email.Utils
+except ImportError:
+    import email.utils
 
 import pwd
 

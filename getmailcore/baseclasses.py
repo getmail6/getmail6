@@ -392,11 +392,3 @@ class ForkingBase(object):
 
         return exitcode
 
-
-# For Python 2.3, which lacks the sorted() builtin
-if sys.hexversion < 0x02040000:
-    def sorted(l, key=lambda x: x):
-        lst = [(key(item), item) for item in l]
-        lst.sort()
-        return [val for (unused, val) in lst]
-    __all__.append('sorted')

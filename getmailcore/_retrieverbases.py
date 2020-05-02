@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.3
 '''Base and mix-in classes implementing retrievers (message sources getmail can
 retrieve mail from).
 
@@ -7,7 +6,6 @@ None of these classes can be instantiated directly.  In this module:
 Mix-in classes for SSL/non-SSL initialization:
 
   POP3initMixIn
-  Py23POP3SSLinitMixIn
   Py24POP3SSLinitMixIn
   IMAPinitMixIn
   IMAPSSLinitMixIn
@@ -488,64 +486,6 @@ class Py24POP3SSLinitMixIn(object):
             self.log.info(fingerprint_message)
         else:
             self.log.trace(fingerprint_message)
-
-
-#######################################
-class Py23POP3SSLinitMixIn(object):
-    '''Mix-In class to do POP3 over SSL initialization with custom-implemented
-    code to support SSL with Python 2.3's poplib.POP3 class.
-    '''
-    SSL = True
-    def _connect(self):
-        self.log.trace()
-        if not hasattr(socket, 'ssl'):
-            raise getmailConfigurationError(
-                'SSL not supported by this installation of Python'
-            )
-        (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
-        ca_certs = check_ca_certs(self.conf)
-        ssl_version = check_ssl_version(self.conf)
-        ssl_fingerprints = check_ssl_fingerprints(self.conf)
-        ssl_ciphers = check_ssl_ciphers(self.conf)
-        if ca_certs or ssl_version or ssl_ciphers or ssl_fingerprints:
-            raise getmailConfigurationError(
-                'SSL extended options are not supported by this'
-                 ' installation of Python'
-            )
-        try:
-            if keyfile:
-                self.log.trace(
-                    'establishing POP3 SSL connection to %s:%d with keyfile '
-                    '%s, certfile %s'
-                    % (self.conf['server'], self.conf['port'],
-                       keyfile, certfile)
-                    + os.linesep
-                )
-                self.conn = POP3SSL(self.conf['server'], self.conf['port'],
-                                    keyfile, certfile)
-            else:
-                self.log.trace(
-                    'establishing POP3 SSL connection to %s:%d'
-                    % (self.conf['server'], self.conf['port'])
-                    + os.linesep
-                )
-                self.conn = POP3SSL(self.conf['server'], self.conf['port'])
-
-            self.setup_received(self.conn.rawsock)
-        except poplib.error_proto as o:
-            raise getmailOperationError('POP error (%s)' % o)
-        except socket.timeout:
-            #raise getmailOperationError('timeout during connect')
-            raise
-        except socket.gaierror as o:
-            raise getmailOperationError('socket error during connect (%s)' % o)
-        except socket.sslerror as o:
-            raise getmailOperationError(
-                'socket sslerror during connect (%s)' % o
-            )
-
-        self.log.trace('POP3 SSL connection %s established' % self.conn
-                       + os.linesep)
 
 
 #######################################
@@ -1949,8 +1889,4 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         return msg
 
 
-# Choose right POP-over-SSL mix-in based on Python version being used.
-if sys.hexversion >= 0x02040000:
-    POP3SSLinitMixIn = Py24POP3SSLinitMixIn
-else:
-    POP3SSLinitMixIn = Py23POP3SSLinitMixIn
+POP3SSLinitMixIn = Py24POP3SSLinitMixIn
