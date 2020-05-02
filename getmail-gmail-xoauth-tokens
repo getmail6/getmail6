@@ -106,8 +106,8 @@ if __name__ == '__main__':
     auth = OAuth2(args.tokenfile)
 
     if args.init:
-        print "Visit this url to obtain a verification code:"
-        print "    %s\n" % auth.code_url()
+        print("Visit this url to obtain a verification code:")
+        print("    %s\n" % auth.code_url())
 
         code = raw_input("Enter verification code: ")
         response = auth.init_tokens(code)

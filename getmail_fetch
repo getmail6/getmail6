@@ -2,21 +2,17 @@
 
 import sys
 
-if sys.hexversion < 0x2030300:
-    raise ImportError('getmail version 5 requires Python version 2.3.3 '
-                      'or later')
-
 import os
 import socket
 import poplib
-import new
+import types
 from optparse import OptionParser
 
 try:
     from getmailcore import __version__, retrievers, destinations, message, \
         logging
     from getmailcore.exceptions import *
-except ImportError, o:
+except ImportError as o:
     sys.stderr.write('ImportError:  %s\n' % o)
     sys.exit(127)
 
@@ -69,30 +65,30 @@ def go(retriever, destination, options, startmsg):
                     log.info(', deleted')
                 log.info('\n')
 
-            except getmailDeliveryError, o:
+            except getmailDeliveryError as o:
                 error_exit(7, 'Delivery error: %s' % o)
 
         try:
             retriever.quit()
-        except getmailOperationError, o:
+        except getmailOperationError as o:
             log.warning('Operation error during quit (%s)\n' % o)
 
-    except socket.timeout, o:
+    except socket.timeout as o:
         error_exit(8, 'Timeout error: %s' % o)
 
-    except socket.gaierror, o:
+    except socket.gaierror as o:
         error_exit(9, 'gaierror: %s' % o)
 
-    except socket.error, o:
+    except socket.error as o:
         error_exit(10, 'Socket error: %s' % o)
 
-    except poplib.error_proto, o:
+    except poplib.error_proto as o:
         error_exit(11, 'Protocol error: %s' % o)
 
-    except getmailCredentialError, o:
+    except getmailCredentialError as o:
         error_exit(13, 'Credential error: %s' % o)
 
-    except getmailOperationError, o:
+    except getmailOperationError as o:
         error_exit(12, 'Operational error: %s' % o)
 
     log.info('%d messages retrieved\n' % msgs_retrieved)
@@ -136,14 +132,14 @@ def main():
 
         def get(self, key, value=None):
             return getattr(self, key, value)
-        options.get = new.instancemethod(get, options, options.__class__)
+        options.get = types.MethodType(get, options, options.__class__)
 
         msg = None
         if options.message is not None:
             try:
                 f = open(options.message, 'rb')
                 msg = message.Message(fromfile=f)
-            except IOError, o:
+            except IOError as o:
                 error_exit(
                     1,
                     'Error reading message file "%s": %s' % (options.message, o)
@@ -171,7 +167,7 @@ def main():
         try:
             retriever = retriever_func(**retriever_args)
             retriever.checkconf()
-        except getmailOperationError, o:
+        except getmailOperationError as o:
             error_exit(3, 'Error initializing retriever: %s' % o)
 
         # Destination
@@ -205,7 +201,7 @@ def main():
 
         try:
             destination = destination_func(**destination_args)
-        except getmailOperationError, o:
+        except getmailOperationError as o:
             error_exit(
                 5, 'Error initializing destination "%s": %s' % (destination, o)
             )
@@ -214,11 +210,11 @@ def main():
 
     except KeyboardInterrupt:
         error_exit(6, 'Operation aborted by user (keyboard interrupt)')
-    except getmailOperationError, o:
+    except getmailOperationError as o:
         error_exit(7, 'Operation error: %s' % o)
-    except getmailConfigurationError, o:
+    except getmailConfigurationError as o:
         error_exit(8, 'Configuration error: %s' % o)
-    except StandardError, o:
+    except StandardError as o:
         log.critical('\nException: please read docs/BUGS and include the '
                      'following information in any bug report:\n\n')
         log.critical('  getmail_fetch version %s\n' % __version__)

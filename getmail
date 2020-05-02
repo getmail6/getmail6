@@ -2,13 +2,16 @@
 
 import sys
 
-if sys.hexversion < 0x2030300:
-    raise ImportError('getmail version 5 requires Python version 2.3.3 '
+if sys.hexversion < 0x20712f0: # ROLAND: yet to determine
+    raise ImportError('getmail version 6 requires Python version 2.7.18 '
                       'or later')
 
 import os.path
 import time
-import ConfigParser
+try:
+    import ConfigParser
+except:
+    import configparser
 import poplib
 import imaplib
 import pprint
@@ -61,7 +64,7 @@ try:
     from getmailcore.exceptions import *
     from getmailcore.utilities import eval_bool, logfile, format_params, \
         address_no_brackets, expand_user_vars, get_password, run_command
-except ImportError, o:
+except ImportError as o:
     sys.stderr.write('ImportError:  %s\n' % o)
     sys.exit(127)
 
@@ -164,7 +167,7 @@ def go(configs, idle):
                               % mailbox.encode('utf-8'))
                 try:
                     retriever.select_mailbox(mailbox)
-                except getmailMailboxSelectError, o:
+                except getmailMailboxSelectError as o:
                     errorexit = True
                     log.info('  mailbox %s not selectable (%s) - verify the '
                                 'mailbox exists and you have sufficient '
@@ -198,7 +201,7 @@ def go(configs, idle):
                         if retrieve:
                             try:
                                 msg = retriever.getmsg(msgid)
-                            except getmailRetrievalError, o:
+                            except getmailRetrievalError as o:
                                 errorexit = True
                                 log.error(
                                     'Retrieval error: server for %s is broken; '
@@ -285,7 +288,7 @@ def go(configs, idle):
                             info += ', deleted'
                             logline += ', deleted'
 
-                    except getmailDeliveryError, o:
+                    except getmailDeliveryError as o:
                         errorexit = True
                         log.error('Delivery error (%s)\n' % o)
                         info += ', delivery error (%s)' % o
@@ -295,7 +298,7 @@ def go(configs, idle):
                             syslog.syslog(syslog.LOG_ERR,
                                           'Delivery error (%s)' % o)
 
-                    except getmailFilterError, o:
+                    except getmailFilterError as o:
                         errorexit = True
                         log.error('Filter error (%s)\n' % o)
                         info += ', filter error (%s)' % o
@@ -327,12 +330,12 @@ def go(configs, idle):
         except StopIteration:
             pass
 
-        except KeyboardInterrupt, o:
+        except KeyboardInterrupt as o:
             log.warning('%s: user aborted\n' % configfile)
             if options['logfile']:
                 options['logfile'].write('user aborted')
 
-        except socket.timeout, o:
+        except socket.timeout as o:
             errorexit = True
             retriever.abort()
             if type(o) == tuple and len(o) > 1:
@@ -341,14 +344,14 @@ def go(configs, idle):
             if options['logfile']:
                 options['logfile'].write('timeout error (%s)' % o)
 
-        except (poplib.error_proto, imaplib.IMAP4.abort), o:
+        except (poplib.error_proto, imaplib.IMAP4.abort) as o:
             errorexit = True
             retriever.abort()
             log.error('%s: protocol error (%s)\n' % (configfile, o))
             if options['logfile']:
                 options['logfile'].write('protocol error (%s)' % o)
 
-        except socket.gaierror, o:
+        except socket.gaierror as o:
             errorexit = True
             retriever.abort()
             if type(o) == tuple and len(o) > 1:
@@ -357,7 +360,7 @@ def go(configs, idle):
             if options['logfile']:
                 options['logfile'].write('gaierror error (%s)' % o)
 
-        except socket.error, o:
+        except socket.error as o:
             errorexit = True
             retriever.abort()
             if type(o) == tuple and len(o) > 1:
@@ -366,20 +369,20 @@ def go(configs, idle):
             if options['logfile']:
                 options['logfile'].write('socket error (%s)' % o)
 
-        except getmailCredentialError, o:
+        except getmailCredentialError as o:
             errorexit = True
             retriever.abort()
             log.error('%s: credential/login error (%s)\n' % (configfile, o))
             if options['logfile']:
                 options['logfile'].write('credential/login error (%s)' % o)
 
-        except getmailLoginRefusedError, o:
+        except getmailLoginRefusedError as o:
             retriever.abort()
             log.error('%s: login refused error (%s)\n' % (configfile, o))
             if options['logfile']:
                 options['logfile'].write('login refused error (%s)' % o)
 
-        except getmailOperationError, o:
+        except getmailOperationError as o:
             errorexit = True
             retriever.abort()
             log.error('%s: operation error (%s)\n' % (configfile, o))
@@ -435,13 +438,13 @@ def go(configs, idle):
                     retriever.set_new_timestamp()
                     configs.append(configs[0])
                     continue
-                except KeyboardInterrupt, o:
+                except KeyboardInterrupt as o:
                     # Because configs isn't appended to, this just means we'll
                     # quit, which is presumably what the user wanted
                     # The newline is to clear the ^C shown in terminal
                     log.info('\n')
                     pass
-                except socket.error, o:
+                except socket.error as o:
                     if o.errno != errno.ECONNRESET:
                         # Something unexpected happened
                         raise
@@ -449,7 +452,7 @@ def go(configs, idle):
                     # Just exit after a reset connection.
 
             retriever.quit()
-        except getmailOperationError, o:
+        except getmailOperationError as o:
             errorexit = True
             log.debug('%s: operation error during quit (%s)\n'
                       % (configfile, o))
@@ -688,7 +691,7 @@ def main():
                 if config['message_log']:
                     try:
                         config['logfile'] = logfile(config['message_log'])
-                    except IOError, o:
+                    except IOError as o:
                         raise getmailConfigurationError(
                             'error opening message_log file %s (%s)'
                             % (config['message_log'], o)
@@ -728,10 +731,10 @@ def main():
                     log.debug('    checking retriever configuration for %s\n'
                               % retriever)
                     retriever.checkconf()
-                except getmailOperationError, o:
+                except getmailOperationError as o:
                     log.error('Error initializing retriever: %s\n' % o)
                     continue
-                
+
                 # Retriever is okay.  Check if user wants us to store the
                 # password in a Gnome keyring for future use.
                 if gnomekeyring and options.store_gnome_keyring:
@@ -830,22 +833,22 @@ def main():
                     mail_filter = filter_func(**filter_args)
                     _filters.append(mail_filter)
 
-            except ConfigParser.NoSectionError, o:
+            except ConfigParser.NoSectionError as o:
                 raise getmailConfigurationError(
                     'configuration file %s missing section (%s)' % (path, o)
                 )
-            except ConfigParser.NoOptionError, o:
+            except ConfigParser.NoOptionError as o:
                 raise getmailConfigurationError(
                     'configuration file %s missing option (%s)' % (path, o)
                 )
             except (ConfigParser.DuplicateSectionError,
                     ConfigParser.InterpolationError,
                     ConfigParser.MissingSectionHeaderError,
-                    ConfigParser.ParsingError), o:
+                    ConfigParser.ParsingError) as o:
                 raise getmailConfigurationError(
                     'configuration file %s incorrect (%s)' % (path, o)
                 )
-            except getmailConfigurationError, o:
+            except getmailConfigurationError as o:
                 raise getmailConfigurationError(
                     'configuration file %s incorrect (%s)' % (path, o)
                 )
@@ -902,13 +905,13 @@ def main():
     except KeyboardInterrupt:
         log.warning('Operation aborted by user (keyboard interrupt)\n')
         sys.exit(0)
-    except getmailConfigurationError, o:
+    except getmailConfigurationError as o:
         log.error('Configuration error: %s\n' % o)
         sys.exit(2)
-    except getmailOperationError, o:
+    except getmailOperationError as o:
         log.error('Error: %s\n' % o)
         sys.exit(3)
-    except StandardError, o:
+    except StandardError as o:
         log.critical(
             '\nException: please read docs/BUGS and include the '
             'following information in any bug report:\n\n'
