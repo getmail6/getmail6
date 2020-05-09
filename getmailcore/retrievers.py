@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.3
 '''Classes implementing retrievers (message sources getmail can retrieve mail
 from).
 

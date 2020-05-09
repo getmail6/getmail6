@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.3
 '''Base classes used elsewhere in the package.
 
 '''

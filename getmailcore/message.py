@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.3
 '''The getmail Message class.
 
 '''
@@ -10,21 +9,22 @@ __all__ = [
 import sys
 import os
 import time
-from io import StringIO
 import re
 import email
 try:
-    import email.Errors
-    import email.Utils
-    import email.Parser
+    import email.Errors as Errors
+    import email.Utils as Utils
+    import email.Parser as Parser
     from email.Generator import Generator
     from email.Header import Header
+    from io import BytesIO as StringIO
 except ImportError:
-    import email.errors
-    import email.utils
-    import email.parser
+    import email.errors as Errors
+    import email.utils as Utils
+    import email.parser as Parser
     from email.generator import Generator
     from email.header import Header
+    from io import StringIO
 
 from getmailcore.exceptions import *
 from getmailcore.utilities import mbox_from_escape, format_header, \
@@ -52,7 +52,7 @@ def corrupt_message(why, fromlines=None, fromstring=None):
     msg = email.message_from_string('')
     msg['From'] = '"unknown sender" <>'
     msg['Subject'] = 'Corrupt message received'
-    msg['Date'] = email.Utils.formatdate(localtime=True)
+    msg['Date'] = Utils.formatdate(localtime=True)
     body = [
         'A badly-corrupt message was retrieved and could not be parsed',
         'for the following reason:',
@@ -95,7 +95,7 @@ class Message(object):
         self.received_from = None
         self.received_with = None
         self.__raw = None
-        parser = email.Parser.Parser()
+        parser = Parser.Parser()
 
         # Message is instantiated with fromlines for POP3, fromstring for
         # IMAP (both of which can be badly-corrupted or invalid, i.e. spam,
@@ -104,19 +104,19 @@ class Message(object):
         if fromlines:
             try:
                 self.__msg = parser.parsestr(os.linesep.join(fromlines))
-            except email.Errors.MessageError as o:
+            except Errors.MessageError as o:
                 self.__msg = corrupt_message(o, fromlines=fromlines)
             self.__raw = os.linesep.join(fromlines)
         elif fromstring:
             try:
                 self.__msg = parser.parsestr(fromstring)
-            except email.Errors.MessageError as o:
+            except Errors.MessageError as o:
                 self.__msg = corrupt_message(o, fromstring=fromstring)
             self.__raw = fromstring
         elif fromfile:
             try:
                 self.__msg = parser.parse(fromfile)
-            except email.Errors.MessageError as o:
+            except Errors.MessageError as o:
                 # Shouldn't happen
                 self.__msg = corrupt_message(o, fromstring=fromfile.read())
             # fromfile is only used by getmail_maildir, getmail_mbox, and
@@ -144,7 +144,7 @@ class Message(object):
         message, splitting it into lines, and joining them with the platform
         EOL.
         
-        Note on mangle_from: the Python email.Generator class apparently only
+        Note on mangle_from: the Python Generator class apparently only
         quotes "From ", not ">From " (i.e. it uses mboxo format instead of
         mboxrd).  So we don't use its mangling, and do it by hand instead.
         '''
@@ -175,6 +175,7 @@ class Message(object):
             receivedline = ''
         # From_ handled above, always tell the generator not to include it
         try:
+            import pdb; pdb.set_trace()
             tmpf = StringIO()
             gen = Generator(tmpf, False, 0)
             gen.flatten(self.__msg, False)

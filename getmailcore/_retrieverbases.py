@@ -37,6 +37,12 @@ import os
 import socket
 import time
 import email
+try:
+    from email.Header import decode_header
+    import email.Parser as Parser
+except ImportError:
+    from email.header import decode_header
+    import email.parser as Parser
 import poplib
 import imaplib
 import re
@@ -204,12 +210,6 @@ if ssl:
             else:
                 raise getmailOperationError("no appropriate commonName or "
                     "subjectAltName fields were found")
-
-try:
-    from email.header import decode_header
-except ImportError as o:
-    # python < 2.5
-    from email.Header import decode_header
 
 from getmailcore.compatibility import *
 from getmailcore.exceptions import *
@@ -1091,7 +1091,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         self.log.trace()
         msgnum = self._getmsgnumbyid(msgid)
         response, headerlist, octets = self.conn.top(msgnum, 0)
-        parser = email.Parser.HeaderParser()
+        parser = Parser.HeaderParser()
         return parser.parsestr(os.linesep.join(headerlist))
 
     def initialize(self, options):

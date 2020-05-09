@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.3
 '''Classes implementing destinations (files, directories, or programs getmail
 can deliver mail to).
 
@@ -30,9 +29,9 @@ import tempfile
 import types
 
 try:
-    import email.Utils
+    import email.Utils as Utils
 except ImportError:
-    import email.utils
+    import email.utils as Utils
 
 import pwd
 
@@ -1060,7 +1059,7 @@ class MultiGuesser(MultiSorterBase):
                     'looking for addresses in %s header fields\n' % field
                 )
                 header_addrs.extend(
-                    [addr for (name, addr) in email.Utils.getaddresses(
+                    [addr for (name, addr) in Utils.getaddresses(
                         msg.get_all(field, [])
                      ) if addr]
                 )

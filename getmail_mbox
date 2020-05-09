@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 '''getmail_mbox
 Reads a message from stdin and delivers it to an mbox file specified as
 a commandline argument.  Expects the envelope sender address to be in the
