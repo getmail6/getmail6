@@ -159,7 +159,7 @@ class Maildir(DeliverySkeleton, ForkingBase):
             stdout.flush()
             os.fsync(stdout.fileno())
             os._exit(0)
-        except StandardError as o:
+        except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             stderr.write('maildir delivery process failed (%s)' % o)
@@ -320,7 +320,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                         f.truncate(status_old.st_size)
                 except KeyboardInterrupt:
                     raise
-                except StandardError:
+                except Exception:
                     pass
                 raise getmailDeliveryError(
                     'failure writing message to mbox file "%s" (%s)'
@@ -329,7 +329,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
 
             os._exit(0)
 
-        except StandardError as o:
+        except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             stderr.write('mbox delivery process failed (%s)' % o)
@@ -516,7 +516,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
                 )
 
             os.execl(*args)
-        except StandardError as o:
+        except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             stderr.write('exec of qmail-local failed (%s)' % o)
@@ -709,7 +709,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                 args.append(arg)
             self.log.debug('about to execl() with args %s\n' % str(args))
             os.execl(*args)
-        except StandardError as o:
+        except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             stderr.write('exec of command %s failed (%s)'

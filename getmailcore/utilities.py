@@ -204,9 +204,7 @@ def format_params(d, maskitems=('password', ), skipitems=()):
     '''Take a dictionary of parameters and return a string summary.
     '''
     s = ''
-    keys = d.keys()
-    keys.sort()
-    for key in keys:
+    for key in sorted(d.keys()):
         if key in skipitems:
             continue
         if s:
@@ -289,7 +287,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
                 ['%02x' % ord(char)
                  for char in open('/dev/urandom', 'rb').read(8)]
             )
-        except StandardError:
+        except Exception:
             pass
 
         filename = '%(secs)s.%(unique)s.%(hostname)s' % info
@@ -345,7 +343,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
             os.unlink(fname_tmp)
         except KeyboardInterrupt:
             raise
-        except StandardError:
+        except Exception:
             pass
         raise getmailDeliveryError('failure renaming "%s" to "%s"'
                                    % (fname_tmp, fname_new))
@@ -717,14 +715,14 @@ def run_command(command, args):
         args = list(args)
 
     # Programmer sanity checks
-    assert type(command) in (str, unicode), (
+    assert type(command) in (bytes, str), (
         'command is %s (%s)' % (command, type(command))
     )
     assert type(args) == list, (
         'args is %s (%s)' % (args, type(args))
     )
     for arg in args:
-        assert type(arg) in (str, unicode), 'arg is %s (%s)' % (arg, type(arg))
+        assert type(arg) in (bytes, str), 'arg is %s (%s)' % (arg, type(arg))
 
     stdout = tempfile.TemporaryFile()
     stderr = tempfile.TemporaryFile()

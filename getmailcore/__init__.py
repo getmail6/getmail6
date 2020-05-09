@@ -21,7 +21,7 @@ __py_required_hex__ = 0x20712f0
 
 if sys.hexversion < __py_required_hex__:
     raise ImportError('getmail version %s requires Python version %s '
-                      'or later'%(__version__,__py_required__)
+                      'or later'%(__version__,__py_required__))
 
 __all__ = [
     'baseclasses',

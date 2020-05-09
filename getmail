@@ -2,16 +2,12 @@
 
 import sys
 
-if sys.hexversion < 0x20712f0: # ROLAND: yet to determine
-    raise ImportError('getmail version 6 requires Python version 2.7.18 '
-                      'or later')
-
 import os.path
 import time
 try:
     import ConfigParser
 except:
-    import configparser
+    import configparser as ConfigParser
 import poplib
 import imaplib
 import pprint
@@ -140,7 +136,7 @@ def go(configs, idle):
                 log.warning('%s: read_all and not delete -- all messages will '
                             'be retrieved each time getmail is run\n' 
                             % retriever)
-            
+
         oplevel = options['verbose']
         logverbose = options['message_log_verbose']
         now = int(time.time())
@@ -270,7 +266,7 @@ def go(configs, idle):
                         if options['delete'] and timestamp:
                             log.debug('    will delete\n')
                             delete = True
-                        
+
                         if (options['delete_bigger_than'] 
                                 and size > options['delete_bigger_than']):
                             log.debug('    bigger than %d, will delete\n'
@@ -604,7 +600,7 @@ def main():
                                             'not exist' % path)
             elif not os.path.isfile(path):
                 raise getmailOperationError('%s is not a file' % path)
-            f = open(path, 'rb')
+            f = open(path, 'r')
             config = {
                 'verbose' : defaults['verbose'],
                 'read_all' : defaults['read_all'],
@@ -634,7 +630,7 @@ def main():
 
             try:
                 configparser = ConfigParser.RawConfigParser(parserdefaults)
-                configparser.readfp(f, path)
+                configparser.read_file(f)
                 for option in options_bool:
                     log.debug('  looking for option %s ... ' % option)
                     if configparser.has_option('options', option):
@@ -911,7 +907,7 @@ def main():
     except getmailOperationError as o:
         log.error('Error: %s\n' % o)
         sys.exit(3)
-    except StandardError as o:
+    except Exception as o:
         log.critical(
             '\nException: please read docs/BUGS and include the '
             'following information in any bug report:\n\n'

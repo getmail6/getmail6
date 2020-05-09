@@ -242,7 +242,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
             # message passed to the filter.
             #self.log.debug('about to execl() with args %s\n' % str(args))
             os.execl(*args)
-        except StandardError as o:
+        except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             self.log.critical('exec of filter %s failed (%s)'
@@ -439,7 +439,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
                            ',EXT="%(EXT)s"' % os.environ)
             self.log.debug('about to execl() with args %s\n' % str(args))
             os.execl(*args)
-        except StandardError as o:
+        except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
             self.log.critical('exec of filter %s failed (%s)'

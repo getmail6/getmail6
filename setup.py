@@ -48,11 +48,11 @@ GETMAILMANDIR = os.path.join(
 )
 
 if '--show-default-install-dirs' in args:
-    print 'Default installation directories:'
-    print '  scripts :        %s' % distutils.sysconfig.get_config_var('BINDIR')
-    print '  Python modules : %s' % os.path.join(distutils.sysconfig.get_config_var('LIBP'), 'site-packages')
-    print '  documentation :  %s' % GETMAILDOCDIR
-    print '  man(1) pages :   %s' % GETMAILMANDIR
+    print('Default installation directories:')
+    print('  scripts :        %s' % distutils.sysconfig.get_config_var('BINDIR'))
+    print('  Python modules : %s' % os.path.join(distutils.sysconfig.get_config_var('LIBP'), 'site-packages'))
+    print('  documentation :  %s' % GETMAILDOCDIR)
+    print('  man(1) pages :   %s' % GETMAILMANDIR)
     raise SystemExit()
 
 setup(

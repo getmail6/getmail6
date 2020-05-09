@@ -57,7 +57,7 @@ class ConfItem:
                 )
             # Use default.
             return self.default
-        if isinstance(val,self.dtype) and val != self.default:
+        if not isinstance(val,self.dtype) and val != self.default:
             # Got value, but not of expected type.  Try to convert.
             if self.securevalue:
                 self.log.debug('converting %s to type %s\n'
