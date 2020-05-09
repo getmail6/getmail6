@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.3
 '''Classes implementing message filters.
 
 Currently implemented:

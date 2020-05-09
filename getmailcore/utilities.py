@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.3
 '''Utility classes and functions for getmail.
 '''
 

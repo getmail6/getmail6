@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.3
 '''Logging support for getmail.
 
 The new standard Python libary module logging didn't cut it for me; it doesn't
