@@ -214,7 +214,7 @@ def main():
         error_exit(7, 'Operation error: %s' % o)
     except getmailConfigurationError as o:
         error_exit(8, 'Configuration error: %s' % o)
-    except StandardError as o:
+    except Exception as o:
         log.critical('\nException: please read docs/BUGS and include the '
                      'following information in any bug report:\n\n')
         log.critical('  getmail_fetch version %s\n' % __version__)

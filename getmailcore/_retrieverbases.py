@@ -281,6 +281,12 @@ POP3_SSL_PORT = 995
 # "line" exceeds 2048 bytes is absolutely stupid.
 poplib._MAXLINE = 1 << 20   # 1MB; decrease this if you're running on a VIC-20
 
+# python 2 to 3 helper
+def _sslobj(self):
+    try:
+        return self.conn.sslobj
+    except AttributeError:
+        return self.conn.sock
 
 #
 # Mix-in classes
@@ -368,10 +374,6 @@ class Py24POP3SSLinitMixIn(object):
     SSL = True
     def _connect(self):
         self.log.trace()
-        if not hasattr(socket, 'ssl'):
-            raise getmailConfigurationError(
-                'SSL not supported by this installation of Python'
-            )
         (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
         ca_certs = check_ca_certs(self.conf)
         ssl_version = check_ssl_version(self.conf)
@@ -424,7 +426,7 @@ class Py24POP3SSLinitMixIn(object):
                                             self.conf['port'])
             self.setup_received(self.conn.sock)
             if ssl and hashlib:
-                sslobj = self.conn.sslobj
+                sslobj = _sslobj(self)
                 peercert = sslobj.getpeercert(True)
                 ssl_cipher = sslobj.cipher()
                 if ssl_cipher:
@@ -440,7 +442,7 @@ class Py24POP3SSLinitMixIn(object):
             # Ensure cert is for server we're connecting to
             if ssl and self.conf['ca_certs']:
                 ssl_match_hostname(
-                    self.conn.sslobj.getpeercert(),
+                    _sslobj(self).getpeercert(),
                     self.conf.get('ssl_cert_hostname', None) 
                         or self.conf['server']
                 )
@@ -604,7 +606,7 @@ class IMAPSSLinitMixIn(object):
                                               self.conf['port'])
             self.setup_received(self.conn.sock)
             if ssl and hashlib:
-                sslobj = self.conn.ssl()
+                sslobj = _sslobj(self)
                 peercert = sslobj.getpeercert(True)
                 ssl_cipher = sslobj.cipher()
                 if ssl_cipher:
@@ -799,8 +801,8 @@ class RetrieverSkeleton(ConfigurableBase):
         return self.sorted_msgnum_msgid[i][1]
 
     def _oldmail_filename(self, mailbox):
-        assert (mailbox is None 
-                or (isinstance(mailbox, (str, unicode)) and mailbox)), (
+        assert (mailbox is None
+                or (isinstance(mailbox, (bytes, str)) and mailbox)), (
             'bad mailbox %s (%s)' % (mailbox, type(mailbox))
         )
         filename = self.oldmail_filename

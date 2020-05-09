@@ -67,7 +67,7 @@ try:
 except getmailDeliveryError as o:
     raise SystemExit('Error: delivery error delivering to mboxrd %s (%s)'
                      % (path, o))
-except StandardError as o:
+except Exception as o:
     raise SystemExit('Error: other error delivering to mboxrd %s (%s)'
                      % (path, o))
 
