@@ -92,7 +92,7 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
 
         ConfInt(name='timeout', required=False, default=180),
         ConfString(name='server'),
-        ConfInt(name='port', required=False, default=POP3_ssl_port),
+        ConfInt(name='port', required=False, default=POP3_SSL_PORT),
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),
@@ -201,7 +201,7 @@ class BrokenUIDLPOP3SSLRetriever(BrokenUIDLPOP3RetrieverBase, POP3SSLinitMixIn):
 
         ConfInt(name='timeout', required=False, default=180),
         ConfString(name='server'),
-        ConfInt(name='port', required=False, default=POP3_ssl_port),
+        ConfInt(name='port', required=False, default=POP3_SSL_PORT),
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),
@@ -273,7 +273,7 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
 
         ConfInt(name='timeout', required=False, default=180),
         ConfString(name='server'),
-        ConfInt(name='port', required=False, default=POP3_ssl_port),
+        ConfInt(name='port', required=False, default=POP3_SSL_PORT),
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),

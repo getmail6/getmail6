@@ -6,7 +6,7 @@ None of these classes can be instantiated directly.  In this module:
 Mix-in classes for SSL/non-SSL initialization:
 
   POP3initMixIn
-  Py24POP3SSLinitMixIn
+  POP3SSLinitMixIn
   IMAPinitMixIn
   IMAPSSLinitMixIn
 
@@ -25,7 +25,7 @@ __all__ = [
     'IMAPSSLinitMixIn',
     'MultidropPOP3RetrieverBase',
     'MultidropIMAPRetrieverBase',
-    'POP3_ssl_port',
+    'POP3_SSL_PORT',
     'POP3initMixIn',
     'POP3RetrieverBase',
     'POP3SSLinitMixIn',
@@ -216,7 +216,6 @@ from getmailcore.exceptions import *
 from getmailcore.constants import *
 from getmailcore.message import *
 from getmailcore.utilities import *
-from getmailcore._pop3ssl import POP3SSL, POP3_ssl_port
 from getmailcore.baseclasses import *
 import getmailcore.imap_utf7        # registers imap4-utf-7 codec
 
@@ -367,7 +366,7 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
 
 
 #######################################
-class Py24POP3SSLinitMixIn(object):
+class POP3SSLinitMixIn(object):
     '''Mix-In class to do POP3 over SSL initialization with Python 2.4's
     poplib.POP3_SSL class.
     '''
@@ -1125,6 +1124,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         RetrieverSkeleton.initialize(self, options)
         try:
             self._connect()
+
             if self.conf['use_apop']:
                 self.conn.apop(self.conf['username'], self.conf['password'])
             else:
@@ -1890,5 +1890,3 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         msg.recipient = address_no_brackets(line.strip())
         return msg
 
-
-POP3SSLinitMixIn = Py24POP3SSLinitMixIn
