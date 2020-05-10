@@ -135,7 +135,7 @@ def main():
         msg = None
         if options.message is not None:
             try:
-                f = open(options.message, 'rb')
+                f = open(options.message)
                 msg = message.Message(fromfile=f)
             except IOError as o:
                 error_exit(

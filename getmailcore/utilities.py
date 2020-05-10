@@ -135,7 +135,7 @@ class updatefile(object):
             filename = os.path.join(os.path.dirname(filename),
                                     os.readlink(filename))
         try:
-            f = safe_open(self.tmpname, 'wb')
+            f = safe_open(self.tmpname, 'w')
         except IOError as msg:
             raise IOError('%s, opening output file "%s"' % (msg, self.tmpname))
         self.file = f
@@ -170,7 +170,7 @@ class logfile(object):
         self.closed = False
         self.filename = filename
         try:
-            self.file = open(expand_user_vars(self.filename), 'ab')
+            self.file = open(expand_user_vars(self.filename), 'a')
         except IOError as msg:
             raise IOError('%s, opening file "%s"' % (msg, self.filename))
 
@@ -284,7 +284,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
         try:
             info['unique'] += 'R%s' % ''.join(
                 ['%02x' % ord(char)
-                 for char in open('/dev/urandom', 'rb').read(8)]
+                 for char in open('/dev/urandom').read(8)]
             )
         except Exception:
             pass
@@ -320,7 +320,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
 
     # Open file to write
     try:
-        f = safe_open(fname_tmp, 'wb', filemode)
+        f = safe_open(fname_tmp, 'w', filemode)
         f.write(data)
         f.flush()
         os.fsync(f.fileno())
@@ -634,6 +634,8 @@ if os.name == 'posix':
                 osx_keychain_binary, user, server, protocol
             )
             (status, output) = subprocess.getstatusoutput(cmd)
+            if sys.version_info.major > 2:
+                output = output.decode()
             if status != os.EX_OK or not output:
                 logger.error('keychain command %s failed: %s %s' 
                              % (cmd, status, output))
@@ -740,4 +742,7 @@ def run_command(command, args):
     rc = p.wait()
     stdout.seek(0)
     stderr.seek(0)
-    return (rc, stdout.read().strip(), stderr.read().strip())
+    if sys.version_info.major == 2:
+        return (rc, stdout.read().strip(), stderr.read().strip())
+    else:
+        return (rc, stdout.read().decode().strip(), stderr.read().decode().strip())

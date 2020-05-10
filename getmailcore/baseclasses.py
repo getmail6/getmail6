@@ -243,7 +243,7 @@ class ConfMboxPath(ConfString):
             )
         fd = os.open(val, os.O_RDWR)
         status_old = os.fstat(fd)
-        f = os.fdopen(fd, 'r+b')
+        f = os.fdopen(fd, 'r+')
         # Check if it _is_ an mbox file.  mbox files must start with "From "
         # in their first line, or are 0-length files.
         f.seek(0, 0)
