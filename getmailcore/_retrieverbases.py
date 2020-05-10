@@ -822,7 +822,8 @@ class RetrieverSkeleton(ConfigurableBase):
             if isinstance(mailbox, str):
                 mailbox = mailbox.decode('utf-8')
             mailbox = re.sub(STRIP_CHAR_RE, '.', mailbox)
-            mailbox = mailbox.encode('utf-8')
+            if sys.version_info.major == 2:
+                mailbox = mailbox.encode('utf-8')
             # Use oldmail file per IMAP folder
             filename += '-' + mailbox
         # else:
@@ -927,7 +928,7 @@ class RetrieverSkeleton(ConfigurableBase):
             STRIP_CHAR_RE, '-',
             'oldmail-%(server)s-%(port)i-%(username)s' % self.conf
         )
-        self.oldmail_filename = os.path.join(self.conf['getmaildir'], 
+        self.oldmail_filename = os.path.join(self.conf['getmaildir'],
                                              oldmail_filename)
 
         self.received_from = None
@@ -1395,7 +1396,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 # Can't select this mailbox, don't include it in output
                 continue
             try:
-                mailbox = g['mailbox'].decode('imap4-utf-7')
+                mailbox = codecs.decode(g['mailbox'],'imap4-utf-7')
                 mailboxes.append(mailbox)
                 #log.debug(u'%20s : delimiter %s, attributes: %s',
                 #          mailbox, g['delimiter'], ', '.join(attributes))
@@ -1445,7 +1446,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 read_only = False
             else:
                 read_only = True
-            (status, count) = self.conn.select(mailbox.encode('imap4-utf-7'), 
+            (status, count) = self.conn.select(codecs.encode(mailbox,'imap4-utf-7'),
                                                read_only)
             if status == 'NO':
                 # Specified mailbox doesn't exist, no permissions, etc.
