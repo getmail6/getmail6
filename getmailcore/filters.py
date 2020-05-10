@@ -218,7 +218,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
     def _filter_command(self, msg, msginfo, stdout, stderr):
         try:
             # Write out message with native EOL convention
-            msgfile = tempfile.TemporaryFile()
+            msgfile = tempfile.TemporaryFile('w+')
             msgfile.write(msg.flatten(False, False,
                                       include_from=self.conf['unixfrom']))
             msgfile.flush()
@@ -266,8 +266,8 @@ class Filter_external(FilterSkeleton, ForkingBase):
                 'refuse to invoke external commands as root by default'
             )
 
-        stdout = tempfile.TemporaryFile()
-        stderr = tempfile.TemporaryFile()
+        stdout = tempfile.TemporaryFile('w+')
+        stderr = tempfile.TemporaryFile('w+')
         childpid = os.fork()
 
         if not childpid:
@@ -323,8 +323,8 @@ class Filter_classifier(Filter_external):
                 'refuse to invoke external commands as root by default'
             )
 
-        stdout = tempfile.TemporaryFile()
-        stderr = tempfile.TemporaryFile()
+        stdout = tempfile.TemporaryFile('w+')
+        stderr = tempfile.TemporaryFile('w+')
         childpid = os.fork()
 
         if not childpid:
@@ -413,7 +413,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
     def _filter_command(self, msg, stdout, stderr):
         try:
             # Write out message with native EOL convention
-            msgfile = tempfile.TemporaryFile()
+            msgfile = tempfile.TemporaryFile('w+')
             msgfile.write(msg.flatten(True, True, include_from=True))
             msgfile.flush()
             os.fsync(msgfile.fileno())
@@ -461,8 +461,8 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
                 'refuse to invoke external commands as root by default'
             )
 
-        stdout = tempfile.TemporaryFile()
-        stderr = tempfile.TemporaryFile()
+        stdout = tempfile.TemporaryFile('w+')
+        stderr = tempfile.TemporaryFile('w+')
         childpid = os.fork()
 
         if not childpid:

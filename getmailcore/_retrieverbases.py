@@ -358,7 +358,7 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
         if self.ssl_ciphers:
             extra_args['ciphers'] = self.ssl_ciphers
 
-        self.file = self.sock.makefile('rb')
+        self.file = self.sock.makefile()
         self.sslobj = ssl.wrap_socket(self.sock, self.keyfile,
                                       self.certfile, **extra_args)
         self._debugging = 0
@@ -538,7 +538,7 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
 
        self.sslobj = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, 
                                      **extra_args)
-       self.file = self.sslobj.makefile('rb')
+       self.file = self.sslobj.makefile()
 
 
 #######################################
@@ -832,7 +832,7 @@ class RetrieverSkeleton(ConfigurableBase):
         filename = self._oldmail_filename(mailbox)
         logname = '%s:%s' % (self, mailbox or '')
         try:
-            f = open(filename, 'rb')
+            f = open(filename)
         except IOError:
             self.log.moreinfo('no oldmail file for %s%s'
                               % (logname, os.linesep))
