@@ -68,6 +68,16 @@ try:
 except ImportError:
     hashlib = None
 
+def py3decode(lts):
+    if sys.version_info.major > 2:
+        if isinstance(lts, list):
+            return [py3decode(x) for x in lts]
+        elif isinstance(lts,tuple):
+            return tuple(py3decode(x) for x in lts)
+        elif isinstance(lts,bytes):
+            return lts.decode()
+    return lts
+
 # If we have an ssl module:
 if ssl:
     has_sni = getattr(ssl, 'HAS_SNI', False)
@@ -548,10 +558,6 @@ class IMAPSSLinitMixIn(object):
     SSL = True
     def _connect(self):
         self.log.trace()
-        if not hasattr(socket, 'ssl'):
-            raise getmailConfigurationError(
-                'SSL not supported by this installation of Python'
-            )
         (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
         ca_certs = check_ca_certs(self.conf)
         ssl_version = check_ssl_version(self.conf)
@@ -621,8 +627,8 @@ class IMAPSSLinitMixIn(object):
             # Ensure cert is for server we're connecting to
             if ssl and self.conf['ca_certs']:
                 ssl_match_hostname(
-                    self.conn.ssl().getpeercert(),
-                    self.conf.get('ssl_cert_hostname', None) 
+                    _sslobj(self).getpeercert(),
+                    self.conf.get('ssl_cert_hostname', None)
                         or self.conf['server']
                 )
 
@@ -901,7 +907,6 @@ class RetrieverSkeleton(ConfigurableBase):
         # aren't used in initializing the retriever.
         self.log.trace()
         self.checkconf()
-        # socket.ssl() and socket timeouts are incompatible in Python 2.3
         if 'timeout' in self.conf:
             socket.setdefaulttimeout(self.conf['timeout'])
         else:
@@ -995,7 +1000,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
     def _getmsglist(self):
         self.log.trace()
         try:
-            (response, msglist, octets) = self.conn.uidl()
+            (response, msglist, octets) = py3decode(self.conn.uidl())
             self.log.debug('UIDL response "%s", %d octets'
                            % (response, octets) + os.linesep)
             for (i, line) in enumerate(msglist):
@@ -1035,7 +1040,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self.log.debug('Message IDs: %s'
                            % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
             self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
-            (response, msglist, octets) = self.conn.list()
+            (response, msglist, octets) = py3decode(self.conn.list())
             for line in msglist:
                 msgnum = int(line.split()[0])
                 msgsize = int(line.split()[1])
@@ -1075,7 +1080,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         msgnum = self._getmsgnumbyid(msgid)
         self.log.debug('msgnum %i' % msgnum + os.linesep)
         try:
-            response, lines, octets = self.conn.retr(msgnum)
+            response, lines, octets = py3decode(self.conn.retr(msgnum))
             self.log.debug('RETR response "%s", %d octets'
                            % (response, octets) + os.linesep)
             msg = Message(fromlines=lines+[''])
@@ -1089,7 +1094,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
     def _getheaderbyid(self, msgid):
         self.log.trace()
         msgnum = self._getmsgnumbyid(msgid)
-        response, headerlist, octets = self.conn.top(msgnum, 0)
+        response, headerlist, octets = py3decode(self.conn.top(msgnum, 0))
         parser = Parser.HeaderParser()
         return parser.parsestr(os.linesep.join(headerlist))
 
@@ -1322,7 +1327,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def _parse_imapuidcmdresponse(self, cmd, *args):
         self.log.trace()
         try:
-            result, resplist = self.conn.uid(cmd, *args)
+            result, resplist = py3decode(self.conn.uid(cmd, *args))
         except imaplib.IMAP4.error as o:
             if cmd == 'login':
                 # Percolate up
@@ -1768,15 +1773,15 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
 
         if self.SSL:
-            sock = self.conn.ssl()
+            sock = _sslobj(self)
         else:
-            sock = self.conn.socket()
+            sock = self.conn.sock
 
         # Based on current imaplib IDLE patch: http://bugs.python.org/issue11245
         self.conn.untagged_responses = {}
         self.conn.select(folder)
         tag = self.conn._command('IDLE')
-        data = self.conn._get_response() # read continuation response
+        data = py3decode(self.conn._get_response()) # read continuation response
 
         if data is not None:
             raise getmailOperationError(
