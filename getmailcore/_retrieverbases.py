@@ -37,6 +37,7 @@ import os
 import socket
 import time
 import email
+import codecs
 try:
     from email.Header import decode_header
     import email.Parser as Parser
@@ -68,15 +69,21 @@ try:
 except ImportError:
     hashlib = None
 
-def py3decode(lts):
-    if sys.version_info.major > 2:
+# strng as conversion for python 2 and python 3
+strng=str
+if sys.version_info.major == 2:
+    py3decode = lambda lts: lts
+else:
+    unicode = str
+    str = bytes
+    def py3decode(lts):
         if isinstance(lts, list):
             return [py3decode(x) for x in lts]
         elif isinstance(lts,tuple):
             return tuple(py3decode(x) for x in lts)
         elif isinstance(lts,bytes):
             return lts.decode()
-    return lts
+        return lts
 
 # If we have an ssl module:
 if ssl:
@@ -780,14 +787,14 @@ class RetrieverSkeleton(ConfigurableBase):
             self.remoteaddr = '[%s]:%s' % serveraddr[:2]
         else:
             # Shouldn't happen
-            self.log.warning('unexpected peer address format %s' % str(serveraddr))
-            self.remoteaddr = str(serveraddr)
+            self.log.warning('unexpected peer address format %s' % strng(serveraddr))
+            self.remoteaddr = strng(serveraddr)
         self.received_from = '%s (%s)' % (self.conf['server'], 
                                           self.remoteaddr)
 
     def __str__(self):
         self.log.trace()
-        return str(self.conf)
+        return strng(self.conf)
 
     def list_mailboxes(self):
         raise NotImplementedError('virtual')
@@ -807,7 +814,7 @@ class RetrieverSkeleton(ConfigurableBase):
 
     def _oldmail_filename(self, mailbox):
         assert (mailbox is None
-                or (isinstance(mailbox, (bytes, str)) and mailbox)), (
+                or (isinstance(mailbox, (str, unicode)) and mailbox)), (
             'bad mailbox %s (%s)' % (mailbox, type(mailbox))
         )
         filename = self.oldmail_filename
@@ -1038,7 +1045,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                     self.msgnum_by_msgid[msgid] = msgnum
                     self.msgid_by_msgnum[msgnum] = msgid
             self.log.debug('Message IDs: %s'
-                           % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
+                           % list(sorted(self.msgnum_by_msgid.keys())) + os.linesep)
             self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
             (response, msglist, octets) = py3decode(self.conn.list())
             for line in msglist:
@@ -1057,7 +1064,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             for msgid in self.oldmail.keys():
                 timestamp = self.oldmail[msgid]
                 age = self.timestamp - timestamp
-                if not self.msgsizes.has_key(msgid) and age > VANISHED_AGE:
+                if msgid not in self.msgsizes and age > VANISHED_AGE:
                     self.log.debug('removing vanished old message id %s' % msgid
                                    + os.linesep)
                     del self.oldmail[msgid]
@@ -1137,11 +1144,11 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 self.conn.pass_(self.conf['password'])
             self._getmsglist()
             self.log.debug('msgids: %s'
-                           % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
+                           % list(sorted(self.msgnum_by_msgid.keys())) + os.linesep)
             self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
             # Remove messages from state file that are no longer in mailbox
             for msgid in self.oldmail.keys():
-                if not self.msgsizes.has_key(msgid):
+                if msgid not in self.msgsizes:
                     self.log.debug('removing vanished message id %s' % msgid
                                    + os.linesep)
                     del self.oldmail[msgid]
@@ -1272,7 +1279,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         if not HAVE_KERBEROS_GSS:
             # shouldn't get here
             raise ValueError('kerberos GSS support not available')
-        data = ''.join(str(response).encode('base64').splitlines())
+        data = b''.join(codecs.encode(str(response),'base64').splitlines())
         if self.gss_step == GSS_STATE_STEP:
             if not self.gss_vc:
                 (rc, self.gss_vc) = kerberos.authGSSClientInit(
@@ -1290,7 +1297,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         response = kerberos.authGSSClientResponse(self.gss_vc)
         if not response:
             response = ''
-        return response.decode('base64')
+        return codecs.decode(response,'base64')
  
     def _getmboxuidbymsgid(self, msgid):
         self.log.trace()
@@ -1492,10 +1499,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             # but only if the timestamp for them are old (30 days for now).
             # This is because IMAP users can have one state file but multiple
             # IMAP folders in different configuration rc files.
-            for msgid in self.oldmail.keys():
+            for msgid in self.oldmail:
                 timestamp = self.oldmail[msgid]
                 age = self.timestamp - timestamp
-                if not self.msgsizes.has_key(msgid) and age > VANISHED_AGE:
+                if msgid not in self.msgsizes.has_key and age > VANISHED_AGE:
                     self.log.debug('removing vanished old message id %s' % msgid
                                    + os.linesep)
                     del self.oldmail[msgid]
@@ -1563,7 +1570,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     sbody = None
                 if not sbody:
                     self.log.error('bad message from server!')
-                    sbody = str(response)
+                    sbody = strng(response)
                 msg = Message(fromstring=sbody)
             except TypeError as o:
                 # response[0] is None instead of a message tuple
@@ -1695,7 +1702,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             except imaplib.IMAP4.abort as o:
                 raise getmailLoginRefusedError(o)
             except imaplib.IMAP4.error as o:
-                if str(o).startswith('[UNAVAILABLE]'):
+                if strng(o).startswith('[UNAVAILABLE]'):
                     raise getmailLoginRefusedError(o)
                 else:
                     raise getmailCredentialError(o)
@@ -1705,16 +1712,16 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.log.trace('logged in, getting message list' + os.linesep)
             self._getmsglist()
             self.log.debug('msgids: %s'
-                           % sorted(self.msgnum_by_msgid.keys()) + os.linesep)
+                           % list(sorted(self.msgnum_by_msgid.keys())) + os.linesep)
             self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
             # Remove messages from state file that are no longer in mailbox,
             # but only if the timestamp for them are old (30 days for now).
             # This is because IMAP users can have one state file but multiple
             # IMAP folders in different configuration rc files.
-            for msgid in self.oldmail.keys():
+            for msgid in self.oldmail:
                 timestamp = self.oldmail[msgid]
                 age = self.timestamp - timestamp
-                if not self.msgsizes.has_key(msgid) and age > VANISHED_AGE:
+                if msgid not in self.msgsizes.has_key and age > VANISHED_AGE:
                     self.log.debug('removing vanished old message id %s' % msgid
                                    + os.linesep)
                     del self.oldmail[msgid]

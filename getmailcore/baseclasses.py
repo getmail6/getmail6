@@ -24,11 +24,19 @@ import os
 import time
 import signal
 import types
+import codecs
 
 from getmailcore.exceptions import *
 from getmailcore.compatibility import *
 import getmailcore.logging
 from getmailcore.utilities import eval_bool, expand_user_vars
+
+# conversion to str python 2 and python 3
+strng=str
+# as type
+if sys.version_info.major > 2:
+    unicode = str
+    str = bytes
 
 #
 # Base classes
@@ -84,7 +92,7 @@ class ConfInstance(ConfItem):
 
 class ConfString(ConfItem):
     def __init__(self, name, default=None, required=True):
-        ConfItem.__init__(self, name, str, default=default, required=required)
+        ConfItem.__init__(self, name, strng, default=default, required=required)
 
 class ConfBool(ConfItem):
     def __init__(self, name, default=None, required=True):
@@ -111,7 +119,7 @@ class ConfTupleOfStrings(ConfString):
             raise getmailConfigurationError(
                 '%s: incorrect format (%s)' % (self.name, o)
             )
-        result = [str(item) for item in val]
+        result = [strng(item) for item in val]
         return tuple(result)
 
 class ConfTupleOfUnicode(ConfString):
@@ -133,12 +141,12 @@ class ConfTupleOfUnicode(ConfString):
                     raise ValueError('not a tuple')
                 vals = []
                 for item in tup:
-                    item = str(item)
                     try:
-                        vals.append(item.decode('ascii'))
-                    except UnicodeError as o:
+                        item = item.encode()
+                        vals.append(codecs.decode(item,'ascii'))
+                    except:
                         try:
-                            vals.append(item.decode('utf-8'))
+                            vals.append(codecs.decode(item,'utf-8'))
                         except UnicodeError as o:
                             raise ValueError('not ascii or utf-8: %s' % item)
                 val = vals
@@ -171,7 +179,7 @@ class ConfTupleOfTupleOfStrings(ConfString):
             if len(tup) != 2:
                 raise ValueError('contained value "%s" not length 2' % tup)
             for part in tup:
-                if type(part) != str:
+                if type(part) != strng:
                     raise ValueError('contained value "%s" has non-string part '
                                      '"%s"' % (tup, part))
 
@@ -309,7 +317,7 @@ class ConfigurableBase(object):
         unknown_params = frozenset(self.conf.keys()).difference(
             frozenset([item.name for item in self._confitems])
         )
-        for param in sorted(list(unknown_params), key=str.lower):
+        for param in sorted(list(unknown_params), key=strng.lower):
             self.log.warning('Warning: ignoring unknown parameter "%s" '
                              '(value: %s)\n' % (param, self.conf[param]))
         self.__confchecked = True
@@ -318,9 +326,7 @@ class ConfigurableBase(object):
     def _confstring(self):
         self.log.trace()
         confstring = ''
-        names = list(self.conf.keys())
-        names.sort()
-        for name in names:
+        for name in sorted(self.conf.keys()):
             if name.lower() == 'configparser':
                 continue
             if confstring:

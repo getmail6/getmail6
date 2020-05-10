@@ -889,9 +889,7 @@ def main():
                 log.info('  destination:  ')
                 destination.showconf()
                 log.info('  options:\n')
-                names = config.keys()
-                names.sort()
-                for name in names:
+                for name in sorted(config.keys()):
                     log.info('    %s : %s\n' % (name, config[name]))
                 log.info('\n')
             sys.exit()
