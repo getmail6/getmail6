@@ -175,7 +175,6 @@ class Message(object):
             receivedline = ''
         # From_ handled above, always tell the generator not to include it
         try:
-            import pdb; pdb.set_trace()
             tmpf = StringIO()
             gen = Generator(tmpf, False, 0)
             gen.flatten(self.__msg, False)
