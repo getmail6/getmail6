@@ -7,9 +7,15 @@ getmail is Copyright (C) 1998-2019 Charles Cazabon.
 getmail is licensed for use under the GNU General Public License version 2
 (only).  See docs/COPYING for specific terms and distribution information.
 
-getmail version 6 requires Python version 2.7 or later.  You can have
-several installed versions of Python peacefully co-existing, see
-python.org for details.
+getmail version 6 has adaptations to work with Python 3.
+These changes might still contain some bugs.
+Please report them here at https://github.com/rpuntaie/getmail.
+
+Python versions older than 2.7 will probably not work any more.
+Use getmail 5.14 with them.
+
+You can have several installed versions of Python peacefully co-existing,
+see python.org for details.
 
 To install:  getmail v.6 uses the standard Python distutils.  Do the following
   as a regular user:
