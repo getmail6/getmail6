@@ -49,6 +49,9 @@ From the RFC:
 # we need to cast Python >=3.3 memoryview to chars (from unsigned bytes), but
 # cast is absent in previous versions: thus, the lambda returns the
 # memoryview instance while ignoring the format
+
+import codecs
+
 memory_cast = getattr(memoryview, "cast", lambda *x: x[0])
 
 def modified_base64(s):
