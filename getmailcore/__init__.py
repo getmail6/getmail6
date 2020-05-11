@@ -24,7 +24,6 @@ if sys.hexversion < __py_required_hex__:
 
 __all__ = [
     'baseclasses',
-    'compatibility',
     'constants',
     'destinations',
     'exceptions',

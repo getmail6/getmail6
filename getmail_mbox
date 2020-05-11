@@ -59,7 +59,7 @@ if os.path.exists(path) and not os.path.isfile(path):
 msg = Message(fromfile=sys.stdin)
 if 'SENDER' in os.environ:
     msg.sender = os.environ['SENDER']
-if 'RECIPIENT' in os.environ.has_key:
+if 'RECIPIENT' in os.environ:
     msg.recipient = os.environ['RECIPIENT']
 
 try:

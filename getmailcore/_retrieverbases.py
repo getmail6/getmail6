@@ -228,7 +228,6 @@ if ssl:
                 raise getmailOperationError("no appropriate commonName or "
                     "subjectAltName fields were found")
 
-from getmailcore.compatibility import *
 from getmailcore.exceptions import *
 from getmailcore.constants import *
 from getmailcore.message import *
@@ -1503,7 +1502,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             for msgid in self.oldmail:
                 timestamp = self.oldmail[msgid]
                 age = self.timestamp - timestamp
-                if msgid not in self.msgsizes.has_key and age > VANISHED_AGE:
+                if msgid not in self.msgsizes and age > VANISHED_AGE:
                     self.log.debug('removing vanished old message id %s' % msgid
                                    + os.linesep)
                     del self.oldmail[msgid]
@@ -1722,7 +1721,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             for msgid in self.oldmail:
                 timestamp = self.oldmail[msgid]
                 age = self.timestamp - timestamp
-                if msgid not in self.msgsizes.has_key and age > VANISHED_AGE:
+                if msgid not in self.msgsizes and age > VANISHED_AGE:
                     self.log.debug('removing vanished old message id %s' % msgid
                                    + os.linesep)
                     del self.oldmail[msgid]
