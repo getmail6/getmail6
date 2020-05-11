@@ -1310,7 +1310,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def _parse_imapcmdresponse(self, cmd, *args):
         self.log.trace()
         try:
-            result, resplist = getattr(self.conn, cmd)(*args)
+            result, resplist = py3decode(getattr(self.conn, cmd)(*args))
         except imaplib.IMAP4.error as o:
             if cmd == 'login':
                 # Percolate up
