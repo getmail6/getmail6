@@ -11,5 +11,5 @@ include docs/TODO
 include docs/getmaildocs.css
 include docs/getmailrc-examples
 include docs/*.1
-include getmail getmail_fetch getmail_maildir getmail_mbox setup.py setup.cfg
+include getmail getmail_fetch getmail_maildir getmail_mbox setup.py
 include getmailcore/*.py

@@ -27,7 +27,6 @@ import types
 import codecs
 
 from getmailcore.exceptions import *
-from getmailcore.compatibility import *
 import getmailcore.logging
 from getmailcore.utilities import eval_bool, expand_user_vars
 

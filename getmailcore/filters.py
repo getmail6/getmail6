@@ -16,7 +16,6 @@ import tempfile
 import types
 
 from getmailcore.exceptions import *
-from getmailcore.compatibility import *
 from getmailcore.message import *
 from getmailcore.utilities import *
 from getmailcore.baseclasses import *

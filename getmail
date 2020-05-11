@@ -404,9 +404,6 @@ def go(configs, idle):
             if idle and not retriever.supports_idle:
                 log.info('--idle given, but retriever does not support IDLE\n')
                 idle = False
-            if idle and sys.version_info < (2, 5, 0):
-                log.info('--idle requires Python 2.5 or higher\n')
-                idle = False
 
             if idle and not errorexit:
                 # TODO
