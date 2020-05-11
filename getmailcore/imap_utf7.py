@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
 """
 Modified utf-7 encoding as used in IMAP v4r1 for encoding mailbox names.
-Code from here; couldn't find a license statement:
-http://www.koders.com/python/fid744B4E448B1689C0963942A7928FA049084FAC86.aspx
 
 From the RFC:
 
@@ -46,78 +43,95 @@ From the RFC:
    is, a name that ends with a Unicode 16-bit octet MUST end with a "-
    ").
 """
-import binascii
-import codecs
 
-#
-# encoding
-#
+# From https://github.com/twisted/twisted/blob/trunk/src/twisted/mail/imap4.py.
+
+# we need to cast Python >=3.3 memoryview to chars (from unsigned bytes), but
+# cast is absent in previous versions: thus, the lambda returns the
+# memoryview instance while ignoring the format
+memory_cast = getattr(memoryview, "cast", lambda *x: x[0])
+
 def modified_base64(s):
-    s = s.encode('utf-16be')
-    return binascii.b2a_base64(s).rstrip('\n=').replace('/', ',')
+    s_utf7 = s.encode('utf-7')
+    return s_utf7[1:-1].replace(b'/', b',')
 
-def doB64(_in, r):
-    if _in:
-        r.append('&%s-' % modified_base64(''.join(_in)))
-        del _in[:]
+def modified_unbase64(s):
+    s_utf7 = b'+' + s.replace(b',', b'/') + b'-'
+    return s_utf7.decode('utf-7')
 
-def encoder(s):
-    r = []
+def encoder(s, errors=None):
+    """
+    Encode the given C{unicode} string using the IMAP4 specific variation of
+    UTF-7.
+    @type s: C{unicode}
+    @param s: The text to encode.
+    @param errors: Policy for handling encoding errors.  Currently ignored.
+    @return: L{tuple} of a L{str} giving the encoded bytes and an L{int}
+        giving the number of code units consumed from the input.
+    """
+    r = bytearray()
     _in = []
+    valid_chars = set(map(chr, range(0x20,0x7f))) - {u"&"}
     for c in s:
-        ordC = ord(c)
-        if 0x20 <= ordC <= 0x25 or 0x27 <= ordC <= 0x7e:
-            doB64(_in, r)
-            r.append(c)
-        elif c == '&':
-            doB64(_in, r)
-            r.append('&-')
+        if c in valid_chars:
+            if _in:
+                r += b'&' + modified_base64(''.join(_in)) + b'-'
+                del _in[:]
+            r.append(ord(c))
+        elif c == u'&':
+            if _in:
+                r += b'&' + modified_base64(''.join(_in)) + b'-'
+                del _in[:]
+            r += b'&-'
         else:
             _in.append(c)
-    doB64(_in, r)
-    return (str(''.join(r)), len(s))
+    if _in:
+        r.extend(b'&' + modified_base64(''.join(_in)) + b'-')
+    return (bytes(r), len(s))
 
-#
-# decoding
-#
-def modified_unbase64(s):
-    b = binascii.a2b_base64(s.replace(',', '/') + '===')
-    return b.decode('utf-16be')
-
-def decoder(s):
+def decoder(s, errors=None):
+    """
+    Decode the given L{str} using the IMAP4 specific variation of UTF-7.
+    @type s: L{str}
+    @param s: The bytes to decode.
+    @param errors: Policy for handling decoding errors.  Currently ignored.
+    @return: a L{tuple} of a C{unicode} string giving the text which was
+        decoded and an L{int} giving the number of bytes consumed from the
+        input.
+    """
     r = []
     decode = []
+    s = memory_cast(memoryview(s), 'c')
     for c in s:
-        if c == '&' and not decode:
-            decode.append('&')
-        elif c == '-' and decode:
+        if c == b'&' and not decode:
+            decode.append(b'&')
+        elif c == b'-' and decode:
             if len(decode) == 1:
-                r.append('&')
+                r.append(u'&')
             else:
-                r.append(modified_unbase64(''.join(decode[1:])))
+                r.append(modified_unbase64(b''.join(decode[1:])))
             decode = []
         elif decode:
             decode.append(c)
         else:
-            r.append(c)
+            r.append(c.decode())
     if decode:
-        r.append(modified_unbase64(''.join(decode[1:])))
-    bin_str = ''.join(r)
-    return (bin_str, len(s))
-
+        r.append(modified_unbase64(b''.join(decode[1:])))
+    return (u''.join(r), len(s))
 
 class StreamReader(codecs.StreamReader):
     def decode(self, s, errors='strict'):
         return decoder(s)
 
-
 class StreamWriter(codecs.StreamWriter):
-    def decode(self, s, errors='strict'):
+    def encode(self, s, errors='strict'):
         return encoder(s)
 
+_codecInfo = codecs.CodecInfo(encoder, decoder, StreamReader, StreamWriter)
 
 def imap4_utf_7(name):
     if name == 'imap4-utf-7':
-        return (encoder, decoder, StreamReader, StreamWriter)
+        return _codecInfo
+
 codecs.register(imap4_utf_7)
 
