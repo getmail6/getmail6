@@ -5,7 +5,6 @@ __all__ = [
     'address_no_brackets',
     'change_usergroup',
     'change_uidgid',
-    'decode_crappy_text',
     'format_header',
     'check_ssl_key_and_cert',
     'check_ca_certs',
@@ -437,28 +436,6 @@ def change_uidgid(logger=None, uid=None, gid=None):
         raise getmailDeliveryError('change UID/GID to %s/%s failed (%s)'
                                    % (uid, gid, o))
 
-#######################################
-def decode_crappy_text(s):
-    '''Take a line of text in arbitrary and possibly broken bytestring encoding
-    and return an ASCII or unicode version of it.
-    '''
-    # first, assume it was written in the encoding of the user's terminal
-    lang = os.environ.get('LANG')
-    if lang:
-        try:
-            (lang, encoding) = lang.split('.')
-            return s.decode(encoding)
-        except (UnicodeError, ValueError) as o:
-            pass
-    # that failed; try well-formed in various common encodings next
-    for encoding in ('ascii', 'utf-8', 'latin-1', 'utf-16'):
-        try:
-            return s.decode(encoding)
-        except UnicodeError as o:
-            continue
-    # all failed - force it
-    return s.decode('utf-8', 'replace')
-    
 
 #######################################
 def format_header(name, line):
