@@ -74,6 +74,7 @@ strng=str
 if sys.version_info.major == 2:
     py3decode = lambda lts: lts
 else:
+    import chardet
     unicode = str
     str = bytes
     def py3decode(lts):
@@ -82,7 +83,16 @@ else:
         elif isinstance(lts,tuple):
             return tuple(py3decode(x) for x in lts)
         elif isinstance(lts,bytes):
-            return lts.decode()
+            try:
+                encoding = chardet.detect(lts)['encoding']
+                if encoding:
+                    ltsutf = codecs.decode(lts,encoding)
+                else:
+                    ltsutf = codecs.decode(lts)
+                return ltsutf
+            except UnicodeDecodeError as de:
+                print(lts)
+                raise de
         return lts
 
 # If we have an ssl module:
@@ -1326,7 +1336,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         else:
             self.log.debug(
                 'command %s response %s'
-                % ('%s %s' % (cmd, args), resplist)
+                % (cmd, resplist) # don't print password: % ('%s %s' % (cmd, args), resplist)
                 + os.linesep
             )
         return resplist
@@ -1344,7 +1354,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         if result != 'OK':
             raise getmailOperationError(
                 'IMAP error (command %s returned %s %s)'
-                % ('%s %s' % (cmd, args), result, resplist)
+                % (cmd, result, resplist) # don't print password: % ('%s %s' % (cmd, args), result, resplist)
             )
         self.log.debug('command uid %s response %s'
                        % ('%s %s' % (cmd, args), resplist) + os.linesep)
