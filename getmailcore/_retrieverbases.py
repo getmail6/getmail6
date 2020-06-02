@@ -1513,7 +1513,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             # but only if the timestamp for them are old (30 days for now).
             # This is because IMAP users can have one state file but multiple
             # IMAP folders in different configuration rc files.
-            for msgid in self.oldmail:
+            for msgid in list(self.oldmail):
                 timestamp = self.oldmail[msgid]
                 age = self.timestamp - timestamp
                 if msgid not in self.msgsizes and age > VANISHED_AGE:
