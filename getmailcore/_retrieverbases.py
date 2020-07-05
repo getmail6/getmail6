@@ -1075,7 +1075,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             # but only if the timestamp for them are old (30 days for now).
             # This is because IMAP users can have one state file but multiple
             # IMAP folders in different configuration rc files.
-            for msgid in self.oldmail.keys():
+            for msgid in list(self.oldmail.keys()):
                 timestamp = self.oldmail[msgid]
                 age = self.timestamp - timestamp
                 if msgid not in self.msgsizes and age > VANISHED_AGE:
@@ -1161,7 +1161,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                            % list(sorted(self.msgnum_by_msgid.keys())) + os.linesep)
             self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
             # Remove messages from state file that are no longer in mailbox
-            for msgid in self.oldmail.keys():
+            for msgid in list(self.oldmail.keys()):
                 if msgid not in self.msgsizes:
                     self.log.debug('removing vanished message id %s' % msgid
                                    + os.linesep)

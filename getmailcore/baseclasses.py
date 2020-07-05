@@ -325,7 +325,7 @@ class ConfigurableBase(object):
     def _confstring(self):
         self.log.trace()
         confstring = ''
-        for name in sorted(self.conf.keys()):
+        for name in list(sorted(self.conf.keys())):
             if name.lower() == 'configparser':
                 continue
             if confstring:
