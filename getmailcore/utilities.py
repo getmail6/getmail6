@@ -202,7 +202,7 @@ def format_params(d, maskitems=('password', ), skipitems=()):
     '''Take a dictionary of parameters and return a string summary.
     '''
     s = ''
-    for key in sorted(d.keys()):
+    for key in list(sorted(d.keys())):
         if key in skipitems:
             continue
         if s:
