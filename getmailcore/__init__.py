@@ -12,7 +12,7 @@ You should have received a copy of the license in the file COPYING.
 
 import sys
 
-__version__ = '6.00'
+__version__ = '6.01'
 
 # ROLAND: yet to determine
 __py_required__ = '2.7.18'
