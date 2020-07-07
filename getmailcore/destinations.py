@@ -23,6 +23,7 @@ __all__ = [
     'MultiSorter',
 ]
 
+import sys
 import os
 import re
 import tempfile
@@ -699,8 +700,9 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                     'or GID 0 by default'
                 )
             args = [self.conf['path'], self.conf['path']]
-            msginfo['mailbox'] = (self.retriever.mailbox_selected 
-                                  or '').encode('utf-8')
+            msginfo['mailbox'] = self.retriever.mailbox_selected or ''
+            if sys.version_info.major == 2:
+                msginfo['mailbox'] = msginfo['mailbox'].encode('utf-8')
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)
                 for (key, value) in msginfo.items():
@@ -711,6 +713,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
+
             stderr.write('exec of command %s failed (%s)'
                          % (self.conf['command'], o))
             stderr.flush()
