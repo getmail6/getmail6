@@ -14,7 +14,6 @@ import sys
 
 __version__ = '6.01'
 
-# ROLAND: yet to determine
 __py_required__ = '2.7.18'
 __py_required_hex__ = 0x20712f0
 
