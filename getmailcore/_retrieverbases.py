@@ -94,9 +94,13 @@ else:
                 try:
                     ltsutf = codecs.decode(lts)
                     return ltsutf
-                except UnicodeDecodeError as de:
-                    print(lts)
-                    raise de
+                except UnicodeDecodeError:
+                    try:
+                        ltsutf = codecs.decode(lts,'latin-1')
+                        return ltsutf
+                    except UnicodeDecodeError as de:
+                        print(lts)
+                        raise de
         return lts
 
 # If we have an ssl module:
