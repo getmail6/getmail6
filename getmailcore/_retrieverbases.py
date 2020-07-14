@@ -58,16 +58,8 @@ try:
 except ImportError:
     pass
 
-# hashlib only present in python2.5, ssl in python2.6; used together
-# in SSL functionality below
-try:
-    import ssl
-except ImportError:
-    ssl = None
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
+import ssl
+import hashlib
 
 # strng as conversion for python 2 and python 3
 strng=str
@@ -127,7 +119,7 @@ if ssl:
                           ciphers=ciphers, server_hostname=server_hostname)
             if not has_ciphers:
                 kwargs.pop('ciphers', None)
-            return ssl.SSLSocket(**kwargs)
+            return ssl.wrap_socket(**kwargs)
     else:
         # no SNI support
         def _wrap_socket(sock, keyfile=None, certfile=None,
@@ -144,7 +136,7 @@ if ssl:
                           ciphers=ciphers)
             if not has_ciphers:
                 kwargs.pop('ciphers', None)
-            return ssl.SSLSocket(**kwargs)
+            return ssl.wrap_socket(**kwargs)
     ssl.wrap_socket = _wrap_socket
 
     # Is it recent enough to have hostname matching (Python 3.2+)?
@@ -458,19 +450,15 @@ class POP3SSLinitMixIn(object):
                 self.conn = poplib.POP3_SSL(self.conf['server'],
                                             self.conf['port'])
             self.setup_received(self.conn.sock)
-            if ssl and hashlib:
-                sslobj = _sslobj(self)
-                peercert = sslobj.getpeercert(True)
-                ssl_cipher = sslobj.cipher()
-                if ssl_cipher:
-                    ssl_cipher = '%s:%s:%s' % ssl_cipher
-                if not peercert:
-                    actual_hash = None
-                else:
-                    actual_hash = hashlib.sha256(peercert).hexdigest().lower()
-            else:
+            sslobj = _sslobj(self)
+            peercert = sslobj.getpeercert(True)
+            ssl_cipher = sslobj.cipher()
+            if ssl_cipher:
+                ssl_cipher = '%s:%s:%s' % ssl_cipher
+            if not peercert:
                 actual_hash = None
-                ssl_cipher = None
+            else:
+                actual_hash = hashlib.sha256(peercert).hexdigest().lower()
 
             # Ensure cert is for server we're connecting to
             if ssl and self.conf['ca_certs']:
@@ -481,11 +469,6 @@ class POP3SSLinitMixIn(object):
                 )
 
             if ssl_fingerprints:
-                if not actual_hash:
-                    raise getmailOperationError(
-                        'socket ssl_fingerprints mismatch (no cert provided)'
-                    )
-
                 any_matches = False
                 for expected_hash in ssl_fingerprints:
                     if expected_hash == actual_hash:
@@ -511,10 +494,8 @@ class POP3SSLinitMixIn(object):
 
         fingerprint_message = ('POP3 SSL connection %s established'
                                % self.conn)
-        if actual_hash:
-            fingerprint_message += ' with fingerprint %s' % actual_hash
-        if ssl_cipher:
-            fingerprint_message += ' using cipher %s' % ssl_cipher
+        fingerprint_message += ' with fingerprint %s' % actual_hash
+        fingerprint_message += ' using cipher %s' % ssl_cipher
         fingerprint_message += os.linesep
 
         if self.app_options.get('fingerprint', False):
@@ -634,19 +615,15 @@ class IMAPSSLinitMixIn(object):
                 self.conn = imaplib.IMAP4_SSL(self.conf['server'],
                                               self.conf['port'])
             self.setup_received(self.conn.sock)
-            if ssl and hashlib:
-                sslobj = _sslobj(self)
-                peercert = sslobj.getpeercert(True)
-                ssl_cipher = sslobj.cipher()
-                if ssl_cipher:
-                    ssl_cipher = '%s:%s:%s' % ssl_cipher
-                if not peercert:
-                    actual_hash = None
-                else:
-                    actual_hash = hashlib.sha256(peercert).hexdigest().lower()
-            else:
+            sslobj = _sslobj(self)
+            peercert = sslobj.getpeercert(True)
+            ssl_cipher = sslobj.cipher()
+            if ssl_cipher:
+                ssl_cipher = '%s:%s:%s' % ssl_cipher
+            if not peercert:
                 actual_hash = None
-                ssl_cipher = None
+            else:
+                actual_hash = hashlib.sha256(peercert).hexdigest().lower()
 
             # Ensure cert is for server we're connecting to
             if ssl and self.conf['ca_certs']:
@@ -657,11 +634,6 @@ class IMAPSSLinitMixIn(object):
                 )
 
             if ssl_fingerprints:
-                if not actual_hash:
-                    raise getmailOperationError(
-                        'socket ssl_fingerprints mismatch (no cert provided)'
-                    )
-
                 any_matches = False
                 for expected_hash in ssl_fingerprints:
                     if expected_hash == actual_hash:
@@ -693,17 +665,15 @@ class IMAPSSLinitMixIn(object):
             else:
                 raise getmailOperationError('socket error during connect (%s)' 
                                             % o)
-        except socket.sslerror as o:
+        except ssl.SSLError as o:
             raise getmailOperationError(
                 'socket sslerror during connect (%s)' % o
             )
 
         fingerprint_message = ('IMAP SSL connection %s established'
                                % self.conn)
-        if actual_hash:
-            fingerprint_message += ' with fingerprint %s' % actual_hash
-        if ssl_cipher:
-            fingerprint_message += ' using cipher %s' % ssl_cipher
+        fingerprint_message += ' with fingerprint %s' % actual_hash
+        fingerprint_message += ' using cipher %s' % ssl_cipher
         fingerprint_message += os.linesep
 
         if self.app_options['fingerprint']:
