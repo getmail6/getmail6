@@ -96,147 +96,137 @@ else:
         return lts
 
 # If we have an ssl module:
-if ssl:
-    has_sni = getattr(ssl, 'HAS_SNI', False)
-    proto_best = getattr(ssl, 'PROTOCOL_TLS', None)
-    if not proto_best:
-        proto_best = getattr(ssl, 'PROTOCOL_SSLv23', None)
-    has_ciphers = sys.hexversion >= 0x2070000
+has_sni = getattr(ssl, 'HAS_SNI', False)
+proto_best = getattr(ssl, 'PROTOCOL_TLS', None)
+if not proto_best:
+    proto_best = getattr(ssl, 'PROTOCOL_SSLv23', None)
+has_ciphers = sys.hexversion >= 0x2070000
 
-    # Monkey-patch SNI use into SSL.wrap_socket() if supported
-    if has_sni:
-        def _wrap_socket(sock, keyfile=None, certfile=None,
-                         server_side=False, cert_reqs=ssl.CERT_NONE,
-                         ssl_version=proto_best, ca_certs=None,
-                         do_handshake_on_connect=True,
-                         suppress_ragged_eofs=True,
-                         ciphers=None, server_hostname=None):
-            kwargs = dict(sock=sock, keyfile=keyfile, certfile=certfile,
-                          server_side=server_side, cert_reqs=cert_reqs,
-                          ssl_version=ssl_version, ca_certs=ca_certs,
-                          do_handshake_on_connect=do_handshake_on_connect,
-                          suppress_ragged_eofs=suppress_ragged_eofs,
-                          ciphers=ciphers, server_hostname=server_hostname)
-            if not has_ciphers:
-                kwargs.pop('ciphers', None)
-            return ssl.wrap_socket(**kwargs)
-    else:
-        # no SNI support
-        def _wrap_socket(sock, keyfile=None, certfile=None,
-                         server_side=False, cert_reqs=ssl.CERT_NONE,
-                         ssl_version=proto_best, ca_certs=None,
-                         do_handshake_on_connect=True,
-                         suppress_ragged_eofs=True,
-                         ciphers=None, server_hostname=None):
-            kwargs = dict(sock=sock, keyfile=keyfile, certfile=certfile,
-                          server_side=server_side, cert_reqs=cert_reqs,
-                          ssl_version=ssl_version, ca_certs=ca_certs,
-                          do_handshake_on_connect=do_handshake_on_connect,
-                          suppress_ragged_eofs=suppress_ragged_eofs,
-                          ciphers=ciphers)
-            if not has_ciphers:
-                kwargs.pop('ciphers', None)
-            return ssl.wrap_socket(**kwargs)
-    ssl.wrap_socket = _wrap_socket
+# Monkey-patch SNI use into SSL.wrap_socket() if supported
+def wrap_socket(sock, keyfile=None, certfile=None,
+                server_side=False, cert_reqs=ssl.CERT_NONE,
+                ssl_version=proto_best, ca_certs=None,
+                do_handshake_on_connect=True,
+                suppress_ragged_eofs=True,
+                ciphers=None, server_hostname=None):
+    if server_side and not certfile:
+        raise ValueError("certfile must be specified for server-side "
+                         "operations")
+    if keyfile and not certfile:
+        raise ValueError("certfile must be specified")
+    context = ssl.SSLContext(ssl_version)
+    context.verify_mode = cert_reqs
+    if ca_certs:
+        context.load_verify_locations(ca_certs)
+    if certfile:
+        context.load_cert_chain(certfile, keyfile)
+    if ciphers:
+        context.set_ciphers(ciphers)
+    return context.wrap_socket(
+        sock=sock, server_side=server_side,
+        do_handshake_on_connect=do_handshake_on_connect,
+        suppress_ragged_eofs=suppress_ragged_eofs,
+        server_hostname=has_sni and server_hostname or None
+    )
 
-    # Is it recent enough to have hostname matching (Python 3.2+)?
-    try:
-        ssl_match_hostname = ssl.match_hostname
-    except AttributeError:
-    # Running a Python with no hostname matching
-        def _dnsname_match(dn, hostname, max_wildcards=1):
-            """Matching according to RFC 6125, section 6.4.3
-            http://tools.ietf.org/html/rfc6125#section-6.4.3
-            """
-            pats = []
-            if not dn:
-                return False
-        
-            parts = dn.split(r'.')
-            leftmost = parts[0]
-            remainder = parts[1:]
-        
-            wildcards = leftmost.count('*')
-            if wildcards > max_wildcards:
-                # Issue #17980: avoid denials of service by refusing more
-                # than one wildcard per fragment.  A survery of established
-                # policy among SSL implementations showed it to be a
-                # reasonable choice.
-                raise getmailOperationError(
-                    "too many wildcards in certificate DNS name: " + repr(dn))
-        
-            # speed up common case w/o wildcards
-            if not wildcards:
-                return dn.lower() == hostname.lower()
-        
-            # RFC 6125, section 6.4.3, subitem 1.
+# Is it recent enough to have hostname matching (Python 3.2+)?
+try:
+    ssl_match_hostname = ssl.match_hostname
+except AttributeError:
+# Running a Python with no hostname matching
+    def _dnsname_match(dn, hostname, max_wildcards=1):
+        """Matching according to RFC 6125, section 6.4.3
+        http://tools.ietf.org/html/rfc6125#section-6.4.3
+        """
+        pats = []
+        if not dn:
+            return False
+    
+        parts = dn.split(r'.')
+        leftmost = parts[0]
+        remainder = parts[1:]
+    
+        wildcards = leftmost.count('*')
+        if wildcards > max_wildcards:
+            # Issue #17980: avoid denials of service by refusing more
+            # than one wildcard per fragment.  A survery of established
+            # policy among SSL implementations showed it to be a
+            # reasonable choice.
+            raise getmailOperationError(
+                "too many wildcards in certificate DNS name: " + repr(dn))
+    
+        # speed up common case w/o wildcards
+        if not wildcards:
+            return dn.lower() == hostname.lower()
+    
+        # RFC 6125, section 6.4.3, subitem 1.
+        # The client SHOULD NOT attempt to match a presented identifier
+        # in which the wildcard character comprises a label other than
+        # the left-most label.
+        if leftmost == '*':
+            # When '*' is a fragment by itself, it matches a non-empty
+            # dotless fragment.
+            pats.append('[^.]+')
+        elif leftmost.startswith('xn--') or hostname.startswith('xn--'):
+            # RFC 6125, section 6.4.3, subitem 3.
             # The client SHOULD NOT attempt to match a presented identifier
-            # in which the wildcard character comprises a label other than
-            # the left-most label.
-            if leftmost == '*':
-                # When '*' is a fragment by itself, it matches a non-empty
-                # dotless fragment.
-                pats.append('[^.]+')
-            elif leftmost.startswith('xn--') or hostname.startswith('xn--'):
-                # RFC 6125, section 6.4.3, subitem 3.
-                # The client SHOULD NOT attempt to match a presented identifier
-                # where the wildcard character is embedded within an A-label or
-                # U-label of an internationalized domain name.
-                pats.append(re.escape(leftmost))
-            else:
-                # Otherwise, '*' matches any dotless string, e.g. www*
-                pats.append(re.escape(leftmost).replace(r'\*', '[^.]*'))
-        
-            # add the remaining fragments, ignore any wildcards
-            for frag in remainder:
-                pats.append(re.escape(frag))
-        
-            pat = re.compile(r'\A' + r'\.'.join(pats) + r'\Z', re.IGNORECASE)
-            return pat.match(hostname)
-        
-        
-        def ssl_match_hostname(cert, hostname):
-            """Verify that *cert* (in decoded format as returned by
-            SSLSocket.getpeercert()) matches the *hostname*. RFC 2818 and
-            RFC 6125 rules are followed, but IP addresses are not accepted
-            for *hostname*.
-        
-            getmailOperationError is raised on failure. On success, the function
-            returns nothing.
-            """
-            if not cert:
-                raise ValueError("empty or no certificate, ssl_match_hostname "
-                                 "needs an SSL socket or SSL context with "
-                                 "either CERT_OPTIONAL or CERT_REQUIRED")
-            dnsnames = []
-            san = cert.get('subjectAltName', ())
-            for key, value in san:
-                if key == 'DNS':
-                    if _dnsname_match(value, hostname):
-                        return
-                    dnsnames.append(value)
-            if not dnsnames:
-                # The subject is only checked when there is no dNSName entry
-                # in subjectAltName
-                for sub in cert.get('subject', ()):
-                    for key, value in sub:
-                        # XXX according to RFC 2818, the most specific
-                        # Common Name must be used.
-                        if key == 'commonName':
-                            if _dnsname_match(value, hostname):
-                                return
-                            dnsnames.append(value)
-            if len(dnsnames) > 1:
-                raise getmailOperationError("hostname %s "
-                    "doesn't match either of %s"
-                    % (hostname, ', '.join(map(repr, dnsnames))))
-            elif len(dnsnames) == 1:
-                raise getmailOperationError("hostname %s "
-                    "doesn't match %s"
-                    % (hostname, dnsnames[0]))
-            else:
-                raise getmailOperationError("no appropriate commonName or "
-                    "subjectAltName fields were found")
+            # where the wildcard character is embedded within an A-label or
+            # U-label of an internationalized domain name.
+            pats.append(re.escape(leftmost))
+        else:
+            # Otherwise, '*' matches any dotless string, e.g. www*
+            pats.append(re.escape(leftmost).replace(r'\*', '[^.]*'))
+    
+        # add the remaining fragments, ignore any wildcards
+        for frag in remainder:
+            pats.append(re.escape(frag))
+    
+        pat = re.compile(r'\A' + r'\.'.join(pats) + r'\Z', re.IGNORECASE)
+        return pat.match(hostname)
+    
+    
+    def ssl_match_hostname(cert, hostname):
+        """Verify that *cert* (in decoded format as returned by
+        SSLSocket.getpeercert()) matches the *hostname*. RFC 2818 and
+        RFC 6125 rules are followed, but IP addresses are not accepted
+        for *hostname*.
+    
+        getmailOperationError is raised on failure. On success, the function
+        returns nothing.
+        """
+        if not cert:
+            raise ValueError("empty or no certificate, ssl_match_hostname "
+                             "needs an SSL socket or SSL context with "
+                             "either CERT_OPTIONAL or CERT_REQUIRED")
+        dnsnames = []
+        san = cert.get('subjectAltName', ())
+        for key, value in san:
+            if key == 'DNS':
+                if _dnsname_match(value, hostname):
+                    return
+                dnsnames.append(value)
+        if not dnsnames:
+            # The subject is only checked when there is no dNSName entry
+            # in subjectAltName
+            for sub in cert.get('subject', ()):
+                for key, value in sub:
+                    # XXX according to RFC 2818, the most specific
+                    # Common Name must be used.
+                    if key == 'commonName':
+                        if _dnsname_match(value, hostname):
+                            return
+                        dnsnames.append(value)
+        if len(dnsnames) > 1:
+            raise getmailOperationError("hostname %s "
+                "doesn't match either of %s"
+                % (hostname, ', '.join(map(repr, dnsnames))))
+        elif len(dnsnames) == 1:
+            raise getmailOperationError("hostname %s "
+                "doesn't match %s"
+                % (hostname, dnsnames[0]))
+        else:
+            raise getmailOperationError("no appropriate commonName or "
+                "subjectAltName fields were found")
 
 from getmailcore.exceptions import *
 from getmailcore.constants import *
