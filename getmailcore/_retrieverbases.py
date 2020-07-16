@@ -128,6 +128,7 @@ def wrap_socket(sock, keyfile=None, certfile=None,
         suppress_ragged_eofs=suppress_ragged_eofs,
         server_hostname=has_sni and server_hostname or None
     )
+ssl.wrap_socket = wrap_socket
 
 # Is it recent enough to have hostname matching (Python 3.2+)?
 try:
