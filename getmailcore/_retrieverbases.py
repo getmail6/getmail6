@@ -375,7 +375,7 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
         if self.ssl_ciphers:
             extra_args['ciphers'] = self.ssl_ciphers
 
-        self.file = self.sock.makefile()
+        self.file = self.sock.makefile('rb')
         self.sslobj = ssl.wrap_socket(self.sock, self.keyfile,
                                       self.certfile, **extra_args)
         self._debugging = 0
@@ -544,7 +544,7 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
 
        self.sslobj = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, 
                                      **extra_args)
-       self.file = self.sslobj.makefile()
+       self.file = self.sslobj.makefile('rb')
 
 
 #######################################
