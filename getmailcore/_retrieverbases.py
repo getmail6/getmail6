@@ -297,13 +297,6 @@ POP3_SSL_PORT = 995
 # "line" exceeds 2048 bytes is absolutely stupid.
 poplib._MAXLINE = 1 << 20   # 1MB; decrease this if you're running on a VIC-20
 
-# python 2 to 3 helper
-def _sslobj(self):
-    try:
-        return self.conn.sslobj
-    except AttributeError:
-        return self.conn.sock
-
 #
 # Mix-in classes
 #
@@ -375,9 +368,9 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
         if self.ssl_ciphers:
             extra_args['ciphers'] = self.ssl_ciphers
 
-        self.file = self.sock.makefile('rb')
-        self.sslobj = ssl.wrap_socket(self.sock, self.keyfile,
+        self.sock = ssl.wrap_socket(self.sock, self.keyfile,
                                       self.certfile, **extra_args)
+        self.file = self.sock.makefile('rb')
         self._debugging = 0
         self.welcome = self._getresp()
 
@@ -440,10 +433,10 @@ class POP3SSLinitMixIn(object):
                                + os.linesep)
                 self.conn = poplib.POP3_SSL(self.conf['server'],
                                             self.conf['port'])
-            self.setup_received(self.conn.sock)
-            sslobj = _sslobj(self)
-            peercert = sslobj.getpeercert(True)
-            ssl_cipher = sslobj.cipher()
+            sock = self.conn.sock
+            self.setup_received(sock)
+            peercert = sock.getpeercert(True)
+            ssl_cipher = sock.cipher()
             if ssl_cipher:
                 ssl_cipher = '%s:%s:%s' % ssl_cipher
             if not peercert:
@@ -454,7 +447,7 @@ class POP3SSLinitMixIn(object):
             # Ensure cert is for server we're connecting to
             if ssl and self.conf['ca_certs']:
                 ssl_match_hostname(
-                    _sslobj(self).getpeercert(),
+                    self.conn.sock.getpeercert(),
                     self.conf.get('ssl_cert_hostname', None) 
                         or self.conf['server']
                 )
@@ -542,9 +535,9 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
        if self.ssl_ciphers:
            extra_args['ciphers'] = self.ssl_ciphers
 
-       self.sslobj = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, 
+       self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile,
                                      **extra_args)
-       self.file = self.sslobj.makefile('rb')
+       self.file = self.sock.makefile('rb')
 
 
 #######################################
@@ -605,10 +598,10 @@ class IMAPSSLinitMixIn(object):
                 )
                 self.conn = imaplib.IMAP4_SSL(self.conf['server'],
                                               self.conf['port'])
-            self.setup_received(self.conn.sock)
-            sslobj = _sslobj(self)
-            peercert = sslobj.getpeercert(True)
-            ssl_cipher = sslobj.cipher()
+            sock = self.conn.sock
+            self.setup_received(sock)
+            peercert = sock.getpeercert(True)
+            ssl_cipher = sock.cipher()
             if ssl_cipher:
                 ssl_cipher = '%s:%s:%s' % ssl_cipher
             if not peercert:
@@ -619,7 +612,7 @@ class IMAPSSLinitMixIn(object):
             # Ensure cert is for server we're connecting to
             if ssl and self.conf['ca_certs']:
                 ssl_match_hostname(
-                    _sslobj(self).getpeercert(),
+                    self.conn.sock.getpeercert(),
                     self.conf.get('ssl_cert_hostname', None)
                         or self.conf['server']
                 )
@@ -1757,12 +1750,6 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 'IMAP4 IDLE requested, but not supported by server'
             )
 
-
-        if self.SSL:
-            sock = _sslobj(self)
-        else:
-            sock = self.conn.sock
-
         # Based on current imaplib IDLE patch: http://bugs.python.org/issue11245
         self.conn.untagged_responses = {}
         self.conn.select(folder)
@@ -1780,7 +1767,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         try:
             aborted = None
-            (readable, unused, unused) = select.select([sock], [], [], timeout)
+            (readable, unused, unused) = select.select([self.conn.sock], [], [], timeout)
         except KeyboardInterrupt as o:
             # Delay raising this until we've stopped IDLE mode
             aborted = o
