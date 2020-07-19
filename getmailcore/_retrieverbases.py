@@ -58,7 +58,12 @@ try:
 except ImportError:
     pass
 
-import ssl
+try:
+  import ssl
+  SSLError = ssl.SSLError
+except:
+  ssl = None
+  SSLError = Exception
 import hashlib
 
 # strng as conversion for python 2 and python 3
@@ -96,10 +101,10 @@ else:
         return lts
 
 # If we have an ssl module:
-has_sni = getattr(ssl, 'HAS_SNI', False)
-proto_best = getattr(ssl, 'PROTOCOL_TLS', None)
+has_sni = ssl and getattr(ssl, 'HAS_SNI', False)
+proto_best = ssl and getattr(ssl, 'PROTOCOL_TLS', None)
 if not proto_best:
-    proto_best = getattr(ssl, 'PROTOCOL_SSLv23', None)
+    proto_best = ssl and getattr(ssl, 'PROTOCOL_SSLv23', None)
 has_ciphers = sys.hexversion >= 0x2070000
 
 # Monkey-patch SNI use into SSL.wrap_socket() if supported
@@ -128,11 +133,12 @@ def wrap_socket(sock, keyfile=None, certfile=None,
         suppress_ragged_eofs=suppress_ragged_eofs,
         server_hostname=has_sni and server_hostname or None
     )
-ssl.wrap_socket = wrap_socket
+if ssl:
+    ssl.wrap_socket = wrap_socket
 
 # Is it recent enough to have hostname matching (Python 3.2+)?
 try:
-    ssl_match_hostname = ssl.match_hostname
+    ssl_match_hostname = ssl and ssl.match_hostname
 except AttributeError:
 # Running a Python with no hostname matching
     def _dnsname_match(dn, hostname, max_wildcards=1):
@@ -363,12 +369,12 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
         if self.ssl_version:
             extra_args['ssl_version'] = self.ssl_version
         if self.ca_certs:
-            extra_args['cert_reqs'] = ssl.CERT_REQUIRED
+            extra_args['cert_reqs'] = ssl and ssl.CERT_REQUIRED
             extra_args['ca_certs'] = self.ca_certs
         if self.ssl_ciphers:
             extra_args['ciphers'] = self.ssl_ciphers
 
-        self.sock = ssl.wrap_socket(self.sock, self.keyfile,
+        self.sock = ssl and ssl.wrap_socket(self.sock, self.keyfile,
                                       self.certfile, **extra_args)
         self.file = self.sock.makefile('rb')
         self._debugging = 0
@@ -530,12 +536,12 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
        if self.ssl_version:
            extra_args['ssl_version'] = self.ssl_version
        if self.ca_certs:
-           extra_args['cert_reqs'] = ssl.CERT_REQUIRED
+           extra_args['cert_reqs'] = ssl and ssl.CERT_REQUIRED
            extra_args['ca_certs'] = self.ca_certs
        if self.ssl_ciphers:
            extra_args['ciphers'] = self.ssl_ciphers
 
-       self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile,
+       self.sock = ssl and ssl.wrap_socket(self.sock, self.keyfile, self.certfile,
                                      **extra_args)
        self.file = self.sock.makefile('rb')
 
@@ -649,9 +655,9 @@ class IMAPSSLinitMixIn(object):
             else:
                 raise getmailOperationError('socket error during connect (%s)' 
                                             % o)
-        except ssl.SSLError as o:
+        except SSLError as o:
             raise getmailOperationError(
-                'socket sslerror during connect (%s)' % o
+                (ssl and 'SSLError' or 'Error')+' during connect (%s)' % o
             )
 
         fingerprint_message = ('IMAP SSL connection %s established'
