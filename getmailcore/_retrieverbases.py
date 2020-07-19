@@ -69,19 +69,20 @@ import hashlib
 # strng as conversion for python 2 and python 3
 strng=str
 if sys.version_info.major == 2:
-    py3decode = lambda lts: lts
+    py3decode = lambda lts, encoding=None: lts
 else:
     import chardet
     unicode = str
     str = bytes
-    def py3decode(lts):
+    def py3decode(lts, encoding=None):
         if isinstance(lts, list):
-            return [py3decode(x) for x in lts]
+            return [py3decode(x,encoding) for x in lts]
         elif isinstance(lts,tuple):
-            return tuple(py3decode(x) for x in lts)
+            return tuple(py3decode(x,encoding) for x in lts)
         elif isinstance(lts,bytes):
             try:
-                encoding = chardet.detect(lts)['encoding']
+                if not encoding:
+                    encoding = chardet.detect(lts)['encoding']
                 if encoding:
                     ltsutf = codecs.decode(lts,encoding)
                 else:
@@ -242,7 +243,6 @@ from getmailcore.utilities import *
 from getmailcore.baseclasses import *
 import getmailcore.imap_utf7        # registers imap4-utf-7 codec
 
-
 NOT_ENVELOPE_RECIPIENT_HEADERS = (
     'to',
     'cc',
@@ -283,6 +283,21 @@ IMAP_LISTPARTS = re.compile(
     r'("?)(?P<mailbox>.+?)("?)'
     r'\s*$'
 )
+def mailbox_names(resplist):
+    mailboxes = []
+    for item in resplist:
+        m = IMAP_LISTPARTS.match(item)
+        if not m:
+            raise getmailOperationError(
+                'no match for list response "%s"' % item
+            )
+        g = m.groupdict()
+        attributes = g['attributes'].split()
+        if r'\Noselect' in attributes:
+            # Can't select this mailbox, don't include it in output
+            continue
+        mailboxes.append(g['mailbox'])
+    return mailboxes
 
 
 # Constants used in socket module
@@ -1284,10 +1299,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         uid = self._mboxuids[msgid]
         return uid
 
-    def _parse_imapcmdresponse(self, cmd, *args):
+    def _parse_imapcmdresponse(self, cmd, *args, encoding=None):
         self.log.trace()
         try:
-            result, resplist = py3decode(getattr(self.conn, cmd)(*args))
+            result, resplist = py3decode(getattr(self.conn, cmd)(*args),encoding=encoding)
         except imaplib.IMAP4.error as o:
             if cmd == 'login':
                 # Percolate up
@@ -1309,10 +1324,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             )
         return resplist
 
-    def _parse_imapuidcmdresponse(self, cmd, *args):
+    def _parse_imapuidcmdresponse(self, cmd, *args, encoding=None):
         self.log.trace()
         try:
-            result, resplist = py3decode(self.conn.uid(cmd, *args))
+            result, resplist = py3decode(self.conn.uid(cmd, *args),encoding=encoding)
         except imaplib.IMAP4.error as o:
             if cmd == 'login':
                 # Percolate up
@@ -1358,29 +1373,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def list_mailboxes(self):
         '''List (selectable) IMAP folders in account.'''
-        mailboxes = []
         cmd = ('LIST', )
-        resplist = self._parse_imapcmdresponse(*cmd)
-        for item in resplist:
-            m = IMAP_LISTPARTS.match(item)
-            if not m:
-                raise getmailOperationError(
-                    'no match for list response "%s"' % item
-                )
-            g = m.groupdict()
-            attributes = g['attributes'].split()
-            if r'\Noselect' in attributes:
-                # Can't select this mailbox, don't include it in output
-                continue
-            try:
-                mailbox = codecs.decode(g['mailbox'],'imap4-utf-7')
-                mailboxes.append(mailbox)
-                #log.debug(u'%20s : delimiter %s, attributes: %s',
-                #          mailbox, g['delimiter'], ', '.join(attributes))
-            except Exception as o:
-                raise getmailOperationError('error decoding mailbox "%s"' 
-                                            % g['mailbox'])
-        return mailboxes
+        resplist = self._parse_imapcmdresponse(*cmd, encoding='imap4-utf-7')
+        return mailbox_names(resplist)
 
     def close_mailbox(self):
         # Close current mailbox so deleted mail is expunged.  One getmail
