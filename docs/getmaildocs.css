@@ -11,7 +11,7 @@ pre.example {
 	font-family: monospace;
 	white-space: pre;
 	color: black;
-	background-color: #f0f0f0; 
+	background-color: #f0f0f0;
 }
 li pre.example {
 	display : block;
@@ -20,7 +20,7 @@ li pre.example {
 	font-family: monospace;
 	white-space: pre;
 	color: black;
-	background-color: #f0f0f0; 
+	background-color: #f0f0f0;
 }
 .meta { font-style: italic; color: #0000c0; background-color: transparent; }
 .meta:before { content: "<"; }

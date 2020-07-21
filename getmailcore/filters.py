@@ -216,20 +216,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
 
     def _filter_command(self, msg, msginfo, stdout, stderr):
         try:
-            # Write out message with native EOL convention
-            msgfile = tempfile.TemporaryFile('w+')
-            msgfile.write(msg.flatten(False, False,
-                                      include_from=self.conf['unixfrom']))
-            msgfile.flush()
-            os.fsync(msgfile.fileno())
-            # Rewind
-            msgfile.seek(0)
-            # Set stdin to read from this file
-            os.dup2(msgfile.fileno(), 0)
-            # Set stdout and stderr to write to files
-            os.dup2(stdout.fileno(), 1)
-            os.dup2(stderr.fileno(), 2)
-            change_usergroup(None, self.conf['user'], self.conf['group'])
+            pipe(msg,self.conf['unixfrom'])
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)
@@ -249,7 +236,6 @@ class Filter_external(FilterSkeleton, ForkingBase):
 
     def _filter_message(self, msg):
         self.log.trace()
-        self._prepare_child()
         msginfo = {}
         msginfo['sender'] = msg.sender
         if msg.recipient != None:
@@ -265,28 +251,13 @@ class Filter_external(FilterSkeleton, ForkingBase):
                 'refuse to invoke external commands as root by default'
             )
 
-        stdout = tempfile.TemporaryFile('w+')
-        stderr = tempfile.TemporaryFile('w+')
-        childpid = os.fork()
-
-        if not childpid:
-            # Child
-            self._filter_command(msg, msginfo, stdout, stderr)
-        self.log.debug('spawned child %d\n' % childpid)
-
-        # Parent
-        exitcode = self._wait_for_child(childpid)
-
-        stdout.seek(0)
-        stderr.seek(0)
-        err = stderr.read().strip()
+        with self.child(with_out=False) as child:
+            self._filter_command(msg, msginfo, child.stdout, child.stderr)
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
-                                                      childpid, exitcode))
-
-        newmsg = Message(fromfile=stdout)
-
-        return (exitcode, newmsg, err)
+                                                      child.childpid, child.exitcode))
+        newmsg = Message(fromfile=child.stdout)
+        return (child.exitcode, newmsg, child.err)
 
 #######################################
 class Filter_classifier(Filter_external):
@@ -306,7 +277,6 @@ class Filter_classifier(Filter_external):
 
     def _filter_message(self, msg):
         self.log.trace()
-        self._prepare_child()
         msginfo = {}
         msginfo['sender'] = msg.sender
         if msg.recipient != None:
@@ -322,30 +292,15 @@ class Filter_classifier(Filter_external):
                 'refuse to invoke external commands as root by default'
             )
 
-        stdout = tempfile.TemporaryFile('w+')
-        stderr = tempfile.TemporaryFile('w+')
-        childpid = os.fork()
-
-        if not childpid:
-            # Child
-            self._filter_command(msg, msginfo, stdout, stderr)
-        self.log.debug('spawned child %d\n' % childpid)
-
-        # Parent
-        exitcode = self._wait_for_child(childpid)
-
-        stdout.seek(0)
-        stderr.seek(0)
-        err = stderr.read().strip()
+        with self.child(with_out=False) as child:
+            self._filter_command(msg, msginfo, child.stdout, child.stderr)
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
-                                                      childpid, exitcode))
-
-        for line in [line.strip() for line in stdout.readlines()
+                          child.childpid, child.exitcode))
+        for line in [line.strip() for line in child.stdout.readlines()
                      if line.strip()]:
             msg.add_header('X-getmail-filter-classifier', line)
-
-        return (exitcode, msg, err)
+        return (exitcode, msg, child.err)
 
 #######################################
 class Filter_TMDA(FilterSkeleton, ForkingBase):
@@ -406,19 +361,8 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
 
     def _filter_command(self, msg, stdout, stderr):
         try:
-            # Write out message with native EOL convention
-            msgfile = tempfile.TemporaryFile('w+')
-            msgfile.write(msg.flatten(True, True, include_from=True))
-            msgfile.flush()
-            os.fsync(msgfile.fileno())
-            # Rewind
-            msgfile.seek(0)
-            # Set stdin to read from this file
-            os.dup2(msgfile.fileno(), 0)
-            # Set stdout and stderr to write to files
-            os.dup2(stdout.fileno(), 1)
-            os.dup2(stderr.fileno(), 2)
             change_usergroup(None, self.conf['user'], self.conf['group'])
+            self.pipe(msg, unixfrom=True)
             args = [self.conf['path'], self.conf['path']]
             # Set environment for TMDA
             os.environ['SENDER'] = msg.sender
@@ -441,36 +385,16 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
 
     def _filter_message(self, msg):
         self.log.trace()
-        self._prepare_child()
         if msg.recipient == None or msg.sender == None:
             raise getmailConfigurationError(
                 'TMDA requires the message envelope and therefore a multidrop '
                 'retriever'
             )
+        some_security(self.conf['allow_root_commands'])
 
-        # At least some security...
-        if (os.geteuid() == 0 and not self.conf['allow_root_commands']
-                and self.conf['user'] == None):
-            raise getmailConfigurationError(
-                'refuse to invoke external commands as root by default'
-            )
-
-        stdout = tempfile.TemporaryFile('w+')
-        stderr = tempfile.TemporaryFile('w+')
-        childpid = os.fork()
-
-        if not childpid:
-            # Child
-            self._filter_command(msg, stdout, stderr)
-        self.log.debug('spawned child %d\n' % childpid)
-
-        # Parent
-        exitcode = self._wait_for_child(childpid)
-
-        stderr.seek(0)
-        err = stderr.read().strip()
+        with self.child(with_out=False) as child:
+            self._filter_command(msg, child.stdout, child.stderr)
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
-                                                      childpid, exitcode))
-
-        return (exitcode, msg, err)
+                       child.childpid, child.exitcode))
+        return (exitcode, msg, child.err)

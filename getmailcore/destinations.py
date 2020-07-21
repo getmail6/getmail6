@@ -26,7 +26,6 @@ __all__ = [
 import sys
 import os
 import re
-import tempfile
 import types
 
 try:
@@ -185,34 +184,18 @@ class Maildir(DeliverySkeleton, ForkingBase):
                     raise getmailConfigurationError(
                         'refuse to deliver mail as GID 0'
                     )
-        self._prepare_child()
-        stdout = tempfile.TemporaryFile('w+')
-        stderr = tempfile.TemporaryFile('w+')
-        childpid = os.fork()
 
-        if not childpid:
-            # Child
+        with self.child() as child:
             self.__deliver_message_maildir(uid, gid, msg, delivered_to,
-                                           received, stdout, stderr)
-        self.log.debug('spawned child %d\n' % childpid)
-
-        # Parent
-        exitcode = self._wait_for_child(childpid)
-
-        stdout.seek(0)
-        stderr.seek(0)
-        out = stdout.read().strip()
-        err = stderr.read().strip()
+                                           received, child.stdout, child.stderr)
 
         self.log.debug('maildir delivery process %d exited %d\n'
-                       % (childpid, exitcode))
-
-        if exitcode or err:
+                       % (child.childpid, child.exitcode))
+        if child.exitcode or child.err:
             raise getmailDeliveryError('maildir delivery %d error (%d, %s)'
-                                       % (childpid, exitcode, err))
-
+                                       % (child.childpid, child.exitcode, child.err))
         self.dcount += 1
-        self.log.debug('maildir file %s' % out)
+        self.log.debug('maildir file %s' % child.out)
         return self
 
 #######################################
@@ -276,13 +259,13 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             # Open mbox file, refusing to create it if it doesn't exist
             fd = os.open(self.conf['path'], os.O_RDWR)
             status_old = os.fstat(fd)
-            f = os.fdopen(fd, 'r+')
+            f = os.fdopen(fd, 'br+')
             lock_file(f, self.conf['locktype'])
             # Check if it _is_ an mbox file.  mbox files must start with "From "
             # in their first line, or are 0-length files.
             f.seek(0, 0)
             first_line = f.readline()
-            if first_line and not first_line.startswith('From '):
+            if first_line and not first_line.startswith(b'From '):
                 # Not an mbox file; abort here
                 unlock_file(f, self.conf['locktype'])
                 raise getmailDeliveryError('not an mboxrd file (%s)'
@@ -357,36 +340,22 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                 raise getmailConfigurationError(
                     'refuse to deliver mail as GID 0'
                 )
-        self._prepare_child()
-        stdout = tempfile.TemporaryFile('w+')
-        stderr = tempfile.TemporaryFile('w+')
-        childpid = os.fork()
 
-        if not childpid:
-            # Child
+        with self.child() as child:
             self.__deliver_message_mbox(uid, gid, msg, delivered_to, received,
-                                        stdout, stderr)
-        self.log.debug('spawned child %d\n' % childpid)
-
-        # Parent
-        exitcode = self._wait_for_child(childpid)
-
-        stdout.seek(0)
-        stderr.seek(0)
-        out = stdout.read().strip()
-        err = stderr.read().strip()
+                                        child.stdout, child.stderr)
 
         self.log.debug('mboxrd delivery process %d exited %d\n'
-                       % (childpid, exitcode))
-
-        if exitcode or err:
+                       % (child.childpid, child.exitcode))
+        if child.exitcode or child.err:
             raise getmailDeliveryError('mboxrd delivery %d error (%d, %s)'
-                                       % (childpid, exitcode, err))
+                                       % (child.childpid, child.exitcode, child.err))
 
-        if out:
-            self.log.debug('mbox delivery: %s' % out)
+        if child.out:
+            self.log.debug('mbox delivery: %s' % child.out)
 
         return self
+
 
 #######################################
 class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
@@ -488,34 +457,12 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
                 self.conf['localdomain'], msginfo['sender'],
                 self.conf['defaultdelivery']
             )
-            self.log.debug('about to execl() with args %s\n' % str(args))
             # Modify message
             if self.conf['strip_delivered_to']:
                 msg.remove_header('delivered-to')
                 # Also don't insert a Delivered-To: header.
                 delivered_to = None
-            # Write out message
-            msgfile = tempfile.TemporaryFile('w+')
-            msgfile.write(msg.flatten(delivered_to, received))
-            msgfile.flush()
-            os.fsync(msgfile.fileno())
-            # Rewind
-            msgfile.seek(0)
-            # Set stdin to read from this file
-            os.dup2(msgfile.fileno(), 0)
-            # Set stdout and stderr to write to files
-            os.dup2(stdout.fileno(), 1)
-            os.dup2(stderr.fileno(), 2)
-            change_usergroup(self.log, self.conf['user'], self.conf['group'])
-            # At least some security...
-            if ((os.geteuid() == 0 or os.getegid() == 0)
-                    and not self.conf['allow_root_commands']):
-                raise getmailConfigurationError(
-                    'refuse to invoke external commands as root '
-                    'or GID 0 by default'
-                )
-
-            os.execl(*args)
+            self.execl(msg, *args)
         except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
@@ -526,7 +473,6 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        self._prepare_child()
         if msg.recipient == None:
             raise getmailConfigurationError(
                 'MDA_qmaillocal destination requires a message source that '
@@ -561,37 +507,24 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
         self.log.debug('recipient: set dash to "%s", ext to "%s"\n'
                        % (msginfo['dash'], msginfo['ext']))
 
-        stdout = tempfile.TemporaryFile('w+')
-        stderr = tempfile.TemporaryFile('w+')
-        childpid = os.fork()
-
-        if not childpid:
-            # Child
+        with self.child() as child:
             self._deliver_qmaillocal(msg, msginfo, delivered_to, received,
-                                     stdout, stderr)
-        self.log.debug('spawned child %d\n' % childpid)
+                                     child.stdout, child.stderr)
 
-        # Parent
-        exitcode = self._wait_for_child(childpid)
 
-        stdout.seek(0)
-        stderr.seek(0)
-        out = stdout.read().strip()
-        err = stderr.read().strip()
+        self.log.debug('qmail-local %d exited %d\n' % (child.childpid, child.exitcode))
 
-        self.log.debug('qmail-local %d exited %d\n' % (childpid, exitcode))
-
-        if exitcode == 111:
+        if child.exitcode == 111:
             raise getmailDeliveryError('qmail-local %d temporary error (%s)'
-                                       % (childpid, err))
-        elif exitcode:
+                                       % (child.childpid, child.err))
+        elif child.exitcode:
             raise getmailDeliveryError('qmail-local %d error (%d, %s)'
-                                       % (childpid, exitcode, err))
+                                       % (child.childpid, child.exitcode, child.err))
 
-        if out and err:
-            info = '%s:%s' % (out, err)
+        if child.out and child.err:
+            info = '%s:%s' % (child.out, child.err)
         else:
-            info = out or err
+            info = child.out or child.err
 
         return 'MDA_qmaillocal (%s)' % info
 
@@ -614,7 +547,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                     %(recipient) - recipient address
                     %(domain) - domain-part of recipient address
                     %(local) - local-part of recipient address
-                    %(mailbox) - for IMAP retrievers, the name of the 
+                    %(mailbox) - for IMAP retrievers, the name of the
                         server-side mailbox/folder the message was retrieved
                         from.  Will be empty for POP.
 
@@ -678,27 +611,6 @@ class MDA_external(DeliverySkeleton, ForkingBase):
     def _deliver_command(self, msg, msginfo, delivered_to, received,
                          stdout, stderr):
         try:
-            # Write out message with native EOL convention
-            msgfile = tempfile.TemporaryFile('w+')
-            msgfile.write(msg.flatten(delivered_to, received,
-                                      include_from=self.conf['unixfrom']))
-            msgfile.flush()
-            os.fsync(msgfile.fileno())
-            # Rewind
-            msgfile.seek(0)
-            # Set stdin to read from this file
-            os.dup2(msgfile.fileno(), 0)
-            # Set stdout and stderr to write to files
-            os.dup2(stdout.fileno(), 1)
-            os.dup2(stderr.fileno(), 2)
-            change_usergroup(self.log, self.conf['user'], self.conf['group'])
-            # At least some security...
-            if ((os.geteuid() == 0 or os.getegid() == 0)
-                    and not self.conf['allow_root_commands']):
-                raise getmailConfigurationError(
-                    'refuse to invoke external commands as root '
-                    'or GID 0 by default'
-                )
             args = [self.conf['path'], self.conf['path']]
             msginfo['mailbox'] = self.retriever.mailbox_selected or ''
             if sys.version_info.major == 2:
@@ -708,8 +620,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                 for (key, value) in msginfo.items():
                     arg = arg.replace('%%(%s)' % key, value)
                 args.append(arg)
-            self.log.debug('about to execl() with args %s\n' % str(args))
-            os.execl(*args)
+            self.execl(msg, *args)
         except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
@@ -722,7 +633,6 @@ class MDA_external(DeliverySkeleton, ForkingBase):
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        self._prepare_child()
         msginfo = {}
         msginfo['sender'] = msg.sender
         if msg.recipient != None:
@@ -731,43 +641,27 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
         self.log.debug('msginfo "%s"\n' % msginfo)
 
-        stdout = tempfile.TemporaryFile('w+')
-        stderr = tempfile.TemporaryFile('w+')
-        childpid = os.fork()
-
-        if not childpid:
-            # Child
+        with self.child() as child:
             self._deliver_command(msg, msginfo, delivered_to, received,
-                                  stdout, stderr)
-        self.log.debug('spawned child %d\n' % childpid)
-
-        # Parent
-        exitcode = self._wait_for_child(childpid)
-
-        stdout.seek(0)
-        stderr.seek(0)
-        out = stdout.read().strip()
-        err = stderr.read().strip()
+                                  child.stdout, child.stderr)
 
         self.log.debug('command %s %d exited %d\n'
-                       % (self.conf['command'], childpid, exitcode))
-
-        if exitcode:
+                       % (self.conf['command'], child.childpid, child.exitcode))
+        if child.exitcode:
             raise getmailDeliveryError(
                 'command %s %d error (%d, %s)'
-                % (self.conf['command'], childpid, exitcode, err)
+                % (self.conf['command'], child.childpid, child.exitcode, child.err)
             )
-        elif err:
+        elif child.err:
             if not self.conf['ignore_stderr']:
                 raise getmailDeliveryError(
                     'command %s %d wrote to stderr: %s'
-                    % (self.conf['command'], childpid, err)
+                    % (self.conf['command'], child.childpid, child.err)
                 )
             #else:
             # User said to ignore stderr, just log it.
-            self.log.info('command %s: %s' % (self, err))
-
-        return 'MDA_external command %s (%s)' % (self.conf['command'], out)
+            self.log.info('command %s: %s' % (self, child.err))
+        return 'MDA_external command %s (%s)' % (self.conf['command'], child.out)
 
 #######################################
 class MultiDestinationBase(DeliverySkeleton):

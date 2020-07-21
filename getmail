@@ -59,7 +59,7 @@ try:
         logging
     from getmailcore.exceptions import *
     from getmailcore.utilities import eval_bool, logfile, format_params, \
-        address_no_brackets, expand_user_vars, get_password, run_command
+        address_no_brackets, expand_user_vars, get_password
 except ImportError as o:
     sys.stderr.write('ImportError:  %s\n' % o)
     sys.exit(127)
@@ -128,13 +128,13 @@ def go(configs, idle):
                 # This is a nonsense combination of options; every time the
                 # server returns from IDLE, all messages will be re-retrieved.
                 log.error('%s: IDLE, read_all, and not delete - bad '
-                          'combination, skipping\n' 
+                          'combination, skipping\n'
                           % retriever)
                 continue
             else:
                 # Slightly less nonsensical, but still weird.
                 log.warning('%s: read_all and not delete -- all messages will '
-                            'be retrieved each time getmail is run\n' 
+                            'be retrieved each time getmail is run\n'
                             % retriever)
 
         oplevel = options['verbose']
@@ -159,7 +159,7 @@ def go(configs, idle):
             for mailbox in retriever.mailboxes:
                 if mailbox:
                     # For POP this is None and uninteresting
-                    log.debug('  checking mailbox %s ...\n' 
+                    log.debug('  checking mailbox %s ...\n'
                               % mailbox.encode('utf-8'))
                 try:
                     retriever.select_mailbox(mailbox)
@@ -267,7 +267,7 @@ def go(configs, idle):
                             log.debug('    will delete\n')
                             delete = True
 
-                        if (options['delete_bigger_than'] 
+                        if (options['delete_bigger_than']
                                 and size > options['delete_bigger_than']):
                             log.debug('    bigger than %d, will delete\n'
                                       % options['delete_bigger_than'])
@@ -742,30 +742,18 @@ def main():
                         # Retrieve from an arbitrary external command
                         command = retriever.conf['password_command'][0]
                         args = retriever.conf['password_command'][1:]
-                        (rc, stdout, stderr) = run_command(command, args)
-                        if stderr:
-                            log.warn(
-                                'External password program "%s" wrote to stderr: %s',
-                                command, stderr
-                            )
-                        if rc:
-                            # program exited nonzero
-                            raise getmailOperationError(
-                                'External password program error (exited %d)' % rc
-                            )
-                        else:
-                            password = stdout
+                        password = retriever.run_password_command(command, args)
                     else:
                         password = get_password(
-                            str(retriever), retriever.conf['username'], 
-                            retriever.conf['server'], retriever.received_with, 
+                            str(retriever), retriever.conf['username'],
+                            retriever.conf['server'], retriever.received_with,
                             log
                         )
 
                     gnomekeyring.set_network_password_sync(
-                        # keyring=None, user, domain=None, server, object=None, 
+                        # keyring=None, user, domain=None, server, object=None,
                         # protocol, authtype=None, port=0
-                        None, retriever.conf['username'], None, 
+                        None, retriever.conf['username'], None,
                         retriever.conf['server'], None, retriever.received_with,
                         None, 0, password
                     )

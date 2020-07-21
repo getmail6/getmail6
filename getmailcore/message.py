@@ -11,7 +11,7 @@ import os
 import time
 import re
 import email
-try:
+try: #py2
     import email.Errors as Errors
     import email.Utils as Utils
     import email.Parser as Parser
@@ -39,8 +39,9 @@ message_attributes = (
     'recipient'
 )
 
-RE_FROMLINE = re.compile(r'^(>*From )', re.MULTILINE)
+RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)
 
+_NL = os.linesep.encode()
 
 #######################################
 def corrupt_message(why, fromlines=None, fromstring=None):
@@ -54,20 +55,20 @@ def corrupt_message(why, fromlines=None, fromstring=None):
     msg['Subject'] = 'Corrupt message received'
     msg['Date'] = Utils.formatdate(localtime=True)
     body = [
-        'A badly-corrupt message was retrieved and could not be parsed',
-        'for the following reason:',
-        '',
-        '    %s' % why,
-        '',
-        'Below the following line is the original message contents.',
-        '',
-        '--------------------------------------------------------------',
+        b'A badly-corrupt message was retrieved and could not be parsed',
+        b'for the following reason:',
+        b'',
+        b'    %s' % why.encode(),
+        b'',
+        b'Below the following line is the original message contents.',
+        b'',
+        b'--------------------------------------------------------------',
     ]
     if fromlines:
         body.extend([line.rstrip() for line in fromlines])
     elif fromstring:
         body.extend([line.rstrip() for line in fromstring.splitlines()])
-    msg.set_payload(os.linesep.join(body))
+    msg.set_payload(_NL.join(body))
     for attr in message_attributes:
         setattr(msg, attr, '')
     return msg
@@ -95,7 +96,13 @@ class Message(object):
         self.received_from = None
         self.received_with = None
         self.__raw = None
-        parser = Parser.Parser()
+        try:
+            parser = Parser.BytesParser()
+            parsestr = parser.parsebytes
+        except:
+            parser = Parser.Parser()
+            parsestr = parser.parsestr
+
 
         # Message is instantiated with fromlines for POP3, fromstring for
         # IMAP (both of which can be badly-corrupted or invalid, i.e. spam,
@@ -103,13 +110,13 @@ class Message(object):
         # of filters, etc, which should be saner.
         if fromlines:
             try:
-                self.__msg = parser.parsestr(os.linesep.join(fromlines))
+                self.__msg = parsestr(_NL.join(fromlines))
             except Errors.MessageError as o:
                 self.__msg = corrupt_message(o, fromlines=fromlines)
-            self.__raw = os.linesep.join(fromlines)
+            self.__raw = _NL.join(fromlines)
         elif fromstring:
             try:
-                self.__msg = parser.parsestr(fromstring)
+                self.__msg = parsestr(fromstring)
             except Errors.MessageError as o:
                 self.__msg = corrupt_message(o, fromstring=fromstring)
             self.__raw = fromstring
@@ -143,7 +150,7 @@ class Message(object):
         it by writing out what we need, letting the generator write out the
         message, splitting it into lines, and joining them with the platform
         EOL.
-        
+
         Note on mangle_from: the Python Generator class apparently only
         quotes "From ", not ">From " (i.e. it uses mboxo format instead of
         mboxrd).  So we don't use its mangling, and do it by hand instead.
@@ -163,27 +170,27 @@ class Message(object):
         else:
             dtline = ''
         if received:
-            content = 'from %s by %s with %s' % (
+            rcvd = 'from %s by %s with %s' % (
                 self.received_from, self.received_by, self.received_with
             )
             if self.recipient is not None:
-                content += ' for <%s>' % self.recipient
-            content += '; ' + time.strftime('%d %b %Y %H:%M:%S -0000',
+                rcvd += ' for <%s>' % self.recipient
+            rcvd += '; ' + time.strftime('%d %b %Y %H:%M:%S -0000',
                                             time.gmtime())
-            receivedline = format_header('Received', content)
+            receivedline = format_header('Received', rcvd)
         else:
             receivedline = ''
         # From_ handled above, always tell the generator not to include it
         try:
-            tmpf = StringIO()
-            gen = Generator(tmpf, False, 0)
-            gen.flatten(self.__msg, False)
-            strmsg = tmpf.getvalue()
+            try:
+                strmsg = __msg.as_bytes()
+            except AttributeError:
+                strmsg = __msg.as_string()
             if mangle_from:
-                # do mboxrd-style "From " line quoting
-                strmsg = RE_FROMLINE.sub(r'>\1', strmsg)
-            return (fromline + rpline + dtline + receivedline 
-                    + os.linesep.join(strmsg.splitlines() + ['']))
+                # do mboxrd-style "From " line quoting (add one '>')
+                strmsg = RE_FROMLINE.sub(b'>\\1', strmsg)
+            return ((fromline + rpline + dtline + receivedline).encode()
+                    + _NL.join(strmsg.splitlines() + [b'']))
         except TypeError as o:
             # email module chokes on some badly-misformatted messages, even
             # late during flatten().  Hope this is fixed in Python 2.4.

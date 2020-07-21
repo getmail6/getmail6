@@ -66,40 +66,10 @@ except:
   SSLError = Exception
 import hashlib
 
-# strng as conversion for python 2 and python 3
-strng=str
 if sys.version_info.major == 2:
-    py3decode = lambda lts, encoding=None: lts
+    tostr = lambda lts: lts
 else:
-    import chardet
-    unicode = str
-    str = bytes
-    def py3decode(lts, encoding=None):
-        if isinstance(lts, list):
-            return [py3decode(x,encoding) for x in lts]
-        elif isinstance(lts,tuple):
-            return tuple(py3decode(x,encoding) for x in lts)
-        elif isinstance(lts,bytes):
-            try:
-                if not encoding:
-                    encoding = chardet.detect(lts)['encoding']
-                if encoding:
-                    ltsutf = codecs.decode(lts,encoding)
-                else:
-                    ltsutf = codecs.decode(lts)
-                return ltsutf
-            except UnicodeDecodeError:
-                try:
-                    ltsutf = codecs.decode(lts)
-                    return ltsutf
-                except UnicodeDecodeError:
-                    try:
-                        ltsutf = codecs.decode(lts,'latin-1')
-                        return ltsutf
-                    except UnicodeDecodeError as de:
-                        print(lts)
-                        raise de
-        return lts
+    tostr = lambda lts: lts.decode()
 
 # If we have an ssl module:
 has_sni = ssl and getattr(ssl, 'HAS_SNI', False)
@@ -149,11 +119,11 @@ except AttributeError:
         pats = []
         if not dn:
             return False
-    
+
         parts = dn.split(r'.')
         leftmost = parts[0]
         remainder = parts[1:]
-    
+
         wildcards = leftmost.count('*')
         if wildcards > max_wildcards:
             # Issue #17980: avoid denials of service by refusing more
@@ -162,11 +132,11 @@ except AttributeError:
             # reasonable choice.
             raise getmailOperationError(
                 "too many wildcards in certificate DNS name: " + repr(dn))
-    
+
         # speed up common case w/o wildcards
         if not wildcards:
             return dn.lower() == hostname.lower()
-    
+
         # RFC 6125, section 6.4.3, subitem 1.
         # The client SHOULD NOT attempt to match a presented identifier
         # in which the wildcard character comprises a label other than
@@ -184,21 +154,21 @@ except AttributeError:
         else:
             # Otherwise, '*' matches any dotless string, e.g. www*
             pats.append(re.escape(leftmost).replace(r'\*', '[^.]*'))
-    
+
         # add the remaining fragments, ignore any wildcards
         for frag in remainder:
             pats.append(re.escape(frag))
-    
+
         pat = re.compile(r'\A' + r'\.'.join(pats) + r'\Z', re.IGNORECASE)
         return pat.match(hostname)
-    
-    
+
+
     def ssl_match_hostname(cert, hostname):
         """Verify that *cert* (in decoded format as returned by
         SSLSocket.getpeercert()) matches the *hostname*. RFC 2818 and
         RFC 6125 rules are followed, but IP addresses are not accepted
         for *hostname*.
-    
+
         getmailOperationError is raised on failure. On success, the function
         returns nothing.
         """
@@ -349,7 +319,7 @@ class POP3initMixIn(object):
 
 #######################################
 class POP3_SSL_EXTENDED(poplib.POP3_SSL):
-    # Extended SSL support for POP3 (certificate checking, 
+    # Extended SSL support for POP3 (certificate checking,
     # fingerprint matching, cipher selection, etc.)
 
     def __init__(self, host, port=POP3_SSL_PORT, keyfile=None,
@@ -469,7 +439,7 @@ class POP3SSLinitMixIn(object):
             if ssl and self.conf['ca_certs']:
                 ssl_match_hostname(
                     self.conn.sock.getpeercert(),
-                    self.conf.get('ssl_cert_hostname', None) 
+                    self.conf.get('ssl_cert_hostname', None)
                         or self.conf['server']
                 )
 
@@ -535,8 +505,8 @@ class IMAPinitMixIn(object):
 class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
     # Similar to above, but with extended support for SSL certificate checking,
     # fingerprints, etc.
-    def __init__(self, host='', port=imaplib.IMAP4_SSL_PORT, keyfile=None, 
-                 certfile=None, ssl_version=None, ca_certs=None, 
+    def __init__(self, host='', port=imaplib.IMAP4_SSL_PORT, keyfile=None,
+                 certfile=None, ssl_version=None, ca_certs=None,
                  ssl_ciphers=None):
        self.ssl_version = ssl_version
        self.ca_certs = ca_certs
@@ -585,7 +555,7 @@ class IMAPSSLinitMixIn(object):
                 if ssl_version:
                     if msg:
                         msg += ', '
-                    msg += ('using protocol version %s' 
+                    msg += ('using protocol version %s'
                             % self.conf['ssl_version'].upper())
                 if ca_certs:
                     if msg:
@@ -598,7 +568,7 @@ class IMAPSSLinitMixIn(object):
                     + os.linesep
                 )
                 self.conn = IMAP4_SSL_EXTENDED(
-                    self.conf['server'], self.conf['port'], keyfile, certfile, 
+                    self.conf['server'], self.conf['port'], keyfile, certfile,
                     ssl_version, ca_certs, ssl_ciphers
                 )
             elif keyfile:
@@ -645,7 +615,7 @@ class IMAPSSLinitMixIn(object):
                         any_matches = True
                 if not any_matches:
                     raise getmailOperationError(
-                        'socket ssl_fingerprints mismatch (got %s)' 
+                        'socket ssl_fingerprints mismatch (got %s)'
                         % actual_hash
                     )
 
@@ -664,11 +634,11 @@ class IMAPSSLinitMixIn(object):
             elif errcode == EAI_FAIL:
                 # DNS server failure
                 raise getmailDnsServerFailure(
-                    'DNS server failure looking up address for %s (%s)' 
+                    'DNS server failure looking up address for %s (%s)'
                     % (self.conf['server'], o)
                 )
             else:
-                raise getmailOperationError('socket error during connect (%s)' 
+                raise getmailOperationError('socket error during connect (%s)'
                                             % o)
         except SSLError as o:
             raise getmailOperationError(
@@ -768,7 +738,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.__delivered = {}
         self.deleted = {}
         self.mailbox_selected = False
-        
+
     def setup_received(self, sock):
         serveraddr = sock.getpeername()
         if len(serveraddr) == 2:
@@ -779,14 +749,14 @@ class RetrieverSkeleton(ConfigurableBase):
             self.remoteaddr = '[%s]:%s' % serveraddr[:2]
         else:
             # Shouldn't happen
-            self.log.warning('unexpected peer address format %s' % strng(serveraddr))
-            self.remoteaddr = strng(serveraddr)
-        self.received_from = '%s (%s)' % (self.conf['server'], 
+            self.log.warning('unexpected peer address format %s' % str(serveraddr))
+            self.remoteaddr = str(serveraddr)
+        self.received_from = '%s (%s)' % (self.conf['server'],
                                           self.remoteaddr)
 
     def __str__(self):
         self.log.trace()
-        return strng(self.conf)
+        return str(self.conf)
 
     def list_mailboxes(self):
         raise NotImplementedError('virtual')
@@ -806,16 +776,12 @@ class RetrieverSkeleton(ConfigurableBase):
 
     def _oldmail_filename(self, mailbox):
         assert (mailbox is None
-                or (isinstance(mailbox, (str, unicode)) and mailbox)), (
+                or (isinstance(mailbox, (str, bytes)) and mailbox)), (
             'bad mailbox %s (%s)' % (mailbox, type(mailbox))
         )
         filename = self.oldmail_filename
         if mailbox is not None:
-            if isinstance(mailbox, str):
-                mailbox = mailbox.decode('utf-8')
             mailbox = re.sub(STRIP_CHAR_RE, '.', mailbox)
-            if sys.version_info.major == 2:
-                mailbox = mailbox.encode('utf-8')
             # Use oldmail file per IMAP folder
             filename += '-' + mailbox
         # else:
@@ -827,14 +793,14 @@ class RetrieverSkeleton(ConfigurableBase):
         return os.path.isfile(self._oldmail_filename(mailbox))
 
     def read_oldmailfile(self, mailbox):
-        '''Read contents of an oldmail file.  For POP, mailbox must be 
+        '''Read contents of an oldmail file.  For POP, mailbox must be
         explicitly None.
         '''
         assert not self.oldmail, (
             'still have %d unflushed oldmail' % len(self.oldmail)
         )
         self.log.trace('mailbox=%s' % mailbox)
-        
+
         filename = self._oldmail_filename(mailbox)
         logname = '%s:%s' % (self, mailbox or '')
         try:
@@ -843,7 +809,7 @@ class RetrieverSkeleton(ConfigurableBase):
             self.log.moreinfo('no oldmail file for %s%s'
                               % (logname, os.linesep))
             return
-            
+
         for line in f:
             line = line.strip()
             if not line or not '\0' in line:
@@ -875,10 +841,10 @@ class RetrieverSkeleton(ConfigurableBase):
     def write_oldmailfile(self, mailbox):
         '''Write oldmail info to oldmail file.'''
         self.log.trace('mailbox=%s' % mailbox)
-        
+
         filename = self._oldmail_filename(mailbox)
         logname = '%s:%s' % (self, mailbox or '')
-        
+
         oldmailfile = None
         wrote = 0
         msgids = frozenset(
@@ -903,7 +869,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self.__oldmail_written = True
 
     def initialize(self, options):
-        # Options - dict of application-wide settings, including ones that 
+        # Options - dict of application-wide settings, including ones that
         # aren't used in initializing the retriever.
         self.log.trace()
         self.checkconf()
@@ -1000,16 +966,16 @@ class POP3RetrieverBase(RetrieverSkeleton):
     def _getmsglist(self):
         self.log.trace()
         try:
-            (response, msglist, octets) = py3decode(self.conn.uidl())
+            (response, msglist, octets) = self.conn.uidl()
             self.log.debug('UIDL response "%s", %d octets'
                            % (response, octets) + os.linesep)
             for (i, line) in enumerate(msglist):
                 try:
                     (msgnum, msgid) = line.split(None, 1)
-                    # Don't allow / in UIDs we store, as we look for that to 
+                    # Don't allow / in UIDs we store, as we look for that to
                     # detect old-style oldmail files.  Shouldn't occur in POP3
                     # anyway.
-                    msgid = msgid.replace('/', '-')
+                    msgid = msgid.replace(b'/', b'-')
                 except ValueError:
                     # Line didn't contain two tokens.  Server is broken.
                     raise getmailOperationError(
@@ -1040,7 +1006,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self.log.debug('Message IDs: %s'
                            % list(sorted(self.msgnum_by_msgid.keys())) + os.linesep)
             self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
-            (response, msglist, octets) = py3decode(self.conn.list())
+            (response, msglist, octets) = self.conn.list()
             for line in msglist:
                 msgnum = int(line.split()[0])
                 msgsize = int(line.split()[1])
@@ -1080,23 +1046,27 @@ class POP3RetrieverBase(RetrieverSkeleton):
         msgnum = self._getmsgnumbyid(msgid)
         self.log.debug('msgnum %i' % msgnum + os.linesep)
         try:
-            response, lines, octets = py3decode(self.conn.retr(msgnum))
+            response, lines, octets = self.conn.retr(msgnum)
             self.log.debug('RETR response "%s", %d octets'
                            % (response, octets) + os.linesep)
-            msg = Message(fromlines=lines+[''])
+            msg = Message(fromlines=lines+[b''])
             return msg
         except poplib.error_proto as o:
             raise getmailRetrievalError(
-                'failed to retrieve msgid %s; server said %s' 
+                'failed to retrieve msgid %s; server said %s'
                 % (msgid, o)
             )
 
     def _getheaderbyid(self, msgid):
         self.log.trace()
         msgnum = self._getmsgnumbyid(msgid)
-        response, headerlist, octets = py3decode(self.conn.top(msgnum, 0))
-        parser = Parser.HeaderParser()
-        return parser.parsestr(os.linesep.join(headerlist))
+        response, headerlist, octets = self.conn.top(msgnum, 0)
+        try:
+            parser = Parser.BytesHeaderParser()
+            return parser.parsestr(os.linesep.encode().join(headerlist))
+        except:
+            parser = Parser.HeaderParser()
+            return parser.parsestr(os.linesep.join(headerlist))
 
     def initialize(self, options):
         self.log.trace()
@@ -1108,19 +1078,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 # Retrieve from an arbitrary external command
                 command = self.conf['password_command'][0]
                 args = self.conf['password_command'][1:]
-                (rc, stdout, stderr) = run_command(command, args)
-                if stderr:
-                    self.log.warning(
-                        'External password program "%s" wrote to stderr: %s'
-                        % (command, stderr)
-                    )
-                if rc:
-                    # program exited nonzero
-                    raise getmailOperationError(
-                        'External password program error (exited %d)' % rc
-                    )
-                else:
-                    self.conf['password'] = stdout
+                self.conf['password'] = self.run_password_command(command, args)
             else:
                 self.conf['password'] = get_password(
                     self, self.conf['username'], self.conf['server'],
@@ -1291,7 +1249,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         if not response:
             response = ''
         return codecs.decode(response,'base64')
- 
+
     def _getmboxuidbymsgid(self, msgid):
         self.log.trace()
         if not msgid in self.msgnum_by_msgid:
@@ -1299,17 +1257,17 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         uid = self._mboxuids[msgid]
         return uid
 
-    def _parse_imapcmdresponse(self, cmd, *args, encoding=None):
+    def _parse_imapcmdresponse(self, cmd, *args):
         self.log.trace()
         try:
-            result, resplist = py3decode(getattr(self.conn, cmd)(*args),encoding=encoding)
+            result, resplist = getattr(self.conn, cmd)(*args)
         except imaplib.IMAP4.error as o:
             if cmd == 'login':
                 # Percolate up
                 raise
             else:
                 raise getmailOperationError('IMAP error (%s)' % o)
-        if result != 'OK':
+        if result != b'OK':
             raise getmailOperationError(
                 'IMAP error (command %s returned %s %s)'
                 % ('%s %s' % (cmd, args), result, resplist)
@@ -1322,25 +1280,27 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 % (cmd, resplist) # don't print password: % ('%s %s' % (cmd, args), resplist)
                 + os.linesep
             )
+
         return resplist
 
     def _parse_imapuidcmdresponse(self, cmd, *args, encoding=None):
         self.log.trace()
         try:
-            result, resplist = py3decode(self.conn.uid(cmd, *args),encoding=encoding)
+            result, resplist = self.conn.uid(cmd, *args)
         except imaplib.IMAP4.error as o:
             if cmd == 'login':
                 # Percolate up
                 raise
             else:
                 raise getmailOperationError('IMAP error (%s)' % o)
-        if result != 'OK':
+        if result != b'OK':
             raise getmailOperationError(
-                'IMAP error (command %s returned %s %s)'
+                b'IMAP error (command %s returned %s %s)'
                 % (cmd, result, resplist) # don't print password: % ('%s %s' % (cmd, args), result, resplist)
             )
-        self.log.debug('command uid %s response %s'
-                       % ('%s %s' % (cmd, args), resplist) + os.linesep)
+        self.log.debug(b'command uid %s response %s'
+                       % (b'%s %s' % (cmd.encode(), str(args).encode()),
+                          resplist) + os.linesep.encode())
         return resplist
 
     def _parse_imapattrresponse(self, line):
@@ -1348,11 +1308,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                        + os.linesep)
         r = {}
         try:
-            parts = line[line.index('(') + 1:line.rindex(')')].split()
+            parts = line[line.index(b'(') + 1:line.rindex(b')')].split()
             while parts:
                 # Flags starts a parenthetical list of valueless flags
-                if parts[0].lower() == 'flags' and parts[1].startswith('('):
-                    while parts and not parts[0].endswith(')'):
+                if parts[0].lower() == b'flags' and parts[1].startswith(b'('):
+                    while parts and not parts[0].endswith(b')'):
                         del parts[0]
                     if parts:
                         # Last one, ends with ")"
@@ -1362,10 +1322,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     # Leftover part -- not name, value pair.
                     raise ValueError
                 name = parts.pop(0).lower()
-                r[name] = parts.pop(0)
+                r[tostr(name)] = tostr(parts.pop(0))
         except (ValueError, IndexError, AttributeError) as o:
             raise getmailOperationError(
-                'IMAP error (failed to parse attr response line "%s": %s)' 
+                'IMAP error (failed to parse attr response line "%s": %s)'
                 % (line, o)
             )
         self.log.trace('got %s' % r + os.linesep)
@@ -1374,8 +1334,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def list_mailboxes(self):
         '''List (selectable) IMAP folders in account.'''
         cmd = ('LIST', )
-        resplist = self._parse_imapcmdresponse(*cmd, encoding='imap4-utf-7')
-        return mailbox_names(resplist)
+        resplist = self._parse_imapcmdresponse(*cmd)
+        return mailbox_names(
+            codecs.decode(x,'imap4-utf-7')
+            for x in resplist)
 
     def close_mailbox(self):
         # Close current mailbox so deleted mail is expunged.  One getmail
@@ -1413,7 +1375,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         self.log.debug('selecting mailbox "%s"' % mailbox + os.linesep)
         try:
-            if (self.app_options['delete'] or self.app_options['delete_after'] 
+            if (self.app_options['delete'] or self.app_options['delete_after']
                     or self.app_options['delete_bigger_than']):
                 read_only = False
             else:
@@ -1423,7 +1385,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             if status == 'NO':
                 # Specified mailbox doesn't exist, no permissions, etc.
                 raise getmailMailboxSelectError(mailbox)
-                
+
             self.mailbox_selected = mailbox
             # use *last* EXISTS returned
             count = int(count[-1])
@@ -1458,8 +1420,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                         # somehow -- try to just skip.
                         continue
                     r = self._parse_imapattrresponse(line)
-                    # Don't allow / in UIDs we store, as we look for that to 
-                    # detect old-style oldmail files.  Can occur with IMAP, at 
+                    # Don't allow / in UIDs we store, as we look for that to
+                    # detect old-style oldmail files.  Can occur with IMAP, at
                     # least with some servers.
                     uid = r['uid'].replace('/', '-')
                     msgid = '%s/%s' % (self.uidvalidity, uid)
@@ -1519,7 +1481,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 # server gave a negative/NO response, most likely.  Bad server,
                 # no doughnut.
                 raise getmailRetrievalError(
-                    'failed to retrieve msgid %s; server said %s' 
+                    'failed to retrieve msgid %s; server said %s'
                     % (msgid, o)
                 )
             # Response is really ugly:
@@ -1532,7 +1494,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             #   ')',
             #   <maybe more>
             # ]
-            
+
             # MSExchange is broken -- if a message is badly formatted enough
             # (virus, spam, trojan), it can completely fail to return the
             # message when requested.
@@ -1543,17 +1505,17 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     sbody = None
                 if not sbody:
                     self.log.error('bad message from server!')
-                    sbody = strng(response)
+                    sbody = bytes(response)
                 msg = Message(fromstring=sbody)
             except TypeError as o:
                 # response[0] is None instead of a message tuple
-                raise getmailRetrievalError('failed to retrieve msgid %s' 
+                raise getmailRetrievalError('failed to retrieve msgid %s'
                                             % msgid)
 
             # record mailbox retrieved from in a header
             if self.conf['record_mailbox']:
-                msg.add_header('X-getmail-retrieved-from-mailbox', 
-                               self.mailbox_selected)
+                msg.add_header('X-getmail-retrieved-from-mailbox',
+                               self.mailbox_selected.encode())
 
             # google extensions: apply labels, etc
             if 'X-GM-EXT-1' in self.conn.capabilities:
@@ -1570,7 +1532,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         """
         Add Gmail labels and other metadata which Google exposes through an
         IMAP extension to headers in the message.
-        
+
         See https://developers.google.com/google-apps/gmail/imap_extensions
         """
         try:
@@ -1585,18 +1547,19 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         if not response or not response[0]:
             return {}
-            
+
         ext = re.search(
-            'X-GM-THRID (?P<THRID>\d+) X-GM-MSGID (?P<MSGID>\d+)'
-            ' X-GM-LABELS \((?P<LABELS>.*)\) UID',
+            b'X-GM-THRID (?P<THRID>\d+) X-GM-MSGID (?P<MSGID>\d+)'
+            b' X-GM-LABELS \((?P<LABELS>.*)\) UID',
             response[0]
         )
         if not ext:
             self.log.warning(
-                'Could not parse google imap extensions. Server said: %s'
-                % repr(response)
+                b'Could not parse google imap extensions. Server said: %s'
+                % repr(response).encode()
             )
             return {}
+
 
         results = ext.groupdict()
         metadata = {}
@@ -1632,25 +1595,13 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 # Retrieve from an arbitrary external command
                 command = self.conf['password_command'][0]
                 args = self.conf['password_command'][1:]
-                (rc, stdout, stderr) = run_command(command, args)
-                if stderr:
-                    self.log.warning(
-                        'External password program "%s" wrote to stderr: %s'
-                        % (command, stderr)
-                    )
-                if rc:
-                    # program exited nonzero
-                    raise getmailOperationError(
-                        'External password program error (exited %d)' % rc
-                    )
-                else:
-                    self.conf['password'] = stdout
+                self.conf['password'] = self.run_password_command(command, args)
             else:
                 self.conf['password'] = get_password(
-                    self, self.conf['username'], self.conf['server'], 
+                    self, self.conf['username'], self.conf['server'],
                     self.received_with, self.log
                 )
-            
+
         RetrieverSkeleton.initialize(self, options)
         try:
             self.log.trace('trying self._connect()' + os.linesep)
@@ -1675,7 +1626,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             except imaplib.IMAP4.abort as o:
                 raise getmailLoginRefusedError(o)
             except imaplib.IMAP4.error as o:
-                if strng(o).startswith('[UNAVAILABLE]'):
+                if str(o).startswith('[UNAVAILABLE]'):
                     raise getmailLoginRefusedError(o)
                 else:
                     raise getmailCredentialError(o)
@@ -1699,7 +1650,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                                    + os.linesep)
                     del self.oldmail[msgid]
             """
-            # Some IMAP servers change the available capabilities after 
+            # Some IMAP servers change the available capabilities after
             # authentication, i.e. they present a limited set before login.
             # The Python stlib IMAP4 class doesn't take this into account
             # and just checks the capabilities immediately after connecting.
@@ -1755,15 +1706,15 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.conn.untagged_responses = {}
         self.conn.select(folder)
         tag = self.conn._command('IDLE')
-        data = py3decode(self.conn._get_response()) # read continuation response
+        data = self.conn._get_response() # read continuation response
 
         if data is not None:
             raise getmailOperationError(
-                'IMAP4 IDLE requested, but server refused IDLE request: %s' 
+                'IMAP4 IDLE requested, but server refused IDLE request: %s'
                 % data
             )
 
-        self.log.debug('Entering IDLE mode (server says "%s")\n' 
+        self.log.debug('Entering IDLE mode (server says "%s")\n'
                        % self.conn.continuation_response)
 
         try:

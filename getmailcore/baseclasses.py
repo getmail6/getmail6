@@ -25,17 +25,17 @@ import time
 import signal
 import types
 import codecs
+from contextlib import contextmanager
+from collections import namedtuple
+import tempfile
+import subprocess
 
 from getmailcore.exceptions import *
 import getmailcore.logging
 from getmailcore.utilities import eval_bool, expand_user_vars
 
-# conversion to str python 2 and python 3
-strng=str
-# as type
 if sys.version_info.major > 2:
     unicode = str
-    str = bytes
 
 #
 # Base classes
@@ -91,7 +91,7 @@ class ConfInstance(ConfItem):
 
 class ConfString(ConfItem):
     def __init__(self, name, default=None, required=True):
-        ConfItem.__init__(self, name, strng, default=default, required=required)
+        ConfItem.__init__(self, name, str, default=default, required=required)
 
 class ConfBool(ConfItem):
     def __init__(self, name, default=None, required=True):
@@ -118,7 +118,7 @@ class ConfTupleOfStrings(ConfString):
             raise getmailConfigurationError(
                 '%s: incorrect format (%s)' % (self.name, o)
             )
-        result = [strng(item) for item in val]
+        result = [str(item) for item in val]
         return tuple(result)
 
 class ConfTupleOfUnicode(ConfString):
@@ -178,7 +178,7 @@ class ConfTupleOfTupleOfStrings(ConfString):
             if len(tup) != 2:
                 raise ValueError('contained value "%s" not length 2' % tup)
             for part in tup:
-                if type(part) != strng:
+                if type(part) != str:
                     raise ValueError('contained value "%s" has non-string part '
                                      '"%s"' % (tup, part))
 
@@ -316,7 +316,7 @@ class ConfigurableBase(object):
         unknown_params = frozenset(self.conf.keys()).difference(
             frozenset([item.name for item in self._confitems])
         )
-        for param in sorted(list(unknown_params), key=strng.lower):
+        for param in sorted(list(unknown_params), key=str.lower):
             self.log.warning('Warning: ignoring unknown parameter "%s" '
                              '(value: %s)\n' % (param, self.conf[param]))
         self.__confchecked = True
@@ -337,6 +337,8 @@ class ConfigurableBase(object):
         return confstring
 
 #######################################
+class Child:
+    __slots__ = 'stdout stderr childpid exitcode out err'.split()
 class ForkingBase(object):
     '''Base class for classes which fork children and wait for them to exit.
 
@@ -396,3 +398,87 @@ class ForkingBase(object):
 
         return exitcode
 
+    def run_password_command(self, command, args):
+        # Simple subprocess wrapper for running a command and fetching its exit
+        # status and output/stderr.
+        if args is None:
+            args = []
+        if type(args) == tuple:
+            args = list(args)
+
+        # Programmer sanity checks
+        assert type(command) in (bytes, unicode), (
+            'command is %s (%s)' % (command, type(command))
+        )
+        assert type(args) == list, (
+            'args is %s (%s)' % (args, type(args))
+        )
+        for arg in args:
+            assert type(arg) in (bytes, unicode), 'arg is %s (%s)' % (arg, type(arg))
+
+        stdout = tempfile.TemporaryFile('bw+')
+        stderr = tempfile.TemporaryFile('bw+')
+
+        cmd = [command] + args
+
+        try:
+            p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+        except OSError as o:
+            if o.errno == errno.ENOENT:
+                # no such file, command not found
+                raise getmailConfigurationError('Program "%s" not found' % command)
+            #else:
+            raise
+        rc = p.wait()
+        stderr.seek(0)
+        err = stderr.read().strip()
+        if err:
+            self.log.warning(
+                b'External password program "%s" wrote to stderr: %s'
+                % (command, err)
+            )
+        if rc:
+            # program exited nonzero
+            raise getmailOperationError(
+                'External password program error (exited %d)' % rc
+            )
+        stdout.seek(0)
+        return stdout.read().strip()
+
+    def pipe(self, msg, unixfrom=False):
+        # Write out message
+        msgfile = tempfile.TemporaryFile('bw+')
+        msgfile.write(msg.flatten(delivered_to, received, include_from=unixfrom))
+        msgfile.flush()
+        os.fsync(msgfile.fileno())
+        # Rewind
+        msgfile.seek(0)
+        # Set stdin to read from this file
+        os.dup2(msgfile.fileno(), 0)
+        # Set stdout and stderr to write to files
+        os.dup2(stdout.fileno(), 1)
+        os.dup2(stderr.fileno(), 2)
+
+    def execl(self, msg, *args):
+        change_usergroup(self.log, self.conf['user'], self.conf['group'])
+        some_security(self.conf['allow_root_commands'])
+        self.pipe(msg,self.conf['unixfrom'])
+        self.log.debug(b'about to execl() with args %s\n' % args)
+        os.execl(*args)
+
+    @contextmanager
+    def child(self, with_out=True):
+        self._prepare_child()
+        child = Child()
+        child.stdout = tempfile.TemporaryFile('bw+')
+        child.stderr = tempfile.TemporaryFile('bw+')
+        child.childpid = os.fork()
+        if not child.childpid:
+            yield child
+            self.log.debug('spawned child %d\n' % child.childpid)
+            child.exitcode = self._wait_for_child(child.childpid)
+            child.stderr.seek(0)
+            child.err = child.stderr.read().strip()
+            child.stdout.seek(0)
+            if with_out:
+                child.out = child.stdout.read().strip()

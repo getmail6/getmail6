@@ -27,46 +27,52 @@ from getmailcore.message import Message
 from getmailcore.utilities import *
 from getmailcore.exceptions import *
 
-hostname = localhostname()
 
-verbose = False
-path = None
-for arg in sys.argv[1:]:
-    if arg in ('-h', '--help'):
-        sys.stdout.write('Usage: %s maildirpath\n' % sys.argv[0])
-        raise SystemExit
-    elif arg in ('-v', '--verbose'):
-        verbose = True
-    elif not path:
-        path = arg
-    else:
-        raise SystemExit('Error: maildir path specified twice (was %s, now %s)'
-                         % (path, arg))
+def main():
+    hostname = localhostname()
 
-if os.name == 'posix' and (os.geteuid() == 0 or os.getegid() == 0):
-    raise SystemExit('Error: do not run this program as user root')
+    verbose = False
+    path = None
+    for arg in sys.argv[1:]:
+        if arg in ('-h', '--help'):
+            sys.stdout.write('Usage: %s maildirpath\n' % sys.argv[0])
+            raise SystemExit
+        elif arg in ('-v', '--verbose'):
+            verbose = True
+        elif not path:
+            path = arg
+        else:
+            raise SystemExit('Error: maildir path specified twice (was %s, now %s)'
+                             % (path, arg))
 
-if not (path and (path.startswith('.') or path.startswith('/'))
-        and path.endswith('/')):
-    raise SystemExit('Error: maildir must start with . or / and end with /')
+    if os.name == 'posix' and (os.geteuid() == 0 or os.getegid() == 0):
+        raise SystemExit('Error: do not run this program as user root')
 
-if not is_maildir(path):
-    raise SystemExit('Error: %s is not a maildir' % path)
+    if not (path and (path.startswith('.') or path.startswith('/'))
+            and path.endswith('/')):
+        raise SystemExit('Error: maildir must start with . or / and end with /')
 
-msg = Message(fromfile=sys.stdin)
-if 'SENDER' in os.environ:
-    msg.sender = os.environ['SENDER']
-if 'RECIPIENT' in os.environ:
-    msg.recipient = os.environ['RECIPIENT']
+    if not is_maildir(path):
+        raise SystemExit('Error: %s is not a maildir' % path)
 
-try:
-    d = deliver_maildir(path, msg.flatten(True, False), hostname)
-except getmailDeliveryError as o:
-    raise SystemExit('Error: delivery error delivering to maildir %s (%s)'
-                     % (path, o))
-except Exception as o:
-    raise SystemExit('Error: other error delivering to maildir %s (%s)'
-                     % (path, o))
+    msg = Message(fromfile=sys.stdin)
+    if 'SENDER' in os.environ:
+        msg.sender = os.environ['SENDER']
+    if 'RECIPIENT' in os.environ:
+        msg.recipient = os.environ['RECIPIENT']
 
-if verbose:
-    sys.stdout.write('Delivered to maildir %s\n' % path)
+    try:
+        d = deliver_maildir(path, msg.flatten(True, False), hostname)
+    except getmailDeliveryError as o:
+        raise SystemExit('Error: delivery error delivering to maildir %s (%s)'
+                         % (path, o))
+    except Exception as o:
+        raise SystemExit('Error: other error delivering to maildir %s (%s)'
+                         % (path, o))
+
+    if verbose:
+        sys.stdout.write('Delivered to maildir %s\n' % path)
+
+
+if __name__ == "__main__":
+    main()

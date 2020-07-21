@@ -25,7 +25,6 @@ __all__ = [
     'uid_of_user',
     'updatefile',
     'get_password',
-    'run_command',
 ]
 
 
@@ -43,11 +42,8 @@ import grp
 import getpass
 import subprocess
 import sys
-import tempfile
 import errno
 
-# hashlib only present in python2.5, ssl in python2.6; used together
-# in SSL functionality below
 try:
     import ssl
 except ImportError:
@@ -319,7 +315,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
 
     # Open file to write
     try:
-        f = safe_open(fname_tmp, 'w', filemode)
+        f = safe_open(fname_tmp, 'bw', filemode)
         f.write(data)
         f.flush()
         os.fsync(f.fileno())
@@ -394,18 +390,18 @@ def uid_of_user(user):
         raise getmailConfigurationError('no such specified user (%s)' % o)
 
 #######################################
-def change_usergroup(logger=None, user=None, _group=None):
+def change_usergroup(logger=None, user=None, group=None):
     '''
     Change the current effective GID and UID to those specified by user and
-    _group.
+    group.
     '''
     uid = None
     gid = None
-    if _group:
+    if group:
         if logger:
-            logger.debug('Getting GID for specified group %s\n' % _group)
+            logger.debug('Getting GID for specified group %s\n' % group)
         try:
-            gid = grp.getgrnam(_group).gr_gid
+            gid = grp.getgrnam(group).gr_gid
         except KeyError as o:
             raise getmailConfigurationError('no such specified group (%s)' % o)
     if user:
@@ -414,6 +410,15 @@ def change_usergroup(logger=None, user=None, _group=None):
         uid = uid_of_user(user)
 
     change_uidgid(logger, uid, gid)
+
+#######################################
+def some_security(allow_root_commands):
+    if ((os.geteuid() == 0 or os.getegid() == 0)
+            and not allow_root_commands):
+        raise getmailConfigurationError(
+            'refuse to invoke external commands as root '
+            'or GID 0 by default'
+        )
 
 #######################################
 def change_uidgid(logger=None, uid=None, gid=None):
@@ -592,10 +597,10 @@ if os.name == 'posix':
     if os.path.isfile(osx_keychain_binary):
         def keychain_password(user, server, protocol, logger):
             """Mac OSX: return a keychain password, if it exists.  Otherwise, return
-         
+
          None.
             """
-            # OSX protocol is not an arbitrary string; it's a code limited to 
+            # OSX protocol is not an arbitrary string; it's a code limited to
             # 4 case-sensitive chars, and only specific values.
             protocol = protocol.lower()
             if 'imap' in protocol:
@@ -611,10 +616,8 @@ if os.name == 'posix':
                 osx_keychain_binary, user, server, protocol
             )
             (status, output) = subprocess.getstatusoutput(cmd)
-            if sys.version_info.major > 2:
-                output = output.decode()
             if status != os.EX_OK or not output:
-                logger.error('keychain command %s failed: %s %s' 
+                logger.error('keychain command %s failed: %s %s'
                              % (cmd, status, output))
                 return None
             password = None
@@ -646,7 +649,7 @@ if os.name == 'posix':
                     # authtype=None, port=0
                     user, None, server, None, protocol, None, 0
                 )
-                
+
                 #logger.trace('got keyring result %s' % str(secret))
             except gnomekeyring.NoMatchError:
                 logger.debug('gnome-keyring does not know password for %s %s %s'
@@ -654,7 +657,7 @@ if os.name == 'posix':
                 return None
 
             # secret looks like this:
-            # [{'protocol': 'imap', 'keyring': 'Default', 'server': 'gmail.com', 
+            # [{'protocol': 'imap', 'keyring': 'Default', 'server': 'gmail.com',
             #   'user': 'hiciu', 'item_id': 1L, 'password': 'kielbasa'}]
             if secret and 'password' in secret[0]:
                 return secret[0]['password']
@@ -665,7 +668,7 @@ if os.name == 'posix':
         # Fallthrough
 if keychain_password is None:
     def keychain_password(user, server, protocol, logger):
-        """Neither Mac OSX keychain or Gnome keyring available: always return 
+        """Neither Mac OSX keychain or Gnome keyring available: always return
         None.
         """
         return None
@@ -683,43 +686,3 @@ def get_password(label, user, server, protocol, logger):
     return password
 
 
-#######################################
-def run_command(command, args):
-    # Simple subprocess wrapper for running a command and fetching its exit 
-    # status and output/stderr.
-    if args is None:
-        args = []
-    if type(args) == tuple:
-        args = list(args)
-
-    # Programmer sanity checks
-    assert type(command) in (bytes, str), (
-        'command is %s (%s)' % (command, type(command))
-    )
-    assert type(args) == list, (
-        'args is %s (%s)' % (args, type(args))
-    )
-    for arg in args:
-        assert type(arg) in (bytes, str), 'arg is %s (%s)' % (arg, type(arg))
-
-    stdout = tempfile.TemporaryFile()
-    stderr = tempfile.TemporaryFile()
-
-    cmd = [command] + args
-
-    try:
-        p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
-    except OSError as o:
-        if o.errno == errno.ENOENT:
-            # no such file, command not found
-            raise getmailConfigurationError('Program "%s" not found' % command)
-        #else:
-        raise
-
-    rc = p.wait()
-    stdout.seek(0)
-    stderr.seek(0)
-    if sys.version_info.major == 2:
-        return (rc, stdout.read().strip(), stderr.read().strip())
-    else:
-        return (rc, stdout.read().decode().strip(), stderr.read().decode().strip())

@@ -51,6 +51,8 @@ class _Logger(object):
 
     def log(self, msglevel, msgtxt):
         '''Log a message of level <msglevel> containing text <msgtxt>.'''
+        if sys.version_info.major > 2 and isinstance(msgtxt,bytes):
+            msgtxt = msgtxt.decode()
         for handler in self.handlers:
             if msglevel < handler['minlevel'] or msglevel > handler['maxlevel']:
                 continue

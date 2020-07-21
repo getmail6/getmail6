@@ -27,50 +27,54 @@ from getmailcore.exceptions import *
 from getmailcore.message import Message
 from getmailcore import logging, constants, destinations
 
-verbose = False
-path = None
-for arg in sys.argv[1:]:
-    if arg in ('-h', '--help'):
-        sys.stdout.write('Usage: %s mboxpath\n' % sys.argv[0])
-        raise SystemExit
-    elif arg in ('-v', '--verbose'):
-        verbose = True
-    elif not path:
-        path = arg
-    else:
-        raise SystemExit('Error: mbox path specified twice (was %s, now %s)'
-                         % (path, arg))
+def main():
+    verbose = False
+    path = None
+    for arg in sys.argv[1:]:
+        if arg in ('-h', '--help'):
+            sys.stdout.write('Usage: %s mboxpath\n' % sys.argv[0])
+            raise SystemExit
+        elif arg in ('-v', '--verbose'):
+            verbose = True
+        elif not path:
+            path = arg
+        else:
+            raise SystemExit('Error: mbox path specified twice (was %s, now %s)'
+                             % (path, arg))
 
-if os.name == 'posix' and (os.geteuid() == 0 or os.getegid() == 0):
-    raise SystemExit('Error: do not run this program as user root')
+    if os.name == 'posix' and (os.geteuid() == 0 or os.getegid() == 0):
+        raise SystemExit('Error: do not run this program as user root')
 
-logger = logging.Logger()
-logger.addhandler(sys.stderr, constants.WARNING)
-if verbose:
-    logger.addhandler(sys.stdout, constants.INFO, constants.INFO)
+    logger = logging.Logger()
+    logger.addhandler(sys.stderr, constants.WARNING)
+    if verbose:
+        logger.addhandler(sys.stdout, constants.INFO, constants.INFO)
 
-if not (path and (path.startswith('.') or path.startswith('/'))
-        and not path.endswith('/')):
-    raise SystemExit('Error: mbox must start with . or / and not end with /')
+    if not (path and (path.startswith('.') or path.startswith('/'))
+            and not path.endswith('/')):
+        raise SystemExit('Error: mbox must start with . or / and not end with /')
 
-if os.path.exists(path) and not os.path.isfile(path):
-    raise SystemExit('Error: %s is not an mbox' % path)
+    if os.path.exists(path) and not os.path.isfile(path):
+        raise SystemExit('Error: %s is not an mbox' % path)
 
-msg = Message(fromfile=sys.stdin)
-if 'SENDER' in os.environ:
-    msg.sender = os.environ['SENDER']
-if 'RECIPIENT' in os.environ:
-    msg.recipient = os.environ['RECIPIENT']
+    msg = Message(fromfile=sys.stdin)
+    if 'SENDER' in os.environ:
+        msg.sender = os.environ['SENDER']
+    if 'RECIPIENT' in os.environ:
+        msg.recipient = os.environ['RECIPIENT']
 
-try:
-    dest = destinations.Mboxrd(path=path)
-    d = dest.deliver_message(msg, True, False)
-except getmailDeliveryError as o:
-    raise SystemExit('Error: delivery error delivering to mboxrd %s (%s)'
-                     % (path, o))
-except Exception as o:
-    raise SystemExit('Error: other error delivering to mboxrd %s (%s)'
-                     % (path, o))
+    try:
+        dest = destinations.Mboxrd(path=path)
+        d = dest.deliver_message(msg, True, False)
+    except getmailDeliveryError as o:
+        raise SystemExit('Error: delivery error delivering to mboxrd %s (%s)'
+                         % (path, o))
+    except Exception as o:
+        raise SystemExit('Error: other error delivering to mboxrd %s (%s)'
+                         % (path, o))
 
-if verbose:
-    sys.stdout.write('Delivered to mboxrd %s\n' % path)
+    if verbose:
+        sys.stdout.write('Delivered to mboxrd %s\n' % path)
+
+if __name__ == "__main__":
+    main()

@@ -43,15 +43,15 @@ Then follow the rest of the instructions below.
 How to report a problem with getmail
 ------------------------------------
 
-IMPORTANT:  Please include the output of 
+IMPORTANT:  Please include the output of
 
   getmail [your usual options] --dump
 
-and a copy of your getmail rc file(s) (with password masked) with any bug 
+and a copy of your getmail rc file(s) (with password masked) with any bug
 report.
 
 If you find a bug in getmail, please either join the getmail users' mailing
-list and report it there (preferred), or send it to me at 
+list and report it there (preferred), or send it to me at
 <charlesc-getmail-bugs @ pyropus.ca>.
 
 You can join the getmail users' mailing list by sending a (blank) message

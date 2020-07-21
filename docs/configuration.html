@@ -557,13 +557,13 @@ type = <span class="meta">typename</span>
             <li>on systems with Gnome keyring support, from the default Gnome keyring</li>
             <li>if not found via any of the above methods, getmail will prompt for the password when run</li>
         </ol>
-        To store your POP/IMAP account password into the Gnome keyring, ensure 
+        To store your POP/IMAP account password into the Gnome keyring, ensure
         the password is not provided in the getmailrc file, and run getmail with
-        the special option <span class="file">--store-password-in-gnome-keyring</span>; 
-        getmail will run, prompt you for the password, store it in the Gnome 
-        keyring, and exit without retrieving mail.  If this option is not 
-        recognized, your Python installation does not have Gnome keyring 
-        integration support, or Gnome indicates that the keyring is not 
+        the special option <span class="file">--store-password-in-gnome-keyring</span>;
+        getmail will run, prompt you for the password, store it in the Gnome
+        keyring, and exit without retrieving mail.  If this option is not
+        recognized, your Python installation does not have Gnome keyring
+        integration support, or Gnome indicates that the keyring is not
         available.
         If using the OSX keychain on 10.9 &quot;Mavericks&quot; (or later, presumably),
         some additional steps may be necessary to make the password available to getmail
@@ -573,7 +573,7 @@ type = <span class="meta">typename</span>
     <li id="password_command">
         password_command
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
-        &mdash; retrieve the account password by running an arbitrary external 
+        &mdash; retrieve the account password by running an arbitrary external
         program.  The program must write the password and nothing else to stdout,
         and must exit with a status of 0 on success.  Note that the password parameter
         (above) overrides this parameter; specify one or the other, not both.
@@ -605,12 +605,12 @@ mailboxes = (&quot;INBOX&quot;, &quot;INBOX.spam&quot;,
         IMAP server, not by getmail.  Consult your server's documentation or
         postmaster if you're unsure what form your server uses.
         If your mailbox names contain non-ASCII characters, ensure that your
-        getmailrc file is stored with UTF-8 encoding so that getmail can 
+        getmailrc file is stored with UTF-8 encoding so that getmail can
         correctly determine the unicode character names that need to be quoted
         in IMAP's modified UTF-7 encoding; if you do not do this, the mailbox
         names will not match what the server expects them to be, or will cause
         UnicodeErrors when attempting to load your getmailrc file.
-        As a special case, in getmail version 4.29.0 and later, the unquoted 
+        As a special case, in getmail version 4.29.0 and later, the unquoted
         base (non-tuple) value
         <span class="file">ALL</span> (case-sensitive) means to retrieve mail
         from all selectable IMAP mailboxes in the account.  To retrieve messages
@@ -630,7 +630,7 @@ mailboxes = ALL
     <li>
         move_on_delete
         (<a href="#parameter-string">string</a>)
-        &mdash; if set, messages are moved to the named IMAP mail folder before 
+        &mdash; if set, messages are moved to the named IMAP mail folder before
         being deleted from their original location.  The specified mail folder
         must exist; getmail will not create it.  Note that if you configure
         getmail not to delete retrieved messages (the default behaviour), they
@@ -698,7 +698,7 @@ mailboxes = ALL
 
 <h4 id="retriever-ssl-extra">SSL Certificate Validation and Server Parameters</h4>
 <p>
-    All SSL-enabled POP and IMAP retriever types also take the following options, 
+    All SSL-enabled POP and IMAP retriever types also take the following options,
     allowing you to require validation of the server's SSL certificate, or to check the
     server's certificate fingerprint against a known good value, or to control
     the specific SSL cipher used during the connection.
@@ -708,7 +708,7 @@ mailboxes = ALL
     requires using Python 2.6 or Python 2.7 or higher with getmail.</strong>
     If you use an earlier version of Python, these features will not work, and
     no server certificate validation will be performed.
-    Also note that these features are not currently implemented for SPDS 
+    Also note that these features are not currently implemented for SPDS
     retrievers; I would be interested in hearing from SPDS users who desire
     these features.
 </p>
@@ -716,13 +716,13 @@ mailboxes = ALL
     <li>
         ca_certs
         (<a href="#parameter-string">string</a>)
-        &mdash; advanced option to perform validation of the server's SSL 
-        certificate.  Specify the path to a PEM-formatted list of 1 or more 
+        &mdash; advanced option to perform validation of the server's SSL
+        certificate.  Specify the path to a PEM-formatted list of 1 or more
         valid and trusted root certification authority (CA) certificates.
         <strong>Note: this option is only available with Python 2.6 or higher.</strong>
         <br />
         To find out which root CA is used to sign the chain of certificates for
-        a given server, you can run 
+        a given server, you can run
         <pre class="example">
 openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
   | grep '^[[:space:]]*i:' | tail -n 1
@@ -730,10 +730,10 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         If the server's certificate cannot be validated based upon the supplied
         trusted root certificates, getmail will abort the connection.
         <br />
-        Root certificates are not supplied with getmail; your OS probably installs a set 
+        Root certificates are not supplied with getmail; your OS probably installs a set
         by default for use by the system, or you may wish to use a specific set of
         trusted root certificates provided by your employer or a trusted third
-        party.  Common locations for OS-supplied SSL root certification authority 
+        party.  Common locations for OS-supplied SSL root certification authority
         certificates include:
         <ul>
             <li>Linux (Debian, Ubuntu, Arch, SuSE): <pre class="file">/etc/ssl/certs/</pre></li>
@@ -747,8 +747,8 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
     <li>
         ssl_ciphers
         (<a href="#parameter-string">string</a>)
-        &mdash; advanced option to control which SSL cipher algorithms will be 
-        allowed to proceed.  See the 
+        &mdash; advanced option to control which SSL cipher algorithms will be
+        allowed to proceed.  See the
         <a href="http://www.openssl.org/docs/apps/ciphers.html">Open SSL documentation</a>
         for details.
         If the specified setting results in no possible ciphers available,
@@ -774,9 +774,9 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         ssl_fingerprints
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
         &mdash; advanced option to notice when the server's SSL certificate
-        changes.  Supply a list of one or more SHA256 certificate fingerprints, 
+        changes.  Supply a list of one or more SHA256 certificate fingerprints,
         and getmail will confirm whether the server's certificate fingerprint is
-        in the list of allowed fingerprints; if it is not, getmail will abort 
+        in the list of allowed fingerprints; if it is not, getmail will abort
         the connection.  Getmail will log the fingerprint of the server's certificate
         if you supply the <span class="file">--fingerprint</span> commandline option.
         <strong>Note: this option is only available with Python 2.6 or higher.</strong>
@@ -906,25 +906,25 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
     <li>
         ca_certs
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_ciphers
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_version
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_fingerprints
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
 </ul>
@@ -960,25 +960,25 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
     <li>
         ca_certs
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_ciphers
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_version
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_fingerprints
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
 </ul>
@@ -1021,25 +1021,25 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
     <li>
         ca_certs
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_ciphers
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_version
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_fingerprints
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
 </ul>
@@ -1131,25 +1131,25 @@ envelope_recipient = delivered-to:1
     <li>
         ca_certs
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_ciphers
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_version
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_fingerprints
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
 </ul>
@@ -1264,25 +1264,25 @@ envelope_recipient = delivered-to:1
     <li>
         ca_certs
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_ciphers
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_version
         (<a href="#parameter-string">string</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
     <li>
         ssl_fingerprints
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
-        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a> 
+        &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
 </ul>
@@ -2385,17 +2385,17 @@ localpart_translate = ('mailhostaccount-', '')
     <li>
         delete_bigger_than
         (<a href="#parameter-integer">integer</a>)
-        &mdash; if set, getmail will delete messages larger than this number of 
-        bytes after retrieving them, even if the 
+        &mdash; if set, getmail will delete messages larger than this number of
+        bytes after retrieving them, even if the
         <span class="file">delete</span>
         and <span class="file">delete_after</span>
         options are disabled.  The purpose of this feature is to allow deleting
         only large messages, to help keep a mailbox under quota.
         Has no effect if <span class="file">delete</span> is set, as that will
-        unconditionally remove messages.  If 
+        unconditionally remove messages.  If
         <span class="file">delete_after</span> is also set, the message will be
-        deleted immediately after retrieval if it is over this size, and 
-        otherwise will be deleted according to the setting of 
+        deleted immediately after retrieval if it is over this size, and
+        otherwise will be deleted according to the setting of
         <span class="file">delete_after</span>.
         Default: 0, which means not to enable this feature.
     </li>
@@ -2789,8 +2789,8 @@ message_log = ~/.getmail/log
         &mdash; by default, getmail will warn if a filtered message's header
         contains fewer fields than the source message had, to warn you if your
         filter is unexpectedly deleting information from messages it handles.
-        If you know your filter can legitimately produce a message with a 
-        shorter header (such as if it encapsulates the original message), 
+        If you know your filter can legitimately produce a message with a
+        shorter header (such as if it encapsulates the original message),
         set this option to disable the warning.  <b>Do not simply set this
         if you see the warning; you must understand whether your filter is
         operating correctly or not before you use this</b>.
@@ -3012,7 +3012,7 @@ type = Filter_TMDA
     <li>--trace &mdash; print extended debugging information</li>
 </ul>
 <p>
-    If you are using a single getmailrc file with an IMAP server that understands 
+    If you are using a single getmailrc file with an IMAP server that understands
     the IDLE extension from <a href="http://www.rfc-editor.org/rfc/rfc2177.txt">RFC 2177</a>,
     you can use the --idle=<span class="meta">MAILBOX</span> option to specify
     that getmail should wait on the server to notify getmail of new mail in the
