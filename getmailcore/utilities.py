@@ -42,7 +42,6 @@ import grp
 import getpass
 import subprocess
 import sys
-import errno
 
 try:
     import ssl

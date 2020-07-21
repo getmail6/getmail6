@@ -183,9 +183,9 @@ class Message(object):
         # From_ handled above, always tell the generator not to include it
         try:
             try:
-                strmsg = __msg.as_bytes()
+                strmsg = self.__msg.as_bytes()
             except AttributeError:
-                strmsg = __msg.as_string()
+                strmsg = self.__msg.as_string()
             if mangle_from:
                 # do mboxrd-style "From " line quoting (add one '>')
                 strmsg = RE_FROMLINE.sub(b'>\\1', strmsg)

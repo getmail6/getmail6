@@ -70,6 +70,7 @@ if sys.version_info.major == 2:
     tostr = lambda lts: lts
 else:
     tostr = lambda lts: lts.decode()
+tocode = lambda x: isinstance(x,bytes) and x or x.encode()
 
 # If we have an ssl module:
 has_sni = ssl and getattr(ssl, 'HAS_SNI', False)
@@ -933,6 +934,16 @@ class RetrieverSkeleton(ConfigurableBase):
         self._delmsgbyid(msgid)
         self.deleted[msgid] = True
 
+    def run_password_command(self, command, args):
+        err, stdout = run_command(command,args)
+        if err:
+            self.log.warning(
+                'External password program "%s" wrote to stderr: %s'
+                % (command, tostr(err))
+            )
+        return stdout.read().strip()
+
+
 
 #######################################
 class POP3RetrieverBase(RetrieverSkeleton):
@@ -1063,8 +1074,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
         response, headerlist, octets = self.conn.top(msgnum, 0)
         try:
             parser = Parser.BytesHeaderParser()
-            return parser.parsestr(os.linesep.encode().join(headerlist))
-        except:
+            return parser.parsebytes(_NL.join(headerlist))
+        except: #py2
             parser = Parser.HeaderParser()
             return parser.parsestr(os.linesep.join(headerlist))
 
@@ -1078,7 +1089,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                 # Retrieve from an arbitrary external command
                 command = self.conf['password_command'][0]
                 args = self.conf['password_command'][1:]
-                self.conf['password'] = self.run_password_command(command, args)
+                self.conf['password'] = tostr(self.run_password_command(command, args))
             else:
                 self.conf['password'] = get_password(
                     self, self.conf['username'], self.conf['server'],
@@ -1089,7 +1100,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self._connect()
 
             if self.conf['use_apop']:
-                self.conn.apop(self.conf['username'], self.conf['password'])
+                self.conn.apop(self.conf['username'],
+                               self.conf['password'])
             else:
                 self.conn.user(self.conf['username'])
                 self.conn.pass_(self.conf['password'])
@@ -1267,7 +1279,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 raise
             else:
                 raise getmailOperationError('IMAP error (%s)' % o)
-        if result != b'OK':
+        if result != 'OK':
             raise getmailOperationError(
                 'IMAP error (command %s returned %s %s)'
                 % ('%s %s' % (cmd, args), result, resplist)
@@ -1293,14 +1305,14 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 raise
             else:
                 raise getmailOperationError('IMAP error (%s)' % o)
-        if result != b'OK':
+        if result != 'OK':
             raise getmailOperationError(
-                b'IMAP error (command %s returned %s %s)'
-                % (cmd, result, resplist) # don't print password: % ('%s %s' % (cmd, args), result, resplist)
+                'IMAP error (command %s returned %s %s)'
+                % (cmd, result, str(resplist)) # don't print password: % ('%s %s' % (cmd, args), result, resplist)
             )
-        self.log.debug(b'command uid %s response %s'
-                       % (b'%s %s' % (cmd.encode(), str(args).encode()),
-                          resplist) + os.linesep.encode())
+        self.log.debug('command uid %s response %s'
+                       % ('%s %s' % (cmd, str(args)),
+                          str(resplist)) + os.linesep)
         return resplist
 
     def _parse_imapattrresponse(self, line):
@@ -1515,7 +1527,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             # record mailbox retrieved from in a header
             if self.conf['record_mailbox']:
                 msg.add_header('X-getmail-retrieved-from-mailbox',
-                               self.mailbox_selected.encode())
+                               tocode(self.mailbox_selected))
 
             # google extensions: apply labels, etc
             if 'X-GM-EXT-1' in self.conn.capabilities:
@@ -1555,9 +1567,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         )
         if not ext:
             self.log.warning(
-                b'Could not parse google imap extensions. Server said: %s'
-                % repr(response).encode()
-            )
+                'Could not parse google imap extensions. Server said: %s'
+                % repr(response))
             return {}
 
 
@@ -1595,7 +1606,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 # Retrieve from an arbitrary external command
                 command = self.conf['password_command'][0]
                 args = self.conf['password_command'][1:]
-                self.conf['password'] = self.run_password_command(command, args)
+                self.conf['password'] = tostr(self.run_password_command(command, args))
             else:
                 self.conf['password'] = get_password(
                     self, self.conf['username'], self.conf['server'],

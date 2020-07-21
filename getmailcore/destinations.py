@@ -39,6 +39,12 @@ from getmailcore.exceptions import *
 from getmailcore.utilities import *
 from getmailcore.baseclasses import *
 
+def exit_with(stderr,errmsg):
+    stderr.write(errmsg.encode())
+    stderr.flush()
+    os.fsync(stderr.fileno())
+    os._exit(127)
+
 #######################################
 class DeliverySkeleton(ConfigurableBase):
     '''Base class for implementing message-delivery classes.
@@ -154,17 +160,12 @@ class Maildir(DeliverySkeleton, ForkingBase):
                 self.conf['path'], msg.flatten(delivered_to, received),
                 self.hostname, self.dcount, self.conf['filemode']
             )
-            stdout.write(f)
+            stdout.write(f.encode())
             stdout.flush()
             os.fsync(stdout.fileno())
             os._exit(0)
         except Exception as o:
-            # Child process; any error must cause us to exit nonzero for parent
-            # to detect it
-            stderr.write('maildir delivery process failed (%s)' % o)
-            stderr.flush()
-            os.fsync(stderr.fileno())
-            os._exit(127)
+            exit_with(stderr, 'maildir delivery process failed (%s)' % o)
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
@@ -185,9 +186,10 @@ class Maildir(DeliverySkeleton, ForkingBase):
                         'refuse to deliver mail as GID 0'
                     )
 
-        with self.child() as child:
-            self.__deliver_message_maildir(uid, gid, msg, delivered_to,
-                                           received, child.stdout, child.stderr)
+        child = self.forkchild(
+            lambda o,e: self.__deliver_message_maildir(
+                uid, gid, msg, delivered_to, received, o, e)
+            )
 
         self.log.debug('maildir delivery process %d exited %d\n'
                        % (child.childpid, child.exitcode))
@@ -287,7 +289,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                     # Not root or owner; readers will not be able to reliably
                     # detect new mail.  But you shouldn't be delivering to
                     # other peoples' mboxes unless you're root, anyways.
-                    stdout.write('failed to updated mtime/atime of mbox')
+                    stdout.write(b'failed to updated mtime/atime of mbox')
                     stdout.flush()
                     os.fsync(stdout.fileno())
 
@@ -313,12 +315,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             os._exit(0)
 
         except Exception as o:
-            # Child process; any error must cause us to exit nonzero for parent
-            # to detect it
-            stderr.write('mbox delivery process failed (%s)' % o)
-            stderr.flush()
-            os.fsync(stderr.fileno())
-            os._exit(127)
+            exit_with(stderr, 'mbox delivery process failed (%s)' % o)
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
@@ -341,9 +338,10 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                     'refuse to deliver mail as GID 0'
                 )
 
-        with self.child() as child:
-            self.__deliver_message_mbox(uid, gid, msg, delivered_to, received,
-                                        child.stdout, child.stderr)
+        child = self.forkchild(
+            lambda o,e: self.__deliver_message_mbox(
+                uid, gid, msg, delivered_to, received, o, e)
+            )
 
         self.log.debug('mboxrd delivery process %d exited %d\n'
                        % (child.childpid, child.exitcode))
@@ -464,12 +462,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
                 delivered_to = None
             self.execl(msg, *args)
         except Exception as o:
-            # Child process; any error must cause us to exit nonzero for parent
-            # to detect it
-            stderr.write('exec of qmail-local failed (%s)' % o)
-            stderr.flush()
-            os.fsync(stderr.fileno())
-            os._exit(127)
+            exit_width(stderr,'exec of qmail-local failed (%s)' % o)
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
@@ -507,9 +500,10 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
         self.log.debug('recipient: set dash to "%s", ext to "%s"\n'
                        % (msginfo['dash'], msginfo['ext']))
 
-        with self.child() as child:
-            self._deliver_qmaillocal(msg, msginfo, delivered_to, received,
-                                     child.stdout, child.stderr)
+        child = self.forkchild(
+            lambda o,e: self._deliver_qmaillocal(
+                msg, msginfo, delivered_to, received, o, e)
+            )
 
 
         self.log.debug('qmail-local %d exited %d\n' % (child.childpid, child.exitcode))
@@ -622,14 +616,8 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                 args.append(arg)
             self.execl(msg, *args)
         except Exception as o:
-            # Child process; any error must cause us to exit nonzero for parent
-            # to detect it
-
-            stderr.write('exec of command %s failed (%s)'
+            exit_width(stderr, 'exec of command %s failed (%s)'
                          % (self.conf['command'], o))
-            stderr.flush()
-            os.fsync(stderr.fileno())
-            os._exit(127)
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
@@ -641,9 +629,10 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
         self.log.debug('msginfo "%s"\n' % msginfo)
 
-        with self.child() as child:
-            self._deliver_command(msg, msginfo, delivered_to, received,
-                                  child.stdout, child.stderr)
+        child = self.forkchild(
+            lambda o,e: self._deliver_command(
+                msg, msginfo, delivered_to, received, o, e)
+            )
 
         self.log.debug('command %s %d exited %d\n'
                        % (self.conf['command'], child.childpid, child.exitcode))

@@ -251,8 +251,9 @@ class Filter_external(FilterSkeleton, ForkingBase):
                 'refuse to invoke external commands as root by default'
             )
 
-        with self.child(with_out=False) as child:
-            self._filter_command(msg, msginfo, child.stdout, child.stderr)
+        child = self.forkchild(
+            lambda o, e: self._filter_command(msg, msginfo, o, e)
+            , with_out=False)
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
                                                       child.childpid, child.exitcode))
@@ -292,8 +293,9 @@ class Filter_classifier(Filter_external):
                 'refuse to invoke external commands as root by default'
             )
 
-        with self.child(with_out=False) as child:
-            self._filter_command(msg, msginfo, child.stdout, child.stderr)
+        child = self.forkchild(
+            lambda o,e: self._filter_command(msg, msginfo, o, e)
+            , with_out=False)
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
                           child.childpid, child.exitcode))
@@ -392,8 +394,9 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
             )
         some_security(self.conf['allow_root_commands'])
 
-        with self.child(with_out=False) as child:
-            self._filter_command(msg, child.stdout, child.stderr)
+        child = self.forkchild(
+            lambda o,e: self._filter_command(msg, o, e)
+            , with_out=False)
 
         self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
                        child.childpid, child.exitcode))

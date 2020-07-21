@@ -67,7 +67,7 @@ setup(
     license='GNU GPL version 2',
     url='http://pyropus.ca/software/getmail/',
     download_url='http://pyropus.ca/software/getmail/#download',
-    install_requires=['chardet'],
+    install_requires=[''],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
