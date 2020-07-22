@@ -38,6 +38,9 @@ from getmailcore.utilities import eval_bool, expand_user_vars
 
 if sys.version_info.major > 2:
     unicode = str
+    TemporaryFile23 = lambda: tempfile.TemporaryFile('bw+')
+else:
+    TemporaryFile23 = lambda: tempfile.TemporaryFile('w+')
 
 def run_command(command, args):
     # Simple subprocess wrapper for running a command and fetching its exit
@@ -57,8 +60,8 @@ def run_command(command, args):
     for arg in args:
         assert type(arg) in (bytes, unicode), 'arg is %s (%s)' % (arg, type(arg))
 
-    stdout = tempfile.TemporaryFile('bw+')
-    stderr = tempfile.TemporaryFile('bw+')
+    stdout = TemporaryFile23()
+    stderr = TemporaryFile23()
 
     cmd = [command] + args
 
@@ -443,7 +446,7 @@ class ForkingBase(object):
 
     def pipe(self, msg, unixfrom=False):
         # Write out message
-        msgfile = tempfile.TemporaryFile('bw+')
+        msgfile = TemporaryFile23()
         msgfile.write(msg.flatten(delivered_to, received, include_from=unixfrom))
         msgfile.flush()
         os.fsync(msgfile.fileno())
@@ -465,8 +468,8 @@ class ForkingBase(object):
     def forkchild(self, childfun, with_out=True):
         self._prepare_child()
         child = Namespace()
-        child.stdout = tempfile.TemporaryFile('bw+')
-        child.stderr = tempfile.TemporaryFile('bw+')
+        child.stdout = TemporaryFile23()
+        child.stderr = TemporaryFile23()
         child.childpid = os.fork()
         if not child.childpid:
             childfun(child.stdout, child.stderr)

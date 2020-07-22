@@ -69,6 +69,7 @@ import hashlib
 if sys.version_info.major == 2:
     tostr = lambda lts: lts
 else:
+    unicode = str
     tostr = lambda lts: lts.decode()
 tocode = lambda x: isinstance(x,bytes) and x or x.encode()
 
@@ -289,6 +290,46 @@ POP3_SSL_PORT = 995
 # "line" exceeds 2048 bytes is absolutely stupid.
 poplib._MAXLINE = 1 << 20   # 1MB; decrease this if you're running on a VIC-20
 
+
+#######################################
+def certif(self):
+    if sys.version_info.major == 2:
+        sock = self.conn.sslobj
+    else:
+        sock = self.conn.sock
+    self.setup_received(sock)
+    peercert = sock.getpeercert(True)
+    ssl_cipher = sock.cipher()
+    if ssl_cipher:
+        ssl_cipher = '%s:%s:%s' % ssl_cipher
+    if not peercert:
+        actual_hash = None
+    else:
+        actual_hash = hashlib.sha256(peercert).hexdigest().lower()
+
+    # Ensure cert is for server we're connecting to
+    if ssl and self.conf['ca_certs']:
+        ssl_match_hostname(
+            sock.getpeercert(),
+            self.conf.get('ssl_cert_hostname', None)
+                or self.conf['server']
+        )
+
+    ssl_fingerprints = check_ssl_fingerprints(self.conf)
+    if ssl_fingerprints:
+        any_matches = False
+        for expected_hash in ssl_fingerprints:
+            if expected_hash == actual_hash:
+                any_matches = True
+        if not any_matches:
+            raise getmailOperationError(
+                'socket ssl_fingerprints mismatch (got %s)'
+                % actual_hash
+            )
+
+    return ssl_cipher, actual_hash
+
+
 #
 # Mix-in classes
 #
@@ -378,7 +419,6 @@ class POP3SSLinitMixIn(object):
         (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
         ca_certs = check_ca_certs(self.conf)
         ssl_version = check_ssl_version(self.conf)
-        ssl_fingerprints = check_ssl_fingerprints(self.conf)
         ssl_ciphers = check_ssl_ciphers(self.conf)
         using_extended_certs_interface = False
         try:
@@ -425,36 +465,7 @@ class POP3SSLinitMixIn(object):
                                + os.linesep)
                 self.conn = poplib.POP3_SSL(self.conf['server'],
                                             self.conf['port'])
-            sock = self.conn.sock
-            self.setup_received(sock)
-            peercert = sock.getpeercert(True)
-            ssl_cipher = sock.cipher()
-            if ssl_cipher:
-                ssl_cipher = '%s:%s:%s' % ssl_cipher
-            if not peercert:
-                actual_hash = None
-            else:
-                actual_hash = hashlib.sha256(peercert).hexdigest().lower()
-
-            # Ensure cert is for server we're connecting to
-            if ssl and self.conf['ca_certs']:
-                ssl_match_hostname(
-                    self.conn.sock.getpeercert(),
-                    self.conf.get('ssl_cert_hostname', None)
-                        or self.conf['server']
-                )
-
-            if ssl_fingerprints:
-                any_matches = False
-                for expected_hash in ssl_fingerprints:
-                    if expected_hash == actual_hash:
-                        any_matches = True
-                if not any_matches:
-                    raise getmailOperationError(
-                        'socket ssl_fingerprints mismatch (got %s)'
-                        % actual_hash
-                    )
-
+            ssl_cipher, actual_hash = certif(self)
         except poplib.error_proto as o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
@@ -465,8 +476,6 @@ class POP3SSLinitMixIn(object):
                 'error resolving name %s during connect (%s)'
                 % (self.conf['server'], o)
             )
-
-        #self.conn.sock.setblocking(1)
 
         fingerprint_message = ('POP3 SSL connection %s established'
                                % self.conn)
@@ -542,7 +551,6 @@ class IMAPSSLinitMixIn(object):
         (keyfile, certfile) = check_ssl_key_and_cert(self.conf)
         ca_certs = check_ca_certs(self.conf)
         ssl_version = check_ssl_version(self.conf)
-        ssl_fingerprints = check_ssl_fingerprints(self.conf)
         ssl_ciphers = check_ssl_ciphers(self.conf)
         using_extended_certs_interface = False
         try:
@@ -590,36 +598,7 @@ class IMAPSSLinitMixIn(object):
                 )
                 self.conn = imaplib.IMAP4_SSL(self.conf['server'],
                                               self.conf['port'])
-            sock = self.conn.sock
-            self.setup_received(sock)
-            peercert = sock.getpeercert(True)
-            ssl_cipher = sock.cipher()
-            if ssl_cipher:
-                ssl_cipher = '%s:%s:%s' % ssl_cipher
-            if not peercert:
-                actual_hash = None
-            else:
-                actual_hash = hashlib.sha256(peercert).hexdigest().lower()
-
-            # Ensure cert is for server we're connecting to
-            if ssl and self.conf['ca_certs']:
-                ssl_match_hostname(
-                    self.conn.sock.getpeercert(),
-                    self.conf.get('ssl_cert_hostname', None)
-                        or self.conf['server']
-                )
-
-            if ssl_fingerprints:
-                any_matches = False
-                for expected_hash in ssl_fingerprints:
-                    if expected_hash == actual_hash:
-                        any_matches = True
-                if not any_matches:
-                    raise getmailOperationError(
-                        'socket ssl_fingerprints mismatch (got %s)'
-                        % actual_hash
-                    )
-
+            ssl_cipher, actual_hash = certif(self)
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
@@ -777,7 +756,7 @@ class RetrieverSkeleton(ConfigurableBase):
 
     def _oldmail_filename(self, mailbox):
         assert (mailbox is None
-                or (isinstance(mailbox, (str, bytes)) and mailbox)), (
+                or (isinstance(mailbox, (unicode, bytes)))), (
             'bad mailbox %s (%s)' % (mailbox, type(mailbox))
         )
         filename = self.oldmail_filename
@@ -1295,7 +1274,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         return resplist
 
-    def _parse_imapuidcmdresponse(self, cmd, *args, encoding=None):
+    def _parse_imapuidcmdresponse(self, cmd, *args):
         self.log.trace()
         try:
             result, resplist = self.conn.uid(cmd, *args)

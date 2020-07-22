@@ -314,7 +314,10 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
 
     # Open file to write
     try:
-        f = safe_open(fname_tmp, 'bw', filemode)
+        if sys.version_info.major > 2:
+            f = safe_open(fname_tmp, 'bw', filemode)
+        else:
+            f = safe_open(fname_tmp, 'w', filemode)
         f.write(data)
         f.flush()
         os.fsync(f.fileno())
