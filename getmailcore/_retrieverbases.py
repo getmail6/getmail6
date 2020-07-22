@@ -764,6 +764,7 @@ class RetrieverSkeleton(ConfigurableBase):
             mailbox = re.sub(STRIP_CHAR_RE, '.', mailbox)
             # Use oldmail file per IMAP folder
             filename += '-' + mailbox
+            print("Roland: oldmail "+filename)
         # else:
             # mailbox is None, is POP, just use filename
         return filename
@@ -805,6 +806,7 @@ class RetrieverSkeleton(ConfigurableBase):
                     fields = msgid.split('/')
                     msgid = '/'.join([fields[0], fields[2]])
                 self.oldmail[msgid] = int(timestamp)
+                print("Roland: oldmail msgid "+msgid)
             except ValueError:
                 # malformed
                 self.log.info(
@@ -961,11 +963,11 @@ class POP3RetrieverBase(RetrieverSkeleton):
                            % (response, octets) + os.linesep)
             for (i, line) in enumerate(msglist):
                 try:
-                    (msgnum, msgid) = line.split(None, 1)
+                    (msgnum, msgid) = tostr(line).split(None, 1)
                     # Don't allow / in UIDs we store, as we look for that to
                     # detect old-style oldmail files.  Shouldn't occur in POP3
                     # anyway.
-                    msgid = msgid.replace(b'/', b'-')
+                    msgid = msgid.replace('/', '-')
                 except ValueError:
                     # Line didn't contain two tokens.  Server is broken.
                     raise getmailOperationError(
@@ -998,8 +1000,9 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
             (response, msglist, octets) = self.conn.list()
             for line in msglist:
-                msgnum = int(line.split()[0])
-                msgsize = int(line.split()[1])
+                tostrline = tostr(line)
+                msgnum = int(tostrline.split()[0])
+                msgsize = int(tostrline.split()[1])
                 msgid = self.msgid_by_msgnum.get(msgnum, None)
                 # If no msgid found, it's a message that wasn't in the UIDL
                 # response above.  Ignore it and we'll get it next time.
@@ -1380,7 +1383,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.mailbox_selected = mailbox
             # use *last* EXISTS returned
             count = int(count[-1])
-            uidvalidity = self.conn.response('UIDVALIDITY')[1][0]
+            uidvalidity = tostr(self.conn.response('UIDVALIDITY')[1][0])
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except (IndexError, ValueError) as o:
@@ -1420,6 +1423,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     self._mboxuidorder.append(msgid)
                     self.msgnum_by_msgid[msgid] = None
                     self.msgsizes[msgid] = int(r['rfc822.size'])
+                    print("Roland: newmail msgid "+msgid)
 
             # Remove messages from state file that are no longer in mailbox,
             # but only if the timestamp for them are old (30 days for now).
@@ -1454,7 +1458,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 )
             self.log.debug('deleting message "%s"' % uid + os.linesep)
             response = self._parse_imapuidcmdresponse(
-                'STORE', uid, 'FLAGS', '(\Deleted \Seen)'
+                'STORE', uid, 'FLAGS', r'(\Deleted \Seen)'
             )
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
