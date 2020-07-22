@@ -764,7 +764,6 @@ class RetrieverSkeleton(ConfigurableBase):
             mailbox = re.sub(STRIP_CHAR_RE, '.', mailbox)
             # Use oldmail file per IMAP folder
             filename += '-' + mailbox
-            print("Roland: oldmail "+filename)
         # else:
             # mailbox is None, is POP, just use filename
         return filename
@@ -806,7 +805,6 @@ class RetrieverSkeleton(ConfigurableBase):
                     fields = msgid.split('/')
                     msgid = '/'.join([fields[0], fields[2]])
                 self.oldmail[msgid] = int(timestamp)
-                print("Roland: oldmail msgid "+msgid)
             except ValueError:
                 # malformed
                 self.log.info(
@@ -1423,7 +1421,6 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     self._mboxuidorder.append(msgid)
                     self.msgnum_by_msgid[msgid] = None
                     self.msgsizes[msgid] = int(r['rfc822.size'])
-                    print("Roland: newmail msgid "+msgid)
 
             # Remove messages from state file that are no longer in mailbox,
             # but only if the timestamp for them are old (30 days for now).
