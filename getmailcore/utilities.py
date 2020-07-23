@@ -413,14 +413,6 @@ def change_usergroup(logger=None, user=None, group=None):
 
     change_uidgid(logger, uid, gid)
 
-#######################################
-def some_security(allow_root_commands):
-    if ((os.geteuid() == 0 or os.getegid() == 0)
-            and not allow_root_commands):
-        raise getmailConfigurationError(
-            'refuse to invoke external commands as root '
-            'or GID 0 by default'
-        )
 
 #######################################
 def change_uidgid(logger=None, uid=None, gid=None):

@@ -39,8 +39,6 @@ message_attributes = (
     'recipient'
 )
 
-RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)
-
 _NL = os.linesep.encode()
 
 #######################################
@@ -58,7 +56,7 @@ def corrupt_message(why, fromlines=None, fromstring=None):
         b'A badly-corrupt message was retrieved and could not be parsed',
         b'for the following reason:',
         b'',
-        b'    %s' % why.encode(),
+        b'    %s' % why,
         b'',
         b'Below the following line is the original message contents.',
         b'',
@@ -188,6 +186,7 @@ class Message(object):
                 strmsg = self.__msg.as_string()
             if mangle_from:
                 # do mboxrd-style "From " line quoting (add one '>')
+                RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)
                 strmsg = RE_FROMLINE.sub(b'>\\1', strmsg)
             return ((fromline + rpline + dtline + receivedline).encode()
                     + _NL.join(strmsg.splitlines() + [b'']))

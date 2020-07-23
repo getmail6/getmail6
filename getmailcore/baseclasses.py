@@ -28,61 +28,33 @@ import types
 import codecs
 from collections import namedtuple
 import tempfile
-import subprocess
 import errno
+
 from argparse import Namespace
+from subprocess import Popen, PIPE
 
 from getmailcore.exceptions import *
 import getmailcore.logging
-from getmailcore.utilities import eval_bool, expand_user_vars
+from getmailcore.utilities import *
 
 if sys.version_info.major > 2:
     unicode = str
     TemporaryFile23 = lambda: tempfile.TemporaryFile('bw+')
 else:
+    from io import StringIO
     TemporaryFile23 = lambda: tempfile.TemporaryFile('w+')
 
-def run_command(command, args):
-    # Simple subprocess wrapper for running a command and fetching its exit
-    # status and output/stderr.
-    if args is None:
-        args = []
-    if type(args) == tuple:
-        args = list(args)
-
-    # Programmer sanity checks
-    assert type(command) in (bytes, unicode), (
-        'command is %s (%s)' % (command, type(command))
-    )
-    assert type(args) == list, (
-        'args is %s (%s)' % (args, type(args))
-    )
-    for arg in args:
-        assert type(arg) in (bytes, unicode), 'arg is %s (%s)' % (arg, type(arg))
-
-    stdout = TemporaryFile23()
-    stderr = TemporaryFile23()
-
-    cmd = [command] + args
-
+def run_command(args, feed=None):
     try:
-        p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+        p = Popen(args,
+              stdin=feed and PIPE, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate(feed)
+        rc = p.poll()
     except OSError as o:
         if o.errno == errno.ENOENT:
-            # no such file, command not found
             raise getmailConfigurationError('Program "%s" not found' % command)
-        #else:
         raise
-    rc = p.wait()
-    if rc:
-        # program exited nonzero
-        raise getmailOperationError(
-            'External password program error (exited %d)' % rc
-        )
-    stderr.seek(0)
-    err = stderr.read().strip()
-    stdout.seek(0)
-    return err, stdout
+    return rc, stdout, stderr
 
 #
 # Base classes
@@ -441,10 +413,9 @@ class ForkingBase(object):
             raise getmailOperationError('child pid %d failed to exit'
                                         % self.__child_pid)
         exitcode = os.WEXITSTATUS(self.__child_status)
-
         return exitcode
 
-    def pipe(self, msg, unixfrom=False):
+    def _pipemail(self, msg, delivered_to, received, unixfrom, stdout, stderr):
         # Write out message
         msgfile = TemporaryFile23()
         msgfile.write(msg.flatten(delivered_to, received, include_from=unixfrom))
@@ -458,11 +429,10 @@ class ForkingBase(object):
         os.dup2(stdout.fileno(), 1)
         os.dup2(stderr.fileno(), 2)
 
-    def execl(self, msg, *args):
-        change_usergroup(self.log, self.conf['user'], self.conf['group'])
-        some_security(self.conf['allow_root_commands'])
-        self.pipe(msg,self.conf['unixfrom'])
-        self.log.debug(b'about to execl() with args %s\n' % args)
+    def child_replace_me(self, msg, delivered_to, received, unixfrom,
+                         stdout, stderr, args, nolog=False):
+        self._pipemail(msg, delivered_to, received, unixfrom, stdout, stderr)
+        nolog or self.log.debug('about to execl() with args %s\n' % str(args))
         os.execl(*args)
 
     def forkchild(self, childfun, with_out=True):
@@ -471,15 +441,16 @@ class ForkingBase(object):
         child.stdout = TemporaryFile23()
         child.stderr = TemporaryFile23()
         child.childpid = os.fork()
-        if not child.childpid:
+        if child.childpid == 0:
             childfun(child.stdout, child.stderr)
-        self.log.debug('spawned child %d\n' % child.childpid)
-        child.exitcode = self._wait_for_child(child.childpid)
-        child.stderr.seek(0)
-        child.err = child.stderr.read().strip()
-        child.stdout.seek(0)
-        if with_out:
-            child.out = child.stdout.read().strip()
-        return child
+        else:
+            self.log.debug('spawned child %d\n' % child.childpid)
+            child.exitcode = self._wait_for_child(child.childpid)
+            child.stderr.seek(0)
+            child.err = child.stderr.read().strip()
+            child.stdout.seek(0)
+            if with_out:
+                child.out = child.stdout.read().strip()
+            return child
 
 

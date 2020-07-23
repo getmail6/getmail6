@@ -913,14 +913,23 @@ class RetrieverSkeleton(ConfigurableBase):
         self._delmsgbyid(msgid)
         self.deleted[msgid] = True
 
-    def run_password_command(self, command, args):
-        err, stdout = run_command(command,args)
-        if err:
+    def run_password_command(self):
+        command = self.conf['password_command'][0]
+        args = self.conf['password_command'][1:]
+        rc, stdout, stderr = run_command([command]+list(args))
+        if rc:
+            raise getmailOperationError(
+                'External program error (%s exited with %d)' % (args[0],rc)
+            )
+        if stderr:
             self.log.warning(
                 'External password program "%s" wrote to stderr: %s'
-                % (command, tostr(err))
+                % (args[0], tostr(stderr))
             )
-        return stdout.read().strip()
+        password = tostr(stdout)
+        self.conf['password'] = password
+        return password
+
 
 
 
@@ -1067,9 +1076,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         if self.conf.get('password', None) is None:
             if self.conf.get('password_command', None):
                 # Retrieve from an arbitrary external command
-                command = self.conf['password_command'][0]
-                args = self.conf['password_command'][1:]
-                self.conf['password'] = tostr(self.run_password_command(command, args))
+                self.run_password_command()
             else:
                 self.conf['password'] = get_password(
                     self, self.conf['username'], self.conf['server'],
@@ -1584,9 +1591,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 and not (HAVE_KERBEROS_GSS and self.conf['use_kerberos'])):
             if self.conf['password_command']:
                 # Retrieve from an arbitrary external command
-                command = self.conf['password_command'][0]
-                args = self.conf['password_command'][1:]
-                self.conf['password'] = tostr(self.run_password_command(command, args))
+                self.run_password_command()
             else:
                 self.conf['password'] = get_password(
                     self, self.conf['username'], self.conf['server'],

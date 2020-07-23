@@ -740,9 +740,7 @@ def main():
                         password = retriever.conf['password']
                     elif retriever.conf.get('password_command', None):
                         # Retrieve from an arbitrary external command
-                        command = retriever.conf['password_command'][0]
-                        args = retriever.conf['password_command'][1:]
-                        password = retriever.run_password_command(command, args)
+                        password = retriever.run_password_command()
                     else:
                         password = get_password(
                             str(retriever), retriever.conf['username'],

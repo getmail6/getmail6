@@ -107,6 +107,14 @@ class DeliverySkeleton(ConfigurableBase):
         msg.received_by = self.received_by
         return self._deliver_message(msg, delivered_to, received)
 
+    def some_security(self):
+        if ((os.geteuid() == 0 or os.getegid() == 0)
+                and not self.conf['allow_root_commands']):
+            raise getmailConfigurationError(
+                'refuse to invoke external commands as root '
+                'or GID 0 by default'
+            )
+
 #######################################
 class Maildir(DeliverySkeleton, ForkingBase):
     '''Maildir destination.
@@ -460,9 +468,14 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
                 msg.remove_header('delivered-to')
                 # Also don't insert a Delivered-To: header.
                 delivered_to = None
-            self.execl(msg, *args)
+
+            change_usergroup(self.log, self.conf['user'], self.conf['group'])
+            self.some_security()
+            self.child_replace_me(msg,
+                            delivered_to, received, False,
+                            stdout, stderr, args)
         except Exception as o:
-            exit_width(stderr,'exec of qmail-local failed (%s)' % o)
+            exit_with(stderr,'exec of qmail-local failed (%s)' % o)
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
@@ -614,9 +627,13 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                 for (key, value) in msginfo.items():
                     arg = arg.replace('%%(%s)' % key, value)
                 args.append(arg)
-            self.execl(msg, *args)
+            change_usergroup(self.log, self.conf['user'], self.conf['group'])
+            self.some_security()
+            self.child_replace_me(msg,
+                            delivered_to, received, self.conf['unixfrom'],
+                            stdout, stderr, args)
         except Exception as o:
-            exit_width(stderr, 'exec of command %s failed (%s)'
+            exit_with(stderr, 'exec of command %s failed (%s)'
                          % (self.conf['command'], o))
 
     def _deliver_message(self, msg, delivered_to, received):

@@ -20,6 +20,7 @@ from getmailcore.message import *
 from getmailcore.utilities import *
 from getmailcore.baseclasses import *
 
+
 #######################################
 class FilterSkeleton(ConfigurableBase):
     '''Base class for implementing message-filtering classes.
@@ -104,6 +105,13 @@ class FilterSkeleton(ConfigurableBase):
         newmsg.copyattrs(msg)
 
         return newmsg
+
+    def some_security(self):
+        if (os.geteuid() == 0 and not self.conf['allow_root_commands']
+                and self.conf['user'] == None):
+            raise getmailConfigurationError(
+                'refuse to invoke external commands as root by default'
+            )
 
 #######################################
 class Filter_external(FilterSkeleton, ForkingBase):
@@ -216,17 +224,18 @@ class Filter_external(FilterSkeleton, ForkingBase):
 
     def _filter_command(self, msg, msginfo, stdout, stderr):
         try:
-            pipe(msg,self.conf['unixfrom'])
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)
                 for (key, value) in msginfo.items():
                     arg = arg.replace('%%(%s)' % key, value)
                 args.append(arg)
-            # Can't log this; if --trace is on, it will be written to the
-            # message passed to the filter.
-            #self.log.debug('about to execl() with args %s\n' % str(args))
-            os.execl(*args)
+            change_usergroup(None, self.conf['user'], self.conf['group'])
+            self.child_replace_me(msg, False, False, self.conf['unixfrom'],
+                                  stdout, stderr, args,
+                nolog=True) # ... else if --trace is on,
+                            # it will be written to the
+                            # message passed to the filter.
         except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
@@ -234,7 +243,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
                               % (self.conf['command'], o))
             os._exit(127)
 
-    def _filter_message(self, msg):
+    def _filter_message_common(self, msg):
         self.log.trace()
         msginfo = {}
         msginfo['sender'] = msg.sender
@@ -244,19 +253,16 @@ class Filter_external(FilterSkeleton, ForkingBase):
             msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
         self.log.debug('msginfo "%s"\n' % msginfo)
 
-        # At least some security...
-        if (os.geteuid() == 0 and not self.conf['allow_root_commands']
-                and self.conf['user'] == None):
-            raise getmailConfigurationError(
-                'refuse to invoke external commands as root by default'
-            )
+        self.some_security()
 
-        child = self.forkchild(
+        return self.forkchild(
             lambda o, e: self._filter_command(msg, msginfo, o, e)
             , with_out=False)
 
-        self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
-                                                      child.childpid, child.exitcode))
+    def _filter_message(self, msg):
+        child = self._filter_message_common(msg)
+        self.log.debug('command %s %d exited %d\n' % (
+            self.conf['command'], child.childpid, child.exitcode))
         newmsg = Message(fromfile=child.stdout)
         return (child.exitcode, newmsg, child.err)
 
@@ -277,32 +283,13 @@ class Filter_classifier(Filter_external):
         self.log.info('Filter_classifier(%s)\n' % self._confstring())
 
     def _filter_message(self, msg):
-        self.log.trace()
-        msginfo = {}
-        msginfo['sender'] = msg.sender
-        if msg.recipient != None:
-            msginfo['recipient'] = msg.recipient
-            msginfo['domain'] = msg.recipient.lower().split('@')[-1]
-            msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
-        self.log.debug('msginfo "%s"\n' % msginfo)
-
-        # At least some security...
-        if (os.geteuid() == 0 and not self.conf['allow_root_commands']
-                and self.conf['user'] == None):
-            raise getmailConfigurationError(
-                'refuse to invoke external commands as root by default'
-            )
-
-        child = self.forkchild(
-            lambda o,e: self._filter_command(msg, msginfo, o, e)
-            , with_out=False)
-
-        self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
-                          child.childpid, child.exitcode))
+        child = self._filter_message_common(msg)
+        self.log.debug('command %s %d exited %d\n' % (
+            self.conf['command'], child.childpid, child.exitcode))
         for line in [line.strip() for line in child.stdout.readlines()
                      if line.strip()]:
             msg.add_header('X-getmail-filter-classifier', line)
-        return (exitcode, msg, child.err)
+        return (child.exitcode, msg, child.err)
 
 #######################################
 class Filter_TMDA(FilterSkeleton, ForkingBase):
@@ -363,8 +350,6 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
 
     def _filter_command(self, msg, stdout, stderr):
         try:
-            change_usergroup(None, self.conf['user'], self.conf['group'])
-            self.pipe(msg, unixfrom=True)
             args = [self.conf['path'], self.conf['path']]
             # Set environment for TMDA
             os.environ['SENDER'] = msg.sender
@@ -376,8 +361,9 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
             )
             self.log.trace('SENDER="%(SENDER)s",RECIPIENT="%(RECIPIENT)s"'
                            ',EXT="%(EXT)s"' % os.environ)
-            self.log.debug('about to execl() with args %s\n' % str(args))
-            os.execl(*args)
+            change_usergroup(None, self.conf['user'], self.conf['group'])
+            self.child_replace_me(msg, True, True, True,
+                                  stdout, stderr, args)
         except Exception as o:
             # Child process; any error must cause us to exit nonzero for parent
             # to detect it
@@ -392,12 +378,12 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
                 'TMDA requires the message envelope and therefore a multidrop '
                 'retriever'
             )
-        some_security(self.conf['allow_root_commands'])
+        self.some_security()
 
         child = self.forkchild(
             lambda o,e: self._filter_command(msg, o, e)
             , with_out=False)
 
-        self.log.debug('command %s %d exited %d\n' % (self.conf['command'],
-                       child.childpid, child.exitcode))
-        return (exitcode, msg, child.err)
+        self.log.debug('command %s %d exited %d\n' % (
+            self.conf['command'], child.childpid, child.exitcode))
+        return (child.exitcode, msg, child.err)
