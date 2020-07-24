@@ -290,49 +290,47 @@ POP3_SSL_PORT = 995
 # "line" exceeds 2048 bytes is absolutely stupid.
 poplib._MAXLINE = 1 << 20   # 1MB; decrease this if you're running on a VIC-20
 
-
 #######################################
-def certif(self):
-    if sys.version_info.major == 2:
-        sock = self.conn.sslobj
-    else:
-        sock = self.conn.sock
-    self.setup_received(sock)
-    peercert = sock.getpeercert(True)
-    ssl_cipher = sock.cipher()
-    if ssl_cipher:
-        ssl_cipher = '%s:%s:%s' % ssl_cipher
-    if not peercert:
-        actual_hash = None
-    else:
-        actual_hash = hashlib.sha256(peercert).hexdigest().lower()
-
-    # Ensure cert is for server we're connecting to
-    if ssl and self.conf['ca_certs']:
-        ssl_match_hostname(
-            sock.getpeercert(),
-            self.conf.get('ssl_cert_hostname', None)
-                or self.conf['server']
-        )
-
-    ssl_fingerprints = check_ssl_fingerprints(self.conf)
-    if ssl_fingerprints:
-        any_matches = False
-        for expected_hash in ssl_fingerprints:
-            if expected_hash == actual_hash:
-                any_matches = True
-        if not any_matches:
-            raise getmailOperationError(
-                'socket ssl_fingerprints mismatch (got %s)'
-                % actual_hash
+class CertMixIn(object):
+    def ssl_cipher_hash(self):
+        if sys.version_info.major == 2:
+            sslobj = self.conn.sslobj
+        else:
+            sslobj = self.conn.sock
+        self.setup_received(sslobj)
+        peercert = sslobj.getpeercert(True)
+        ssl_cipher = sslobj.cipher()
+        if ssl_cipher:
+            ssl_cipher = '%s:%s:%s' % ssl_cipher
+        if not peercert:
+            actual_hash = None
+        else:
+            actual_hash = hashlib.sha256(peercert).hexdigest().lower()
+        # Ensure cert is for server we're connecting to
+        if ssl and self.conf['ca_certs']:
+            ssl_match_hostname(
+                sslobj.getpeercert(),
+                self.conf.get('ssl_cert_hostname', None)
+                    or self.conf['server']
             )
-
-    return ssl_cipher, actual_hash
+        ssl_fingerprints = check_ssl_fingerprints(self.conf)
+        if ssl_fingerprints:
+            any_matches = False
+            for expected_hash in ssl_fingerprints:
+                if expected_hash == actual_hash:
+                    any_matches = True
+            if not any_matches:
+                raise getmailOperationError(
+                    'socket ssl_fingerprints mismatch (got %s)'
+                    % actual_hash
+                )
+        return ssl_cipher, actual_hash
 
 
 #
 # Mix-in classes
 #
+
 
 #######################################
 class POP3initMixIn(object):
@@ -401,15 +399,17 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
         if self.ssl_ciphers:
             extra_args['ciphers'] = self.ssl_ciphers
 
-        self.sock = ssl and ssl.wrap_socket(self.sock, self.keyfile,
-                                      self.certfile, **extra_args)
+        if ssl:
+            self.sock = ssl.wrap_socket(self.sock, self.keyfile,
+                                        self.certfile, **extra_args)
+
         self.file = self.sock.makefile('rb')
         self._debugging = 0
         self.welcome = self._getresp()
 
 
 #######################################
-class POP3SSLinitMixIn(object):
+class POP3SSLinitMixIn(CertMixIn):
     '''Mix-In class to do POP3 over SSL initialization with Python 2.4's
     poplib.POP3_SSL class.
     '''
@@ -465,7 +465,7 @@ class POP3SSLinitMixIn(object):
                                + os.linesep)
                 self.conn = poplib.POP3_SSL(self.conf['server'],
                                             self.conf['port'])
-            ssl_cipher, actual_hash = certif(self)
+            ssl_cipher, actual_hash = self.ssl_cipher_hash()
         except poplib.error_proto as o:
             raise getmailOperationError('POP error (%s)' % o)
         except socket.timeout:
@@ -536,13 +536,15 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
        if self.ssl_ciphers:
            extra_args['ciphers'] = self.ssl_ciphers
 
-       self.sock = ssl and ssl.wrap_socket(self.sock, self.keyfile, self.certfile,
+       if ssl:
+           self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile,
                                      **extra_args)
+
        self.file = self.sock.makefile('rb')
 
 
 #######################################
-class IMAPSSLinitMixIn(object):
+class IMAPSSLinitMixIn(CertMixIn):
     '''Mix-In class to do IMAP over SSL initialization.
     '''
     SSL = True
@@ -598,7 +600,7 @@ class IMAPSSLinitMixIn(object):
                 )
                 self.conn = imaplib.IMAP4_SSL(self.conf['server'],
                                               self.conf['port'])
-            ssl_cipher, actual_hash = certif(self)
+            ssl_cipher, actual_hash = self.ssl_cipher_hash()
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except socket.timeout:
@@ -1622,7 +1624,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             except imaplib.IMAP4.abort as o:
                 raise getmailLoginRefusedError(o)
             except imaplib.IMAP4.error as o:
-                if str(o).startswith('[UNAVAILABLE]'):
+                if '[UNAVAILABLE]' in str(o):
                     raise getmailLoginRefusedError(o)
                 else:
                     raise getmailCredentialError(o)
