@@ -31,7 +31,7 @@ import tempfile
 import errno
 
 from argparse import Namespace
-from subprocess import Popen, PIPE
+import subprocess
 
 from getmailcore.exceptions import *
 import getmailcore.logging
@@ -44,17 +44,46 @@ else:
     from io import StringIO
     TemporaryFile23 = lambda: tempfile.TemporaryFile('w+')
 
-def run_command(args, feed=None):
+#######################################
+def run_command(command, args):
+    # Simple subprocess wrapper for running a command and fetching its exit 
+    # status and output/stderr.
+    if args is None:
+        args = []
+    if type(args) == tuple:
+        args = list(args)
+
+    # Programmer sanity checks
+    assert type(command) in (bytes, unicode), (
+        'command is %s (%s)' % (command, type(command))
+    )
+    assert type(args) == list, (
+        'args is %s (%s)' % (args, type(args))
+    )
+    for arg in args:
+        assert type(arg) in (bytes, unicode), 'arg is %s (%s)' % (arg, type(arg))
+
+    stdout = tempfile.TemporaryFile()
+    stderr = tempfile.TemporaryFile()
+
+    cmd = [command] + args
+
     try:
-        p = Popen(args,
-              stdin=feed and PIPE, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = p.communicate(feed)
-        rc = p.poll()
+        p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
     except OSError as o:
         if o.errno == errno.ENOENT:
+            # no such file, command not found
             raise getmailConfigurationError('Program "%s" not found' % command)
+        #else:
         raise
-    return rc, stdout, stderr
+
+    rc = p.wait()
+    stdout.seek(0)
+    stderr.seek(0)
+    if sys.version_info.major == 2:
+        return (rc, stdout.read().strip(), stderr.read().strip())
+    else:
+        return (rc, stdout.read().decode().strip(), stderr.read().decode().strip())
 
 #
 # Base classes

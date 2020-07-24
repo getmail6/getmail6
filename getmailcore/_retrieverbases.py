@@ -918,7 +918,7 @@ class RetrieverSkeleton(ConfigurableBase):
     def run_password_command(self):
         command = self.conf['password_command'][0]
         args = self.conf['password_command'][1:]
-        rc, stdout, stderr = run_command([command]+list(args))
+        rc, stdout, stderr = run_command(command,args)
         if rc:
             raise getmailOperationError(
                 'External program error (%s exited with %d)' % (args[0],rc)
@@ -926,9 +926,9 @@ class RetrieverSkeleton(ConfigurableBase):
         if stderr:
             self.log.warning(
                 'External password program "%s" wrote to stderr: %s'
-                % (args[0], tostr(stderr))
+                % (args[0], stderr)
             )
-        password = tostr(stdout)
+        password = stdout
         self.conf['password'] = password
         return password
 
