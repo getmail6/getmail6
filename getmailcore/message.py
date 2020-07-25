@@ -175,21 +175,28 @@ class Message(object):
                 rcvd += ' for <%s>' % self.recipient
             rcvd += '; ' + time.strftime('%d %b %Y %H:%M:%S -0000',
                                             time.gmtime())
-            receivedline = format_header('Received', rcvd)
+            rcvline = format_header('Received', rcvd)
         else:
-            receivedline = ''
+            rcvline = ''
+        del self.__msg['Content-Length'] # rather than CL
         # From_ handled above, always tell the generator not to include it
         try:
             try:
-                strmsg = self.__msg.as_bytes()
+                strmsg = self.__msg.as_bytes(
+                    policy=self.__msg.policy.clone(linesep=os.linesep))
             except AttributeError:
                 strmsg = self.__msg.as_string()
+                strmsg = _NL.join(strmsg.splitlines() + [b''])
             if mangle_from:
                 # do mboxrd-style "From " line quoting (add one '>')
                 RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)
                 strmsg = RE_FROMLINE.sub(b'>\\1', strmsg)
-            return ((fromline + rpline + dtline + receivedline).encode()
-                    + _NL.join(strmsg.splitlines() + [b'']))
+            ##CL:
+            #if 'Content-Length' in self.__msg:
+            #    RE_CL = re.compile(b'^Content-Length:\s*(\d+)', re.MULTILINE)
+            #    for i in range(2):
+            #        strmsg = RE_CL.sub(b'Content-Length: %d'%len(strmsg),strmsg)
+            return ((fromline+rpline+dtline+rcvline).encode()+strmsg)
         except TypeError as o:
             # email module chokes on some badly-misformatted messages, even
             # late during flatten().  Hope this is fixed in Python 2.4.
