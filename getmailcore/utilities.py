@@ -49,6 +49,7 @@ if sys.version_info.major > 2:
     unicode = str
     tostr = lambda lts: lts.decode()
 else:
+    unicode = unicode
     tostr = lambda lts: lts
 
 try:
