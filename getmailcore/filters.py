@@ -245,13 +245,8 @@ class Filter_external(FilterSkeleton, ForkingBase):
 
     def _filter_message_common(self, msg):
         self.log.trace()
-        msginfo = {}
-        msginfo['sender'] = msg.sender.strip()
-        if msg.recipient != None:
-            msginfo['recipient'] = msg.recipient
-            msginfo['domain'] = msg.recipient.lower().split('@')[-1]
-            msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
-        self.log.debug('msginfo "%s"\n' % msginfo)
+
+        msginfo = self.get_msginfo(msg)
 
         self.some_security()
 
@@ -353,9 +348,10 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
             args = [self.conf['path'], self.conf['path']]
             # Set environment for TMDA
             os.environ['SENDER'] = msg.sender.strip()
-            os.environ['RECIPIENT'] = msg.recipient
+            rcpnt = msg.recipient.strip()
+            os.environ['RECIPIENT'] = rcpnt
             os.environ['EXT'] = self.conf['conf-break'].join(
-                '@'.join(msg.recipient.split('@')[:-1]).split(
+                '@'.join(rcpnt.split('@')[:-1]).split(
                     self.conf['conf-break']
                 )[1:]
             )

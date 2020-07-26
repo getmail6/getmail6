@@ -480,4 +480,14 @@ class ForkingBase(object):
                 child.out = child.stdout.read().strip()
             return child
 
+    def get_msginfo(self, msg):
+        msginfo = {}
+        msginfo['sender'] = msg.sender.strip()
+        if msg.recipient != None:
+            rcpnt = msg.recipient.strip()
+            msginfo['recipient'] = rcpnt
+            msginfo['domain'] = rcpnt.lower().split('@')[-1]
+            msginfo['local'] = '@'.join(rcpnt.split('@')[:-1])
+        self.log.debug('msginfo "%s"\n' % msginfo)
+        return msginfo
 

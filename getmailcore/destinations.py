@@ -486,7 +486,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
             )
         msginfo = {
             'sender' : msg.sender.strip(),
-            'local' : '@'.join(msg.recipient.lower().split('@')[:-1])
+            'local' : '@'.join(msg.recipient.strip().lower().split('@')[:-1])
         }
 
         self.log.debug('recipient: extracted local-part "%s"\n'
@@ -639,13 +639,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        msginfo = {}
-        msginfo['sender'] = msg.sender.strip()
-        if msg.recipient != None:
-            msginfo['recipient'] = msg.recipient
-            msginfo['domain'] = msg.recipient.lower().split('@')[-1]
-            msginfo['local'] = '@'.join(msg.recipient.split('@')[:-1])
-        self.log.debug('msginfo "%s"\n' % msginfo)
+        msginfo = self.get_msginfo(msg)
 
         child = self.forkchild(
             lambda o,e: self._deliver_command(
