@@ -188,6 +188,7 @@ class Message(object):
                 # do mboxrd-style "From " line quoting (add one '>')
                 RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)
                 strmsg = RE_FROMLINE.sub(b'>\\1', strmsg)
+
             return ((fromline+rpline+dtline+rcvline).encode()+strmsg)
         except TypeError as o:
             # email module chokes on some badly-misformatted messages, even

@@ -25,6 +25,8 @@ __all__ = [
     'uid_of_user',
     'updatefile',
     'get_password',
+    'tostr',
+    'unicode',
 ]
 
 

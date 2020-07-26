@@ -485,7 +485,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
                 'preserves the message envelope'
             )
         msginfo = {
-            'sender' : msg.sender,
+            'sender' : msg.sender.strip(),
             'local' : '@'.join(msg.recipient.lower().split('@')[:-1])
         }
 
@@ -627,6 +627,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                 for (key, value) in msginfo.items():
                     arg = arg.replace('%%(%s)' % key, value)
                 args.append(arg)
+
             change_usergroup(self.log, self.conf['user'], self.conf['group'])
             self.some_security()
             self.child_replace_me(msg,
@@ -639,7 +640,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
         msginfo = {}
-        msginfo['sender'] = msg.sender
+        msginfo['sender'] = msg.sender.strip()
         if msg.recipient != None:
             msginfo['recipient'] = msg.recipient
             msginfo['domain'] = msg.recipient.lower().split('@')[-1]
