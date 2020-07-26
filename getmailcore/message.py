@@ -178,7 +178,6 @@ class Message(object):
             rcvline = format_header('Received', rcvd)
         else:
             rcvline = ''
-        del self.__msg['Content-Length'] # rather than CL
         # From_ handled above, always tell the generator not to include it
         try:
             try:
@@ -191,11 +190,6 @@ class Message(object):
                 # do mboxrd-style "From " line quoting (add one '>')
                 RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)
                 strmsg = RE_FROMLINE.sub(b'>\\1', strmsg)
-            ##CL:
-            #if 'Content-Length' in self.__msg:
-            #    RE_CL = re.compile(b'^Content-Length:\s*(\d+)', re.MULTILINE)
-            #    for i in range(2):
-            #        strmsg = RE_CL.sub(b'Content-Length: %d'%len(strmsg),strmsg)
             return ((fromline+rpline+dtline+rcvline).encode()+strmsg)
         except TypeError as o:
             # email module chokes on some badly-misformatted messages, even
