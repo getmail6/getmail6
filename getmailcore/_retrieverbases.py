@@ -66,11 +66,6 @@ except:
   SSLError = Exception
 import hashlib
 
-if sys.version_info.major == 2:
-    tostr = lambda lts: lts
-else:
-    unicode = str
-    tostr = lambda lts: lts.decode()
 tocode = lambda x: isinstance(x,bytes) and x or x.encode()
 
 # If we have an ssl module:

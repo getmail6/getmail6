@@ -17,14 +17,12 @@ try: #py2
     import email.Parser as Parser
     from email.Generator import Generator
     from email.Header import Header
-    from io import BytesIO as StringIO
 except ImportError:
     import email.errors as Errors
     import email.utils as Utils
     import email.parser as Parser
     from email.generator import Generator
     from email.header import Header
-    from io import StringIO
 
 from getmailcore.exceptions import *
 from getmailcore.utilities import mbox_from_escape, format_header, \

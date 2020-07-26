@@ -38,10 +38,8 @@ import getmailcore.logging
 from getmailcore.utilities import *
 
 if sys.version_info.major > 2:
-    unicode = str
     TemporaryFile23 = lambda: tempfile.TemporaryFile('bw+')
 else:
-    from io import StringIO
     TemporaryFile23 = lambda: tempfile.TemporaryFile('w+')
 
 #######################################
@@ -476,7 +474,7 @@ class ForkingBase(object):
             self.log.debug('spawned child %d\n' % child.childpid)
             child.exitcode = self._wait_for_child(child.childpid)
             child.stderr.seek(0)
-            child.err = child.stderr.read().strip()
+            child.err = child.stderr.read().strip().decode()
             child.stdout.seek(0)
             if with_out:
                 child.out = child.stdout.read().strip()

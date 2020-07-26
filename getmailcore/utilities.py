@@ -43,6 +43,12 @@ import getpass
 import subprocess
 import sys
 
+if sys.version_info.major > 2:
+    unicode = str
+    tostr = lambda lts: lts.decode()
+else:
+    tostr = lambda lts: lts
+
 try:
     import ssl
 except ImportError:
