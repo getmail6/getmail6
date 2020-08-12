@@ -9,7 +9,7 @@ getmail is licensed for use under the GNU General Public License version 2
 
 getmail version 6 has adaptations to work with Python 3.
 These changes might still contain some bugs.
-Please report them here at https://github.com/rpuntaie/getmail.
+Please report them here at https://github.com/getmail6/getmail6 .
 
 Python versions older than 2.7 will probably not work any more.
 Use getmail 5.14 with them.
