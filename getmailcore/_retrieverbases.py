@@ -1653,7 +1653,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 # No response, don't update the stored capabilities
                 self.log.warning('no post-login CAPABILITY response from server\n')
             else:
-                self.conn.capabilities = tuple(dat[-1].upper().split())
+                self.conn.capabilities = tuple(tostr(dat[-1]).upper().split())
 
             if 'IDLE' in self.conn.capabilities:
                 self.supports_idle = True
