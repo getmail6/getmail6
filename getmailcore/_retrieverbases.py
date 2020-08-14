@@ -1727,7 +1727,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         try:
             self.conn.untagged_responses = {}
-            self.conn.send('DONE\r\n')
+            self.conn.send(b'DONE\r\n')
             self.conn._command_complete('IDLE', tag)
         except imaplib.IMAP4.error as o:
             return False
