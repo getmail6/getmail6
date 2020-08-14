@@ -1,15 +1,13 @@
 Version 6.03
-
-    - TODO
+TODO
+    - fix #14: IDLE not working
 
 Version 6.02
 12 August 2020
-
     - try to do as little own decoding as possible
     - issue #8
 
 Version 6.01
-
     - fixes of reported issues on github up to #7
 
 Version 6.00
