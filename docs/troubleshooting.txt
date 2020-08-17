@@ -28,7 +28,7 @@
      * getmail troubleshooting (version 6)
      *    * Troubleshooting problems
           *    * Error messages
-               *    * ImportError: getmail version 6.02 requires Python
+               *    * ImportError: getmail version 6.xy requires Python
                       version 2.7.18 or later
                     * Configuration error: …
                     *    * Configuration error: missing required
@@ -97,7 +97,7 @@ Error messages
    getmail may output various diagnostic error messages. The common ones and
    their meanings are given below.
 
-  ImportError: getmail version 6.02 requires Python version 2.7.18 or later
+  ImportError: getmail version 6.xy requires Python version 2.7.18 or later
 
    You tried to run getmail with a version of Python prior to Python 2.7.18
    This is unsupported. If you cannot install a newer Python alongside your
