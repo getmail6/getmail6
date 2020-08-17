@@ -4,47 +4,39 @@
 <head>
     <meta http-equiv="content-type" content="application/xhtml+xml;charset=iso-8859-1" />
     <title>getmail frequently-asked questions (FAQs) (version 5)</title>
-    <meta name="author" content="Charles Cazabon" />
+    <meta name="author" content="Charles Cazabon and others" />
     <meta name="description" content="Frequently-asked questions about getmail version 5" />
-    <meta name="keywords" content="getmail FAQ, getmail 5 FAQ, getmail 4 FAQ, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
-    <link rel="Contents Up Index" title="Charles Cazabon's Software" href="../" />
+    <meta name="keywords" content="getmail FAQ, getmail 6 FAQ, getmail6 FAQ, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
     <style type="text/css" media="all">@import "getmaildocs.css";</style>
     <style type="text/css" media="all">@import "/style/styles.css";</style>
 </head>
 <body id="top">
     <div class="content">
 
-<!----><h1 id="title">getmail documentation</h1>
-<p class="introduction">
-    This is the documentation for getmail version 5.  Version 5 includes
-    numerous changes from version 3.x; if you are using getmail version 3,
-    please refer to the documentation included with that version of the
-    software.
-</p>
+<h1 id="title">getmail Frequently Asked Questions (FAQ)</h1>
 <p class="about">
-    getmail is Copyright &copy; 1998-2019 Charles Cazabon.
+    getmail is Copyright &copy; 1998-2019 by Charles Cazabon
+    &lt;charlesc-getmail @ pyropus.ca&gt;<br>
+	and &copy; 2020 by Roland Puntaier
+    &lt;roland.puntaier @ gmail.com&gt;
 </p>
 <p class="about">
     getmail is licensed under the
-    <a href="COPYING">GNU General Public License version 2</a>
-    (only). If you wish to obtain a license to distribute getmail under other
-    terms, please contact me directly.
+    <a href="COPYING">GNU General Public License version 2</a> (only).
 </p>
 
 <h1 id="toc">Table of Contents</h1>
 <ul>
-    <li><a href="documentation.html">getmail documentation (version 5)</a></li>
+    <li><a href="documentation.html">getmail documentation (version 6)</a></li>
     <li>
         <ul>
         <li><a href="documentation.html#title">getmail documentation</a></li>
         <li>
             <ul>
             <li><a href="documentation.html#features">Features</a></li>
-            <li><a href="documentation.html#v4differences">Differences from previous versions</a></li>
             <li><a href="documentation.html#requirements">Requirements</a></li>
             <li><a href="documentation.html#obtaining">Obtaining getmail</a></li>
             <li><a href="documentation.html#installing">Installing getmail</a></li>
-            <li><a href="documentation.html#mailing-lists">getmail mailing lists</a></li>
             </ul>
         </li>
         </ul>
@@ -68,7 +60,7 @@
         </li>
         </ul>
     </li>
-    <li><a href="troubleshooting.html">getmail troubleshooting (version 5)</a></li>
+    <li><a href="troubleshooting.html">getmail troubleshooting (version 6)</a></li>
     <li>
         <ul>
         <li><a href="troubleshooting.html#troubleshooting">Troubleshooting problems</a></li>
@@ -81,7 +73,7 @@
         </li>
         </ul>
     </li>
-    <li><a href="faq.html">getmail frequently-asked questions (FAQs) (version 5)</a></li>
+    <li><a href="faq.html">getmail frequently-asked questions (FAQs) (version 6)</a></li>
     <li>
         <ul>
         <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
@@ -91,6 +83,7 @@
             <li>
                 <ul>
                 <li><a href="faq.html#faq-about-what">What is getmail?</a></li>
+				<li><a href="faq.html#faq-about6">What is getmail6 and how does it relate to getmail?</a></li>
                 <li><a href="faq.html#faq-about-platforms">What platforms/machines does getmail run on?</a></li>
                 <li>
                     <ul>
@@ -194,11 +187,12 @@
     </li>
 </ul>
 
+
 <!-- ********************************************************************** -->
 
 <h1 id="faq">Frequently-Asked Questions (FAQs)</h1>
 <p>
-    The following questions about getmail are answered more-or-less frequently.
+    The following questions about getmail have been asked more-or-less frequently.
     Please also read the
     <a href="troubleshooting.html#unexpected-behaviour">unexpected behaviour section</a>
     of the
@@ -215,6 +209,25 @@
     accounts and multidrop (domain) mailboxes. getmail is written in Python, and
     licensed under the
     <a href="COPYING">GNU General Public License version 2</a>.
+</p>
+
+<h3 id="faq-about6">What is getmail6 and how does it relate to getmail?</h3>
+<p>
+    getmail is the name of this software and project as it was
+    originally developed by Charles Cazabon. At the time of getmail
+    version 5.14 getmail would not work with Python version 3 and
+    newer. As support for Python 3 was not available for getmail at
+    the time while many distributions were dropping support for all
+    Python versions older than version 3, this fork was created.
+</p>
+<p>
+    To avoid confusion and conflicts with Charles' project, we decided
+    to call our fork getmail6 and start our version numbering from 6.
+</p>
+<p>
+    As we intend getmail6 to be a drop-in replacement for getmail,
+    names of files etc. have been kept the same as they are in getmail
+    5.14 and earlier.
 </p>
 
 <h3 id="faq-about-platforms">What platforms/machines does getmail run on?</h3>
@@ -272,30 +285,16 @@
 <p>
     getmail is
     <a href="http://www.fsf.org/">Free Software</a>.
-    As such, it comes with no warranty.  However, I will do my best to support
-    getmail on a voluntary basis through the
-    <a href="documentation.html#mailing-list-users">getmail mailing list</a>.
-</p>
-<p>
-    If you are using getmail in a commercial or other environment where problems
-    cost money, consider contacting me privately for commercial support, by
-    emailing &lt;charlesc-getmail-support @ pyropus.ca&gt;
+    As such, it comes with no warranty.  However, we will do our best to support
+    getmail on a voluntary basis through our 
+    <a href="documentation.html#github">GitHub repository</a>.
 </p>
 <p>
     If you have questions about getmail, the first step is to read the
-    <a href="documentation.html">documentation</a>,
-    and the remainder of the Frequently Asked Questions. If your question isn't
-    answered there, search the
-    <a href="documentation.html#mailing-list-users-archive">getmail mailing list archives</a>.
-</p>
-<p>
-    If you still haven't found an answer to your question, please subscribe to
-    the
-    <a href="documentation.html#mailing-list-users">getmail users' mailing list</a>
-    by sending a blank email to &lt;getmail-subscribe @
-    lists.pyropus.ca&gt;. If you post your question there, I will see it.
-    As an additional bonus, your question may be answered by another member of
-    the list.
+    <a href="documentation.html">documentation</a>, and the remainder
+    of the Frequently Asked Questions. If your question isn't answered
+    there, please open an issue on GitHub. If you post your question
+    there, we will see it.
 </p>
 
 <h3 id="faq-about-bug">I think I found a bug!  How do I report it?</h3>
@@ -304,16 +303,16 @@
     find what is the latest version by checking this page at the original
     web site:
     <br />
-    <a href="http://pyropus.ca/software/getmail/">http://pyropus.ca/software/getmail/</a>.
-    <br />
-    If you running an older version of the software, chances are whatever bug
-    you may have found has already been fixed.
+    <a href="http://getmail6.org/">http://getmail6.org/</a>.  <br />
+    If you are running an older version of the software, chances are
+    whatever bug you may have found has already been fixed.
 </p>
 <p>
-    Ideally, you should join the
-    <a href="documentation.html#mailing-list-users">mailing list</a>
-    and send your bug report there.  You should include the following
-    information:
+    After this, please
+    check <a href="https://github.com/getmail6/getmail6/issues">our
+    repository on GitHub</a> to see if this issue has already been
+    reported.  If not, feel free to open an issue to report your bug.
+    You should include at least the following information:
 </p>
 <ul>
     <li>getmail version</li>
@@ -334,19 +333,17 @@
     </li>
 </ul>
 <p>
-    If you absolutely cannot sign up for the mailing list, send the report to me
-    directly at
-    &lt;charlesc-getmail-bugs @ pyropus.ca&gt;.
-    I may not be able to respond to all reports privately, but I will
-    try to address any bugs I find out about this way.
+    If your bugreport contains confidential information, please
+    exclude this from your report.
 </p>
 
 <h3 id="faq-about-random-feature">I have a neat idea for random feature &quot;foo&quot; &hellip; how do I get you to implement it?</h3>
 <p>
-    Follow the same instructions as for reporting bugs above &mdash; yes, that
-    means I would prefer you submit your idea to the getmail users' mailing list.
-    That will lead to a useful discussion if your feature has not been proposed
-    before.
+    Follow the same instructions as for reporting bugs above &mdash;
+    yes, that means we would prefer you submit your idea as an issue in
+    our repository allowing other users to also comment on it which
+    may lead to a useful discussion if your feature has not been
+    proposed before.
 </p>
 
 <h3 id="faq-about-random-feature-rejected">Why won't you implement random feature &quot;foo&quot;?</h3>
@@ -354,18 +351,18 @@
     Every line of code added to getmail has a certain cost.  Every feature
     added requires code, documentation, and support.  Adding features increases
     the complexity of the software, confuses users, and leads to higher support
-    costs.  I therefore weigh features very carefully as a cost-versus-benefit
+    costs.  We therefore weigh features very carefully as a cost-versus-benefit
     tradeoff before deciding whether to add them.
 </p>
 <p>
     Some users are confused by this.  They think that a feature you don't use
     has no cost, and therefore if it has any value to anyone, it should be
     added.  That simply isn't the case; the costs of an unused feature are
-    simply borne by others, including me.
+    simply borne by others, including us.
 </p>
 <p>
-    If you have asked me to add some feature, and I've said no, this may be
-    the reason.  Other possibilities include me simply not having had sufficient
+    If you have asked me to add some feature, and we've said no, this may be
+    the reason.  Other possibilities include us simply not having had sufficient
     time to implement it yet.
 </p>
 
@@ -420,62 +417,11 @@
     worry about the disk space they take up for a thousand years.
 </p>
 
-<h3 id="faq-about-upgrade">Can I upgrade from getmail 3 to getmail 4/5?  What about my &quot;oldmail&quot; files?</h3>
-<p>
-    Yes.  getmail version 4/5 uses exactly the same
-    <span class="file">oldmail-<span class="meta">server</span>-<span class="meta">port</span>-<span class="meta">username</span></span>
-    naming convention for its oldmail files.  The only difference is that
-    version 4/5 escapes a couple of additional characters in this string so that
-    it is truly cross-platform compatible.  If you upgrade from version 3 to
-    version 4/5, getmail will still remember which messages you've already
-    retrieved.
-</p>
-<p>
-    To upgrade, do the following:
-</p>
-<ol>
-    <li>
-        Rename your old getmail rc file, creating a new file in
-        <span class="file">~/.getmail/getmailrc</span>.
-    </li>
-    <li>
-        Create a new
-        <span class="file">[options]</span>
-        section, containing the appropriate values from your version 3 rc file
-        <span class="file">[defaults]</span>
-        section.
-    </li>
-    <li>
-        Create a new
-        <span class="file">[retriever]</span>
-        section, using your previous server configuration values in a new
-        <span class="file">type = SimplePOP3Retriever</span>
-        or
-        <span class="file">type = MultidropPOP3Retriever</span>
-        as appropriate.
-    </li>
-    <li>
-        Create a new
-        <span class="file">[destination]</span>
-        section, using your previous destination path values in a new
-        <span class="file">type = Maildir</span>,
-        <span class="file">type = Mboxrd</span>,
-        <span class="file">type = MDA_external</span>,
-        or
-        <span class="file">type = MultiSorter</span>
-        destination as appropriate.
-    </li>
-    <li>
-        If you were retrieving messages from multiple mail accounts in a
-        single version 3 getmail rc file, split them up into one account per
-        version 5 rc file.
-    </li>
-</ol>
-<p>
-    That's it.
-</p>
 
 <h3 id="faq-about-why">Why did you write getmail?  Why not just use fetchmail?</h3>
+<p>
+    The below text is by Charles Cazabon, getmail's original author:
+</p>
 <p>
     Short answer:  &hellip; well, the short answer is mostly unprintable.
     The long answer is &hellip; well, long:
@@ -1172,7 +1118,7 @@ sleep 1800
 <h3 id="faq-how-hotmail">How do I make getmail retrieve mail from Hotmail?</h3>
 <p>
     Well, you could write a retriever that speaks Hotmail's proprietary,
-    undocumented, and unsupported access protocol (or pay me to write one),
+    undocumented, and unsupported access protocol,
     or simply set up the POP3 proxy from the
     <a href="http://httpmail.sourceforge.net/">httpmail</a>
     package, and have getmail retrieve mail from that POP3 proxy.
@@ -1626,8 +1572,8 @@ type = Filter_TMDA
 <!-- ********************************************************************** -->
 <h2 id="faq-notabug">I think I found this bug in getmail &hellip;</h2>
 <p>
-    I get frequent reports like the following, which aren't bugs in getmail.
-    Please read them before reporting them to me.
+    There are frequent reports like the following, which aren't bugs in getmail.
+    Please read them before reporting them as bugs.
 </p>
 
 <h3 id="faq-notabug-gmail-bug">getmail doesn't download all my mail from Gmail &hellip;</h3>
@@ -1652,31 +1598,6 @@ type = Filter_TMDA
     The other issue here is that Google doesn't include mail from your trash or spam folders in
     the POP3 view, so getmail can't see those messages either.  That's generally less of an issue,
     provided their spam filters never give false positive results (ha!).
-</p>
-
-<h3 id="faq-notabug-futurewarning">FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up</h3>
-<p>
-    Various people have reported this &quot;bug&quot; in getmail, where they
-    see the following warning when getmail is run:
-</p>
-<pre class="example">
-/usr/lib/python2.3/optparse.py:668: FutureWarning: %u/%o/%x/%X of negative int will return a signed string in Python 2.4 and up
-  return (&quot;&lt;%s at 0x%x: %r&gt;&quot;
-</pre>
-<p>
-    This warning is a bug in Python 2.3.4's
-    <span class="file">optparse.py</span>
-    module, not in getmail.  Feel free to report it to the Python team if the
-    most recent release of Python hasn't fixed it.  I reported it in June, 2004.
-</p>
-
-<h3 id="faq-notabug-fsync">AttributeError: 'module' object has no attribute 'fsync'</h3>
-<p>
-    Various people have reported this &quot;bug&quot; in getmail &mdash; it's
-    actually a bug in some versions of Python 2.3.X.  It was fixed in Python
-    version 2.3.3.  getmail 5 detects problematic versions of Python and refuses
-    to run, but you can still encounter this problem with getmail version 3
-    if you try to run it with a broken Python version.
 </p>
 
 <h3 id="faq-notabug-brokenpopserver">operation error (SimplePOP3Retriever: [...] does not uniquely identify messages [...] see documentation or use BrokenUIDLPOP3Retriever instead</h3>
@@ -1731,28 +1652,6 @@ python2.5(27172) malloc: *** set a breakpoint in szone_error to debug
     and there's nothing getmail can do about it.
 </p>
 
-<h3 id="faq-notabug-memory">MemoryError when using IMAP</h3>
-<p>
-    If you see errors like this while running getmail configured to retrieve
-    mail via IMAP or IMAP-over-SSL:
-</p>
-<pre class="example">
-Python(24006) malloc: *** mmap(size=9875456) failed (error code=12)
-[...]
-</pre>
-<p>
-    ... which then end with <span class="sample">MemoryError</span>,
-    you've run into
-    <a href="http://bugs.python.org/issue1389051">a bug in Python's IMAP library</a>.
-    It's fixed in the most recent versions of Python 2.5 and 2.6.  This bug can
-    cause getmail to grow to a huge size, vastly out of proportion to the size
-    of the message it's retrieving, at which point Python may fail or be killed
-    when the system runs out of memory.
-</p>
-<p>
-    Upgrade your Python installation to the newest Python 2.5 or 2.6 version to
-    fix the problem, or use POP3 instead of IMAP to work around it.
-</p>
 
 <h3 id="faq-notabug-gmail-tls-sni">Errors connecting to Gmail with OpenSSL 1.1.1</h3>
 <p>
@@ -1767,9 +1666,6 @@ Python(24006) malloc: *** mmap(size=9875456) failed (error code=12)
 ...
 ssl_version = tlsv1_2
 </pre>
-        <!--#include virtual="/include/footer-xhtml11.html"-->
     </div>
-    <!--#include virtual="/include/menu-top.html"-->
-    <!--#include virtual="/include/header.html"-->
 </body>
 </html>

@@ -62,11 +62,11 @@ setup(
         'mailboxes, POP3-over-SSL and IMAP-over-SSL, mail sorting, message '
         'filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and '
         'other advanced features.'),
-    author='Charles Cazabon',
-    author_email='charlesc-getmail@pyropus.ca',
+    author='Charles Cazabon, Roland Puntaier, and others',
+    author_email='roland.puntaier@gmail.com',
     license='GNU GPL version 2',
-    url='http://pyropus.ca/software/getmail/',
-    download_url='http://pyropus.ca/software/getmail/#download',
+    url='http://www.getmail6.org/',
+    download_url='https://github.com/getmail6/getmail6/releases',
     install_requires=[''],
     classifiers=[
         'Development Status :: 4 - Beta',

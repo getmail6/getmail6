@@ -2,33 +2,106 @@
 
                              getmail documentation
 
-   This is the documentation for getmail version 5. Version 5 includes
-   numerous changes from version 3.x; if you are using getmail version 3,
-   please refer to the documentation included with that version of the
-   software.
+   This is the documentation for getmail version 6.
 
-   getmail is Copyright © 1998-2019 Charles Cazabon.
+   getmail is Copyright © 1998-2019 Charles Cazabon. <charlesc-getmail @
+   pyropus.ca>
+   and © 2020 by Roland Puntaier <roland.puntaier @ gmail.com>
 
    getmail is licensed under the GNU General Public License version 2 (only).
-   If you wish to obtain a license to distribute getmail under other terms,
-   please contact me directly.
+
+                               Table of Contents
+
+     * getmail documentation (version 6)
+     *    * getmail documentation
+          *    * Features
+               * Requirements
+               * Obtaining getmail
+               * Installing getmail
+     * getmail configuration (version 6)
+     *    * Configuring getmail
+          *    * Creating a getmail rc file
+          * Running getmail
+          *    * Commandline options
+               * Using getmail as an MDA
+               * Using getmail_fetch to retrieve mail from scripts
+     * getmail troubleshooting (version 6)
+     *    * Troubleshooting problems
+          *    * Error messages
+               *    * ImportError: getmail version 6.02 requires Python
+                      version 2.7.18 or later
+                    * Configuration error: …
+                    *    * Configuration error: missing required
+                           configuration parameter name
+                         * Configuration error: configuration value name
+                           (value) not of required type type (why)
+                         * Configuration error: maildir path missing trailing
+                           /
+                         * Configuration error: not a maildir (path)
+                         * Configuration error: ... (path: maildir
+                           subdirectory "path" does not exist)
+                         * Configuration error: not an mboxrd file (path)
+                         * Configuration error: mboxrd does not exist
+                         * Configuration error: the fieldname header field
+                           does not record the envelope recipient address
+                         * Configuration error: refuse to invoke external
+                           commands as root or GID 0 by default
+                         * Configuration error: no such command path
+                         * Configuration error: path not executable
+                         * Configuration error: destination specifies section
+                           name section which does not exist
+                    * Retrieval error …
+                    *    * Retrieval error: server … is broken; …
+                    * Delivery error …
+                    *    * Delivery error: maildir delivery process failed
+                           (refuse to deliver mail as root)
+                         * Delivery error: mbox delivery process failed
+                           (refuse to deliver mail as root)
+                         * Delivery error: mbox delivery process failed (not
+                           an mboxrd file)
+                    * Error: …
+                    *    * Error: server-info does not uniquely identify
+                           messages …
+                         * Error: server-info failed to identify message X in
+                           UIDL output …
+                         * Python(…) malloc: *** mmap(…) failed (…)
+               * Warning messages
+               *    * Warning: …
+                    *    * Warning: ignoring unknown parameter
+                           "parameter_name"
+                         * Warning: filter filter returned fewer headers (X)
+                           than supplied (Y)
+               * Unexpected Behaviour
+               *    * getmail uses the wrong hostname for my machine
+                    * getmail puts "unknown" in the Delivered-To: or
+                      Return-Path:header field
+                    * getmail isn't replacing my command argument
+                      "%(recipient)" with the message recipient address
+                    * getmail seems to take longer than expected to
+                      initialize
+     * getmail frequently-asked questions (FAQs) (version 5)
+     *    * Frequently-Asked Questions (FAQs)
+          *    * About getmail
+               * Configuring getmail
+               * How do I …
+               * Using getmail with other software
+               * I think I found this bug in getmail …
 
                             Troubleshooting problems
 
    If you have suggestions for additions or changes to this documentation,
-   please send them to the mailing list or me.
+   please send them to us or open an issue on GitHub.
 
 Error messages
 
    getmail may output various diagnostic error messages. The common ones and
    their meanings are given below.
 
-  ImportError: getmail version 5 requires Python version 2.3.3 or later
+  ImportError: getmail version 6.02 requires Python version 2.7.18 or later
 
-   You tried to run getmail 5 with a version of Python prior to Python 2.3.3.
+   You tried to run getmail with a version of Python prior to Python 2.7.18
    This is unsupported. If you cannot install a newer Python alongside your
-   current version, please use getmail version 3, which supports Python 1.5.2
-   and later.
+   current version, please use getmail version 5.
 
   Configuration error: …
 
@@ -188,15 +261,11 @@ Error messages
 
    … followed by an Unhandled exception block and then MemoryError.
 
-   getmail ran out of memory, usually due to a bug in Python's IMAP library
-   which was fixed in early 2008.
+   getmail ran out of memory.
 
    If you are using IMAP and run into this problem retrieving messages that
    aren't hundreds of megabytes in size, you can almost certainly fix it by
-   upgrading your Python installation to the latest 2.5.x or 2.6.x release.
-   Note that if you switch from Python 2.5.x to Python 2.6.x, you'll need to
-   re-install getmail with python setup.py install from the getmail source
-   directory.
+   upgrading your Python installation to the latest 3.* release.
 
 Warning messages
 

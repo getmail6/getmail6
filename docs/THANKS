@@ -1,4 +1,30 @@
-I would like to thank the following individuals and organizations
+We would like to thank the following individuals for their gracious contributions
+to the development of getmail version 6:
+
+First and foremost, Charles Cazabon for all his hard work from the initial alpha
+release of getmail through to the release of getmail version 5.14. Getmail
+version 6 would not have been possible without all his efforts.
+
+Secondly, Roland Puntaier for undertaking the effort to port getmail to Python
+version 3 and later.
+
+Thirdly, in alphabetical order, the following people for their patches, bug
+reports, suggestions, packaging efforts, and documentation updates:
+
+Michael Büker
+'gswan'
+Dan Jacobson
+'DaveF475'
+'jborme'
+Dmytri Kleiner
+'Kr1ss-XD'
+Remco Rijnders
+Johnny A. Solbu
+Boris Wachtmeister
+
+
+
+We would like to thank the following individuals and organizations
 for their gracious contributions to the development of getmail version 4 and 5.
 
 getmail 4 sponsors

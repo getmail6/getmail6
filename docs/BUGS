@@ -1,7 +1,8 @@
 Known bugs
 ==========
 
-None.
+None, but we are very interested in hearing your experiences with
+using this version with Python version 3 or newer.
 
 Reporting bugs
 ==============
@@ -34,7 +35,7 @@ Before reporting a problem
 If you want to report a getmail problem to me, please ensure
 
   -you are running the latest version of getmail from the
-  website at http://pyropus.ca/software/getmail/
+  website at http://getmail6.org/
 
   -you have installed getmail from the .tar.gz file I provide
 
@@ -47,12 +48,8 @@ IMPORTANT:  Please include the output of
 
   getmail [your usual options] --dump
 
-and a copy of your getmail rc file(s) (with password masked) with any bug
-report.
+and a copy of your getmail rc file(s) (with password masked) with any
+bug report.
 
-If you find a bug in getmail, please either join the getmail users' mailing
-list and report it there (preferred), or send it to me at
-<charlesc-getmail-bugs @ pyropus.ca>.
-
-You can join the getmail users' mailing list by sending a (blank) message
-to <getmail-subscribe @ lists.pyropus.ca>.
+If you find a bug in getmail, please open an issue on GitHub at
+https://github.com/getmail6/getmail6/issues
