@@ -1,165 +1,150 @@
-getmail documentation
+   Link: Contents Up Index: Charles Cazabon's Software
 
-   This is the documentation for getmail version 5. Version 5 includes
-   numerous changes from version 3.x; if you are using getmail version 3,
-   please refer to the documentation included with that version of the
-   software.
+                             getmail documentation
 
-   getmail is Copyright © 1998-2019 Charles Cazabon.
+   This is the documentation for getmail version 6.
 
-   getmail is licensed under the GNU General Public License version 2
-   (only). If you wish to obtain a license to distribute getmail under
-   other terms, please contact me directly.
+   getmail is Copyright © 1998-2019 by Charles Cazabon <charlesc-getmail @
+   pyropus.ca>
+   and © 2020 by Roland Puntaier <roland.puntaier @ gmail.com>
 
-Table of Contents
+   getmail is licensed under the GNU General Public License version 2 (only).
 
-     * getmail documentation (version 5)
-     *
-          + getmail documentation
-          +
-               o Features
-               o Differences from previous versions
-               o Requirements
-               o Obtaining getmail
-               o Installing getmail
-               o getmail mailing lists
-     * getmail configuration (version 5)
-     *
-          + Configuring getmail
-          +
-               o Creating a getmail rc file
-               o
-                    # Parameter types and formats
-                    #
-                         @ string
-                         @ integer
-                         @ boolean
-                         @ tuple of quoted strings
-                         @ tuple of integers
-                         @ tuple of 2-tuples
-                    # Creating the [retriever] section
-                    #
-                         @ What is a "multidrop" mailbox? How do I know if
-                           I have one?
-                         @ Common retriever parameters
-                         @ SSL Client Parameters
-                         @ SSL Certificate Validation and Server
-                           Parameters
-                         @ SimplePOP3Retriever
-                         @ BrokenUIDLPOP3Retriever
-                         @ SimpleIMAPRetriever
-                         @ SimplePOP3SSLRetriever
-                         @ BrokenUIDLPOP3SSLRetriever
-                         @ SimpleIMAPSSLRetriever
-                         @ MultidropPOP3Retriever
-                         @ MultidropPOP3SSLRetriever
-                         @ MultidropSDPSRetriever
-                         @ MultidropIMAPRetriever
-                         @ MultidropIMAPSSLRetriever
-                    # Retriever examples
-                    # Creating the [destination] section
-                    #
-                         @ Maildir
-                         @ Mboxrd
-                         @ MDA_external
-                         @ MultiDestination
-                         @ MultiSorter
-                         @ MultiGuesser
-                         @ MDA_qmaillocal
-                    # Creating the [options] section
-                    #
-                         @ [options] example
-                    # Creating the [filter-something] sections
-                    #
-                         @ Filter_classifier
-                         @ Filter_external
-                         @ Filter_TMDA
-                         @ [filter-something] examples
-                    # getmail rc file examples
-          + Running getmail
-          +
-               o Commandline options
-               o Using getmail as an MDA
-               o
-                    # Using the getmail_maildir MDA
-                    #
-                         @ Example
-                    # Using the getmail_mbox MDA
-                    #
-                         @ Example
-               o Using getmail_fetch to retrieve mail from scripts
-     * getmail troubleshooting (version 5)
-     *
-          + Troubleshooting problems
-          +
-               o Error messages
-               o Warning messages
-               o Unexpected Behaviour
-     * getmail frequently-asked questions (FAQs) (version 5)
-     *
-          + Frequently-Asked Questions (FAQs)
-          +
-               o About getmail
-               o Configuring getmail
-               o How do I …
-               o Using getmail with other software
-               o I think I found this bug in getmail …
+                               Table of Contents
 
-Configuring getmail
+     * getmail documentation (version 6)
+     *    * getmail documentation
+          *    * Features
+               * Requirements
+               * Obtaining getmail
+               * Installing getmail
+     * getmail configuration (version 6)
+     *    * Configuring getmail
+          *    * Creating a getmail rc file
+               *    * Parameter types and formats
+                    *    * string
+                         * integer
+                         * boolean
+                         * tuple of quoted strings
+                         * tuple of integers
+                         * tuple of 2-tuples
+                    * Creating the [retriever] section
+                    *    * What is a "multidrop" mailbox? How do I know if I
+                           have one?
+                         * Common retriever parameters
+                         * SSL Client Parameters
+                         * SSL Certificate Validation and Server Parameters
+                         * SimplePOP3Retriever
+                         * BrokenUIDLPOP3Retriever
+                         * SimpleIMAPRetriever
+                         * SimplePOP3SSLRetriever
+                         * BrokenUIDLPOP3SSLRetriever
+                         * SimpleIMAPSSLRetriever
+                         * MultidropPOP3Retriever
+                         * MultidropPOP3SSLRetriever
+                         * MultidropSDPSRetriever
+                         * MultidropIMAPRetriever
+                         * MultidropIMAPSSLRetriever
+                    * Retriever examples
+                    * Creating the [destination] section
+                    *    * Maildir
+                         * Mboxrd
+                         * MDA_external
+                         * MultiDestination
+                         * MultiSorter
+                         * MultiGuesser
+                         * MDA_qmaillocal
+                    * Creating the [options] section
+                    *    * [options] example
+                    * Creating the [filter-something] sections
+                    *    * Filter_classifier
+                         * Filter_external
+                         * Filter_TMDA
+                         * [filter-something] examples
+                    * getmail rc file examples
+          * Running getmail
+          *    * Commandline options
+               * Using getmail as an MDA
+               *    * Using the getmail_maildir MDA
+                    *    * Example
+                    * Using the getmail_mbox MDA
+                    *    * Example
+               * Using getmail_fetch to retrieve mail from scripts
+     * getmail troubleshooting (version 6)
+     *    * Troubleshooting problems
+          *    * Error messages
+               * Warning messages
+               * Unexpected Behaviour
+     * getmail frequently-asked questions (FAQs) (version 6)
+     *    * Frequently-Asked Questions (FAQs)
+          *    * About getmail
+               * What is getmail6 and how does it relate to getmail?
+               * Configuring getmail
+               * How do I …
+               * Using getmail with other software
+               * I think I found this bug in getmail …
+
+                              Configuring getmail
 
    Once getmail is installed, you need to configure it before you can
    retrieve mail with it. Follow these steps:
-    1. Create a data/configuration directory. The default is
-       $HOME/.getmail/. If you choose a different location, you will need
-       to specify it on the getmail command line. In general, other users
-       should not be able to read the contents of this directory, so you
-       should set the permissions on it appropriately.
-mkdir -m 0700 $HOME/.getmail
 
-    2. Create a configuration file in the configuration/data directory.
-       The default name is getmailrc. If you choose a different filename,
-       you will need to specify it on the getmail command line. If you
-       want to retrieve mail from more than one mail account, you will
-       need to create a separate rc file for each account getmail should
-       retrieve mail from.
+    1. Create a data/configuration directory. The default is $HOME/.getmail/.
+       If you choose a different location, you will need to specify it on the
+       getmail command line. In general, other users should not be able to
+       read the contents of this directory, so you should set the permissions
+       on it appropriately.
+
+ mkdir -m 0700 $HOME/.getmail
+        
+
+    2. Create a configuration file in the configuration/data directory. The
+       default name is getmailrc. If you choose a different filename, you
+       will need to specify it on the getmail command line. If you want to
+       retrieve mail from more than one mail account, you will need to create
+       a separate rc file for each account getmail should retrieve mail from.
 
 Creating a getmail rc file
 
-   The configuration file format is designed to be easy to understand
-   (both for getmail, and for the user). It is broken down into small
-   sections of related parameters by section headers which appear on lines
-   by themselves, enclosed in square brackets, like this:
-[section name]
+   The configuration file format is designed to be easy to understand (both
+   for getmail, and for the user). It is broken down into small sections of
+   related parameters by section headers which appear on lines by themselves,
+   enclosed in square brackets, like this:
+
+ [section name]
 
    Each section contains a series of parameters, declared as follows:
-parameter_name = parameter_value
 
-   A parameter value, if necessary, can span multiple lines. To indicate
-   that the second and subsequent lines form a continuation of the
-   previous line, they need to begin with leading whitespace, like this:
-first_parameter = value
-    first parameter value continues here
-second_parameter = value
+ parameter_name = parameter_value
 
-   You can annotate your configuration files with comments by putting them
-   on lines which begin with a pound sign, like this:
-first_parameter = value
-# I chose this value because of etc.
-second_parameter = value
+   A parameter value, if necessary, can span multiple lines. To indicate that
+   the second and subsequent lines form a continuation of the previous line,
+   they need to begin with leading whitespace, like this:
+
+ first_parameter = value
+     first parameter value continues here
+ second_parameter = value
+
+   You can annotate your configuration files with comments by putting them on
+   lines which begin with a pound sign, like this:
+
+ first_parameter = value
+ # I chose this value because of etc.
+ second_parameter = value
 
    Each rc file requires at least two specific sections. The first is
-   retriever, which tells getmail about the mail account to retrieve
-   messages from. The second is destination, which tells getmail what to
-   do with the retrieved messages. There is also an optional section named
-   options , which gives getmail general configuration information (such
-   as whether to log its actions to a file), and other sections can be
-   used to tell getmail to filter retrieved messages through other
-   programs, or to deliver messages for particular users in a particular
-   way.
+   retriever, which tells getmail about the mail account to retrieve messages
+   from. The second is destination, which tells getmail what to do with the
+   retrieved messages. There is also an optional section named options ,
+   which gives getmail general configuration information (such as whether to
+   log its actions to a file), and other sections can be used to tell getmail
+   to filter retrieved messages through other programs, or to deliver
+   messages for particular users in a particular way.
 
-Parameter types and formats
+  Parameter types and formats
 
    Several different types of parameters are used in getmail rc files:
+
      * string
      * integer
      * boolean
@@ -167,179 +152,190 @@ Parameter types and formats
      * tuple of integers
      * tuple of 2-tuples
 
-   Each parameter type has a specific format that must be used to
-   represent it in the getmail rc file. They are explained below. Each
-   parameter documented later specifies its type explicitly.
+   Each parameter type has a specific format that must be used to represent
+   it in the getmail rc file. They are explained below. Each parameter
+   documented later specifies its type explicitly.
 
-string
+    string
 
    Specify a string parameter value with no special syntax:
-parameter = my value
 
-integer
+ parameter = my value
+
+    integer
 
    Specify an integer parameter value with no special syntax:
-parameter = 4150
 
-boolean
+ parameter = 4150
 
-   A boolean parameter is true or false; you can specify its value with
-   the (case-insensitive) words "true" and "false". The values "yes", "on"
-   and 1 are accepted as equivalent to "true", while values "no", "off"
-   and 0 are accepted as equivalent to "false". Some examples:
-parameter = True
-parameter = false
-parameter = NO
-parameter = 1
+    boolean
 
-tuple of quoted strings
+   A boolean parameter is true or false; you can specify its value with the
+   (case-insensitive) words "true" and "false". The values "yes", "on" and 1
+   are accepted as equivalent to "true", while values "no", "off" and 0 are
+   accepted as equivalent to "false". Some examples:
+
+ parameter = True
+ parameter = false
+ parameter = NO
+ parameter = 1
+
+    tuple of quoted strings
 
    A tuple of quoted strings is essentially a list of strings, with each
    string surrounded by matching double- or single-quote characters to
    indicate where it begins and ends. The list must be surrounded by open-
-   and close-parenthesis characters. A tuple may have to be a specific
-   number of strings; for instance, a "2-tuple" must consist of two quoted
-   strings, while a "4-tuple" must have exactly four. In most cases, the
-   number of strings is not required to be a specific number, and it will
-   not be specified in this fashion.
+   and close-parenthesis characters. A tuple may have to be a specific number
+   of strings; for instance, a "2-tuple" must consist of two quoted strings,
+   while a "4-tuple" must have exactly four. In most cases, the number of
+   strings is not required to be a specific number, and it will not be
+   specified in this fashion.
 
    In general, a tuple of quoted strings parameter values should look like
    this:
-parameter = ('first string', 'second string',
-    "third string that contains a ' character")
+
+ parameter = ('first string', 'second string',
+     "third string that contains a ' character")
 
    However, tuples of 0 or 1 strings require special treatment. The empty
-   tuple is specified with just the open- and close-parenthesis
-   characters:
-parameter = ()
+   tuple is specified with just the open- and close-parenthesis characters:
 
-   A tuple containing a single quoted string requires a comma to indicate
-   it is a tuple:
-parameter = ("single string", )
+ parameter = ()
 
-tuple of integers
+   A tuple containing a single quoted string requires a comma to indicate it
+   is a tuple:
+
+ parameter = ("single string", )
+
+    tuple of integers
 
    This is very similar to a tuple of quoted strings, above, minus the
    quotes. Some examples:
-parameter = (1, 2, 3, 4, 5)
-parameter = (37, )
-parameter = ()
 
-tuple of 2-tuples
+ parameter = (1, 2, 3, 4, 5)
+ parameter = (37, )
+ parameter = ()
+
+    tuple of 2-tuples
 
    This is a tuple of items, each of which is a 2-tuple of quoted strings.
    You can think of this as a list of pairs of quoted strings.
-# Three pairs
-parameter = (
-    ("first-a", "first-b"),
-    ("second-a", "second-b"),
-    ("third-a", "third-b"),
-    )
-# One pair
-parameter = (
-    ("lone-a", "lone-b"),
-    )
 
-Creating the [retriever] section
+ # Three pairs
+ parameter = (
+     ("first-a", "first-b"),
+     ("second-a", "second-b"),
+     ("third-a", "third-b"),
+     )
+ # One pair
+ parameter = (
+     ("lone-a", "lone-b"),
+     )
+
+  Creating the [retriever] section
 
    The retriever section of the rc file tells getmail what mail account to
-   retrieve mail from, and how to access that account. Begin with the
-   section header line as follows:
-[retriever]
+   retrieve mail from, and how to access that account. Begin with the section
+   header line as follows:
+
+ [retriever]
 
    Then, include a type string parameter to tell getmail what type of mail
-   retriever to use to retrieve mail from this account. The possible
-   values are:
+   retriever to use to retrieve mail from this account. The possible values
+   are:
+
      * SimplePOP3Retriever — for single-user POP3 mail accounts.
-     * BrokenUIDLPOP3Retriever — for broken POP3 servers that do not
-       support the UIDL command, or which do not uniquely identify
-       messages; this provides basic support for single-user POP3 mail
-       accounts on such servers.
+     * BrokenUIDLPOP3Retriever — for broken POP3 servers that do not support
+       the UIDL command, or which do not uniquely identify messages; this
+       provides basic support for single-user POP3 mail accounts on such
+       servers.
      * SimpleIMAPRetriever — for single-user IMAP mail accounts.
      * SimplePOP3SSLRetriever — same as SimplePOP3Retriever, but uses SSL
        encryption.
-     * BrokenUIDLPOP3SSLRetriever — same as BrokenUIDLPOP3Retriever, but
-       uses SSL encryption.
+     * BrokenUIDLPOP3SSLRetriever — same as BrokenUIDLPOP3Retriever, but uses
+       SSL encryption.
      * SimpleIMAPSSLRetriever — same as SimpleIMAPRetriever, but uses SSL
        encryption.
      * MultidropPOP3Retriever — for domain mailbox (multidrop) POP3 mail
        accounts.
-     * MultidropPOP3SSLRetriever — same as MultidropPOP3Retriever, but
-       uses SSL encryption.
+     * MultidropPOP3SSLRetriever — same as MultidropPOP3Retriever, but uses
+       SSL encryption.
      * MultidropSDPSRetriever — for domain mailbox SDPS mail accounts, as
        provided by the UK ISP Demon.
      * MultidropIMAPRetriever — for domain mailbox (multidrop) IMAP mail
        accounts.
-     * MultidropIMAPSSLRetriever — same as MultidropIMAPRetriever, but
-       uses SSL encryption.
+     * MultidropIMAPSSLRetriever — same as MultidropIMAPRetriever, but uses
+       SSL encryption.
 
-What is a "multidrop" mailbox? How do I know if I have one?
+    What is a "multidrop" mailbox? How do I know if I have one?
 
-   Some ISPs, mailhosts, and other service providers provide a mail
-   service they refer to as a "domain mailbox" or "multidrop mailbox".
-   This is where they register a domain for you, and mail addressed to any
-   local-part in that domain ends up in a single mailbox accessible via
-   POP3, with the message envelope (envelope sender address and envelope
-   recipient address) recorded properly in the message header, so that it
-   can be re-constructed after you retrieve the messages with POP3 or
-   IMAP. The primary benefit of this is that you can run your own MTA
-   (qmail, Postfix, sendmail, Exchange, etc.) for your domain without
-   having to have an SMTP daemon listening at a static IP address.
+   Some ISPs, mailhosts, and other service providers provide a mail service
+   they refer to as a "domain mailbox" or "multidrop mailbox". This is where
+   they register a domain for you, and mail addressed to any local-part in
+   that domain ends up in a single mailbox accessible via POP3, with the
+   message envelope (envelope sender address and envelope recipient address)
+   recorded properly in the message header, so that it can be re-constructed
+   after you retrieve the messages with POP3 or IMAP. The primary benefit of
+   this is that you can run your own MTA (qmail, Postfix, sendmail, Exchange,
+   etc.) for your domain without having to have an SMTP daemon listening at a
+   static IP address.
 
-   Unfortunately, a lot of what is advertised and sold as multidrop
-   service really isn't. In many cases, the envelope recipient address of
-   the message is not properly recorded, so the envelope information is
-   lost and cannot be reconstructed. If the envelope isn't properly
-   preserved, it isn't a domain mailbox, and you therefore can't use a
-   multidrop retriever with that mailbox.
+   Unfortunately, a lot of what is advertised and sold as multidrop service
+   really isn't. In many cases, the envelope recipient address of the message
+   is not properly recorded, so the envelope information is lost and cannot
+   be reconstructed. If the envelope isn't properly preserved, it isn't a
+   domain mailbox, and you therefore can't use a multidrop retriever with
+   that mailbox.
 
-   To determine if you have a multidrop mailbox, check the following list:
-   if any of these items are not true, you do not have a multidrop
-   mailbox.
+   To determine if you have a multidrop mailbox, check the following list: if
+   any of these items are not true, you do not have a multidrop mailbox.
+
      * the mailbox must receive one copy of the message for each envelope
        recipient in the domain; if the message was addressed to three
        local-parts in the domain, the mailbox must receive three separate
        copies of the message.
-     * the envelope sender address must be recorded in a header field
-       named Return-Path at the top of the message. If the message
-       (incorrectly) already contained such a header field, it must be
-       deleted before the envelope sender address is recorded.
-     * the envelope recipient address must be recorded in a new header
-       field. These may be named various things, but are commonly
-       Delivered-To, X-Envelope-To, and similar values. In the case of
-       messages which had multiple recipients in the domain, this must be
-       a single address, reflecting the particular recipient of this copy
-       of the message. Note that this field (and the envelope recipient
-       address) are not related to informational header fields created by
-       the originating MUA, like To or cc.
+     * the envelope sender address must be recorded in a header field named
+       Return-Path at the top of the message. If the message (incorrectly)
+       already contained such a header field, it must be deleted before the
+       envelope sender address is recorded.
+     * the envelope recipient address must be recorded in a new header field.
+       These may be named various things, but are commonly Delivered-To,
+       X-Envelope-To, and similar values. In the case of messages which had
+       multiple recipients in the domain, this must be a single address,
+       reflecting the particular recipient of this copy of the message. Note
+       that this field (and the envelope recipient address) are not related
+       to informational header fields created by the originating MUA, like To
+       or cc.
 
    If you're not sure whether you have a multidrop mailbox, you probably
    don't. You probably want to use SimplePOP3Retriever (for POP3 mail
    accounts) or SimpleIMAPRetriever (for IMAP mail accounts) retrievers.
 
    Specify the mail account type with one of the above values, like this:
-type = typename
 
-   Then, include lines for any parameters and their values which are
-   required by the retriever. The parameters and their types are
-   documented below.
+ type = typename
 
-Common retriever parameters
+   Then, include lines for any parameters and their values which are required
+   by the retriever. The parameters and their types are documented below.
+
+    Common retriever parameters
 
    All retriever types take several common required parameters:
+
      * server (string) — the name or IP address of the server to retrieve
        mail from
      * username (string) — username to provide when logging in to the mail
        server
 
    All retriever types also take several optional parameters:
-     * port (integer) — the TCP port number to connect to. If not
-       provided, the default is a port appropriate for the protocol (110
-       for POP3, etc.)
+
+     * port (integer) — the TCP port number to connect to. If not provided,
+       the default is a port appropriate for the protocol (110 for POP3,
+       etc.)
      * password (string) — password to use when logging in to the mail
-       server. If not using Kerberos authentication -- see below --
-       getmail gets the password credential for the POP/IMAP server in one
-       of the following ways:
+       server. If not using Kerberos authentication -- see below -- getmail
+       gets the password credential for the POP/IMAP server in one of the
+       following ways:
          1. from the password configuration item in the getmailrc file
          2. by running an arbitrary command specified with the
             password_command parameter (see below)
@@ -348,18 +344,17 @@ Common retriever parameters
             keyring
          5. if not found via any of the above methods, getmail will prompt
             for the password when run
-       To store your POP/IMAP account password into the Gnome keyring,
-       ensure the password is not provided in the getmailrc file, and run
-       getmail with the special option --store-password-in-gnome-keyring;
-       getmail will run, prompt you for the password, store it in the
-       Gnome keyring, and exit without retrieving mail. If this option is
-       not recognized, your Python installation does not have Gnome
-       keyring integration support, or Gnome indicates that the keyring is
-       not available. If using the OSX keychain on 10.9 "Mavericks" (or
-       later, presumably), some additional steps may be necessary to make
-       the password available to getmail via the keychain. See this
-       posting to the getmail users' mailing list by Alan Schmitt for
-       details.
+       To store your POP/IMAP account password into the Gnome keyring, ensure
+       the password is not provided in the getmailrc file, and run getmail
+       with the special option --store-password-in-gnome-keyring; getmail
+       will run, prompt you for the password, store it in the Gnome keyring,
+       and exit without retrieving mail. If this option is not recognized,
+       your Python installation does not have Gnome keyring integration
+       support, or Gnome indicates that the keyring is not available. If
+       using the OSX keychain on 10.9 "Mavericks" (or later, presumably),
+       some additional steps may be necessary to make the password available
+       to getmail via the keychain. See this posting to the getmail users'
+       mailing list by Alan Schmitt for details.
      * password_command (tuple of quoted strings) — retrieve the account
        password by running an arbitrary external program. The program must
        write the password and nothing else to stdout, and must exit with a
@@ -368,81 +363,85 @@ Common retriever parameters
        parameter is specified as the program to run as the first string in
        the tuple, and all remaining strings are arguments passed to that
        program.
-password_command = ("/path/to/password-retriever", "-p", "myaccount@example.org"
-)
+
+ password_command = ("/path/to/password-retriever", "-p", "myaccount@example.org")
+        
 
    All IMAP retriever types also take the following optional parameters:
+
      * mailboxes (tuple of quoted strings) — a list of mailbox paths to
-       retrieve mail from, expressed as a Python tuple. If not specified,
-       the default is to retrieve mail from the mail folder named INBOX.
-       You might want to retrieve messages from several different mail
-       folders, using a configuration like this:
-mailboxes = ("INBOX", "INBOX.spam",
-    "mailing-lists.model-railroading")
+       retrieve mail from, expressed as a Python tuple. If not specified, the
+       default is to retrieve mail from the mail folder named INBOX. You
+       might want to retrieve messages from several different mail folders,
+       using a configuration like this:
+
+ mailboxes = ("INBOX", "INBOX.spam",
+     "mailing-lists.model-railroading")
+        
 
        Note that the format for hierarchical folder names is determined by
-       the IMAP server, not by getmail. Consult your server's
-       documentation or postmaster if you're unsure what form your server
-       uses. If your mailbox names contain non-ASCII characters, ensure
-       that your getmailrc file is stored with UTF-8 encoding so that
-       getmail can correctly determine the unicode character names that
-       need to be quoted in IMAP's modified UTF-7 encoding; if you do not
-       do this, the mailbox names will not match what the server expects
-       them to be, or will cause UnicodeErrors when attempting to load
-       your getmailrc file. As a special case, in getmail version 4.29.0
-       and later, the unquoted base (non-tuple) value ALL (case-sensitive)
-       means to retrieve mail from all selectable IMAP mailboxes in the
-       account. To retrieve messages from all mailboxes, you would use:
-mailboxes = ALL
+       the IMAP server, not by getmail. Consult your server's documentation
+       or postmaster if you're unsure what form your server uses. If your
+       mailbox names contain non-ASCII characters, ensure that your getmailrc
+       file is stored with UTF-8 encoding so that getmail can correctly
+       determine the unicode character names that need to be quoted in IMAP's
+       modified UTF-7 encoding; if you do not do this, the mailbox names will
+       not match what the server expects them to be, or will cause
+       UnicodeErrors when attempting to load your getmailrc file. As a
+       special case, in getmail version 4.29.0 and later, the unquoted base
+       (non-tuple) value ALL (case-sensitive) means to retrieve mail from all
+       selectable IMAP mailboxes in the account. To retrieve messages from
+       all mailboxes, you would use:
 
-     * use_peek (boolean) — whether to use PEEK to retrieve the message;
-       the default is True. IMAP servers typically mark a message as seen
-       if PEEK is not used to retrieve the message content. Versions of
-       getmail prior to 4.26.0 did not use PEEK to retrieve messages.
-     * move_on_delete (string) — if set, messages are moved to the named
-       IMAP mail folder before being deleted from their original location.
-       The specified mail folder must exist; getmail will not create it.
-       Note that if you configure getmail not to delete retrieved messages
-       (the default behaviour), they will not be moved at all.
+ mailboxes = ALL
+        
+
+     * use_peek (boolean) — whether to use PEEK to retrieve the message; the
+       default is True. IMAP servers typically mark a message as seen if PEEK
+       is not used to retrieve the message content. Versions of getmail prior
+       to 4.26.0 did not use PEEK to retrieve messages.
+     * move_on_delete (string) — if set, messages are moved to the named IMAP
+       mail folder before being deleted from their original location. The
+       specified mail folder must exist; getmail will not create it. Note
+       that if you configure getmail not to delete retrieved messages (the
+       default behaviour), they will not be moved at all.
      * record_mailbox (boolean) — whether to add a
-       X-getmail-retrieved-from-mailbox: header field to retrieved
-       messages, containing the name of the selected mailbox that the
-       message was retrieved from. This is on by default, but can be
-       disabled.
-     * use_kerberos (boolean) — whether to use Kerberos authentication
-       with the IMAP server. If not set, normal password-based
-       authenticaion is used. Note that when you use Kerberos
-       authentication, it is up to you to ensure you have a valid Kerberos
-       ticket (perhaps by running a ticket-renewing agent such as kstart
-       or similar). This feature requires that a recent version of
-       pykerberos with GSS support is installed; check your OS
-       distribution or see http://honk.sigxcpu.org/projects/pykerberos/"
-       for details.
-     * use_xoauth2 (boolean) — whether to use XOAUTH2 for login with the
-       IMAP server. If not set, normal password-based authenticaion is
-       used. This is currently only supported with Gmail; if anyone
-       extends this to support other IMAP providers, please let me know so
-       I can include such support in getmail. Note that using XOAUTH2 is
-       no more secure than a regular getmail configuration with a mode
-       0600 getmailrc file. You will need to set password_command as well
-       to tell getmail to invoke the getmail-gmail-xoauth-tokens helper
-       program; that script requires a positional argument to tell it
-       where to read the initial tokens from and where it writes the
-       access and refresh tokens to, and the file requires manual initial
-       setup. This functionality was contributed by Stefan Krah, who has
-       additional information about using it here.
+       X-getmail-retrieved-from-mailbox: header field to retrieved messages,
+       containing the name of the selected mailbox that the message was
+       retrieved from. This is on by default, but can be disabled.
+     * use_kerberos (boolean) — whether to use Kerberos authentication with
+       the IMAP server. If not set, normal password-based authenticaion is
+       used. Note that when you use Kerberos authentication, it is up to you
+       to ensure you have a valid Kerberos ticket (perhaps by running a
+       ticket-renewing agent such as kstart or similar). This feature
+       requires that a recent version of pykerberos with GSS support is
+       installed; check your OS distribution or see
+       http://honk.sigxcpu.org/projects/pykerberos/" for details.
+     * use_xoauth2 (boolean) — whether to use XOAUTH2 for login with the IMAP
+       server. If not set, normal password-based authenticaion is used. This
+       is currently only supported with Gmail; if anyone extends this to
+       support other IMAP providers, please let me know so I can include such
+       support in getmail. Note that using XOAUTH2 is no more secure than a
+       regular getmail configuration with a mode 0600 getmailrc file. You
+       will need to set password_command as well to tell getmail to invoke
+       the getmail-gmail-xoauth-tokens helper program; that script requires a
+       positional argument to tell it where to read the initial tokens from
+       and where it writes the access and refresh tokens to, and the file
+       requires manual initial setup. This functionality was contributed by
+       Stefan Krah, who has additional information about using it here.
 
-SSL Client Parameters
+    SSL Client Parameters
 
-   All SSL-enabled retriever types also take the following options, to
-   allow specifying the use of a particular client key and client
-   certificate in establishing a connection to the server.
-     * keyfile (string) — use the specified PEM-formatted key file in the
-       SSL negotiation.
-     * certfile (string) — use the specified PEM-formatted certificate
-       file in the SSL negotiation.
+   All SSL-enabled retriever types also take the following options, to allow
+   specifying the use of a particular client key and client certificate in
+   establishing a connection to the server.
 
-SSL Certificate Validation and Server Parameters
+     * keyfile (string) — use the specified PEM-formatted key file in the SSL
+       negotiation.
+     * certfile (string) — use the specified PEM-formatted certificate file
+       in the SSL negotiation.
+
+    SSL Certificate Validation and Server Parameters
 
    All SSL-enabled POP and IMAP retriever types also take the following
    options, allowing you to require validation of the server's SSL
@@ -451,124 +450,135 @@ SSL Certificate Validation and Server Parameters
    connection.
 
    Note: using these features, including server certificate validation,
-   requires using Python 2.6 or Python 2.7 or higher with getmail. If you
-   use an earlier version of Python, these features will not work, and no
-   server certificate validation will be performed. Also note that these
-   features are not currently implemented for SPDS retrievers; I would be
-   interested in hearing from SPDS users who desire these features.
+   requires using Python 2.6 or Python 2.7 or higher with getmail. If you use
+   an earlier version of Python, these features will not work, and no server
+   certificate validation will be performed. Also note that these features
+   are not currently implemented for SPDS retrievers; I would be interested
+   in hearing from SPDS users who desire these features.
+
      * ca_certs (string) — advanced option to perform validation of the
-       server's SSL certificate. Specify the path to a PEM-formatted list
-       of 1 or more valid and trusted root certification authority (CA)
-       certificates. Note: this option is only available with Python 2.6
-       or higher.
+       server's SSL certificate. Specify the path to a PEM-formatted list of
+       1 or more valid and trusted root certification authority (CA)
+       certificates. Note: this option is only available with Python 2.6 or
+       higher.
        To find out which root CA is used to sign the chain of certificates
        for a given server, you can run
-openssl s_client -showcerts -connect HOST:PORT < /dev/null 2>/dev/null \
-  | grep '^[[:space:]]*i:' | tail -n 1
+
+ openssl s_client -showcerts -connect HOST:PORT < /dev/null 2>/dev/null \
+   | grep '^[[:space:]]*i:' | tail -n 1
 
        If the server's certificate cannot be validated based upon the
-       supplied trusted root certificates, getmail will abort the
-       connection.
+       supplied trusted root certificates, getmail will abort the connection.
        Root certificates are not supplied with getmail; your OS probably
        installs a set by default for use by the system, or you may wish to
        use a specific set of trusted root certificates provided by your
        employer or a trusted third party. Common locations for OS-supplied
        SSL root certification authority certificates include:
-          + Linux (Debian, Ubuntu, Arch, SuSE):
-/etc/ssl/certs/
-          + Linux (RedHat, Fedora, CentOS):
-/etc/pki/tls/certs/
-          + FreeBSD:
-/usr/local/share/certs/
-          + OpenBSD:
-/etc/ssl/
-          + OSX:
-/System/Library/OpenSSL/certs/
-          + Windows: ask Microsoft
+          * Linux (Debian, Ubuntu, Arch, SuSE):
+
+ /etc/ssl/certs/
+
+          * Linux (RedHat, Fedora, CentOS):
+
+ /etc/pki/tls/certs/
+
+          * FreeBSD:
+
+ /usr/local/share/certs/
+
+          * OpenBSD:
+
+ /etc/ssl/
+
+          * OSX:
+
+ /System/Library/OpenSSL/certs/
+
+          * Windows: ask Microsoft
      * ssl_ciphers (string) — advanced option to control which SSL cipher
-       algorithms will be allowed to proceed. See the Open SSL
-       documentation for details. If the specified setting results in no
-       possible ciphers available, getmail will abort the connection.
-       Note: this option is only available with Python 2.7 or higher.
+       algorithms will be allowed to proceed. See the Open SSL documentation
+       for details. If the specified setting results in no possible ciphers
+       available, getmail will abort the connection. Note: this option is
+       only available with Python 2.7 or higher.
      * ssl_version (string) — advanced option to control which SSL version
        getmail tries to use to connect to the server; the default is
        "sslv23". Another useful value is probably "sslv3". The available
        option values are taken from the Python ssl module. Note that this
-       option exists only to help in connecting certain legacy,
-       out-of-date, broken servers; most users should not specify this
-       option at all. Using this option without knowing what you are doing
-       can reduce the effectiveness of your encrypted connection. Note:
-       this option is only available with Python 2.6 or higher. Note: see
-       the FAQ for details on how to work around Gmail connection problems
-       with OpenSSL v.1.1.1 and later.
-     * ssl_fingerprints (tuple of quoted strings) — advanced option to
-       notice when the server's SSL certificate changes. Supply a list of
-       one or more SHA256 certificate fingerprints, and getmail will
-       confirm whether the server's certificate fingerprint is in the list
-       of allowed fingerprints; if it is not, getmail will abort the
-       connection. Getmail will log the fingerprint of the server's
-       certificate if you supply the --fingerprint commandline option.
-       Note: this option is only available with Python 2.6 or higher.
-     * ssl_cert_hostname (string) — advanced option to specify an
-       alternate hostname which is expected in the server's SSL
-       certificate hostname field. Specify this if the name used to
-       connect to the server is known not to match the hostname in the
-       server's certificate; otherwise, getmail will error out with a
-       hostname mismatch.
+       option exists only to help in connecting certain legacy, out-of-date,
+       broken servers; most users should not specify this option at all.
+       Using this option without knowing what you are doing can reduce the
+       effectiveness of your encrypted connection. Note: this option is only
+       available with Python 2.6 or higher. Note: see the FAQ for details on
+       how to work around Gmail connection problems with OpenSSL v.1.1.1 and
+       later.
+     * ssl_fingerprints (tuple of quoted strings) — advanced option to notice
+       when the server's SSL certificate changes. Supply a list of one or
+       more SHA256 certificate fingerprints, and getmail will confirm whether
+       the server's certificate fingerprint is in the list of allowed
+       fingerprints; if it is not, getmail will abort the connection. Getmail
+       will log the fingerprint of the server's certificate if you supply the
+       --fingerprint commandline option. Note: this option is only available
+       with Python 2.6 or higher.
+     * ssl_cert_hostname (string) — advanced option to specify an alternate
+       hostname which is expected in the server's SSL certificate hostname
+       field. Specify this if the name used to connect to the server is known
+       not to match the hostname in the server's certificate; otherwise,
+       getmail will error out with a hostname mismatch.
 
-SimplePOP3Retriever
+    SimplePOP3Retriever
 
-   The SimplePOP3Retriever class takes the common retriever parameters
-   above, plus the following optional parameters:
+   The SimplePOP3Retriever class takes the common retriever parameters above,
+   plus the following optional parameters:
+
      * use_apop (boolean) — if set to True, getmail will use APOP-style
        authentication to log in to the server instead of normal USER/PASS
-       authentication. This is not supported by many POP3 servers. Note
-       that APOP adds much less security than might be supposed;
-       weaknesses in its hashing algorithm mean that an attacker can
-       recover the first three characters of the password after snooping
-       on only a few hundred authentications between a client and server —
-       see http://www.securityfocus.com/archive/1/464477/30/0/threaded for
+       authentication. This is not supported by many POP3 servers. Note that
+       APOP adds much less security than might be supposed; weaknesses in its
+       hashing algorithm mean that an attacker can recover the first three
+       characters of the password after snooping on only a few hundred
+       authentications between a client and server — see
+       http://www.securityfocus.com/archive/1/464477/30/0/threaded for
        details. The default is False.
      * timeout (integer) — how long (in seconds) to wait for socket
        operations to complete before considering them failed. If not
-       specified, the default is 180 seconds. You may need to increase
-       this value in particularly poor networking conditions.
+       specified, the default is 180 seconds. You may need to increase this
+       value in particularly poor networking conditions.
      * delete_dup_msgids (boolean) — if set to True, and the POP3 server
-       identifies multiple messages as having the same "unique"
-       identifier, all but the first will be deleted without retrieving
-       them.
+       identifies multiple messages as having the same "unique" identifier,
+       all but the first will be deleted without retrieving them.
 
-BrokenUIDLPOP3Retriever
+    BrokenUIDLPOP3Retriever
 
    This retriever class is intended only for use with broken POP3 servers
    that either do not implement the UIDL command, or which do not properly
-   assign unique identifiers to messages (preventing getmail from
-   determining which messages it has seen before). It will identify every
-   message in the mailbox as a new message, and therefore if you use this
-   retriever class and opt not to delete messages after retrieval, it will
-   retrieve those messages again the next time getmail is run. Use this
-   retriever class only if your mailbox is hosted on such a broken POP3
-   server, and the server does not provide another means of getmail
-   accessing it (i.e., IMAP).
+   assign unique identifiers to messages (preventing getmail from determining
+   which messages it has seen before). It will identify every message in the
+   mailbox as a new message, and therefore if you use this retriever class
+   and opt not to delete messages after retrieval, it will retrieve those
+   messages again the next time getmail is run. Use this retriever class only
+   if your mailbox is hosted on such a broken POP3 server, and the server
+   does not provide another means of getmail accessing it (i.e., IMAP).
 
    The BrokenUIDLPOP3Retriever class takes the common retriever parameters
    above, plus the following optional parameters:
+
      * use_apop (boolean) — see SimplePOP3Retriever for definition.
      * timeout (integer) — see SimplePOP3Retriever for definition.
 
-SimpleIMAPRetriever
+    SimpleIMAPRetriever
 
-   The SimpleIMAPRetriever class takes the common retriever parameters
-   above, plus the following optional parameters:
+   The SimpleIMAPRetriever class takes the common retriever parameters above,
+   plus the following optional parameters:
+
      * timeout (integer) — see SimplePOP3Retriever for definition.
 
-SimplePOP3SSLRetriever
+    SimplePOP3SSLRetriever
 
    The SimplePOP3SSLRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
+
      * use_apop (boolean) — see SimplePOP3Retriever for definition.
-     * delete_dup_msgids (boolean) — see SimplePOP3Retriever for
-       definition.
+     * delete_dup_msgids (boolean) — see SimplePOP3Retriever for definition.
      * ca_certs (string) — see SSL Certificate Validation and Server
        Parameters for definition
      * ssl_ciphers (string) — see SSL Certificate Validation and Server
@@ -578,10 +588,11 @@ SimplePOP3SSLRetriever
      * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
        Validation and Server Parameters for definition
 
-BrokenUIDLPOP3SSLRetriever
+    BrokenUIDLPOP3SSLRetriever
 
-   The BrokenUIDLPOP3SSLRetriever class takes the common retriever
-   parameters above, plus the following optional parameters:
+   The BrokenUIDLPOP3SSLRetriever class takes the common retriever parameters
+   above, plus the following optional parameters:
+
      * use_apop (boolean) — see SimplePOP3Retriever for definition.
      * keyfile (string) — see SSL Client Parameters for definition.
      * certfile (string) — see SSL Client Parameters for definition.
@@ -594,12 +605,13 @@ BrokenUIDLPOP3SSLRetriever
      * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
        Validation and Server Parameters for definition
 
-SimpleIMAPSSLRetriever
+    SimpleIMAPSSLRetriever
 
    The SimpleIMAPSSLRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
-     * mailboxes (tuple of quoted strings) — see common retriever
-       parameters for definition.
+
+     * mailboxes (tuple of quoted strings) — see common retriever parameters
+       for definition.
      * move_on_delete (string) — see SimpleIMAPRetriever for definition.
      * keyfile (string) — see SSL Client Parameters for definition.
      * certfile (string) — see SSL Client Parameters for definition.
@@ -612,30 +624,35 @@ SimpleIMAPSSLRetriever
      * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
        Validation and Server Parameters for definition
 
-MultidropPOP3Retriever
+    MultidropPOP3Retriever
 
    The MultidropPOP3Retriever class takes the common retriever parameters
    above, plus the following required parameter:
-     * envelope_recipient (string) — the name and position of the header
-       field which records the envelope recipient address. This is set to
-       a value of the form field_name : field_position . The first
-       (topmost) Delivered-To: header field would be specified as:
-envelope_recipient = delivered-to:1
 
-   The MultidropPOP3Retriever also takes the following optional
-   parameters:
+     * envelope_recipient (string) — the name and position of the header
+       field which records the envelope recipient address. This is set to a
+       value of the form field_name : field_position . The first (topmost)
+       Delivered-To: header field would be specified as:
+
+ envelope_recipient = delivered-to:1
+        
+
+   The MultidropPOP3Retriever also takes the following optional parameters:
+
      * use_apop (boolean) — see SimplePOP3Retriever for definition.
      * timeout (integer) — see SimplePOP3Retriever for definition.
 
-MultidropPOP3SSLRetriever
+    MultidropPOP3SSLRetriever
 
-   The MultidropPOP3SSLRetriever class takes the common retriever
-   parameters above, plus the following required parameter:
+   The MultidropPOP3SSLRetriever class takes the common retriever parameters
+   above, plus the following required parameter:
+
      * envelope_recipient (string) — see MultidropPOP3Retriever for
        definition.
 
    The MultidropPOP3SSLRetriever class alo takes the following optional
    parameters:
+
      * use_apop (boolean) — see SimplePOP3Retriever for definition.
      * keyfile (string) — see SSL Client Parameters for definition.
      * certfile (string) — see SSL Client Parameters for definition.
@@ -648,37 +665,42 @@ MultidropPOP3SSLRetriever
      * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
        Validation and Server Parameters for definition
 
-MultidropSDPSRetriever
+    MultidropSDPSRetriever
 
    The MultidropSDPSRetriever class takes the common retriever parameters
    above, plus the following optional parameters:
+
      * timeout (integer) — see SimplePOP3Retriever for definition.
 
-MultidropIMAPRetriever
+    MultidropIMAPRetriever
 
    The MultidropIMAPRetriever class takes the common retriever parameters
    above, plus the following required parameter:
+
      * envelope_recipient (string) — see MultidropPOP3Retriever for
        definition.
 
    The MultidropIMAPRetriever class also takes the following optional
    parameters:
+
      * timeout (integer) — see SimplePOP3Retriever for definition.
-     * mailboxes (tuple of quoted strings) — see common retriever
-       parameters for definition.
+     * mailboxes (tuple of quoted strings) — see common retriever parameters
+       for definition.
      * move_on_delete (string) — see SimpleIMAPRetriever for definition.
 
-MultidropIMAPSSLRetriever
+    MultidropIMAPSSLRetriever
 
-   The MultidropIMAPSSLRetriever class takes the common retriever
-   parameters above, plus the following required parameter:
+   The MultidropIMAPSSLRetriever class takes the common retriever parameters
+   above, plus the following required parameter:
+
      * envelope_recipient (string) — see MultidropPOP3Retriever for
        definition.
 
    The MultidropIMAPSSLRetriever class also takes following optional
    parameters:
-     * mailboxes (tuple of quoted strings) — see common retriever
-       parameters for definition.
+
+     * mailboxes (tuple of quoted strings) — see common retriever parameters
+       for definition.
      * move_on_delete (string) — see SimpleIMAPRetriever for definition.
      * keyfile (string) — see SSL Client Parameters for definition.
      * certfile (string) — see SSL Client Parameters for definition.
@@ -691,70 +713,76 @@ MultidropIMAPSSLRetriever
      * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
        Validation and Server Parameters for definition
 
-Retriever examples
+  Retriever examples
 
    A typical POP3 mail account (the basic kind of mailbox provided by most
    internet service providers (ISPs)) would use a retriever configuration
    like this:
-[retriever]
-type = SimplePOP3Retriever
-server = popmail.isp.example.net
-username = account_name
-password = my_mail_password
 
-   If your ISP provides POP3 access on a non-standard port number, you
-   would need to include the port parameter:
-[retriever]
-type = SimplePOP3Retriever
-server = popmail.isp.example.net
-port = 8110
-username = account_name
-password = my_mail_password
+ [retriever]
+ type = SimplePOP3Retriever
+ server = popmail.isp.example.net
+ username = account_name
+ password = my_mail_password
+
+   If your ISP provides POP3 access on a non-standard port number, you would
+   need to include the port parameter:
+
+ [retriever]
+ type = SimplePOP3Retriever
+ server = popmail.isp.example.net
+ port = 8110
+ username = account_name
+ password = my_mail_password
 
    If your ISP provides POP3-over-SSL and you wanted to use that, your
    retriever configuration might look like this:
-[retriever]
-type = SimplePOP3SSLRetriever
-server = popmail.isp.example.net
-username = account_name
-password = my_mail_password
+
+ [retriever]
+ type = SimplePOP3SSLRetriever
+ server = popmail.isp.example.net
+ username = account_name
+ password = my_mail_password
 
    If you have an IMAP mail account and want to retrieve messages from
-   several mail folders under that account, and you want to move messages
-   to a special folder when deleting them, you would use a retriever
+   several mail folders under that account, and you want to move messages to
+   a special folder when deleting them, you would use a retriever
    configuration like this:
-[retriever]
-type = SimpleIMAPRetriever
-server = imapmail.isp.example.net
-username = account_name
-password = my_mail_password
-mailboxes = ("INBOX", "lists.unix", "lists.getmail")
-move_on_delete = mail.deleted
 
-   If you are retrieving your company's mail from a domain POP3 mailbox
-   for delivery to multiple local users, you might use a retriever
-   configuration like this:
-[retriever]
-type = MultidropPOP3Retriever
-server = imapmail.isp.example.net
-username = account_name
-password = company_maildrop_password
-envelope_recipient = delivered-to:1
+ [retriever]
+ type = SimpleIMAPRetriever
+ server = imapmail.isp.example.net
+ username = account_name
+ password = my_mail_password
+ mailboxes = ("INBOX", "lists.unix", "lists.getmail")
+ move_on_delete = mail.deleted
 
-Creating the [destination] section
+   If you are retrieving your company's mail from a domain POP3 mailbox for
+   delivery to multiple local users, you might use a retriever configuration
+   like this:
+
+ [retriever]
+ type = MultidropPOP3Retriever
+ server = imapmail.isp.example.net
+ username = account_name
+ password = company_maildrop_password
+ envelope_recipient = delivered-to:1
+
+  Creating the [destination] section
 
    The destination section of the rc file tells getmail what to do with
    retrieved messages. Begin with the section header line as follows:
-[destination]
+
+ [destination]
 
    Then, include a type string parameter to tell getmail what type of mail
    destination this is. The possible values are:
+
      * Maildir — deliver all messages to a local qmail-style maildir
-     * Mboxrd — deliver all messages to a local mboxrd-format mbox file
-       with fcntl-type locking.
-     * MDA_external — use an external message delivery agent (MDA) to
-       deliver messages. Typical MDAs include maildrop, procmail, and
-       others.
+     * Mboxrd — deliver all messages to a local mboxrd-format mbox file with
+       fcntl-type locking.
+     * MDA_external — use an external message delivery agent (MDA) to deliver
+       messages. Typical MDAs include maildrop, procmail, and others.
      * MultiDestination — unconditionally deliver messages to multiple
        destinations (maildirs, mbox files, external MDAs, or other
        destinations).
@@ -762,407 +790,426 @@ Creating the [destination] section
        (requires a domain mailbox retriever) and deliver to a variety of
        maildirs, mbox files, external MDAs, or other destinations based on
        regular expressions matching the recipient address of each message.
-       Messages not matching any of the regular expressions are delivered
-       to a default "postmaster" destination.
-     * MultiGuesser — sort messages according to getmail's best guess at
-       what the envelope recipient of the message might have been, and
-       deliver to a variety of maildirs, mbox files, external MDAs, or
-       other destinations based on regular expressions matching those
-       addresses. Messages not matching any of the regular expressions are
-       delivered to a default "postmaster" destination.
+       Messages not matching any of the regular expressions are delivered to
+       a default "postmaster" destination.
+     * MultiGuesser — sort messages according to getmail's best guess at what
+       the envelope recipient of the message might have been, and deliver to
+       a variety of maildirs, mbox files, external MDAs, or other
+       destinations based on regular expressions matching those addresses.
+       Messages not matching any of the regular expressions are delivered to
+       a default "postmaster" destination.
      * MDA_qmaillocal — use qmail-local to deliver messages according to
        instructions in a .qmail file.
 
-Maildir
+    Maildir
 
    The Maildir destination delivers to a qmail-style maildir. The maildir
-   must already exist, and must contain all of the subdirectories required
-   by the maildir format. getmail will not create the maildir if it does
-   not exist. If you're not familiar with the maildir format, the
-   requirements in a nutshell are: it must be a directory containing three
-   writable subdirectories cur, new, and tmp, and they must all reside on
-   the same filesystem.
+   must already exist, and must contain all of the subdirectories required by
+   the maildir format. getmail will not create the maildir if it does not
+   exist. If you're not familiar with the maildir format, the requirements in
+   a nutshell are: it must be a directory containing three writable
+   subdirectories cur, new, and tmp, and they must all reside on the same
+   filesystem.
 
    The Maildir destination takes one required parameter:
+
      * path (string) — the path to the maildir, ending in slash (/). This
        value will be expanded for leading ~ or ~USER and environment
        variables in the form $VARNAME or ${VARNAME}. You might want to
        deliver messages to a maildir named Maildir in your home directory;
        you could do this with a configuration like this:
-[destination]
-type = Maildir
-path = ~/Maildir/
+
+ [destination]
+ type = Maildir
+ path = ~/Maildir/
+        
 
    The Maildir destination also takes two optional parameters:
-     * user (string) — on Unix-like systems, if supplied, getmail will
-       change the effective UID to that of the named user before
-       delivering messages to the maildir. Note that this typically
-       requires root privileges. getmail will not deliver to maildirs as
-       root, so this "optional" parameter is required in that situation.
+
+     * user (string) — on Unix-like systems, if supplied, getmail will change
+       the effective UID to that of the named user before delivering messages
+       to the maildir. Note that this typically requires root privileges.
+       getmail will not deliver to maildirs as root, so this "optional"
+       parameter is required in that situation.
      * filemode (string) — if supplied, getmail will cause the delivered
-       message files in the maildir to have at most these permissions
-       (given in standard Unix octal notation). Note that the current
-       umask is masked out of the given value at file creation time. The
-       default value, which should be appropriate for most users, is
-       "0600".
+       message files in the maildir to have at most these permissions (given
+       in standard Unix octal notation). Note that the current umask is
+       masked out of the given value at file creation time. The default
+       value, which should be appropriate for most users, is "0600".
 
-Mboxrd
+    Mboxrd
 
-   The Mboxrd destination delivers to an mboxrd-format mbox file with
-   either fcntl-type (lockf) or flock-type file locking. The file must
-   already exist and appear to be a valid mboxrd file before getmail will
-   try to deliver to it — getmail will not create the file if it does not
-   exist. If you want to create a new mboxrd file for getmail to use,
-   simply create a completely empty (0-byte) file.
+   The Mboxrd destination delivers to an mboxrd-format mbox file with either
+   fcntl-type (lockf) or flock-type file locking. The file must already exist
+   and appear to be a valid mboxrd file before getmail will try to deliver to
+   it — getmail will not create the file if it does not exist. If you want to
+   create a new mboxrd file for getmail to use, simply create a completely
+   empty (0-byte) file.
 
-   You must ensure that all other programs accessing any the mbox file
-   expect mboxrd-format mbox files and the same type of file locking that
-   you configure getmail to use; failure to do so can cause mbox
-   corruption. If you do not know what type of file locking your system
-   expects, ask your system administrator. If you are the system
-   administrator and don't know what type of file locking your system
-   expects, do not use Mboxrd files; use Maildirs instead. Note that
-   delivering to mbox files over NFS can be unreliable and should be
-   avoided; this is the case with any MDA.
+   You must ensure that all other programs accessing any the mbox file expect
+   mboxrd-format mbox files and the same type of file locking that you
+   configure getmail to use; failure to do so can cause mbox corruption. If
+   you do not know what type of file locking your system expects, ask your
+   system administrator. If you are the system administrator and don't know
+   what type of file locking your system expects, do not use Mboxrd files;
+   use Maildirs instead. Note that delivering to mbox files over NFS can be
+   unreliable and should be avoided; this is the case with any MDA.
 
    The Mboxrd destination takes one required parameter:
-     * path (string) — the path to the mbox file. This value will be
-       expanded for leading ~ or ~USER and environment variables in the
-       form $VARNAME or ${VARNAME}. You might want to deliver messages to
-       an mbox file named inbox in your home directory; you could do this
-       with a configuration like this:
-[destination]
-type = Mboxrd
-path = ~/inbox
+
+     * path (string) — the path to the mbox file. This value will be expanded
+       for leading ~ or ~USER and environment variables in the form $VARNAME
+       or ${VARNAME}. You might want to deliver messages to an mbox file
+       named inbox in your home directory; you could do this with a
+       configuration like this:
+
+ [destination]
+ type = Mboxrd
+ path = ~/inbox
+        
 
    The Mboxrd destination also takes two optional parameters:
-     * user (string) — on Unix-like systems, if supplied, getmail will
-       change the effective UID to that of the named user before
-       delivering messages to the mboxrd file. Note that this typically
-       requires root privileges. getmail will not deliver to mbox files as
-       root, so this "optional" parameter is required in that situation.
-     * locktype (string) — which type of file locking to use; may be
-       "lockf" (for fcntl locking) or "flock". The default in getmail
-       4.7.0 and later is lockf.
 
-MDA_external
+     * user (string) — on Unix-like systems, if supplied, getmail will change
+       the effective UID to that of the named user before delivering messages
+       to the mboxrd file. Note that this typically requires root privileges.
+       getmail will not deliver to mbox files as root, so this "optional"
+       parameter is required in that situation.
+     * locktype (string) — which type of file locking to use; may be "lockf"
+       (for fcntl locking) or "flock". The default in getmail 4.7.0 and later
+       is lockf.
 
-   MDA_external delivers messages by running an external program (known as
-   a message delivery agent, or MDA) and feeding it the message on its
-   standard input. Some typical MDAs include maildrop and procmail.
+    MDA_external
+
+   MDA_external delivers messages by running an external program (known as a
+   message delivery agent, or MDA) and feeding it the message on its standard
+   input. Some typical MDAs include maildrop and procmail.
 
    The MDA_external destination takes one required parameter:
+
      * path (string) — the path to the command to run. This value will be
-       expanded for leading ~ or ~USER and environment variables in the
-       form $VARNAME or ${VARNAME}.
+       expanded for leading ~ or ~USER and environment variables in the form
+       $VARNAME or ${VARNAME}.
 
    The MDA_external destination also takes several optional parameters:
-     * arguments (tuple of quoted strings) — arguments to be supplied to
-       the command. The following substrings will be substituted with the
+
+     * arguments (tuple of quoted strings) — arguments to be supplied to the
+       command. The following substrings will be substituted with the
        equivalent values from the message:
-          + %(sender) — envelope return-path address
+          * %(sender) — envelope return-path address
        If the message is retrieved with a multidrop retriever class, the
        message recipient (and parts of it) are also available with the
        following replacement substrings:
-          + %(recipient) — envelope recipient address
-          + %(local) — local-part of the envelope recipient address
-          + %(domain) — domain-part of the envelope recipient address
-          + %(mailbox) — the IMAP mailbox name the message was retrieved
+          * %(recipient) — envelope recipient address
+          * %(local) — local-part of the envelope recipient address
+          * %(domain) — domain-part of the envelope recipient address
+          * %(mailbox) — the IMAP mailbox name the message was retrieved
             from; for POP, this will be empty
        The default value of the arguments parameter is (), so no arguments
        are supplied to the command.
-     * unixfrom (boolean) — whether to include a Unix-style mbox From_
-       line at the beginning of the message supplied to the command.
-       Defaults to false. Some MDAs expect such a line to be present and
-       will fail to operate if it is missing.
-     * user (string) — if supplied, getmail will change the effective UID
-       to that of the named user. Note that this typically requires root
+     * unixfrom (boolean) — whether to include a Unix-style mbox From_ line
+       at the beginning of the message supplied to the command. Defaults to
+       false. Some MDAs expect such a line to be present and will fail to
+       operate if it is missing.
+     * user (string) — if supplied, getmail will change the effective UID to
+       that of the named user. Note that this typically requires root
        privileges.
-     * group (string) — if supplied, getmail will change the effective GID
-       to that of the named group. Note that this typically requires root
+     * group (string) — if supplied, getmail will change the effective GID to
+       that of the named group. Note that this typically requires root
        privileges.
      * allow_root_commands (boolean) — if set, getmail will run external
        commands even if it is currently running with root privileges. The
-       default is false, which causes getmail to raise an exception if it
-       is asked to run an external command as root. Note that setting this
+       default is false, which causes getmail to raise an exception if it is
+       asked to run an external command as root. Note that setting this
        option has serious security implications. Don't use it if you don't
-       know what you're doing. I strongly recommend against running
-       external processes as root.
+       know what you're doing. I strongly recommend against running external
+       processes as root.
      * ignore_stderr (boolean) — if set, getmail will not consider it an
        error if the program writes to stderr. The default is false, which
-       causes getmail to consider the delivery failed and leave the
-       message on the server, proceeding to the next message. This
-       prevents loss of mail if the MDA writes to stderr but fails to exit
-       nonzero when it encounters an error. Note that setting this option
-       has serious implications; some MDAs can fail to deliver a message
-       but still exit 0, which can cause loss of mail if this option is
-       set. Only change this setting if you are confident your MDA always
-       exits nonzero on error.
+       causes getmail to consider the delivery failed and leave the message
+       on the server, proceeding to the next message. This prevents loss of
+       mail if the MDA writes to stderr but fails to exit nonzero when it
+       encounters an error. Note that setting this option has serious
+       implications; some MDAs can fail to deliver a message but still exit
+       0, which can cause loss of mail if this option is set. Only change
+       this setting if you are confident your MDA always exits nonzero on
+       error.
 
    A basic invocation of an external MDA might look like this:
-[destination]
-type = MDA_external
-path = /path/to/mymda
-arguments = ("--log-errors", )
+
+ [destination]
+ type = MDA_external
+ path = /path/to/mymda
+ arguments = ("--log-errors", )
 
    Something more complex might look like this:
-[destination]
-type = MDA_external
-path = /path/to/mymda
-# Switch to fred's UID and the mail group GID before delivering his mail
-user = fred
-group = mail
-arguments = ("--strip-forbidden-attachments", "--recipient=%(recipient)")
 
-MultiDestination
+ [destination]
+ type = MDA_external
+ path = /path/to/mymda
+ # Switch to fred's UID and the mail group GID before delivering his mail
+ user = fred
+ group = mail
+ arguments = ("--strip-forbidden-attachments", "--recipient=%(recipient)")
+
+    MultiDestination
 
    MultiDestination doesn't do any message deliveries itself; instead, it
    lets you specify a list of one or more other destinations which it will
-   pass each message to. You can use this to deliver each message to
-   several different destinations.
+   pass each message to. You can use this to deliver each message to several
+   different destinations.
 
    The MultiDestination destination takes one required parameter:
+
      * destinations (tuple of quoted strings) — the destinations which the
-       messages will be passed to. A destination is a string that refers
-       to another configuration file section by name (shortcuts for
-       maildirs and mboxrd files are also provided; see below), like this:
-destinations = ('[other-destination-1]', '[other-destination-2]')
+       messages will be passed to. A destination is a string that refers to
+       another configuration file section by name (shortcuts for maildirs and
+       mboxrd files are also provided; see below), like this:
 
-[other-destination-1]
-type = Mboxrd
-path = /var/spool/mail/alice
-user = alice
+ destinations = ('[other-destination-1]', '[other-destination-2]')
 
-[other-destination-2]
-type = Maildir
-path = /home/joe/Maildir/
-user = joe
+ [other-destination-1]
+ type = Mboxrd
+ path = /var/spool/mail/alice
+ user = alice
+
+ [other-destination-2]
+ type = Maildir
+ path = /home/joe/Maildir/
+ user = joe
 
        Because Maildir and Mboxrd destinations are common, you can specify
-       them directly as a shortcut if they do not require a user
-       parameter. If the string (after expansion; see below) starts with a
-       dot or slash and ends with a slash, it specifies the path of a
-       Maildir destination, while if it starts with a dot or a slash and
-       does not end with a slash, it specifies the path of a Mboxrd
-       destination.
-       For instance, you can deliver mail to two maildirs with the
-       following:
-destinations = ('~/Mail/inbox/', '~/Mail/archive/current/')
+       them directly as a shortcut if they do not require a user parameter.
+       If the string (after expansion; see below) starts with a dot or slash
+       and ends with a slash, it specifies the path of a Maildir destination,
+       while if it starts with a dot or a slash and does not end with a
+       slash, it specifies the path of a Mboxrd destination.
 
-       Each destination string is first expanded for leading ~ or ~USER
-       and environment variables in the form $VARNAME or ${VARNAME}.
+       For instance, you can deliver mail to two maildirs with the following:
+
+ destinations = ('~/Mail/inbox/', '~/Mail/archive/current/')
+
+       Each destination string is first expanded for leading ~ or ~USER and
+       environment variables in the form $VARNAME or ${VARNAME}.
 
    Some examples:
+
      * To deliver to a maildir named Maildir in the home directory of user
        jeff, when getmail is run as that user:
-[destination]
-type = MultiDestination
-destinations = ("~jeff/Maildir/", )
+
+ [destination]
+ type = MultiDestination
+ destinations = ("~jeff/Maildir/", )
 
      * To deliver to an mboxrd file:
-[destination]
-type = MultiDestination
-destinations = ("/var/spool/mail/alice", )
+
+ [destination]
+ type = MultiDestination
+ destinations = ("/var/spool/mail/alice", )
 
      * To deliver with an external MDA:
-[destination]
-type = MultiDestination
-destinations = ("[procmail-as-bob]", )
 
-[procmail-as-bob]
-type = MDA_external
-path = /path/to/procmail
-arguments = ('~bob/.procmailrc', '-f', '%(sender)')
-user = bob
+ [destination]
+ type = MultiDestination
+ destinations = ("[procmail-as-bob]", )
 
-   Of course, the whole point of MultiDestination is to allow you to
-   specify multiple destinations, like this:
-[destination]
-type = MultiDestination
-destinations = (
-    "~jeff/Mail/inbox",
-    "[procmail-as-jeff]",
-    "/var/mail-archive/incoming"
-    )
+ [procmail-as-bob]
+ type = MDA_external
+ path = /path/to/procmail
+ arguments = ('~bob/.procmailrc', '-f', '%(sender)')
+ user = bob
 
-[procmail-as-jeff]
-type = MDA_external
-path = /path/to/procmail
-arguments = ('~jeff/.procmailrc', '-f', '%(sender)')
-user = jeff
+   Of course, the whole point of MultiDestination is to allow you to specify
+   multiple destinations, like this:
 
-MultiSorter
+ [destination]
+ type = MultiDestination
+ destinations = (
+     "~jeff/Mail/inbox",
+     "[procmail-as-jeff]",
+     "/var/mail-archive/incoming"
+     )
 
-   MultiSorter compares the envelope recipient address of messages against
-   a list of user-supplied regular expressions and delivers the message to
-   the destination (maildir, mboxrd file, or other) associated with any
-   matching patterns. A message can match multiple patterns and therefore
-   be delivered to multiple matching destinations. Any message which
-   matches none of the patterns is delivered to a default destination for
-   the postmaster.
+ [procmail-as-jeff]
+ type = MDA_external
+ path = /path/to/procmail
+ arguments = ('~jeff/.procmailrc', '-f', '%(sender)')
+ user = jeff
 
-   Because MultiSorter requires the envelope recipient to operate, it must
-   be used with a domain mailbox retriever. If you instead want to do some
-   basic message sorting based on getmail's best guess as to the envelope
-   recipient of the message, see the MultiGuesser destination class below.
+    MultiSorter
+
+   MultiSorter compares the envelope recipient address of messages against a
+   list of user-supplied regular expressions and delivers the message to the
+   destination (maildir, mboxrd file, or other) associated with any matching
+   patterns. A message can match multiple patterns and therefore be delivered
+   to multiple matching destinations. Any message which matches none of the
+   patterns is delivered to a default destination for the postmaster.
+
+   Because MultiSorter requires the envelope recipient to operate, it must be
+   used with a domain mailbox retriever. If you instead want to do some basic
+   message sorting based on getmail's best guess as to the envelope recipient
+   of the message, see the MultiGuesser destination class below.
 
    The MultiSorter destination takes one required parameter:
-     * default (string) — the destination for messages which aren't
-       matched by any of the "locals" regular expressions. The destination
-       can be a maildir, mboxrd file, or other destination. See
-       MultiDestination for an explanation of how the type of destination
-       is interpreted from this value.
+
+     * default (string) — the destination for messages which aren't matched
+       by any of the "locals" regular expressions. The destination can be a
+       maildir, mboxrd file, or other destination. See MultiDestination for
+       an explanation of how the type of destination is interpreted from this
+       value.
 
    The MultiSorter destination also takes one optional parameter:
+
      * locals (tuple of 2-tuples) — zero or more regular expression –
-       destination pairs. Messages will be delivered to each destination
-       for which the envelope recipient matches the given regular
-       expression. The regular expression and destination are supplied as
-       two quoted strings in a tuple; locals is then a tuple of such pairs
-       of strings. Destinations are specified in the same manner as with
-       the "default" parameter, above.
+       destination pairs. Messages will be delivered to each destination for
+       which the envelope recipient matches the given regular expression. The
+       regular expression and destination are supplied as two quoted strings
+       in a tuple; locals is then a tuple of such pairs of strings.
+       Destinations are specified in the same manner as with the "default"
+       parameter, above.
 
    Important note: if your regular expression contains backslashes (by
-   themselves, or as part of an escaped character or symbol like \n or \W
-   ), you need to tell the parser that this expression must be parsed
-   "raw" by prepending the string with an "r":
-locals = (
-    (r'jeff\?\?\?@.*', '[jeff]'),
-    ('alice@', '[alice]')
-    )
+   themselves, or as part of an escaped character or symbol like \n or \W ),
+   you need to tell the parser that this expression must be parsed "raw" by
+   prepending the string with an "r":
 
-locals = (
-    ('jeff@.*', '[jeff]'),
-    (r'alice\D+@', '[alice]')
-    )
+ locals = (
+     (r'jeff\?\?\?@.*', '[jeff]'),
+     ('alice@', '[alice]')
+     )
 
-   Note that if you don't understand regular expressions, you don't need
-   to worry about it. In general, an email address is a regular expression
-   that matches itself. The only significant times this isn't the case is
-   when the address contains odd punctuation characters like ^, $, \, or
-   [. Handy hints:
+ locals = (
+     ('jeff@.*', '[jeff]'),
+     (r'alice\D+@', '[alice]')
+     )
+
+   Note that if you don't understand regular expressions, you don't need to
+   worry about it. In general, an email address is a regular expression that
+   matches itself. The only significant times this isn't the case is when the
+   address contains odd punctuation characters like ^, $, \, or [. Handy
+   hints:
+
      * the regular expression . (dot) matches anything
-     * matches can occur anywhere in the address. If you want to only
-       match at the beginning, start your expression with the ^ character.
-       If you only want to match the whole address, also end your
-       expression with a dollar sign $.
+     * matches can occur anywhere in the address. If you want to only match
+       at the beginning, start your expression with the ^ character. If you
+       only want to match the whole address, also end your expression with a
+       dollar sign $.
 
    Using regular expressions:
+
      * The regular expression joe@example.org matches the addresses
        joe@example.org, joe@example.org.net, and heyjoe@example.org.
-     * The regular expression ^jeff@ matches the addresses
-       jeff@example.org and jeff@example.net, but not
-       otherjeff@example.org.
+     * The regular expression ^jeff@ matches the addresses jeff@example.org
+       and jeff@example.net, but not otherjeff@example.org.
      * The regular expression sam matches the addresses sam@example.org,
        samantha@example.org, asam@example.org, and chris@isam.example.net.
 
    Some examples:
-     *
-          + Deliver mail matching jeff@example.net to ~jeff/Maildir/
-          + Deliver mail matching alice@anything to ~alice/inbox
-          + Deliver all other mail to ~bob/Maildir/
-[destination]
-type = MultiSorter
-default = [bob-default]
-locals = (
-    ('jeff@example.net', '[jeff]'),
-    ('alice@', '[alice]')
-    )
 
-[jeff]
-type = Maildir
-path = ~jeff/Maildir/
-user = jeff
+     *    * Deliver mail matching jeff@example.net to ~jeff/Maildir/
+          * Deliver mail matching alice@anything to ~alice/inbox
+          * Deliver all other mail to ~bob/Maildir/
 
-[alice]
-type = Mboxrd
-path = ~alice/inbox
-user = alice
+ [destination]
+ type = MultiSorter
+ default = [bob-default]
+ locals = (
+     ('jeff@example.net', '[jeff]'),
+     ('alice@', '[alice]')
+     )
 
-[bob-default]
-type = Maildir
-path = ~bob/Maildir/
-user = bob
+ [jeff]
+ type = Maildir
+ path = ~jeff/Maildir/
+ user = jeff
 
-     *
-          + Deliver mail for jeff, bob, and alice to maildirs in their
-            home directories
-          + Deliver copies of all messages to samantha's mail archive
-          + Deliver copies of all messages to a program that logs certain
-            information. This program should run as the user log, and
-            command arguments should tell it to record the info to
-            /var/log/mail/info
-[destination]
-type = MultiSorter
-default = doesn't matter, this won't be used, as locals will always match
-locals = (
-    ('^jeff@', '[jeff]'),
-    ('^bob@', '[bob]'),
-    ('^alice@', '[alice]'),
-    ('.', '[copies]'),
-    ('.', '[info]')
-    )
+ [alice]
+ type = Mboxrd
+ path = ~alice/inbox
+ user = alice
 
-[alice]
-type = Maildir
-path = ~alice/Maildir/
-user = alice
+ [bob-default]
+ type = Maildir
+ path = ~bob/Maildir/
+ user = bob
 
-[bob]
-type = Maildir
-path = ~bob/Maildir/
-user = bob
+     *    * Deliver mail for jeff, bob, and alice to maildirs in their home
+            directories
+          * Deliver copies of all messages to samantha's mail archive
+          * Deliver copies of all messages to a program that logs certain
+            information. This program should run as the user log, and command
+            arguments should tell it to record the info to /var/log/mail/info
 
-[jeff]
-type = Maildir
-path = ~jeff/Maildir/
-user = jeff
+ [destination]
+ type = MultiSorter
+ default = doesn't matter, this won't be used, as locals will always match
+ locals = (
+     ('^jeff@', '[jeff]'),
+     ('^bob@', '[bob]'),
+     ('^alice@', '[alice]'),
+     ('.', '[copies]'),
+     ('.', '[info]')
+     )
 
-[copies]
-type = Maildir
-path = ~samantha/Mail/archive/copies/
-user = samantha
+ [alice]
+ type = Maildir
+ path = ~alice/Maildir/
+ user = alice
 
-[info]
-type = MDA_external
-path = /path/to/infologger
-arguments = ('--log=/var/log/mail/info', '--sender=%(sender)', '--recipient=%(re
-cipient))
-user = log
+ [bob]
+ type = Maildir
+ path = ~bob/Maildir/
+ user = bob
 
-MultiGuesser
+ [jeff]
+ type = Maildir
+ path = ~jeff/Maildir/
+ user = jeff
+
+ [copies]
+ type = Maildir
+ path = ~samantha/Mail/archive/copies/
+ user = samantha
+
+ [info]
+ type = MDA_external
+ path = /path/to/infologger
+ arguments = ('--log=/var/log/mail/info', '--sender=%(sender)', '--recipient=%(recipient))
+ user = log
+
+    MultiGuesser
 
    MultiGuesser tries to guess what the envelope recipient address of the
    message might have been, by comparing addresses found in the message
-   header against a list of user-supplied regular expressions, and
-   delivers the message to the destination (maildir, mboxrd file, or
-   other) associated with any matching patterns. A message can match
-   multiple patterns and therefore be delivered to multiple matching
-   destinations. Any message which matches none of the patterns is
-   delivered to a default destination for the postmaster. In this fashion,
-   you can do basic mail filtering and sorting with getmail without using
-   an external filtering message delivery agent (MDA) (such as maildrop or
-   procmail), if and only if the message recipient is the criteria you
-   want to filter on.
+   header against a list of user-supplied regular expressions, and delivers
+   the message to the destination (maildir, mboxrd file, or other) associated
+   with any matching patterns. A message can match multiple patterns and
+   therefore be delivered to multiple matching destinations. Any message
+   which matches none of the patterns is delivered to a default destination
+   for the postmaster. In this fashion, you can do basic mail filtering and
+   sorting with getmail without using an external filtering message delivery
+   agent (MDA) (such as maildrop or procmail), if and only if the message
+   recipient is the criteria you want to filter on.
 
    If you want to filter based on arbitrary message critera, like "What
-   address is in the To: header field?" or "Who is the message from?",
-   then use the filtering MDA of your choice, called from a getmail
-   MDA_external destination.
+   address is in the To: header field?" or "Who is the message from?", then
+   use the filtering MDA of your choice, called from a getmail MDA_external
+   destination.
 
-   MultiGuesser is similar to MultiSorter, except that it does not operate
-   on the true envelope recipient address, and therefore does not require
-   a domain mailbox retriever. Because it is "guessing" at the intended
-   recipient of the message based on the contents of the message header,
-   it is fallible — for instance, the address of a recipient of a mailing
-   list message may not appear in the header of the message at all. If
-   your locals regular expression patterns are only looking for that
-   address, MultiGuesser will then have to deliver it to the destination
-   specified as the default recipient.
+   MultiGuesser is similar to MultiSorter, except that it does not operate on
+   the true envelope recipient address, and therefore does not require a
+   domain mailbox retriever. Because it is "guessing" at the intended
+   recipient of the message based on the contents of the message header, it
+   is fallible — for instance, the address of a recipient of a mailing list
+   message may not appear in the header of the message at all. If your locals
+   regular expression patterns are only looking for that address,
+   MultiGuesser will then have to deliver it to the destination specified as
+   the default recipient.
 
    This functionality is very similar to the guessing functionality of
-   getmail version 2, which was removed in version 3. MultiGuesser
-   extracts a list of addresses from the message header like this:
+   getmail version 2, which was removed in version 3. MultiGuesser extracts a
+   list of addresses from the message header like this:
+
     1. it looks for addresses in any Delivered-To: header fields.
     2. if no addresses have been found, it looks for addresses in any
        Envelope-To: header fields.
@@ -1173,42 +1220,45 @@ MultiGuesser
     5. if no addresses have been found, it looks for addresses in any
        Resent-to: or Resent-cc: header fields (or Resent-bcc:, which
        shouldn't be present).
-    6. if no addresses have been found, it looks for addresses in any To:
-       or cc: header fields (or bcc:, which shouldn't be present).
+    6. if no addresses have been found, it looks for addresses in any To: or
+       cc: header fields (or bcc:, which shouldn't be present).
 
    The MultiGuesser destination takes one required parameter:
+
      * default (string) — see MultiSorter for definition.
 
    The MultiGuesser destination also takes one optional parameter:
+
      * locals (tuple of 2-tuples) — see MultiSorter for definition.
 
    Examples:
 
-   If you have a simple POP3 account (i.e. it's not a multidrop mailbox)
-   and you want to deliver your personal mail to your regular maildir, but
+   If you have a simple POP3 account (i.e. it's not a multidrop mailbox) and
+   you want to deliver your personal mail to your regular maildir, but
    deliver mail from a couple of mailing lists (identified by the list
-   address appearing in the message header) to separate maildirs, you
-   could use a MultiGuesser configuration like this:
-[destination]
-type = MultiGuesser
-default = ~/Maildir/
-locals = (
-    ("list-address-1@list-domain-1", "~/Mail/mailing-lists/list-1/"),
-    ("list-address-2@list-domain-2", "~/Mail/mailing-lists/list-2/"),
-    )
+   address appearing in the message header) to separate maildirs, you could
+   use a MultiGuesser configuration like this:
+
+ [destination]
+ type = MultiGuesser
+ default = ~/Maildir/
+ locals = (
+     ("list-address-1@list-domain-1", "~/Mail/mailing-lists/list-1/"),
+     ("list-address-2@list-domain-2", "~/Mail/mailing-lists/list-2/"),
+     )
 
    See MultiSorter above for other examples of getmail rc usage; the only
-   difference is the type parameter specifying the MultiGuesser
-   destination.
+   difference is the type parameter specifying the MultiGuesser destination.
 
-MDA_qmaillocal
+    MDA_qmaillocal
 
-   MDA_qmaillocal delivers messages by running the qmail-local program as
-   an external MDA. qmail-local uses .qmail files to tell it what to do
-   with messages. If you're not already familiar with qmail, you don't
-   need to use this destination class.
+   MDA_qmaillocal delivers messages by running the qmail-local program as an
+   external MDA. qmail-local uses .qmail files to tell it what to do with
+   messages. If you're not already familiar with qmail, you don't need to use
+   this destination class.
 
    The MDA_qmaillocal destination takes several optional parameters:
+
      * qmaillocal (string) — path to the qmail-local program. The default
        value is /var/qmail/bin/qmail-local.
      * user (string) — supplied to qmail-local, and also tells getmail to
@@ -1216,67 +1266,70 @@ MDA_qmaillocal
        running qmail-local. Note that this typically requires root
        privileges. The default value is the account name of the current
        effective UID.
-     * group (string) — if supplied, getmail will change the effective GID
-       to that of the named group before running qmail-local. Note that
-       this typically requires root privileges.
-     * homedir (string) — supplied to qmail-local. The default value is
-       the home directory of the account with the current effective UID.
-     * localdomain (string) — supplied to qmail-local as its domain
-       argument. The default value is the fully-qualified domain name of
-       the local host.
+     * group (string) — if supplied, getmail will change the effective GID to
+       that of the named group before running qmail-local. Note that this
+       typically requires root privileges.
+     * homedir (string) — supplied to qmail-local. The default value is the
+       home directory of the account with the current effective UID.
+     * localdomain (string) — supplied to qmail-local as its domain argument.
+       The default value is the fully-qualified domain name of the local
+       host.
      * defaultdelivery (string) — supplied to qmail-local as its
        defaultdelivery argument. The default value is ./Maildir/.
      * conf-break (string) — supplied to qmail-local as its dash argument.
        The default value is -.
      * localpart_translate (2-tuple of quoted strings) — if supplied, the
-       recipient address of the message (which is used to construct the
-       local argument (among others) to qmail-local) will have any leading
-       instance of the first string replaced with the second string. This
-       can be used to remap recipient addresses, trim extraneous prefixes
-       (such as the qmail virtualdomain prepend value), or perform other
-       tasks. The default value is ('', '') (i.e., no translation).
+       recipient address of the message (which is used to construct the local
+       argument (among others) to qmail-local) will have any leading instance
+       of the first string replaced with the second string. This can be used
+       to remap recipient addresses, trim extraneous prefixes (such as the
+       qmail virtualdomain prepend value), or perform other tasks. The
+       default value is ('', '') (i.e., no translation).
      * strip_delivered_to (boolean) — if set, Delivered-To: header fields
        will be removed from the message before handing it to qmail-local.
        This may be necessary to prevent qmail-local falsely detecting a
        looping message if (for instance) the system retrieving messages
        otherwise believes it has the same domain name as the retrieval
-       server. Inappropriate use of this option may cause message loops.
-       The default value is False.
-     * allow_root_commands (boolean) — if set, getmail will run
-       qmail-local even if it is currently running with root privileges.
-       The default is false, which causes getmail to raise an exception if
-       it is asked to run an external command as root. Note that setting
-       this option has serious security implications. Don't use it if you
-       don't know what you're doing. I strongly recommend against running
-       external processes as root.
+       server. Inappropriate use of this option may cause message loops. The
+       default value is False.
+     * allow_root_commands (boolean) — if set, getmail will run qmail-local
+       even if it is currently running with root privileges. The default is
+       false, which causes getmail to raise an exception if it is asked to
+       run an external command as root. Note that setting this option has
+       serious security implications. Don't use it if you don't know what
+       you're doing. I strongly recommend against running external processes
+       as root.
 
    A basic invocation of qmail-local might look like this:
-[destination]
-type = MDA_qmaillocal
-user = joyce
+
+ [destination]
+ type = MDA_qmaillocal
+ user = joyce
 
    Something more complex might look like this:
-[destination]
-type = MDA_qmaillocal
-user = joyce
-# The mail domain isn't the normal FQDN of the server running getmail
-localdomain = host.example.net
-# Trim the server's virtualdomain prepend value from message recipient before
-# sending it to qmail-local
-localpart_translate = ('mailhostaccount-', '')
 
-Creating the [options] section
+ [destination]
+ type = MDA_qmaillocal
+ user = joyce
+ # The mail domain isn't the normal FQDN of the server running getmail
+ localdomain = host.example.net
+ # Trim the server's virtualdomain prepend value from message recipient before
+ # sending it to qmail-local
+ localpart_translate = ('mailhostaccount-', '')
 
-   The optional options section of the rc file can be used to alter
-   getmail's default behaviour. The parameters supported in this section
-   are as follows:
-     * verbose (integer) — controls getmail's verbosity. If set to 2,
-       getmail prints messages about each of its actions. If set to 1, it
-       prints messages about retrieving and deleting messages (only). If
-       set to 0, getmail will only print warnings and errors. Default: 1.
-     * read_all (boolean) — if set, getmail retrieves all available
-       messages. If unset, getmail only retrieves messages it has not seen
-       before. Default: True.
+  Creating the [options] section
+
+   The optional options section of the rc file can be used to alter getmail's
+   default behaviour. The parameters supported in this section are as
+   follows:
+
+     * verbose (integer) — controls getmail's verbosity. If set to 2, getmail
+       prints messages about each of its actions. If set to 1, it prints
+       messages about retrieving and deleting messages (only). If set to 0,
+       getmail will only print warnings and errors. Default: 1.
+     * read_all (boolean) — if set, getmail retrieves all available messages.
+       If unset, getmail only retrieves messages it has not seen before.
+       Default: True.
      * delete (boolean) — if set, getmail will delete messages after
        retrieving and successfully delivering them. If unset, getmail will
        leave messages on the server after retrieving them. Default: False.
@@ -1293,167 +1346,170 @@ Creating the [options] section
        feature is to allow deleting only large messages, to help keep a
        mailbox under quota. Has no effect if delete is set, as that will
        unconditionally remove messages. If delete_after is also set, the
-       message will be deleted immediately after retrieval if it is over
-       this size, and otherwise will be deleted according to the setting
-       of delete_after. Default: 0, which means not to enable this
-       feature.
+       message will be deleted immediately after retrieval if it is over this
+       size, and otherwise will be deleted according to the setting of
+       delete_after. Default: 0, which means not to enable this feature.
      * max_bytes_per_session (integer) — if set, getmail will retrieve
        messages totalling up to this number of bytes before closing the
-       session with the server. This can be useful if you do not want
-       large messages causing large bursts of network traffic. Default: 0,
-       which means not to enable this feature. Note that message sizes
-       reported by the server are used, and therefore may vary slightly
-       from the actual size on disk after message retrieval.
+       session with the server. This can be useful if you do not want large
+       messages causing large bursts of network traffic. Default: 0, which
+       means not to enable this feature. Note that message sizes reported by
+       the server are used, and therefore may vary slightly from the actual
+       size on disk after message retrieval.
      * max_message_size (integer) — if set, getmail will not retrieve
-       messages larger than this number of bytes. Default: 0, which means
-       not to enable this feature.
+       messages larger than this number of bytes. Default: 0, which means not
+       to enable this feature.
      * max_messages_per_session (integer) — if set, getmail will process a
-       maximum of this number of messages before closing the session with
-       the server. This can be useful if your network or the server is
+       maximum of this number of messages before closing the session with the
+       server. This can be useful if your network or the server is
        particuarly unreliable. Default: 0, which means not to enable this
        feature.
-     * delivered_to (boolean) — if set, getmail adds a Delivered-To:
-       header field to the message. If unset, it will not do so. Default:
-       True. Note that this field will contain the envelope recipient of
-       the message if the retriever in use is a multidrop retriever;
-       otherwise it will contain the string "unknown".
-     * received (boolean) — if set, getmail adds a Received: header field
-       to the message. If unset, it will not do so. Default: True.
+     * delivered_to (boolean) — if set, getmail adds a Delivered-To: header
+       field to the message. If unset, it will not do so. Default: True. Note
+       that this field will contain the envelope recipient of the message if
+       the retriever in use is a multidrop retriever; otherwise it will
+       contain the string "unknown".
+     * received (boolean) — if set, getmail adds a Received: header field to
+       the message. If unset, it will not do so. Default: True.
      * message_log (string) — if set, getmail will record a log of its
-       actions to the named file. The value will be expanded for leading ~
-       or ~USER and environment variables in the form $VARNAME or
-       ${VARNAME}. Default: '' (the empty string), which means not to
-       enable this feature.
+       actions to the named file. The value will be expanded for leading ~ or
+       ~USER and environment variables in the form $VARNAME or ${VARNAME}.
+       Default: '' (the empty string), which means not to enable this
+       feature.
      * message_log_syslog (boolean) — if set, getmail will record a log of
        its actions using the system logger. Note that syslog is inherently
        unreliable and can lose log messages. Default: False.
      * message_log_verbose (boolean) — if set, getmail will log to the
-       message log file (or syslog) information about messages not
-       retrieved and the reason for not retrieving them, as well as
-       starting and ending information lines. By default, it will log only
-       about messages actually retrieved, and about error conditions. Note
-       that this has no effect if neither message_log nor
-       message_log_syslog is in use. Default: False.
+       message log file (or syslog) information about messages not retrieved
+       and the reason for not retrieving them, as well as starting and ending
+       information lines. By default, it will log only about messages
+       actually retrieved, and about error conditions. Note that this has no
+       effect if neither message_log nor message_log_syslog is in use.
+       Default: False.
 
    Most users will want to either enable the delete option (to delete mail
    after retrieving it), or disable the read_all option (to only retrieve
    previously-unread mail).
 
-   The verbose, read_all, and delete parameters can be overridden at run
-   time with commandline options.
+   The verbose, read_all, and delete parameters can be overridden at run time
+   with commandline options.
 
-[options] example
+    [options] example
 
    To configure getmail to operate quietly, to retrieve only new mail, to
-   delete messages after retrieving them, and to log its actions to a
-   file, you could provide the following in your getmail rc file(s):
-[options]
-verbose = 0
-read_all = false
-delete = true
-message_log = ~/.getmail/log
+   delete messages after retrieving them, and to log its actions to a file,
+   you could provide the following in your getmail rc file(s):
 
-Creating the [filter-something] sections
+ [options]
+ verbose = 0
+ read_all = false
+ delete = true
+ message_log = ~/.getmail/log
+
+  Creating the [filter-something] sections
 
    The filter-something section(s) of the rc file (which are not required)
    tell getmail to process messages in some way after retrieving them, but
-   before delivering them to your destinations. Filters can tell getmail
-   to drop a message (i.e. not deliver it at all), add information to the
+   before delivering them to your destinations. Filters can tell getmail to
+   drop a message (i.e. not deliver it at all), add information to the
    message header (i.e. for a spam- classification system or similar), or
-   modify message content (like an antivirus system stripping suspected
-   MIME parts from messages).
+   modify message content (like an antivirus system stripping suspected MIME
+   parts from messages).
 
-   You can specify any number of filters; provide a separate rc file
-   section for each, naming each of them filter-something. They will be
-   run in collated order, so it's likely simplest to name them like this:
+   You can specify any number of filters; provide a separate rc file section
+   for each, naming each of them filter-something. They will be run in
+   collated order, so it's likely simplest to name them like this:
+
      * [filter-1]
      * [filter-2]
      * [filter-3]
 
    Begin with the section header line as follows:
-[filter-something]
 
-   Then, include a type string parameter to tell getmail what type of
-   filter. The possible values are:
-     * Filter_classifier — run the message through an external program,
-       and insert the output of the program into
-       X-getmail-filter-classifier: header fields in the message. Messages
-       can be dropped by having the filter return specific exit codes.
-     * Filter_external — supply the message to an external program, which
-       can then modify the message in any fashion. The program must print
-       the modified message to stdout. getmail reads the modified message
-       from the program in this fasion before proceeding to the next
-       filter or destination. Messages can be dropped by having the filter
-       return specific exit codes.
-     * Filter_TMDA — run the message through the tmda-filter program for
-       use with the Tagged Message Delivery Agent (TMDA) package. If
-       tmda-filter returns 0, the message will be passed to the next
-       filter (or destination). If it returns 99, the message will be
-       dropped, and TMDA is responsible for sending a challenge message,
-       queuing the original, etc., as with normal TMDA operation in a
-       .qmail, .courier, or .forward file.
+ [filter-something]
 
-   By default, if a filter writes anything to stderr, getmail will
-   consider the delivery to have encountered an error. getmail will leave
-   the message on the server and proceed to the next message. You must
-   configure any filter you use not to emit messages to stderr except on
-   errors — please see the documentation for your filter program for
-   details. Optionally, if you know your filter can emit warnings on
-   stderr under non-error conditions, you can set the ignore_stderr
-   option.
+   Then, include a type string parameter to tell getmail what type of filter.
+   The possible values are:
 
-Filter_classifier
+     * Filter_classifier — run the message through an external program, and
+       insert the output of the program into X-getmail-filter-classifier:
+       header fields in the message. Messages can be dropped by having the
+       filter return specific exit codes.
+     * Filter_external — supply the message to an external program, which can
+       then modify the message in any fashion. The program must print the
+       modified message to stdout. getmail reads the modified message from
+       the program in this fasion before proceeding to the next filter or
+       destination. Messages can be dropped by having the filter return
+       specific exit codes.
+     * Filter_TMDA — run the message through the tmda-filter program for use
+       with the Tagged Message Delivery Agent (TMDA) package. If tmda-filter
+       returns 0, the message will be passed to the next filter (or
+       destination). If it returns 99, the message will be dropped, and TMDA
+       is responsible for sending a challenge message, queuing the original,
+       etc., as with normal TMDA operation in a .qmail, .courier, or .forward
+       file.
+
+   By default, if a filter writes anything to stderr, getmail will consider
+   the delivery to have encountered an error. getmail will leave the message
+   on the server and proceed to the next message. You must configure any
+   filter you use not to emit messages to stderr except on errors — please
+   see the documentation for your filter program for details. Optionally, if
+   you know your filter can emit warnings on stderr under non-error
+   conditions, you can set the ignore_stderr option.
+
+    Filter_classifier
 
    Filter_classifier runs the message through an external program, placing
    the output of that program into X-getmail-filter-classifier: header
-   fields. It can also cause messages to be dropped by exiting with a
-   return code listed in the exitcodes_drop parameter.
+   fields. It can also cause messages to be dropped by exiting with a return
+   code listed in the exitcodes_drop parameter.
 
    Filter_classifier has one required parameter:
+
      * path (string) — the path to the command to run. This value will be
-       expanded for leading ~ or ~USER and environment variables in the
-       form $VARNAME or ${VARNAME}.
+       expanded for leading ~ or ~USER and environment variables in the form
+       $VARNAME or ${VARNAME}.
 
    In addition, Filter_classifier takes the following optional parameters:
-     * arguments (tuple of quoted strings) — arguments to be supplied to
-       the command. The following substrings will be substituted with the
+
+     * arguments (tuple of quoted strings) — arguments to be supplied to the
+       command. The following substrings will be substituted with the
        equivalent values from the message:
-          + %(sender) — envelope return-path address
+          * %(sender) — envelope return-path address
        If the message is retrieved with a multidrop retriever class, the
        message recipient (and parts of it) are also available with the
        following replacement substrings:
-          + %(recipient) — envelope recipient address
-          + %(local) — local-part of the envelope recipient address
-          + %(domain) — domain-part of the envelope recipient address
+          * %(recipient) — envelope recipient address
+          * %(local) — local-part of the envelope recipient address
+          * %(domain) — domain-part of the envelope recipient address
        The default value of the arguments parameter is (), so no arguments
        are supplied to the command.
-     * unixfrom (boolean) — whether to include a Unix-style mbox From_
-       line at the beginning of the message supplied to the command.
-       Default: False.
-     * user (string) — if supplied, getmail will change the effective UID
-       to that of the named user. Note that this typically requires root
+     * unixfrom (boolean) — whether to include a Unix-style mbox From_ line
+       at the beginning of the message supplied to the command. Default:
+       False.
+     * user (string) — if supplied, getmail will change the effective UID to
+       that of the named user. Note that this typically requires root
        privileges.
-     * group (string) — if supplied, getmail will change the effective GID
-       to that of the named group. Note that this typically requires root
+     * group (string) — if supplied, getmail will change the effective GID to
+       that of the named group. Note that this typically requires root
        privileges.
      * allow_root_commands (boolean) — if set, getmail will run external
        commands even if it is currently running with root privileges. The
-       default is false, which causes getmail to raise an exception if it
-       is asked to run an external command as root. Note that setting this
+       default is false, which causes getmail to raise an exception if it is
+       asked to run an external command as root. Note that setting this
        option has serious security implications. Don't use it if you don't
-       know what you're doing. I strongly recommend against running
-       external processes as root.
+       know what you're doing. I strongly recommend against running external
+       processes as root.
      * ignore_stderr (boolean) — if set, getmail will not consider it an
        error if the filter writes to stderr. The default is false, which
-       causes getmail to consider the delivery failed and leave the
-       message on the server, proceeding to the next message. This
-       prevents loss of mail if the filter writes to stderr but fails to
-       exit nonzero when it encounters an error. Note that setting this
-       option has serious implications; some poorly-written programs
-       commonly used as mail filters can can mangle or drop mail but still
-       exit 0, their only clue to failure being warnings emitted on
-       stderr. Only change this setting if you are confident your filter
-       always exits nonzero on error.
+       causes getmail to consider the delivery failed and leave the message
+       on the server, proceeding to the next message. This prevents loss of
+       mail if the filter writes to stderr but fails to exit nonzero when it
+       encounters an error. Note that setting this option has serious
+       implications; some poorly-written programs commonly used as mail
+       filters can can mangle or drop mail but still exit 0, their only clue
+       to failure being warnings emitted on stderr. Only change this setting
+       if you are confident your filter always exits nonzero on error.
      * exitcodes_drop (tuple of integers) — if the filter returns an exit
        code in this list, the message will be dropped. The default is (99,
        100).
@@ -1462,143 +1518,139 @@ Filter_classifier
        assumes the filter encountered an error. getmail will then not
        proceed, so that the message is not lost. The default is (0, ).
 
-Filter_external
+    Filter_external
 
-   Filter_external runs the message through an external program, and
-   replaces the message with the output of that program, allowing the
-   filter to make arbitrary changes to messages. It can also cause
-   messages to be dropped by exiting with a return code listed in the
-   exitcodes_drop parameter.
+   Filter_external runs the message through an external program, and replaces
+   the message with the output of that program, allowing the filter to make
+   arbitrary changes to messages. It can also cause messages to be dropped by
+   exiting with a return code listed in the exitcodes_drop parameter.
 
    Filter_external has one required parameter:
+
      * path (string) — see Filter_classifier for definition.
 
    In addition, Filter_external takes the following optional parameters:
+
      * arguments (tuple of quoted strings) — see Filter_classifier for
        definition.
      * unixfrom (boolean) — see Filter_classifier for definition.
      * user (string) — see Filter_classifier for definition.
      * group (string) — see Filter_classifier for definition.
-     * allow_root_commands (boolean) — see Filter_classifier for
-       definition.
-     * ignore_header_shrinkage (boolean) — by default, getmail will warn
-       if a filtered message's header contains fewer fields than the
-       source message had, to warn you if your filter is unexpectedly
-       deleting information from messages it handles. If you know your
-       filter can legitimately produce a message with a shorter header
-       (such as if it encapsulates the original message), set this option
-       to disable the warning. Do not simply set this if you see the
-       warning; you must understand whether your filter is operating
-       correctly or not before you use this.
+     * allow_root_commands (boolean) — see Filter_classifier for definition.
+     * ignore_header_shrinkage (boolean) — by default, getmail will warn if a
+       filtered message's header contains fewer fields than the source
+       message had, to warn you if your filter is unexpectedly deleting
+       information from messages it handles. If you know your filter can
+       legitimately produce a message with a shorter header (such as if it
+       encapsulates the original message), set this option to disable the
+       warning. Do not simply set this if you see the warning; you must
+       understand whether your filter is operating correctly or not before
+       you use this.
      * ignore_stderr (boolean) — see Filter_classifier for definition.
      * exitcodes_drop (tuple of integers) — see Filter_classifier for
        definition.
      * exitcodes_keep (tuple of integers) — see Filter_classifier for
        definition.
 
-Filter_TMDA
+    Filter_TMDA
 
-   Filter_external runs the message through the external program
-   tmda-filter, allowing the use of the Tagged Message Delivery Agent
-   (TMDA) package. As TMDA relies on the message envelope, this filter
-   requires the use of a multidrop retriever class to function. It sets
-   the three environment variables SENDER, RECIPIENT, and EXT prior to
-   running tmda-filter.
+   Filter_external runs the message through the external program tmda-filter,
+   allowing the use of the Tagged Message Delivery Agent (TMDA) package. As
+   TMDA relies on the message envelope, this filter requires the use of a
+   multidrop retriever class to function. It sets the three environment
+   variables SENDER, RECIPIENT, and EXT prior to running tmda-filter.
 
-   I've tested this filter, and it Works For Me™, but I'm not a regular
-   TMDA user. I would appreciate any feedback about its use from TMDA
-   users.
+   I've tested this filter, and it Works For Me™, but I'm not a regular TMDA
+   user. I would appreciate any feedback about its use from TMDA users.
 
    Filter_TMDA has no required parameters. It has the following optional
    parameters:
+
      * path (string) — the path to the tmda-filter binary. Default:
-       /usr/local/bin/tmda-filter. This value will be expanded for leading
-       ~ or ~USER and environment variables in the form $VARNAME or
-       ${VARNAME}.
+       /usr/local/bin/tmda-filter. This value will be expanded for leading ~
+       or ~USER and environment variables in the form $VARNAME or ${VARNAME}.
      * user (string) — see Filter_classifier for definition.
      * group (string) — see Filter_classifier for definition.
-     * allow_root_commands (boolean) — see Filter_classifier for
-       definition.
+     * allow_root_commands (boolean) — see Filter_classifier for definition.
      * ignore_stderr (boolean) — see Filter_classifier for definition.
-     * conf-break (string) — this value will be used to split the
-       local-part of the envelope recipient address to determine the value
-       of the EXT environment variable. For example, if the envelope
-       sender address is sender-something@host.example.org, and the
-       envelope recipient address is user-ext-ext2@host.example.net, and
-       conf-break is set to -, getmail will set the environment variables
-       SENDER to "sender-something@host.example.org", RECIPIENT to
-       "user-ext-ext2@host.example.net", and EXT to "ext-ext2". Default:
-       "-".
+     * conf-break (string) — this value will be used to split the local-part
+       of the envelope recipient address to determine the value of the EXT
+       environment variable. For example, if the envelope sender address is
+       sender-something@host.example.org, and the envelope recipient address
+       is user-ext-ext2@host.example.net, and conf-break is set to -, getmail
+       will set the environment variables SENDER to
+       "sender-something@host.example.org", RECIPIENT to
+       "user-ext-ext2@host.example.net", and EXT to "ext-ext2". Default: "-".
 
-[filter-something] examples
+    [filter-something] examples
 
-   You might filter spam messages in your MUA based on information added
-   to the message header by a spam-classification program. You could have
-   that information added to the message header with a filter
-   configuration like this:
-[filter-3]
-type = Filter_classifier
-path = /path/to/my-classifier
-arguments = ('--message-from-stdin', '--report-to-stdout')
-user = nobody
+   You might filter spam messages in your MUA based on information added to
+   the message header by a spam-classification program. You could have that
+   information added to the message header with a filter configuration like
+   this:
+
+ [filter-3]
+ type = Filter_classifier
+ path = /path/to/my-classifier
+ arguments = ('--message-from-stdin', '--report-to-stdout')
+ user = nobody
 
    You might use a program to prevent users from accidentally destroying
    their data by stripping suspected attachments from messages. You could
    have that information added to the message header with a filter
    configuration like this:
-[filter-3]
-type = Filter_external
-path = /path/to/my-mime-filter
-arguments = ('--message-from-stdin', '--remove-all-but-attachment-types=text/pla
-in,text/rfc822')
-user = nobody
+
+ [filter-3]
+ type = Filter_external
+ path = /path/to/my-mime-filter
+ arguments = ('--message-from-stdin', '--remove-all-but-attachment-types=text/plain,text/rfc822')
+ user = nobody
 
    You might use TMDA to challenge messages from unknown senders. If the
-   default parameters are fine for your configuration, this is as simple
-   as:
-[filter-3]
-type = Filter_TMDA
+   default parameters are fine for your configuration, this is as simple as:
 
-getmail rc file examples
+ [filter-3]
+ type = Filter_TMDA
+
+  getmail rc file examples
 
    Several examples of different getmail rc configuration are available in
    the included file getmailrc-examples.
 
-Running getmail
+                                Running getmail
 
    To use getmail, simply run the script getmail, which is typically
    installed in /usr/local/bin/ by default. getmail will read the default
-   getmail rc file (getmailrc) from the default configuration/data
-   directory (~/.getmail/) and begin operating.
+   getmail rc file (getmailrc) from the default configuration/data directory
+   (~/.getmail/) and begin operating.
 
-   You can modify this behaviour by supplying commandline options to
-   getmail.
+   You can modify this behaviour by supplying commandline options to getmail.
 
 Commandline options
 
    getmail understands the following options:
+
      * --version — show getmail's version number and exit
      * --help or -h — show a brief usage summary and exit
-     * --getmaildir=DIR or -gDIR — use DIR for configuration and data
-       files
+     * --getmaildir=DIR or -gDIR — use DIR for configuration and data files
      * --rcfile=FILE or -rFILE — read getmail rc file FILE instead of the
        default. The file path is assumed to be relative to the getmaildir
-       directory unless this value starts with a slash (/). This option
-       can be given multiple times to have getmail retrieve mail from
-       multiple accounts.
+       directory unless this value starts with a slash (/). This option can
+       be given multiple times to have getmail retrieve mail from multiple
+       accounts.
      * --dump — read rc files, dump configuration, and exit (debugging)
      * --trace — print extended debugging information
 
    If you are using a single getmailrc file with an IMAP server that
    understands the IDLE extension from RFC 2177, you can use the
-   --idle=MAILBOX option to specify that getmail should wait on the server
-   to notify getmail of new mail in the specified mailbox after getmail is
+   --idle=MAILBOX option to specify that getmail should wait on the server to
+   notify getmail of new mail in the specified mailbox after getmail is
    finished retrieving mail.
 
-   In addition, the following commandline options can be used to override
-   any values specified in the [options] section of the getmail rc files:
-     * --verbose or -v — operate more verbosely. Can be given multiple
-       times.
+   In addition, the following commandline options can be used to override any
+   values specified in the [options] section of the getmail rc files:
+
+     * --verbose or -v — operate more verbosely. Can be given multiple times.
      * --quiet or -q — print only warnings or errors while running
      * --delete or -d — delete messages after retrieving
      * --dont-delete or -l — do not delete messages after retrieving
@@ -1607,75 +1659,76 @@ Commandline options
 
    For instance, if you want to retrieve mail from two different mail
    accounts, create a getmail rc file for each of them (named, say,
-   getmailrc-account1 and getmailrc-account2) and put them in ~/.getmail/
-   . Then run getmail as follows:
-$ getmail --rcfile getmailrc-account1 --rcfile getmailrc-account2
+   getmailrc-account1 and getmailrc-account2) and put them in ~/.getmail/ .
+   Then run getmail as follows:
 
-   If those files were located in a directory other than the default, and
-   you wanted to use that directory for storing the data files as well,
-   you could run getmail as follows:
-$ getmail --getmaildir /path/to/otherdir --rcfile getmailrc-account1 --rcfile ge
-tmailrc-account2
+ $ getmail --rcfile getmailrc-account1 --rcfile getmailrc-account2
+
+   If those files were located in a directory other than the default, and you
+   wanted to use that directory for storing the data files as well, you could
+   run getmail as follows:
+
+ $ getmail --getmaildir /path/to/otherdir --rcfile getmailrc-account1 --rcfile getmailrc-account2
 
 Using getmail as an MDA
 
-   getmail includes helper scripts which allow you to use it to deliver
-   mail from other programs to maildirs or mboxrd files.
+   getmail includes helper scripts which allow you to use it to deliver mail
+   from other programs to maildirs or mboxrd files.
 
-Using the getmail_maildir MDA
+  Using the getmail_maildir MDA
 
    The getmail_maildir script can be used as an MDA from other programs to
    deliver mail to maildirs. It reads the mail message from stdin, and
-   delivers it to a maildir path provided as an argument on the
-   commandline. This path must (after expansion by the shell, if
-   applicable) start with a dot or slash and end with a slash.
+   delivers it to a maildir path provided as an argument on the commandline.
+   This path must (after expansion by the shell, if applicable) start with a
+   dot or slash and end with a slash.
 
    getmail_maildir uses the contents of the SENDER environment variable to
    construct a Return-Path: header field and the contents of the RECIPIENT
-   environment variable to construct a Delivered-To: header field at the
-   top of the message.
+   environment variable to construct a Delivered-To: header field at the top
+   of the message.
 
-   getmail_maildir also accepts the options --verbose or -v which tell it
-   to print a status message on success. The default is to operate
-   silently unless an error occurs.
+   getmail_maildir also accepts the options --verbose or -v which tell it to
+   print a status message on success. The default is to operate silently
+   unless an error occurs.
 
-Example
+    Example
 
    You could deliver a message to a maildir named Maildir located in your
-   home directory by running the following command with the message on
-   stdin:
-$ getmail_maildir $HOME/Maildir/
+   home directory by running the following command with the message on stdin:
 
-Using the getmail_mbox MDA
+ $ getmail_maildir $HOME/Maildir/
+
+  Using the getmail_mbox MDA
 
    The getmail_mbox script can be used as an MDA from other programs to
-   deliver mail to mboxrd-format mbox files. It reads the mail message
-   from stdin, and delivers it to an mbox path provided as an argument on
-   the commandline. This path must (after expansion by the shell, if
-   applicable) start with a dot or slash and not end with a slash.
+   deliver mail to mboxrd-format mbox files. It reads the mail message from
+   stdin, and delivers it to an mbox path provided as an argument on the
+   commandline. This path must (after expansion by the shell, if applicable)
+   start with a dot or slash and not end with a slash.
 
    getmail_maildir uses the contents of the SENDER environment variable to
-   construct a Return-Path: header field and mbox From_ line and the
-   contents of the RECIPIENT environment variable to construct a
-   Delivered-To: header field at the top of the message.
+   construct a Return-Path: header field and mbox From_ line and the contents
+   of the RECIPIENT environment variable to construct a Delivered-To: header
+   field at the top of the message.
 
    getmail_mbox also accepts the options --verbose or -v which tell it to
    print a status message on success. The default is to operate silently
    unless an error occurs.
 
-Example
+    Example
 
    You could deliver a message to an mboxrd-format mbox file named inbox
    located in a directory named mail in your home directory by running the
    following command with the message on stdin:
-$ getmail_mbox $HOME/mail/inbox
+
+ $ getmail_mbox $HOME/mail/inbox
 
 Using getmail_fetch to retrieve mail from scripts
 
    getmail includes the getmail_fetch helper script, which allows you to
-   retrieve mail from a POP3 server without the use of a configuration
-   file. It is primarily intended for use in automated or scripted
-   environments, but can be used to retrieve mail normally.
+   retrieve mail from a POP3 server without the use of a configuration file.
+   It is primarily intended for use in automated or scripted environments,
+   but can be used to retrieve mail normally.
 
-   See the getmail_fetch manual page for details on the use of
-   getmail_fetch.
+   See the getmail_fetch manual page for details on the use of getmail_fetch.

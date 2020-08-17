@@ -3,10 +3,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
     <meta http-equiv="content-type" content="application/xhtml+xml;charset=iso-8859-1" />
-    <title>getmail troubleshooting (version 5)</title>
-    <meta name="author" content="Charles Cazabon" />
+    <title>getmail troubleshooting (version 6)</title>
+    <meta name="author" content="Charles Cazabon and others" />
     <meta name="description" content="Troubleshooting instructions for getmail version 5" />
-    <meta name="keywords" content="getmail troubleshooting, getmail 5 troubleshooting, getmail 4 troubleshooting, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
+    <meta name="keywords" content="getmail troubleshooting, getmail 6 troubleshooting, getmail6 troubleshooting, getmail6, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
     <link rel="Contents Up Index" title="Charles Cazabon's Software" href="../" />
     <style type="text/css" media="all">@import "getmaildocs.css";</style>
     <style type="text/css" media="all">@import "/style/styles.css";</style>
@@ -16,40 +16,36 @@
 
 <!----><h1 id="title">getmail documentation</h1>
 <p class="introduction">
-    This is the documentation for getmail version 5.  Version 5 includes
-    numerous changes from version 3.x; if you are using getmail version 3,
-    please refer to the documentation included with that version of the
-    software.
+    This is the documentation for getmail version 6.
 </p>
 <p class="about">
     getmail is Copyright &copy; 1998-2019 Charles Cazabon.
+	&lt;charlesc-getmail @ pyropus.ca&gt;<br>
+	and &copy; 2020 by Roland Puntaier
+    &lt;roland.puntaier @ gmail.com&gt;
 </p>
 <p class="about">
     getmail is licensed under the
-    <a href="COPYING">GNU General Public License version 2</a>
-    (only). If you wish to obtain a license to distribute getmail under other
-    terms, please contact me directly.
+    <a href="COPYING">GNU General Public License version 2</a> (only).
 </p>
 
 <h1 id="toc">Table of Contents</h1>
 <ul>
-    <li><a href="documentation.html">getmail documentation (version 5)</a></li>
+    <li><a href="documentation.html">getmail documentation (version 6)</a></li>
     <li>
         <ul>
         <li><a href="documentation.html#title">getmail documentation</a></li>
         <li>
             <ul>
             <li><a href="documentation.html#features">Features</a></li>
-            <li><a href="documentation.html#v4differences">Differences from previous versions</a></li>
             <li><a href="documentation.html#requirements">Requirements</a></li>
             <li><a href="documentation.html#obtaining">Obtaining getmail</a></li>
             <li><a href="documentation.html#installing">Installing getmail</a></li>
-            <li><a href="documentation.html#mailing-lists">getmail mailing lists</a></li>
             </ul>
         </li>
         </ul>
     </li>
-    <li><a href="configuration.html">getmail configuration (version 5)</a></li>
+    <li><a href="configuration.html">getmail configuration (version 6)</a></li>
     <li>
         <ul>
         <li><a href="configuration.html#configuring">Configuring getmail</a></li>
@@ -68,7 +64,7 @@
         </li>
         </ul>
     </li>
-    <li><a href="troubleshooting.html">getmail troubleshooting (version 5)</a></li>
+    <li><a href="troubleshooting.html">getmail troubleshooting (version 6)</a></li>
     <li>
         <ul>
         <li><a href="troubleshooting.html#troubleshooting">Troubleshooting problems</a></li>
@@ -77,7 +73,7 @@
             <li><a href="troubleshooting.html#error-messages">Error messages</a></li>
             <li>
                 <ul>
-                <li><a href="troubleshooting.html#errmsg-pyversion">ImportError: getmail version 5 requires Python version 2.3.3 or later</a></li>
+                <li><a href="troubleshooting.html#errmsg-pyversion">ImportError: getmail version 6.02 requires Python version 2.7.18 or later</a></li>
                 <li><a href="troubleshooting.html#errmsg-config">Configuration error: &hellip;</a></li>
                 <li>
                     <ul>
@@ -164,7 +160,7 @@
 <h1 id="troubleshooting">Troubleshooting problems</h1>
 <p>
     If you have suggestions for additions or changes to this documentation, please
-    send them to the mailing list or me.
+    send them to us or open an issue on GitHub.
 </p>
 
 <!-- ********************************************************************** -->
@@ -175,12 +171,11 @@
 </p>
 
 <!-- ********************************************************************** -->
-<h3 id="errmsg-pyversion" class="errmsg">ImportError: getmail version 5 requires Python version 2.3.3 or later</h3>
+<h3 id="errmsg-pyversion" class="errmsg">ImportError: getmail version 6.02 requires Python version 2.7.18 or later</h3>
 <p>
-    You tried to run getmail 5 with a version of Python prior to Python 2.3.3.
+    You tried to run getmail with a version of Python prior to Python 2.7.18
     This is unsupported.  If you cannot install a newer Python alongside your
-    current version, please use getmail version 3, which supports Python 1.5.2
-    and later.
+    current version, please use getmail version 5.
 </p>
 
 <!-- ********************************************************************** -->
@@ -384,17 +379,12 @@
     and then <span class="file">MemoryError</span>.
 </p>
 <p>
-    getmail ran out of memory, usually due to
-    <a href="http://bugs.python.org/issue1389051">a bug in Python's IMAP library</a>
-    which was fixed in early 2008.
+    getmail ran out of memory.
 </p>
 <p>
     If you are using IMAP and run into this problem retrieving messages that
     aren't hundreds of megabytes in size, you can almost certainly fix it by
-    upgrading your Python installation to the latest 2.5.x or 2.6.x release.
-    Note that if you switch from Python 2.5.x to Python 2.6.x, you'll need to
-    re-install getmail with <span class="file">python setup.py install</span>
-    from the getmail source directory.
+    upgrading your Python installation to the latest 3.* release.
 </p>
 
 <!-- ********************************************************************** -->
@@ -497,9 +487,6 @@ python -c &quot;import socket; print socket.getfqdn()&quot;
     system-specific manner &mdash; please contact your OS vendor (or its
     public support mailing list) for assistance.
 </p>
-        <!--#include virtual="/include/footer-xhtml11.html"-->
     </div>
-    <!--#include virtual="/include/menu-top.html"-->
-    <!--#include virtual="/include/header.html"-->
 </body>
 </html>

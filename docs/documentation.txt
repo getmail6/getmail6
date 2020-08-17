@@ -41,6 +41,7 @@
      * getmail frequently-asked questions (FAQs) (version 6)
      *    * Frequently-Asked Questions (FAQs)
           *    * About getmail
+               * What is getmail6 and how does it relate to getmail?
                * Configuring getmail
                * How do I …
                * Using getmail with other software
