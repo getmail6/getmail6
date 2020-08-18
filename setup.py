@@ -101,7 +101,6 @@ setup(
             'docs/BUGS',
             'docs/COPYING',
             'docs/CHANGELOG',
-            'docs/TODO',
             'docs/THANKS',
             'docs/configuration.html',
             'docs/configuration.txt',
