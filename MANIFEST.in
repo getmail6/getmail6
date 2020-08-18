@@ -6,7 +6,6 @@ include docs/BUGS
 include docs/CHANGELOG
 include docs/COPYING
 include docs/THANKS
-include docs/TODO
 include docs/getmaildocs.css
 include docs/getmailrc-examples
 include docs/*.1
