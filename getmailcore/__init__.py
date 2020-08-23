@@ -12,7 +12,7 @@ You should have received a copy of the license in the file COPYING.
 
 import sys
 
-__version__ = '6.03'
+__version__ = '6.4'
 
 __py_required__ = '2.7.18'
 __py_required_hex__ = 0x20712f0
