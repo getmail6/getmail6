@@ -285,7 +285,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             try:
                 # Write out message plus blank line with native EOL
                 f.write(msg.flatten(delivered_to, received, include_from=True,
-                                    mangle_from=True) + os.linesep)
+                                    mangle_from=True) + os.linesep.encode())
                 f.flush()
                 os.fsync(fd)
                 status_new = os.fstat(fd)
@@ -297,7 +297,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                     # Not root or owner; readers will not be able to reliably
                     # detect new mail.  But you shouldn't be delivering to
                     # other peoples' mboxes unless you're root, anyways.
-                    stdout.write(b'failed to updated mtime/atime of mbox')
+                    stdout.write(b'failed to update mtime/atime of mbox')
                     stdout.flush()
                     os.fsync(stdout.fileno())
 
