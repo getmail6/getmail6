@@ -1060,7 +1060,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
         response, headerlist, octets = self.conn.top(msgnum, 0)
         try:
             parser = Parser.BytesHeaderParser()
-            return parser.parsebytes(_NL.join(headerlist))
+            return parser.parsebytes(os.linesep.encode().join(headerlist))
         except: #py2
             parser = Parser.HeaderParser()
             return parser.parsestr(os.linesep.join(headerlist))
