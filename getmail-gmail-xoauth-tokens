@@ -28,12 +28,12 @@ import json
 import argparse
 import time
 try:
-    import urllib.request as urlrequest
-    import urllib.parse as urlparse
+    import urllib.request as urllibrequest
+    import urllib.parse as urllibparse
     raw_input = input
 except: #py2
-    import urllib as urlparse
-    urlrequest = urlparse
+    import urllib as urllibparse
+    urllibrequest = urllibparse
 
 
 class OAuth2(object):
@@ -53,7 +53,7 @@ class OAuth2(object):
     def query(self, params):
         lst = []
         for param in sorted(params.items(), key=lambda x: x[0]):
-            escaped = urlparse.quote(param[1], safe='~-._')
+            escaped = urllibparse.quote(param[1], safe='~-._')
             lst.append('%s=%s' % (param[0], escaped))
         return '&'.join(lst)
 
@@ -63,8 +63,8 @@ class OAuth2(object):
         return '%s?%s' % (self.data['auth_uri'], self.query(params))
 
     def get_response(self, url, params):
-        encoded = urlparse.urlencode(params)
-        response = urlrequest.urlopen(url, encoded).read()
+        encoded = urllibparse.urlencode(params).encode('ascii')
+        response = urllibrequest.urlopen(url, encoded).read()
         return json.loads(response)
 
     def update_config(self, d):
