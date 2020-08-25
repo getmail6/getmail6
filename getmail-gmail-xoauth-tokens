@@ -46,7 +46,7 @@ class OAuth2(object):
 
     def query(self, params):
         lst = []
-        for param in sorted(params.iteritems(), key=lambda x: x[0]):
+        for param in sorted(params.items(), key=lambda x: x[0]):
             escaped = urllib.quote(param[1], safe='~-._')
             lst.append('%s=%s' % (param[0], escaped))
         return '&'.join(lst)
