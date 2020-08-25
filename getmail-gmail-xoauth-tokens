@@ -24,10 +24,15 @@
 
 import os
 import sys
-import urllib
 import json
 import argparse
 import time
+try:
+    import urllib.request as urlrequest
+    import urllib.parse as urlparse
+except:
+    import urllib as urlparse
+    urlrequest = urlparse
 
 
 class OAuth2(object):
@@ -47,7 +52,7 @@ class OAuth2(object):
     def query(self, params):
         lst = []
         for param in sorted(params.items(), key=lambda x: x[0]):
-            escaped = urllib.quote(param[1], safe='~-._')
+            escaped = urlparse.quote(param[1], safe='~-._')
             lst.append('%s=%s' % (param[0], escaped))
         return '&'.join(lst)
 
@@ -57,8 +62,8 @@ class OAuth2(object):
         return '%s?%s' % (self.data['auth_uri'], self.query(params))
 
     def get_response(self, url, params):
-        encoded = urllib.urlencode(params)
-        response = urllib.urlopen(url, encoded).read()
+        encoded = urlparse.urlencode(params)
+        response = urlrequest.urlopen(url, encoded).read()
         return json.loads(response)
 
     def update_config(self, d):
