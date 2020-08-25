@@ -30,7 +30,8 @@ import time
 try:
     import urllib.request as urlrequest
     import urllib.parse as urlparse
-except:
+    raw_input = input
+except: #py2
     import urllib as urlparse
     urlrequest = urlparse
 
