@@ -118,7 +118,7 @@ Installing getmail
    unpack it, change into the directory it unpacks into, and run this
    command:
 
- $ python setup.py install
+ # python setup.py install
 
    That's all there is to it. 99.9% of users don't need a special
    package/port/etc. If you'd like more details on install options, keep
@@ -129,7 +129,7 @@ Installing getmail
    Once you have downloaded or otherwise obtained getmail, unpack it. On
    GNU-ish Unix-like systems, this means:
 
- $ tar xzf getmail-version.tar.gz
+ # tar xzf getmail-version.tar.gz
 
    On Macintosh systems, use a Zip-type archiver program to unpack the
    tarball.
@@ -137,8 +137,8 @@ Installing getmail
    On SystemV-like Unix systems, you may instead need to break this down into
    two steps:
 
- $ gunzip getmail-version.tar.gz
- $ tar xf getmail-version.tar
+ # gunzip getmail-version.tar.gz
+ # tar xf getmail-version.tar
 
    Then, change into the extracted getmail directory and start the build
    process. The easiest installation method is to use the included setup.py
@@ -153,8 +153,8 @@ Installing getmail
    To build and install directly from the included source, follow these
    steps.
 
- $ cd getmail-version
- $ python setup.py build
+ # cd getmail-version
+ # python setup.py build
 
    When that completes in a few seconds, become root and then install the
    software. You can install in the default location, or specify an alternate
@@ -166,7 +166,7 @@ Installing getmail
    To install in the default location, become user root and install with the
    following commands:
 
- $ su
+ # su
  enter root password
  # python setup.py install
 
@@ -255,10 +255,11 @@ Installing getmail
        website for details.
 
        For example, if the directory getmailcore ends up living in
-       $HOME/tmp/getmail/lib/python3.8/site-packages/getmailcore,
-       then in the shell do:
+       $HOME/tmp/getmail/lib/python3.8/site-packages/getmailcore , then in
+       the shell do:
 
-       # export PYTHONPATH=$HOME/tmp/getmail/lib/python3.8/site-packages
+ # export PYTHONPATH=$HOME/tmp/getmail/lib/python3.8/site-packages .
+        
 
        Note that setting PYTHONPATH in $HOME/.profile (or equivalent) is not
        sufficient -- for instance, cron runs jobs in a simpler environment,
@@ -284,8 +285,8 @@ Installing getmail
    To build a binary package from the included source, run the following
    command from inside the unpacked getmail source.
 
- $ cd getmail-version
- $ python setup.py bdist --format=package-format
+ # cd getmail-version
+ # python setup.py bdist --format=package-format
 
    The useful allowed values for package-format are:
 
