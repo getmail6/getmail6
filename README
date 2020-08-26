@@ -1,4 +1,4 @@
-getmail version 6 -- a flexible, extensible mail retrieval system with
+getmail -- a flexible, extensible mail retrieval system with
 support for POP3, IMAP4, SSL variants of both, maildirs, mboxrd files,
 external MDAs, arbitrary message filtering, single-user and domain-mailboxes,
 and many other useful features.
@@ -7,7 +7,7 @@ getmail is Copyright (C) 1998-2019 Charles Cazabon.
 getmail is licensed for use under the GNU General Public License version 2
 (only).  See docs/COPYING for specific terms and distribution information.
 
-getmail version 6 has adaptations to work with Python 3.
+getmail6 has adaptations to work with Python 3.
 These changes might still contain some bugs.
 Please report them here at https://github.com/getmail6/getmail6 .
 

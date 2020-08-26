@@ -63,9 +63,10 @@ setup(
         'filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and '
         'other advanced features.'),
     author='Charles Cazabon, Roland Puntaier, and others',
-    author_email='roland.puntaier@gmail.com',
+    author_email='charlesc-getmail@pyropus.ca',
+    maintainer_email='roland.puntaier@gmail.com',
     license='GNU GPL version 2',
-    url='http://www.getmail6.org/',
+    url='https://www.getmail6.org/',
     download_url='https://github.com/getmail6/getmail6/releases',
     classifiers=[
         'Development Status :: 4 - Beta',

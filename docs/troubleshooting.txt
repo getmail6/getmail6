@@ -2,30 +2,33 @@
 
                              getmail documentation
 
-   This is the documentation for getmail version 6.
+   This is the documentation for getmail version 6, a port of getmail version
+   5 to python 3 without adding features.
 
-   getmail is Copyright © 1998-2019 Charles Cazabon. <charlesc-getmail @
+   getmail is Copyright © 1998-2019 by Charles Cazabon <charlesc-getmail @
    pyropus.ca>
-   and © 2020 by Roland Puntaier <roland.puntaier @ gmail.com>
+   and getmail6 is maintained by Roland Puntaier since 2020 <roland.puntaier
+   @ gmail.com>
 
-   getmail is licensed under the GNU General Public License version 2 (only).
+   getmail and getmail6 are licensed under the GNU General Public License
+   version 2 (only).
 
                                Table of Contents
 
-     * getmail documentation (version 6)
+     * getmail documentation
      *    * getmail documentation
           *    * Features
                * Requirements
                * Obtaining getmail
                * Installing getmail
-     * getmail configuration (version 6)
+     * getmail configuration
      *    * Configuring getmail
           *    * Creating a getmail rc file
           * Running getmail
           *    * Commandline options
                * Using getmail as an MDA
                * Using getmail_fetch to retrieve mail from scripts
-     * getmail troubleshooting (version 6)
+     * getmail troubleshooting
      *    * Troubleshooting problems
           *    * Error messages
                *    * ImportError: getmail version 6.xy requires Python

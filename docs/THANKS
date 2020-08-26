@@ -1,12 +1,10 @@
 We would like to thank the following individuals for their gracious contributions
-to the development of getmail version 6:
+to the development of getmail/getmail6:
 
 First and foremost, Charles Cazabon for all his hard work from the initial alpha
-release of getmail through to the release of getmail version 5.14. Getmail
-version 6 would not have been possible without all his efforts.
+release of getmail through to the release of getmail version 5.14.
 
-Secondly, Roland Puntaier for undertaking the effort to port getmail to Python
-version 3 and later.
+Secondly, Roland Puntaier for porting getmail to Python 3.
 
 Thirdly, in alphabetical order, the following people for their patches, bug
 reports, suggestions, packaging efforts, and documentation updates:
@@ -21,7 +19,6 @@ Dmytri Kleiner
 Remco Rijnders
 Johnny A. Solbu
 Boris Wachtmeister
-
 
 
 We would like to thank the following individuals and organizations

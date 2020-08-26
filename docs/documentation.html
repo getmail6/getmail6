@@ -5,7 +5,7 @@
     <meta http-equiv="content-type" content="application/xhtml+xml;charset=iso-8859-1" />
     <title>getmail documentation (version 6)</title>
     <meta name="author" content="Charles Cazabon and others" />
-    <meta name="description" content="Official documentation for getmail version 6, an extensible mail-retrieval program with support for POP3, IMAP, SDPS, SSL, domain mailboxes, message filtering, and other features." />
+    <meta name="description" content="Official documentation for getmail6, an extensible mail-retrieval program with support for POP3, IMAP, SDPS, SSL, domain mailboxes, message filtering, and other features." />
     <meta name="keywords" content="getmail, getmail 6, getmail6, POP3, IMAP, SSL, domain mailbox, multidrop, fetchmail replacement, message filtering, maildir, mboxrd, MDA" />
     <style type="text/css" media="all">@import "getmaildocs.css";</style>
     <style type="text/css" media="all">@import "/style/styles.css";</style>
@@ -15,22 +15,23 @@
 
 <h1 id="title">getmail documentation</h1>
 <p class="introduction">
-    This is the documentation for getmail version 6.
+    This is the documentation for getmail version 6,
+    a port of getmail version 5 to python 3 without adding features.
 </p>
 <p class="about">
     getmail is Copyright &copy; 1998-2019 by Charles Cazabon
     &lt;charlesc-getmail @ pyropus.ca&gt;<br>
-	and &copy; 2020 by Roland Puntaier
+    and getmail6 is maintained by Roland Puntaier since 2020
     &lt;roland.puntaier @ gmail.com&gt;
 </p>
 <p class="about">
-    getmail is licensed under the
+    getmail and getmail6 are licensed under the
     <a href="COPYING">GNU General Public License version 2</a> (only).
 </p>
 
 <h1 id="toc">Table of Contents</h1>
 <ul>
-    <li><a href="documentation.html">getmail documentation (version 6)</a></li>
+    <li><a href="documentation.html">getmail documentation</a></li>
     <li>
         <ul>
         <li><a href="documentation.html#title">getmail documentation</a></li>
@@ -79,7 +80,7 @@
         </li>
         </ul>
     </li>
-    <li><a href="troubleshooting.html">getmail troubleshooting (version 6)</a></li>
+    <li><a href="troubleshooting.html">getmail troubleshooting</a></li>
     <li>
         <ul>
         <li><a href="troubleshooting.html#troubleshooting">Troubleshooting problems</a></li>
@@ -92,7 +93,7 @@
         </li>
         </ul>
     </li>
-    <li><a href="faq.html">getmail frequently-asked questions (FAQs) (version 6)</a></li>
+    <li><a href="faq.html">getmail frequently-asked questions (FAQs)</a></li>
     <li>
         <ul>
         <li><a href="faq.html#faq">Frequently-Asked Questions (FAQs)</a></li>
@@ -121,7 +122,7 @@
     retrievers such as fetchmail.
 </p>
 <p>
-    getmail version 6 includes the following features:
+    getmail includes the following features:
 </p>
 <ul>
     <li>
@@ -204,8 +205,9 @@
 <h2 id="requirements">Requirements</h2>
 <p>
     getmail version 6 requires
-    <a href="http://www.python.org/">Python</a> version 3 or later. If
-    you have only an earlier version of Python available, you can
+    <a href="http://www.python.org/">Python</a> version 3 or later.
+    Python 2.7.18 should also work.
+    If you have only an earlier version of Python available, you can
     install the latest version without disturbing your current
     version, or
     use <a href="http://pyropus.ca/software/getmail/">getmail version
