@@ -3,6 +3,7 @@ import sys
 import os.path
 from distutils.core import setup
 import distutils.sysconfig
+import site
 
 from getmailcore import __version__
 
@@ -48,7 +49,7 @@ GETMAILMANDIR = os.path.join(
 if '--show-default-install-dirs' in args:
     print('Default installation directories:')
     print('  scripts :        %s' % distutils.sysconfig.get_config_var('BINDIR'))
-    print('  Python modules : %s' % os.path.join(distutils.sysconfig.get_config_var('LIBP'), 'site-packages'))
+    print('  Python modules : %s' % distutils.sysconfig.get_python_lib())
     print('  documentation :  %s' % GETMAILDOCDIR)
     print('  man(1) pages :   %s' % GETMAILMANDIR)
     raise SystemExit()
