@@ -21,6 +21,8 @@ To install:  getmail v.6 uses the standard Python distutils.  Do the following
   as a regular user:
 
     python setup.py build
+    
+  (If you don't have "python" available, then try "python2" or "python3".)
 
   Then (probably as root), do:
 
