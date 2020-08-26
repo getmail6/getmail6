@@ -602,7 +602,10 @@ class IMAPSSLinitMixIn(CertMixIn):
             #raise getmailOperationError('timeout during connect')
             raise
         except socket.gaierror as o:
-            errcode = o[0]
+            try:
+                errcode = o[0]
+            except TypeError:
+                errcode = o.args[0]
             if errcode in (EAI_NONAME, EAI_NODATA):
                 # No such DNS name
                 raise getmailDnsLookupError(
