@@ -254,6 +254,12 @@ Installing getmail
        the appropriate modules. See the documentation at the Python.org
        website for details.
 
+       For example, if the directory getmailcore ends up living in
+       $HOME/tmp/getmail/lib/python3.8/site-packages/getmailcore,
+       then in the shell do:
+
+       # export PYTHONPATH=$HOME/tmp/getmail/lib/python3.8/site-packages
+
        Note that setting PYTHONPATH in $HOME/.profile (or equivalent) is not
        sufficient -- for instance, cron runs jobs in a simpler environment,
        ignoring $HOME/.profile, and getmail would therefore fail when run as
