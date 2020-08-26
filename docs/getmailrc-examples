@@ -260,3 +260,18 @@ locals = (
 type = MDA_external
 path = /path/to/my-mda
 arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
+
+#
+# Example 12:  xoauth2 example
+# To initialize do:
+# getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/gmail.json
+#
+
+[retriever]
+type = SimpleIMAPSSLRetriever
+use_xoauth2 = True
+server = imap.gmail.com
+username = your-gmail-user@gmail.com
+password_command = ("getmail-gmail-xoauth-tokens", "/path-to-your-users-getmail-directory/gmail.json")
+
+
