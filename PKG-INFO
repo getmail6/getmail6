@@ -9,7 +9,7 @@ License: GNU GPL version 2
 Download-URL: http://pyropus.ca/software/getmail/#download
 Description: getmail is a multi-protocol mail retrieval system withsupport for simple and domain POP3 and IMAP4 mailboxes, domain SDPS mailboxes, POP3-over-SSL and IMAP-over-SSL, mail sorting, message filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and other advanced features.
 Platform: UNKNOWN
-Classifier: Development Status :: 4 - Beta
+Classifier: Development Status :: 6 - Beta
 Classifier: Environment :: Console
 Classifier: Intended Audience :: End Users/Desktop
 Classifier: Intended Audience :: System Administrators
