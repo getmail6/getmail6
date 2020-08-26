@@ -1,3 +1,7 @@
+Version 6.5
+TODO
+    - fix #23: port getmail-gmail-xoauth-tokens
+
 Version 6.4
 24 August 2020
     - fix #20: mboxrd can't concat str to bytes
