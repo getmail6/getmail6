@@ -67,7 +67,6 @@ setup(
     license='GNU GPL version 2',
     url='http://www.getmail6.org/',
     download_url='https://github.com/getmail6/getmail6/releases',
-    install_requires=[''],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
