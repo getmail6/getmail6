@@ -1,6 +1,7 @@
 Version 6.5
 TODO
     - fix #23: port getmail-gmail-xoauth-tokens
+    - fix #24: TypeError: 'gaierror' object is not subscriptable
     - documentation fixes
 
 Version 6.4
