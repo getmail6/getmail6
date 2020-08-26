@@ -246,7 +246,7 @@
     it unpacks into, and run this command:
 </p>
 <pre class="example">
-$ python setup.py install
+# python setup.py install
 </pre>
 <p>
     That's all there is to it.  99.9% of users don't need a special
@@ -260,7 +260,7 @@ $ python setup.py install
     On GNU-ish Unix-like systems, this means:
 </p>
 <pre class="example">
-$ tar xzf getmail-<span class="meta">version</span>.tar.gz
+# tar xzf getmail-<span class="meta">version</span>.tar.gz
 </pre>
 <p>
     On Macintosh systems, use a Zip-type archiver program to unpack
@@ -271,8 +271,8 @@ $ tar xzf getmail-<span class="meta">version</span>.tar.gz
     into two steps:
 </p>
 <pre class="example">
-$ gunzip getmail-<span class="meta">version</span>.tar.gz
-$ tar xf getmail-<span class="meta">version</span>.tar
+# gunzip getmail-<span class="meta">version</span>.tar.gz
+# tar xf getmail-<span class="meta">version</span>.tar
 </pre>
 <p>
     Then, change into the extracted getmail directory and start the build
@@ -293,8 +293,8 @@ $ tar xf getmail-<span class="meta">version</span>.tar
     steps.
 </p>
 <pre class="example">
-$ cd getmail-<span class="meta">version</span>
-$ python setup.py build
+# cd getmail-<span class="meta">version</span>
+# python setup.py build
 </pre>
 <p>
     When that completes in a few seconds, become root and then install the
@@ -309,7 +309,7 @@ $ python setup.py build
     the following commands:
 </p>
 <pre class="example">
-$ su
+# su
 <span class="meta">enter root password</span>
 # python setup.py install
 </pre>
@@ -489,7 +489,7 @@ $ su
           then in the shell do:
         </p>
         <pre class="example">
-        # export PYTHONPATH=$HOME/tmp/getmail/lib/python3.8/site-packages .
+# export PYTHONPATH=$HOME/tmp/getmail/lib/python3.8/site-packages .
         </pre>
 
         <p class="warning">
@@ -535,8 +535,8 @@ import sys
     command from inside the unpacked getmail source.
 </p>
 <pre class="example">
-$ cd getmail-<span class="meta">version</span>
-$ python setup.py bdist --format=<span class="meta">package-format</span>
+# cd getmail-<span class="meta">version</span>
+# python setup.py bdist --format=<span class="meta">package-format</span>
 </pre>
 <p>
     The useful allowed values for <span class="meta">package-format</span> are:
