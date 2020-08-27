@@ -264,8 +264,40 @@ arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
 #
 # Example 12:  xoauth2 example
 # To initialize do:
-# getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/gmail.json
 #
+# Step1: Create a new OAuth 2.0 Client-ID 
+# 
+# Go to the google page for „OAuth 2.0 for Mobile & Desktop Apps“
+# https://developers.google.com/identity/protocols/oauth2/native-app
+# 
+# Follow the link to the Credentials page: https://console.developers.google.com/apis/credentials
+# 
+# Create a new client id + secret for your getmail
+# 
+# Step 2: Add the new credentials to the gmail.json template
+# 
+# {"scope": "https://mail.google.com/",
+#  "user": "your-gmail-user@gmail.com",
+#  "client_id": "the new client id",
+#  "client_secret": "the new secret",
+#  "token_uri": "https://accounts.google.com/o/oauth2/token",
+#  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+#  "redirect_uri": "urn:ietf:wg:oauth:2.0:oob",
+#  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs"}
+#
+# Step 3: excecute:  
+#
+#    getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/gmail.json
+# 
+# This will give you a URL you need to open in a browser.
+# This will show you your verification code.
+# 
+# getmail-gmail-xoauth-tokens is waiting for you to enter the verification code.
+# Once you enter the code 
+# 
+# getmail-gmail-xoauth-tokens will update the gmail.json file.
+# 
+# Step 4: Update the `[retriever] `section of the rc file.
 
 [retriever]
 type = SimpleIMAPSSLRetriever
