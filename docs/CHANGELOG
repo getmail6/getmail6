@@ -1,5 +1,5 @@
 Version 6.5
-TODO
+28 August 2020
     - fix #23: port getmail-gmail-xoauth-tokens
     - fix #24: TypeError: 'gaierror' object is not subscriptable
     - documentation fixes
