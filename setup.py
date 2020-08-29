@@ -32,19 +32,11 @@ for (pos, arg) in enumerate(args):
         # hack hack hack hack hack hack hack
         datadir = args[pos + 1]
 
-GETMAILDOCDIR = os.path.join(
-    datadir or prefix,
-    'share',
-    'doc',
-    'getmail-%s' % __version__
-)
+DOCDIR = os.path.join('share','doc','getmail-%s' % __version__)
+GETMAILDOCDIR = os.path.join(datadir or prefix, DOCDIR)
 
-GETMAILMANDIR = os.path.join(
-    datadir or prefix,
-    'share',
-    'man',
-    'man1'
-)
+MANDIR = os.path.join('share','man','man1')
+GETMAILMANDIR = os.path.join( datadir or prefix, MANDIR)
 
 if '--show-default-install-dirs' in args:
     print('Default installation directories:')
@@ -93,7 +85,7 @@ setup(
         'getmail-gmail-xoauth-tokens',
     ],
     data_files=[
-        (GETMAILDOCDIR, [
+        (DOCDIR, [
             './README',
             'docs/BUGS',
             'docs/COPYING',
@@ -110,7 +102,7 @@ setup(
             'docs/troubleshooting.html',
             'docs/troubleshooting.txt',
         ]),
-        (GETMAILMANDIR, [
+        (MANDIR, [
             'docs/getmail.1',
             'docs/getmail_fetch.1',
             'docs/getmail_maildir.1',
