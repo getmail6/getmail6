@@ -1,62 +1,85 @@
-getmail -- a flexible, extensible mail retrieval system with
+.. vim: syntax=rst
+
+getmail6
+========
+
+getmail6 is a flexible, extensible mail retrieval system with
 support for POP3, IMAP4, SSL variants of both, maildirs, mboxrd files,
 external MDAs, arbitrary message filtering, single-user and domain-mailboxes,
 and many other useful features.
 
 getmail is Copyright (C) 1998-2019 Charles Cazabon.
-getmail is licensed for use under the GNU General Public License version 2
-(only).  See docs/COPYING for specific terms and distribution information.
+getmail is licensed for use under the GNU General Public License version 2 (only).
+See ``docs/COPYING`` for specific terms and distribution information.
 
 getmail6 has adaptations to work with Python 3.
 These changes might still contain some bugs.
-Please report them here at https://github.com/getmail6/getmail6 .
+Please report them at https://github.com/getmail6/getmail6.
+See ``docs/BUGS`` for instructions on reporting bugs.
 
-Python versions older than 2.7 will probably not work any more.
+getmail6 will probably not work with Python versions older than 2.7.
 Use getmail 5.14 with them.
 
-You can have several installed versions of Python peacefully co-existing,
-see python.org for details.
+Installation
+------------
 
-To install:  getmail v.6 uses the standard Python distutils.  Do the following
-  as a regular user:
+To install::
 
-    python setup.py build
-    
-  (If you don't have "python" available, then try "python2" or "python3".)
+  pip install getmail6
 
-  Then (probably as root), do:
+To uninstall::
 
-    python setup.py install
+  pip uninstall getmail6
 
-  This will install the software as follows:
+You can install getmail6 in your home directory if you add ``--user``.
 
-    -the four scripts will be installed in <PREFIX>/bin/
-    -the Python files will be installed under the site-packages directory of
-     your Python installation (typically /usr/local/lib/pythonXXX or
-     /usr/lib/pythonXXX, but may be elsewhere -- this is detected automatically)
-    -the documentation will be installed under <PREFIX>/doc/getmail-<version>/
-    -the man pages will be installed under <PREFIX>/man/
+If getmail6 is available via your Linux distribution, you better use that.
 
-  <PREFIX> is the directory Python was configured to install under (typically
-  either /usr/local/ or /usr/, but may be another value).  See the file
-  docs/documentation.html or docs/documentation.txt for details on installing
-  files to directories other than these defaults.
+Usage
+-----
 
-The four scripts included in the package (getmail, getmail_maildir,
-getmail_mbox, and getmail_fetch) will have their "#!"-interpreter line
-automatically modified to invoke the Python interpreter you run the setup
-script with.  If you later remove this version of Python, and the newer version
-does not provide a link to the interpreter with that name, you will have to
-modify the scripts or re-run the setup.py script.
+getmail6 is not a python API.
+getmail6 provides command line tools:
 
-See the HTML documentation for details on setting up and using getmail.  It is
-included in the docs subdirectory of the distribution tarball, and will be
-installed in <PREFIX>/doc/getmail-<version>/ (by default).  10-second summary
-for personal use:
+- getmail
+- getmail_maildir,
+- getmail_mbox
+- getmail_fetch
+- getmail-gmail-xoauth-tokens
 
-  1. Install getmail
-  2. mkdir -m 700 ~/.getmail
-  3. Create ~/.getmail/getmailrc by following the instructions.
-  4. Run `getmail`.
+Before using ``getmail`` you must configure it.
+See ``docs/configuration.txt`` and ``docs/getmailrc-examples``.
+An example::
 
-See docs/BUGS for instructions on reporting bugs in this software.
+  [retriever]
+  type = SimpleIMAPSSLRetriever
+  server = imap.gmail.com 
+  port = 993
+  username = <your_email_here>
+  #password = ... or
+  password_command = ("pass", "<your_email_here>")
+
+  [destination]
+  type = Maildir
+  path = ~/Mail/<your_email_here>/INBOX/
+
+  [options]
+  read_all = true
+  delete = true
+
+
+Documentation
+-------------
+
+See the HTML documentation for details on setting up and using ``getmail``.
+It is included in the ``docs`` subdirectory,
+and will be installed in ``<PREFIX>/doc/getmail-<version>/`` (by default).
+
+::
+
+  docs/documentation.txt
+  docs/configuration.txt
+  docs/faq.txt
+  docs/troubleshooting.txt
+
+

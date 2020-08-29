@@ -1,7 +1,7 @@
 import sys
 
 import os.path
-from distutils.core import setup
+from setuptools import setup
 import distutils.sysconfig
 import site
 
@@ -58,11 +58,7 @@ setup(
     name='getmail',
     version=__version__,
     description='a mail retrieval, sorting, and delivering system',
-    long_description=('getmail is a multi-protocol mail retrieval system with'
-        'support for simple and domain POP3 and IMAP4 mailboxes, domain SDPS '
-        'mailboxes, POP3-over-SSL and IMAP-over-SSL, mail sorting, message '
-        'filtering, and delivery to Maildirs, Mboxrd files, external MDAs, and '
-        'other advanced features.'),
+    long_description=open('README').read(),
     author='Charles Cazabon, Roland Puntaier, and others',
     author_email='charlesc-getmail@pyropus.ca',
     maintainer_email='roland.puntaier@gmail.com',

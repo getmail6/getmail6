@@ -117,9 +117,24 @@ Installing getmail
 
   For the impatient
 
-   Installing getmail is very easy; just download the tarball distribution,
-   unpack it, change into the directory it unpacks into, and run this
-   command:
+   Installing getmail is very easy:
+
+ # sudo pip install getmail6
+
+   or
+
+ # pip install --user getmail6
+
+   To uninstalling do
+
+ # sudo pip uninstall getmail6
+
+   or
+
+ # pip uninstall getmail6
+
+   Alternatively download the tarball distribution, unpack it, change into
+   the directory it unpacks into, and run this command:
 
  # python setup.py install
 
@@ -145,11 +160,7 @@ Installing getmail
 
    Then, change into the extracted getmail directory and start the build
    process. The easiest installation method is to use the included setup.py
-   Python distutils script to build and install getmail directly.
-   Alternatively, you can build a binary package (i.e., an RPM or similar
-   managed software package) for your system from the source package and
-   install the resulting package, but the Python distutils support for this
-   is spotty at present.
+   to build and install getmail directly.
 
   Installing directly from the source
 

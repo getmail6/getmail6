@@ -243,8 +243,30 @@
 
 <h3 id="installing-impatient">For the impatient</h3>
 <p>
-    Installing getmail is very easy; just download the tarball
-    distribution, unpack it, change into the directory
+    Installing getmail is very easy:
+</p>
+<pre class="example">
+# sudo pip install getmail6
+</pre>
+<p>or</p>
+<pre class="example">
+# pip install --user getmail6
+</pre>
+<p>
+    To uninstalling do
+</p>
+<pre class="example">
+# sudo pip uninstall getmail6
+</pre>
+<p>or</p>
+<pre class="example">
+# pip uninstall getmail6
+</pre>
+<p>
+</p>
+<p>
+    Alternatively download the tarball distribution,
+    unpack it, change into the directory
     it unpacks into, and run this command:
 </p>
 <pre class="example">
@@ -277,16 +299,10 @@
 # tar xf getmail-<span class="meta">version</span>.tar
 </pre>
 <p>
-    Then, change into the extracted getmail directory and start the build
-    process.  The easiest installation method is to use the included
+    Then, change into the extracted getmail directory and start the build process.
+    The easiest installation method is to use the included
     <span class="file">setup.py</span>
-    <a href="http://docs.python.org/inst/inst.html">Python distutils script</a>
-    to build and install getmail directly.  Alternatively, you can build a
-    binary package (i.e., an RPM or similar managed software package) for your
-    system from the source package and install the resulting package, but the
-    Python distutils support for this is
-    <a href="http://docs.python.org/dist/postinstallation-script.html">spotty</a>
-    at present.
+    to build and install getmail directly.
 </p>
 
 <h3 id="installing-source">Installing directly from the source</h3>
