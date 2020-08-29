@@ -265,7 +265,7 @@ def mailbox_names(resplist):
             continue
         mailboxes.append(g['mailbox'])
     return mailboxes
-
+IMAP_ATOM_SPECIAL=re.compile(r'[\x00-\x1F\(\)\{ %\*"\\\]]')
 
 # Constants used in socket module
 NO_OBJ = object()
@@ -1379,6 +1379,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 read_only = False
             else:
                 read_only = True
+            if (len(mailbox) < 2 or (
+                mailbox[0],mailbox[-1]) != ('"','"')
+                ) and IMAP_ATOM_SPECIAL.search(mailbox):
+                mailbox = self.conn._quote(mailbox)
             (status, count) = self.conn.select(codecs.encode(mailbox,'imap4-utf-7'),
                                                read_only)
             if status == 'NO':
