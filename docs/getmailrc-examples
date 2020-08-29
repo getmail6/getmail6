@@ -2,7 +2,8 @@
 # This file contains various examples of configuration sections to use
 # in your getmail rc file.  You need one file for each mail account you
 # want to retrieve mail from.  These files should be placed in your
-# getmail configuration/data directory (default: $HOME/.getmail/).
+# getmail configuration/data directory 
+# (default: $XDG_CONFIG_HOME/getmail/ or $HOME/.getmail/).
 # If you only need one rc file, name it getmailrc in that directory,
 # and you won't need to supply any commandline options to run getmail.
 #

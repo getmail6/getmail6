@@ -2,6 +2,7 @@
 
 import sys
 
+import os
 import os.path
 import time
 try:
@@ -68,8 +69,13 @@ log = logging.Logger()
 log.addhandler(sys.stdout, logging.INFO, maxlevel=logging.INFO)
 log.addhandler(sys.stderr, logging.WARNING)
 
+try:
+    getmaildir_default = os.path.join(os.environ['XDG_CONFIG_HOME'],'getmail')
+except KeyError:
+    getmaildir_default = '~/.getmail/'
+
 defaults = {
-    'getmaildir' : '~/.getmail/',
+    'getmaildir' : getmaildir_default,
     'rcfile' : 'getmailrc',
 
     'verbose' : 1,
