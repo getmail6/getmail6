@@ -92,11 +92,12 @@
    Once getmail is installed, you need to configure it before you can
    retrieve mail with it. Follow these steps:
 
-    1. Create a data/configuration directory. The default is $HOME/.getmail/.
-       If you choose a different location, you will need to specify it on the
-       getmail command line. In general, other users should not be able to
-       read the contents of this directory, so you should set the permissions
-       on it appropriately.
+    1. Create a data/configuration directory. The default is
+       $XDG_CONFIG_HOME/getmail/ or $HOME/.getmail/. If you choose a
+       different location, you will need to specify it on the getmail command
+       line. In general, other users should not be able to read the contents
+       of this directory, so you should set the permissions on it
+       appropriately.
 
  mkdir -m 0700 $HOME/.getmail
         
@@ -1662,8 +1663,8 @@ Commandline options
 
    For instance, if you want to retrieve mail from two different mail
    accounts, create a getmail rc file for each of them (named, say,
-   getmailrc-account1 and getmailrc-account2) and put them in ~/.getmail/ .
-   Then run getmail as follows:
+   getmailrc-account1 and getmailrc-account2) and put them in ~/.getmail/ or
+   $XDG_CONFIG_HOME/getmail/. Then run getmail as follows:
 
  $ getmail --rcfile getmailrc-account1 --rcfile getmailrc-account2
 
