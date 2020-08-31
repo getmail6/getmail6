@@ -1382,9 +1382,17 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             if (len(mailbox) < 2 or (
                 mailbox[0],mailbox[-1]) != ('"','"')
                 ) and IMAP_ATOM_SPECIAL.search(mailbox):
-                mailbox = self.conn._quote(mailbox)
-            (status, count) = self.conn.select(codecs.encode(mailbox,'imap4-utf-7'),
-                                               read_only)
+                (status, count) = self.conn.select(
+                    codecs.encode(
+                        self.conn._quote(mailbox),
+                        'imap4-utf-7'),
+                    read_only)
+            else:
+                (status, count) = self.conn.select(
+                    codecs.encode(
+                        mailbox,
+                        'imap4-utf-7'),
+                    read_only)
             if status == 'NO':
                 # Specified mailbox doesn't exist, no permissions, etc.
                 raise getmailMailboxSelectError(mailbox)
