@@ -47,7 +47,7 @@ if '--show-default-install-dirs' in args:
     raise SystemExit()
 
 setup(
-    name='getmail',
+    name='getmail6',
     version=__version__,
     description='a mail retrieval, sorting, and delivering system',
     long_description=open('README').read(),
