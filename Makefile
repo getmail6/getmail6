@@ -16,12 +16,6 @@ check:
 	/usr/bin/man -l docs/getmail.1
 	restview --long-description --strict
 
-push: doc
-	git checkout develop
-	git merge master
-	git checkout master
-	git push --all
-
 dist: doc
 	sudo python setup.py bdist_wheel
 
