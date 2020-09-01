@@ -1,5 +1,5 @@
 Version 6.7
-Todo
+01 September 2020
     - use $XDG_CONFIG_HOME if defined
     - fix pip install (doc/man below site-packages)
     - fix #34: quote only for select
