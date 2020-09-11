@@ -1,3 +1,7 @@
+Version 6.8
+TODO
+    - fix #37: update copyright date and notices
+
 Version 6.7
 01 September 2020
     - use $XDG_CONFIG_HOME if defined

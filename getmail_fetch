@@ -26,7 +26,7 @@ class dummyInstance:
 #######################################
 def blurb():
     log.info('getmail_fetch version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2019 Charles Cazabon.  Licensed under the '
+    log.info('Copyright (C) 1998-2020 Charles Cazabon and others.  Licensed under the '
              'GNU GPL version 2.\n')
 
 #######################################

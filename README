@@ -8,7 +8,7 @@ support for POP3, IMAP4, SSL variants of both, maildirs, mboxrd files,
 external MDAs, arbitrary message filtering, single-user and domain-mailboxes,
 and many other useful features.
 
-getmail is Copyright (C) 1998-2019 Charles Cazabon.
+getmail is Copyright (C) 1998-2020 Charles Cazabon and others.
 getmail is licensed for use under the GNU General Public License version 2 (only).
 See ``docs/COPYING`` for specific terms and distribution information.
 
