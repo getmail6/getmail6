@@ -3,10 +3,9 @@
    This is the documentation for getmail version 6, a port of getmail version
    5 to python 3 without adding features.
 
-   getmail is Copyright © 1998-2019 by Charles Cazabon <charlesc-getmail @
-   pyropus.ca>
-   and getmail6 is maintained by Roland Puntaier since 2020 <roland.puntaier
-   @ gmail.com>
+   getmail6 is Copyright © 1998-2020 by Charles Cazabon and others:
+   <charlesc-getmail @ pyropus.ca>
+   <roland.puntaier @ gmail.com>
 
    getmail and getmail6 are licensed under the GNU General Public License
    version 2 (only).
