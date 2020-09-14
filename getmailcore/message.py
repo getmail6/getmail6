@@ -128,7 +128,7 @@ class Message(object):
             # Can't happen?
             raise SystemExit('Message() called with wrong arguments')
 
-        self.sender = address_no_brackets(self.__msg['return-path']
+        self.sender = address_no_brackets(self.__msg['Return-Path']
                                           or 'unknown')
 
     def content(self):
