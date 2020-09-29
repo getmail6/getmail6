@@ -9,7 +9,7 @@ import types
 from optparse import OptionParser
 
 try:
-    from getmailcore import __version__, retrievers, destinations, message, \
+    from getmailcore import blurb, __version__, retrievers, destinations, message, \
         logging
     from getmailcore.exceptions import *
 except ImportError as o:
@@ -24,12 +24,6 @@ class dummyInstance:
     pass
 
 #######################################
-def blurb():
-    log.info('getmail_fetch version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2020 Charles Cazabon and others.  Licensed under the '
-             'GNU GPL version 2.\n')
-
-#######################################
 def error_exit(v, s):
     sys.stderr.write(s + '\n')
     sys.stderr.flush()
@@ -40,7 +34,7 @@ def go(retriever, destination, options, startmsg):
     msgs_retrieved = 0
     if options.verbose:
         log.addhandler(sys.stdout, logging.INFO, maxlevel=logging.INFO)
-    blurb()
+    # blurb()
     try:
         if startmsg is not None:
             destination.deliver_message(startmsg, False, False)

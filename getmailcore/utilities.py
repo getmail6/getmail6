@@ -339,6 +339,9 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
 
     # Move message file from Maildir/tmp to Maildir/new
     try:
+        # #https://pypi.org/project/getmail_shutils/#description
+        # #Version of getmail using shutil instead of os.link to allow it to be used with a shared destination folder in a VM.
+        # shutil.copyfile(fname_tmp, fname_new)
         os.link(fname_tmp, fname_new)
         os.unlink(fname_tmp)
 

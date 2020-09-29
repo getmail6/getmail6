@@ -5,7 +5,7 @@ from setuptools import setup
 import distutils.sysconfig
 import site
 
-from getmailcore import __version__
+from getmailcore import __version__, __license__
 
 #
 # distutils doesn't seem to handle documentation files specially; they're
@@ -54,7 +54,7 @@ setup(
     author='Charles Cazabon, Roland Puntaier, and others',
     author_email='charlesc-getmail@pyropus.ca',
     maintainer_email='roland.puntaier@gmail.com',
-    license='GNU GPL version 2',
+    license=__license__,
     url='https://www.getmail6.org/',
     download_url='https://github.com/getmail6/getmail6/releases',
     classifiers=[

@@ -56,8 +56,8 @@ except ImportError:
     pass
 
 try:
-    from getmailcore import __version__, retrievers, destinations, filters, \
-        logging
+    from getmailcore import blurb, __version__, retrievers, destinations, \
+        filters, logging
     from getmailcore.exceptions import *
     from getmailcore.utilities import eval_bool, logfile, format_params, \
         address_no_brackets, expand_user_vars, get_password
@@ -108,18 +108,12 @@ def convert_to_sigint(unused1, unused2):
 signal.signal(signal.SIGTERM, convert_to_sigint)
 
 #######################################
-def blurb():
-    log.info('getmail version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2020 Charles Cazabon and others.  Licensed under the '
-             'GNU GPL version 2.\n')
-
-#######################################
 def go(configs, idle):
     """Main code.
 
     Returns True if all goes well, False if any error condition occurs.
     """
-    blurb()
+    # blurb()
     summary = []
     errorexit = False
     idling = False
