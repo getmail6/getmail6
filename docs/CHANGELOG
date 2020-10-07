@@ -1,5 +1,5 @@
 Version 6.8
-TODO
+07 October 2020
     - fix #37: update copyright date and notices
     - fix #39: Slow mail retrieval
     - pull #40: fix UnboundLocalError when socket.error inside POP3_SSL_EXTENDED
