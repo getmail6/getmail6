@@ -1,3 +1,6 @@
+# docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
+# Please refer to the git history regarding who changed what and when in this file.
+
 """
 Modified utf-7 encoding as used in IMAP v4r1 for encoding mailbox names.
 

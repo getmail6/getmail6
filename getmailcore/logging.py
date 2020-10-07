@@ -1,3 +1,6 @@
+# docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
+# Please refer to the git history regarding who changed what and when in this file.
+
 '''Logging support for getmail.
 
 The new standard Python libary module logging didn't cut it for me; it doesn't

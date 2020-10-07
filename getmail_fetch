@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
+# Please refer to the git history regarding who changed what and when in this file.
+
 import sys
 
 import os
@@ -34,7 +37,7 @@ def go(retriever, destination, options, startmsg):
     msgs_retrieved = 0
     if options.verbose:
         log.addhandler(sys.stdout, logging.INFO, maxlevel=logging.INFO)
-    # blurb()
+    blurb() # needed by docs/COPYING 2c
     try:
         if startmsg is not None:
             destination.deliver_message(startmsg, False, False)

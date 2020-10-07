@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
+# Please refer to the git history regarding who changed what and when in this file.
+
 '''getmail_mbox
 Reads a message from stdin and delivers it to an mbox file specified as
 a commandline argument.  Expects the envelope sender address to be in the

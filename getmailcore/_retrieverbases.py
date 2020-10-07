@@ -1,3 +1,6 @@
+# docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
+# Please refer to the git history regarding who changed what and when in this file.
+
 '''Base and mix-in classes implementing retrievers (message sources getmail can
 retrieve mail from).
 

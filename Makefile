@@ -1,5 +1,8 @@
 .PHONY: doc test check push dist up
 
+# docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
+# Please refer to the git history regarding who changed what and when in this file.
+
 doc:
 	links -dump docs/documentation.html > docs/documentation.txt
 	links -dump docs/configuration.html > docs/configuration.txt

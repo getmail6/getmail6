@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
+# Please refer to the git history regarding who changed what and when in this file.
+
 import sys
 
 import os
@@ -113,7 +116,7 @@ def go(configs, idle):
 
     Returns True if all goes well, False if any error condition occurs.
     """
-    # blurb()
+    blurb() # needed by docs/COPYING 2c
     summary = []
     errorexit = False
     idling = False

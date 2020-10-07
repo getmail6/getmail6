@@ -1,3 +1,6 @@
+# docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
+# Please refer to the git history regarding who changed what and when in this file.
+
 '''Utility classes and functions for getmail.
 '''
 
