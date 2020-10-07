@@ -12,8 +12,8 @@ import types
 from optparse import OptionParser
 
 try:
-    from getmailcore import blurb, __version__, retrievers, destinations, message, \
-        logging
+    from getmailcore import __version__, __license__, \
+        retrievers, destinations, message, logging
     from getmailcore.exceptions import *
 except ImportError as o:
     sys.stderr.write('ImportError:  %s\n' % o)
@@ -21,6 +21,11 @@ except ImportError as o:
 
 log = logging.Logger()
 log.addhandler(sys.stderr, logging.WARNING)
+
+def blurb():
+    log.info('getmail version %s\n' % __version__)
+    log.info('Copyright (C) 1998-2020 Charles Cazabon and others. '
+             'Licensed under %s.\n'%__license__)
 
 #######################################
 class dummyInstance:

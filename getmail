@@ -59,8 +59,8 @@ except ImportError:
     pass
 
 try:
-    from getmailcore import blurb, __version__, retrievers, destinations, \
-        filters, logging
+    from getmailcore import __version__, __license__, \
+        retrievers, destinations,  filters, logging
     from getmailcore.exceptions import *
     from getmailcore.utilities import eval_bool, logfile, format_params, \
         address_no_brackets, expand_user_vars, get_password
@@ -71,6 +71,11 @@ except ImportError as o:
 log = logging.Logger()
 log.addhandler(sys.stdout, logging.INFO, maxlevel=logging.INFO)
 log.addhandler(sys.stderr, logging.WARNING)
+
+def blurb():
+    log.info('getmail version %s\n' % __version__)
+    log.info('Copyright (C) 1998-2020 Charles Cazabon and others. '
+             'Licensed under %s.\n'%__license__)
 
 try:
     getmaildir_default = os.path.join(os.environ['XDG_CONFIG_HOME'],'getmail')
