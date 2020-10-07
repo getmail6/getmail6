@@ -32,6 +32,7 @@ import codecs
 from collections import namedtuple
 import tempfile
 import errno
+from threading import Condition
 
 from argparse import Namespace
 import subprocess
@@ -407,22 +408,27 @@ class ForkingBase(object):
         self.__child_pid = pid
         self.__child_status = r
         self.log.trace('handler reaped child %s with status %s' % (pid, r))
-        self.__child_exited = True
+        self.__child_exited.acquire()
+        self.__child_exited.notify_all()
+        self.__child_exited.release()
 
     def _prepare_child(self):
         self.log.trace('')
-        self.__child_exited = False
+        self.__child_exited = Condition()
         self.__child_pid = None
         self.__child_status = None
         self.__orig_handler = signal.signal(signal.SIGCHLD, self._child_handler)
 
     def _wait_for_child(self, childpid):
-        while not self.__child_exited:
-            # Could implement a maximum wait time here
-            self.log.trace('waiting for child %d' % childpid)
-            time.sleep(1.0)
-            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)'
-            #                           % (self.conf['command'], childpid, o))
+        try:
+            self.__child_exited.acquire()
+            while not self.__child_exited.wait(1):
+                # Could implement a maximum wait time here
+                self.log.trace('waiting for child %d' % childpid)
+                #raise getmailDeliveryError('failed waiting for commands %s %d (%s)'
+                #                           % (self.conf['command'], childpid, o))
+        finally:
+            self.__child_exited.release()
         if self.__child_pid != childpid:
             #self.log.error('got child pid %d, not %d' % (pid, childpid))
             raise getmailOperationError(
