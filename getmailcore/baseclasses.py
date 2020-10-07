@@ -420,15 +420,13 @@ class ForkingBase(object):
         self.__orig_handler = signal.signal(signal.SIGCHLD, self._child_handler)
 
     def _wait_for_child(self, childpid):
-        try:
-            self.__child_exited.acquire()
-            while not self.__child_exited.wait(1):
-                # Could implement a maximum wait time here
-                self.log.trace('waiting for child %d' % childpid)
-                #raise getmailDeliveryError('failed waiting for commands %s %d (%s)'
-                #                           % (self.conf['command'], childpid, o))
-        finally:
-            self.__child_exited.release()
+        self.__child_exited.acquire()
+        while not self.__child_exited.wait(1):
+            # Could implement a maximum wait time here
+            self.log.trace('waiting for child %d' % childpid)
+            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)'
+            #                           % (self.conf['command'], childpid, o))
+        self.__child_exited.release()
         if self.__child_pid != childpid:
             #self.log.error('got child pid %d, not %d' % (pid, childpid))
             raise getmailOperationError(
