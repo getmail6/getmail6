@@ -377,14 +377,18 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
             try:
                 self.sock = socket.socket(af, socktype, proto)
                 self.sock.connect(sa)
-            except socket.error as msg:
+            except socket.error as e:
+                msg = e
                 if self.sock:
                     self.sock.close()
                 self.sock = None
                 continue
             break
         if not self.sock:
-            raise socket.error(msg)
+            if isinstance(msg, Exception):
+              raise msg
+            else:
+              raise socket.error(msg)
         extra_args = { 'server_hostname': host }
         if self.ssl_version:
             extra_args['ssl_version'] = self.ssl_version
