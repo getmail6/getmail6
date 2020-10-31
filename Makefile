@@ -1,4 +1,4 @@
-.PHONY: doc test check push dist up
+.PHONY: doc test check push dist up tag
 
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
@@ -25,4 +25,9 @@ dist: doc
 up:
 	twine upload dist/`ls dist -rt | tail -1`
 
+tag:
+	TAGMSG="v$(./getmail --version | cut -d ' ' -f 2)"
+	git tag $TAGMSG $TAGMSG -f -s -m"$TAGMSG"
+	git verify-tag $TAGMSG
+	git push origin $TAGMSG --follow-tags
 
