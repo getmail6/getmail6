@@ -525,10 +525,14 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
        self.ssl_ciphers = ssl_ciphers
        imaplib.IMAP4_SSL.__init__(self, host, port, keyfile, certfile)
 
-    def open(self, host='', port=imaplib.IMAP4_SSL_PORT):
+    def open(self, host='', port=imaplib.IMAP4_SSL_PORT, timeout=None):
        self.host = host
        self.port = port
        self.sock = socket.create_connection((host, port))
+
+       # Note timeout is available in python 3.9 in native imaplib's/ssl's open, but wrap_socket does not support it.  Keep it for the future.
+       self.timeout = timeout
+
        extra_args = { 'server_hostname': host }
        if self.ssl_version:
            extra_args['ssl_version'] = self.ssl_version
