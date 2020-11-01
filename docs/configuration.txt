@@ -342,22 +342,15 @@ Creating a getmail rc file
          1. from the password configuration item in the getmailrc file
          2. by running an arbitrary command specified with the
             password_command parameter (see below)
-         3. on Mac OS X only, from the OS X keychain
-         4. on systems with Gnome keyring support, from the default Gnome
-            keyring
-         5. if not found via any of the above methods, getmail will prompt
+         3. from Python keyring if available
+         4. if not found via any of the above methods, getmail will prompt
             for the password when run
-       To store your POP/IMAP account password into the Gnome keyring, ensure
-       the password is not provided in the getmailrc file, and run getmail
-       with the special option --store-password-in-gnome-keyring; getmail
-       will run, prompt you for the password, store it in the Gnome keyring,
+       To store your POP/IMAP account password into the Python keyring,
+       ensure the password is not provided in the getmailrc file, and run
+       getmail with the special option --store-password-in-keyring; getmail
+       will run, prompt you for the password, store it in the Python keyring,
        and exit without retrieving mail. If this option is not recognized,
-       your Python installation does not have Gnome keyring integration
-       support, or Gnome indicates that the keyring is not available. If
-       using the OSX keychain on 10.9 "Mavericks" (or later, presumably),
-       some additional steps may be necessary to make the password available
-       to getmail via the keychain. See this posting to the getmail users'
-       mailing list by Alan Schmitt for details.
+       your Python installation does not have Python keyring.
      * password_command (tuple of quoted strings) — retrieve the account
        password by running an arbitrary external program. The program must
        write the password and nothing else to stdout, and must exit with a

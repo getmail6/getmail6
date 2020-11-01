@@ -19,6 +19,7 @@ from optparse import OptionParser, OptionGroup
 import socket
 import signal
 import errno
+import getpass
 
 # Optional gnome-keyring integration
 try:
@@ -30,6 +31,11 @@ try:
         gnomekeyring = None
 except ImportError:
     gnomekeyring = None
+# Optional Python keyring integration
+try:
+    import keyring
+except ImportError:
+    keyring = None
 
 options_bool = (
     'read_all',
@@ -63,7 +69,7 @@ try:
         retrievers, destinations,  filters, logging
     from getmailcore.exceptions import *
     from getmailcore.utilities import eval_bool, logfile, format_params, \
-        address_no_brackets, expand_user_vars, get_password
+        address_no_brackets, expand_user_vars
 except ImportError as o:
     sys.stderr.write('ImportError:  %s\n' % o)
     sys.exit(127)
@@ -509,6 +515,12 @@ def main():
                 dest='store_gnome_keyring', action='store_true', default=False,
                 help='store the POP/IMAP password in the Gnome keyring'
             )
+        if keyring:
+            parser.add_option(
+                '--store-password-in-keyring',
+                dest='store_keyring', action='store_true', default=False,
+                help='store the POP/IMAP password using the Python keyring package'
+            )
         overrides = OptionGroup(
             parser, 'Overrides',
             'The following options override those specified in any '
@@ -741,7 +753,8 @@ def main():
 
                 # Retriever is okay.  Check if user wants us to store the
                 # password in a Gnome keyring for future use.
-                if gnomekeyring and options.store_gnome_keyring:
+                if (gnomekeyring and options.store_gnome_keyring or
+                   keyring and options.store_keyring):
                     # Need to get the password first, if the user hasn't put
                     # it in the rc file.
                     if retriever.conf.get('password', None) is not None:
@@ -750,20 +763,25 @@ def main():
                         # Retrieve from an arbitrary external command
                         password = retriever.run_password_command()
                     else:
-                        password = get_password(
-                            str(retriever), retriever.conf['username'],
-                            retriever.conf['server'], retriever.received_with,
-                            log
-                        )
+                        password = getpass.getpass('Enter password for %s:  ' % str(retriever))
 
-                    gnomekeyring.set_network_password_sync(
-                        # keyring=None, user, domain=None, server, object=None,
-                        # protocol, authtype=None, port=0
-                        None, retriever.conf['username'], None,
-                        retriever.conf['server'], None, retriever.received_with,
-                        None, 0, password
-                    )
-                    log.info('Stored password in Gnome keyring.  Exiting.\n')
+                    if options.store_keyring:
+                        keyring.set_password(
+                            retriever.conf['server']
+                            ,retriever.conf['username']
+                            ,password)
+                        log.info('Stored password in Python keyring.  Exiting.\n')
+                    else:
+                        gnomekeyring.set_network_password_sync(
+                            # keyring=None, user, domain=None, server, object=None,
+                            # protocol, authtype=None, port=0
+                            None, retriever.conf['username'], None,
+                            retriever.conf['server'], None, retriever.received_with,
+                            None, 0, password
+                        )
+                        log.info('Stored password in Gnome keyring.  Exiting.\n')
+                        if keyring:
+                            log.info('... but Gnome keyring will not be used as you have Python keyring installed.\n')
                     raise SystemExit()
 
                 # Destination

@@ -72,6 +72,11 @@ try:
         gnomekeyring = None
 except ImportError:
     gnomekeyring = None
+# Optional Python keyring integration
+try:
+    import keyring
+except ImportError:
+    keyring = None
 
 from getmailcore.exceptions import *
 
@@ -603,7 +608,10 @@ def check_ssl_ciphers(conf):
 #######################################
 keychain_password = None
 if os.name == 'posix':
-    if os.path.isfile(osx_keychain_binary):
+    if keyring:
+        def keychain_password(user, server, protocol, logger):
+            return keyring.get_password(server,user)
+    elif os.path.isfile(osx_keychain_binary):
         def keychain_password(user, server, protocol, logger):
             """Mac OSX: return a keychain password, if it exists.  Otherwise, return
 
@@ -640,7 +648,7 @@ if os.name == 'posix':
                         pw = pw[1:-1]
                     password = pw
             if password is None:
-                logger.debug('No keychain password found for %s %s %s'
+                logger.debug('No keychain password found for %s %s %s\n'
                              % (user, server, protocol))
             return password
     elif gnomekeyring:
@@ -661,7 +669,7 @@ if os.name == 'posix':
 
                 #logger.trace('got keyring result %s' % str(secret))
             except gnomekeyring.NoMatchError:
-                logger.debug('gnome-keyring does not know password for %s %s %s'
+                logger.debug('gnome-keyring does not know password for %s %s %s\n'
                              % (user, server, protocol))
                 return None
 
@@ -688,7 +696,7 @@ def get_password(label, user, server, protocol, logger):
     # try keychain/keyrings first, where available
     password = keychain_password(user, server, protocol, logger)
     if password:
-        logger.debug('using password from keychain/keyring')
+        logger.debug('using password from keychain/keyring\n')
     else:
         # no password found (or not on OSX), prompt in the usual way
         password = getpass.getpass('Enter password for %s:  ' % label)

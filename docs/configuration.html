@@ -555,22 +555,15 @@ type = <span class="meta">typename</span>
         <ol>
             <li>from the <span class="file">password</span> configuration item in the getmailrc file</li>
             <li>by running an arbitrary command specified with the password_command parameter (see below)</li>
-            <li>on Mac OS X only, from the OS X keychain</li>
-            <li>on systems with Gnome keyring support, from the default Gnome keyring</li>
+            <li>from Python keyring if available</li>
             <li>if not found via any of the above methods, getmail will prompt for the password when run</li>
         </ol>
-        To store your POP/IMAP account password into the Gnome keyring, ensure
+        To store your POP/IMAP account password into the Python keyring, ensure
         the password is not provided in the getmailrc file, and run getmail with
-        the special option <span class="file">--store-password-in-gnome-keyring</span>;
-        getmail will run, prompt you for the password, store it in the Gnome
+        the special option <span class="file">--store-password-in-keyring</span>;
+        getmail will run, prompt you for the password, store it in the Python
         keyring, and exit without retrieving mail.  If this option is not
-        recognized, your Python installation does not have Gnome keyring
-        integration support, or Gnome indicates that the keyring is not
-        available.
-        If using the OSX keychain on 10.9 &quot;Mavericks&quot; (or later, presumably),
-        some additional steps may be necessary to make the password available to getmail
-        via the keychain.  See <a href="http://article.gmane.org/gmane.mail.getmail.user/5120">this
-        posting to the getmail users' mailing list by Alan Schmitt</a> for details.
+        recognized, your Python installation does not have Python keyring.
     </li>
     <li id="password_command">
         password_command
