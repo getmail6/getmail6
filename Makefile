@@ -26,8 +26,9 @@ up:
 	twine upload dist/`ls dist -rt | tail -1`
 
 tag:
-	TAGMSG="v$(./getmail --version | cut -d ' ' -f 2)"
-	git tag $TAGMSG $TAGMSG -f -s -m"$TAGMSG"
-	git verify-tag $TAGMSG
-	git push origin $TAGMSG --follow-tags
+	$(eval TAGMSG="v$(shell ./getmail --version | cut -d ' ' -f 2)")
+	echo $(TAGMSG)
+	git tag -s $(TAGMSG) -m"$(TAGMSG)"
+	git verify-tag $(TAGMSG)
+	git push origin $(TAGMSG) --follow-tags
 
