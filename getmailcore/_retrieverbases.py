@@ -1240,25 +1240,25 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         if not HAVE_KERBEROS_GSS:
             # shouldn't get here
             raise ValueError('kerberos GSS support not available')
-        data = b''.join(codecs.encode(str(response),'base64').splitlines())
+        data = b''.join(codecs.encode(response,'base64').splitlines())
         if self.gss_step == GSS_STATE_STEP:
             if not self.gss_vc:
                 (rc, self.gss_vc) = kerberos.authGSSClientInit(
                     'imap@%s' % self.conf['server']
                 )
                 response = kerberos.authGSSClientResponse(self.gss_vc)
-            rc = kerberos.authGSSClientStep(self.gss_vc, data)
+            rc = kerberos.authGSSClientStep(self.gss_vc, data.decode('ascii'))
             if rc != kerberos.AUTH_GSS_CONTINUE:
                self.gss_step = GSS_STATE_WRAP
         elif self.gss_step == GSS_STATE_WRAP:
-            rc = kerberos.authGSSClientUnwrap(self.gss_vc, data)
+            rc = kerberos.authGSSClientUnwrap(self.gss_vc, data.decode('ascii'))
             response = kerberos.authGSSClientResponse(self.gss_vc)
             rc = kerberos.authGSSClientWrap(self.gss_vc, response,
                                             self.conf['username'])
         response = kerberos.authGSSClientResponse(self.gss_vc)
         if not response:
             response = ''
-        return codecs.decode(response,'base64')
+        return codecs.decode(response.encode('ascii'),'base64')
 
     def _getmboxuidbymsgid(self, msgid):
         self.log.trace()
