@@ -1,3 +1,7 @@
+Version 6.11
+TODO
+    - fix #49: "'utf-8' codec can't decode" for mbox
+
 Version 6.10
 28 November 2020
     - fix #48: handle Header in address_no_brackets using Header.__str__

@@ -270,22 +270,15 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                                            % self.conf['path'])
 
             # Open mbox file, refusing to create it if it doesn't exist
-            fd = os.open(self.conf['path'], os.O_RDWR)
-            status_old = os.fstat(fd)
-            f = os.fdopen(fd, 'br+')
-            lock_file(f, self.conf['locktype'])
-            # Check if it _is_ an mbox file.  mbox files must start with "From "
-            # in their first line, or are 0-length files.
-            f.seek(0, 0)
-            first_line = f.readline()
-            if first_line and not first_line.startswith(b'From '):
-                # Not an mbox file; abort here
-                unlock_file(f, self.conf['locktype'])
+            status_old, f = f_mbox(self.conf['path'])
+            if f is None:
                 raise getmailDeliveryError('not an mboxrd file (%s)'
                                            % self.conf['path'])
+            lock_file(f, self.conf['locktype'])
             # Seek to end
             f.seek(0, 2)
             try:
+
                 # Write out message plus blank line with native EOL
                 f.write(msg.flatten(delivered_to, received, include_from=True,
                                     mangle_from=True) + os.linesep.encode())
@@ -304,8 +297,6 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                     stdout.flush()
                     os.fsync(stdout.fileno())
 
-                unlock_file(f, self.conf['locktype'])
-
             except IOError as o:
                 try:
                     if not f.closed:
@@ -322,6 +313,8 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                     'failure writing message to mbox file "%s" (%s)'
                     % (self.conf['path'], o)
                 )
+            finally:
+                unlock_file(f, self.conf['locktype'])
 
             os._exit(0)
 
