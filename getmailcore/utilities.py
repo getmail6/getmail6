@@ -715,7 +715,5 @@ def get_password(label, user, server, protocol, logger):
         logger.debug('using password from keychain/keyring\n')
     else:
         # no password found (or not on OSX), prompt in the usual way
-        password = getpass.getpass('Enter password for %s:  ' % label)
+        password = getpass.getpass('Enter password for %s: ' % label)
     return password
-
-
