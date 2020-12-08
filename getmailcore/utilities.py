@@ -30,6 +30,7 @@ __all__ = [
     'get_password',
     'tostr',
     'unicode',
+    'f_mbox'
 ]
 
 
