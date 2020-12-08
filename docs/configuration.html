@@ -189,10 +189,13 @@ Please refer to the git history regarding who changed what and when in this file
 </p>
 <ol>
     <li>
-        Create a data/configuration directory.  The default is
-        <span class="file">$XDG_CONFIG_HOME/getmail/</span> or
-        <span class="file">$HOME/.getmail/</span>.
-        If you choose a different location, you will need to specify it on the
+        Create a data/configuration directory.  getmail complies
+        with <a href="https://specifications.freedesktop.org/basedir-spec/latest/index.html">the
+        XDG basedir specification</a>; the default is
+        <span class="file">~/.config/getmail/</span>.  For backward
+        compatibility reasons, getmail also
+        checks <span class="file">$HOME/.getmail/</span>.  If you want
+        a different location, you will need to specify it on the
         <a href="#running">getmail command line</a>.
         In general, other users should not be able to read the contents of this
         directory, so you should set the permissions on it appropriately.
@@ -3036,8 +3039,8 @@ type = Filter_TMDA
     <span class="file">getmailrc-account1</span>
     and
     <span class="file">getmailrc-account2</span>)
-    and put them in
-    <span class="file">~/.getmail/</span> or <span class="file">$XDG_CONFIG_HOME/getmail/</span>.
+    and put them in directory
+    <span class="file">~/.config/getmail/</span>.
     Then run getmail as follows:
 </p>
 <pre class="example">
