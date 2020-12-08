@@ -767,7 +767,7 @@ def main():
                         # Retrieve from an arbitrary external command
                         password = retriever.run_password_command()
                     else:
-                        password = getpass.getpass('Enter password for %s:  ' % str(retriever))
+                        password = getpass.getpass('Enter password for %s: ' % str(retriever))
 
                     if options.store_keyring:
                         keyring.set_password(

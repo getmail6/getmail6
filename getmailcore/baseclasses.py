@@ -298,20 +298,14 @@ class ConfMboxPath(ConfString):
             raise getmailConfigurationError(
                 '%s: specified mbox file "%s" does not exist' % (self.name, val)
             )
-        fd = os.open(val, os.O_RDWR)
-        status_old = os.fstat(fd)
-        f = os.fdopen(fd, 'r+')
-        # Check if it _is_ an mbox file.  mbox files must start with "From "
-        # in their first line, or are 0-length files.
-        f.seek(0, 0)
-        first_line = f.readline()
-        if first_line and first_line[:5] != 'From ':
+        status_old, f = f_mbox(val)
+        if f is None:
             # Not an mbox file; abort here
             raise getmailConfigurationError('%s: not an mboxrd file' % val)
         # Reset atime and mtime
         try:
             os.utime(val, (status_old.st_atime, status_old.st_mtime))
-        except OSError as o:
+        except OSError:
             # Not root or owner; readers will not be able to reliably
             # detect new mail.  But you shouldn't be delivering to
             # other peoples' mboxes unless you're root, anyways.

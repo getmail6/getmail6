@@ -30,6 +30,7 @@ __all__ = [
     'get_password',
     'tostr',
     'unicode',
+    'f_mbox'
 ]
 
 
@@ -124,6 +125,20 @@ def safe_open(path, mode, permissions=0o600):
     except OSError as o:
         raise getmailDeliveryError('failure opening %s (%s)' % (path, o))
     return file
+
+
+#######################################
+def f_mbox(path):
+    fd = os.open(path, os.O_RDWR)
+    status_old = os.fstat(fd)
+    f = os.fdopen(fd, 'br+')
+    # Check if it _is_ an mbox file.  mbox files must start with "From "
+    # in their first line, or are 0-length files.
+    f.seek(0, 0)
+    first_line = f.readline()
+    if first_line and not first_line.startswith(b'From '):
+        return status_old, f
+    return None,None
 
 #######################################
 class updatefile(object):
@@ -701,7 +716,5 @@ def get_password(label, user, server, protocol, logger):
         logger.debug('using password from keychain/keyring\n')
     else:
         # no password found (or not on OSX), prompt in the usual way
-        password = getpass.getpass('Enter password for %s:  ' % label)
+        password = getpass.getpass('Enter password for %s: ' % label)
     return password
-
-
