@@ -191,9 +191,9 @@ Please refer to the git history regarding who changed what and when in this file
     <li>
         Create a data/configuration directory.  getmail complies
         with <a href="https://specifications.freedesktop.org/basedir-spec/latest/index.html">the
-        XDG basedir specification</a>; the default is
-        <span class="file">~/.config/getmail/</span>.  For backward
-        compatibility reasons, getmail also
+        XDG basedir specification</a>: <span class="file">$XDG_CONFIG_HOME/getmail/</span>
+        defaulting to <span class="file">~/.config/getmail/</span>.
+        For backward compatibility reasons, getmail also
         checks <span class="file">$HOME/.getmail/</span>.  If you want
         a different location, you will need to specify it on the
         <a href="#running">getmail command line</a>.
