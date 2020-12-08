@@ -91,15 +91,17 @@
    Once getmail is installed, you need to configure it before you can
    retrieve mail with it. Follow these steps:
 
-    1. Create a data/configuration directory. The default is
-       $XDG_CONFIG_HOME/getmail/ or $HOME/.getmail/. If you choose a
-       different location, you will need to specify it on the getmail command
-       line. In general, other users should not be able to read the contents
-       of this directory, so you should set the permissions on it
+    1. Create a data/configuration directory.  getmail complies with
+       the XDG basedir specification; the default is
+       ~/.config/getmail.  For backward compatibility reasons, getmail
+       also checks ~/.getmail/.  If you want a different location, you
+       will need to specify it on the getmail command line.  In
+       general, other users should not be able to read the contents of
+       this directory, so you should set the permissions on it
        appropriately.
 
  mkdir -m 0700 $HOME/.getmail
-        
+
 
     2. Create a configuration file in the configuration/data directory. The
        default name is getmailrc. If you choose a different filename, you
@@ -361,7 +363,7 @@ Creating a getmail rc file
        program.
 
  password_command = ("/path/to/password-retriever", "-p", "myaccount@example.org")
-        
+
 
    All IMAP retriever types also take the following optional parameters:
 
@@ -373,7 +375,7 @@ Creating a getmail rc file
 
  mailboxes = ("INBOX", "INBOX.spam",
      "mailing-lists.model-railroading")
-        
+
 
        Note that the format for hierarchical folder names is determined by
        the IMAP server, not by getmail. Consult your server's documentation
@@ -390,7 +392,7 @@ Creating a getmail rc file
        all mailboxes, you would use:
 
  mailboxes = ALL
-        
+
 
      * use_peek (boolean) — whether to use PEEK to retrieve the message; the
        default is True. IMAP servers typically mark a message as seen if PEEK
@@ -631,7 +633,7 @@ Creating a getmail rc file
        Delivered-To: header field would be specified as:
 
  envelope_recipient = delivered-to:1
-        
+
 
    The MultidropPOP3Retriever also takes the following optional parameters:
 
@@ -818,7 +820,7 @@ Creating a getmail rc file
  [destination]
  type = Maildir
  path = ~/Maildir/
-        
+
 
    The Maildir destination also takes two optional parameters:
 
@@ -862,7 +864,7 @@ Creating a getmail rc file
  [destination]
  type = Mboxrd
  path = ~/inbox
-        
+
 
    The Mboxrd destination also takes two optional parameters:
 
@@ -1655,8 +1657,8 @@ Commandline options
 
    For instance, if you want to retrieve mail from two different mail
    accounts, create a getmail rc file for each of them (named, say,
-   getmailrc-account1 and getmailrc-account2) and put them in ~/.getmail/ or
-   $XDG_CONFIG_HOME/getmail/. Then run getmail as follows:
+   getmailrc-account1 and getmailrc-account2) and put them in
+   directory ~/.config/getmail/. Then run getmail as follows:
 
  $ getmail --rcfile getmailrc-account1 --rcfile getmailrc-account2
 

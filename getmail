@@ -83,13 +83,7 @@ def blurb():
     log.info('Copyright (C) 1998-2020 Charles Cazabon and others. '
              'Licensed under %s.\n'%__license__)
 
-try:
-    getmaildir_default = os.path.join(os.environ['XDG_CONFIG_HOME'],'getmail')
-except KeyError:
-    getmaildir_default = '~/.getmail/'
-
 defaults = {
-    'getmaildir' : getmaildir_default,
     'rcfile' : 'getmailrc',
 
     'verbose' : 1,
@@ -482,7 +476,7 @@ def main():
         parser = OptionParser(version='%%prog %s' % __version__)
         parser.add_option(
             '-g', '--getmaildir',
-            dest='getmaildir', action='store', default=defaults['getmaildir'],
+            dest='getmaildir', action='store',
             help='look in DIR for config/data files', metavar='DIR'
         )
         parser.add_option(
@@ -584,10 +578,20 @@ def main():
             s += '%s="%s"' % (attr, pprint.pformat(getattr(options, attr)))
         log.debug('parsed options:  %s\n' % s)
 
-        getmaildir_type = 'Default'
-        if options.getmaildir != defaults['getmaildir']:
+        if options.getmaildir is None:
+            getmaildir_type = 'Default'
+            xdg_config = os.environ.get('XDG_CONFIG_HOME', os.path.join(os.environ["HOME"], ".config"))
+            getmaildir_xdg = os.path.join(xdg_config, 'getmail')
+            getmaildir_home = os.path.join(os.environ["HOME"], ".getmail")
+            if os.path.exists(getmaildir_xdg):
+                getmaildir = getmaildir_xdg
+            elif os.path.exists(getmaildir_home):
+                getmaildir = getmaildir_home
+            else:
+                raise getmailOperationError('Could not find the getmail configuration directory.  mkdir ~/.config/getmail/ or specify an alternate directory with the --getmaildir option.')
+        else:
             getmaildir_type = 'Specified'
-        getmaildir = expand_user_vars(options.getmaildir)
+            getmaildir = expand_user_vars(options.getmaildir)
         if not os.path.exists(getmaildir):
             raise getmailOperationError(
                 '%s config/data dir "%s" does not exist - create '
@@ -609,7 +613,7 @@ def main():
 
         configs = []
         for filename in options.rcfile:
-            path = os.path.join(os.path.expanduser(options.getmaildir),
+            path = os.path.join(os.path.expanduser(getmaildir),
                                 filename)
             log.debug('processing rcfile %s\n' % path)
             if not os.path.exists(path):
@@ -729,7 +733,7 @@ def main():
                         % (path, retriever_type)
                     )
                 retriever_args = {
-                    'getmaildir' : options.getmaildir,
+                    'getmaildir' : getmaildir,
                     'configparser' : configparser,
                 }
                 for (name, value) in configparser.items('retriever'):

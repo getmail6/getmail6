@@ -1,5 +1,8 @@
 Version 6.11
 TODO
+    - comply more closely with the XDG basedir specification: allow an
+      unset XDG_CONFIG_HOME environment variable.
+    - Simplify the documentation around the location of the configuration directory.
     - fix #49: "'utf-8' codec can't decode" for mbox
 
 Version 6.10
