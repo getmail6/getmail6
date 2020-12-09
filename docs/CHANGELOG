@@ -1,5 +1,5 @@
 Version 6.11
-TODO
+09 December 2020
     - comply more closely with the XDG basedir specification: allow an
       unset XDG_CONFIG_HOME environment variable.
     - Simplify the documentation around the location of the configuration directory.
