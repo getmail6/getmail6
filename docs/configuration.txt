@@ -1619,7 +1619,7 @@ Creating a getmail rc file
    To use getmail, simply run the script getmail, which is typically
    installed in /usr/local/bin/ by default. getmail will read the default
    getmail rc file (getmailrc) from the default configuration/data directory
-   (~/.getmail/) and begin operating.
+   (~/.config/getmail/ or ~/.getmail/) and begin operating.
 
    You can modify this behaviour by supplying commandline options to getmail.
 
