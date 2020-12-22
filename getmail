@@ -655,6 +655,7 @@ def main():
                     configparser.read_file(f)
                 except AttributeError:
                     configparser.readfp(f)
+                f.close()
                 for option in options_bool:
                     log.debug('  looking for option %s ... ' % option)
                     if configparser.has_option('options', option):
