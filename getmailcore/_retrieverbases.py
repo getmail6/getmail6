@@ -822,6 +822,7 @@ class RetrieverSkeleton(ConfigurableBase):
                     'skipped malformed line "%r" for %s%s'
                     % (line, logname, os.linesep)
                 )
+        f.close()
         self.log.moreinfo(
             'read %i uids for %s%s'
             % (len(self.oldmail), logname, os.linesep)
