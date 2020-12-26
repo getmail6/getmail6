@@ -415,7 +415,7 @@ class ForkingBase(object):
     def _prepare_child(self):
         self.log.trace('')
         self.__child_exited = Condition()
-        self.__child_pid = None
+        self.__child_pid = 0
         self.__child_status = None
         self.__orig_handler = signal.signal(signal.SIGCHLD, self._child_handler)
 
