@@ -397,20 +397,23 @@ class ForkingBase(object):
 
     '''
     def _child_handler(self, sig, stackframe):
+        def notify():
+            self.__child_exited.acquire()
+            self.__child_exited.notify_all()
+            self.__child_exited.release()
         self.log.trace('handler called for signal %s' % sig)
         try:
             pid, r = os.waitpid(self.child.childpid,0)
         except OSError as o:
             # No children on SIGCHLD.  Can't happen?
             self.log.warning('handler called, but no children (%s)' % o)
+            notify()
             return
         signal.signal(signal.SIGCHLD, self.__orig_handler)
         self.__child_pid = pid
         self.__child_status = r
         self.log.trace('handler reaped child %s with status %s' % (pid, r))
-        self.__child_exited.acquire()
-        self.__child_exited.notify_all()
-        self.__child_exited.release()
+        notify()
 
     def _prepare_child(self):
         self.log.trace('')
