@@ -399,7 +399,7 @@ class ForkingBase(object):
     def _child_handler(self, sig, stackframe):
         self.log.trace('handler called for signal %s' % sig)
         try:
-            pid, r = os.wait()
+            pid, r = os.waitpid(self.child.childpid,0)
         except OSError as o:
             # No children on SIGCHLD.  Can't happen?
             self.log.warning('handler called, but no children (%s)' % o)
@@ -470,14 +470,14 @@ class ForkingBase(object):
         os.execl(*args)
 
     def forkchild(self, childfun, with_out=True):
-        self._prepare_child()
-        child = Namespace()
+        self.child = child = Namespace()
         child.stdout = TemporaryFile23()
         child.stderr = TemporaryFile23()
         child.childpid = os.fork()
-        if child.childpid == 0:
-            childfun(child.stdout, child.stderr)
-        else:
+        self._prepare_child()
+        if child.childpid == 0: # in the child
+            childfun(child.stdout, child.stderr) # calls child_replace_me to execl external command
+        else: # here (in the parent)
             self.log.debug('spawned child %d\n' % child.childpid)
             child.exitcode = self._wait_for_child(child.childpid)
             child.stderr.seek(0)
