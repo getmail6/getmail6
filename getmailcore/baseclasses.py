@@ -477,10 +477,8 @@ class ForkingBase(object):
         child.stdout = TemporaryFile23()
         child.stderr = TemporaryFile23()
         child.childpid = os.fork()
-        self._prepare_child()
-        if child.childpid == 0: # in the child
-            childfun(child.stdout, child.stderr) # calls child_replace_me to execl external command
-        else: # here (in the parent)
+        if child.childpid != 0: # here (in the parent)
+            self._prepare_child()
             self.log.debug('spawned child %d\n' % child.childpid)
             child.exitcode = self._wait_for_child(child.childpid)
             child.stderr.seek(0)
@@ -489,6 +487,9 @@ class ForkingBase(object):
             if with_out:
                 child.out = child.stdout.read().strip()
             return child
+        else: #== 0 in the child
+            # calls child_replace_me to execl external command
+            childfun(child.stdout, child.stderr)
 
     def get_msginfo(self, msg):
         msginfo = {}
