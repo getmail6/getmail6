@@ -1,0 +1,4 @@
+Should you want to modify the documentation files here:
+- Install links
+- Modify the .html
+- Regenerate the .txt by running "make doc" from the toplevel directory
