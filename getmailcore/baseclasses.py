@@ -424,11 +424,8 @@ class ForkingBase(object):
 
     def _wait_for_child(self, childpid):
         self.__child_exited.acquire()
-        while not self.__child_exited.wait(1):
-            # Could implement a maximum wait time here
-            self.log.trace('waiting for child %d' % childpid)
-            #raise getmailDeliveryError('failed waiting for commands %s %d (%s)'
-            #                           % (self.conf['command'], childpid, o))
+        if not self.__child_exited.wait(3):
+            self.log.warning('stopped waiting for child %d' % childpid)
         self.__child_exited.release()
         if self.__child_pid != childpid:
             #self.log.error('got child pid %d, not %d' % (pid, childpid))
