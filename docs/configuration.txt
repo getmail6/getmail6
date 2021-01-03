@@ -52,6 +52,7 @@
                     *    * Maildir
                          * Mboxrd
                          * MDA_external
+                         * MDA_lmtp
                          * MultiDestination
                          * MultiSorter
                          * MultiGuesser
@@ -788,6 +789,7 @@ Creating a getmail rc file
        fcntl-type locking.
      * MDA_external — use an external message delivery agent (MDA) to deliver
        messages. Typical MDAs include maildrop, procmail, and others.
+     * MDA_lmtp — deliver messages to an external MDA via the LMTP protocol.
      * MultiDestination — unconditionally deliver messages to multiple
        destinations (maildirs, mbox files, external MDAs, or other
        destinations).
@@ -956,6 +958,34 @@ Creating a getmail rc file
  user = fred
  group = mail
  arguments = ("--strip-forbidden-attachments", "--recipient=%(recipient)")
+
+    MDA_lmtp
+
+   MDA_lmtp delivers messages via LMTP by connecting to a Unix domain or TCP
+   socket. It currently does not support any authentication.
+
+   The MDA_lmtp destination takes one required parameter:
+
+     * host (string) — the host to connect to. Either a DNS-resolvable
+       hostname, an IP address or absolute path to a Unix domain socket.
+
+   The MDA_lmtp destination also takes one optional parameter:
+
+     * port (integer) — the remote port to connect to. Ignored if host is a
+       Unix domain socket.
+
+   A configuration connecting to a Dovecot LMTP server might look like this:
+
+ [destination]
+ type = MDA_lmtp
+ host = /run/dovecot/lmtp
+
+   Another example delivering to a remote host on a non-standard port:
+
+ [destination]
+ type = MDA_lmtp
+ host = mail.example.com
+ port = 3333
 
     MultiDestination
 

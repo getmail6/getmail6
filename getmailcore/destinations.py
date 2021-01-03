@@ -20,6 +20,7 @@ __all__ = [
     'Mboxrd',
     'MDA_qmaillocal',
     'MDA_external',
+    'MDA_lmtp',
     'MultiDestinationBase',
     'MultiDestination',
     'MultiSorterBase',
@@ -29,6 +30,7 @@ __all__ = [
 import sys
 import os
 import re
+import smtplib
 import types
 
 try:
@@ -666,6 +668,54 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             # User said to ignore stderr, just log it.
             self.log.info('command %s: %s' % (self, child.err))
         return 'MDA_external command %s (%s)' % (self.conf['command'], child.out)
+
+#######################################
+class MDA_lmtp(DeliverySkeleton):
+    """LMTP server destination."""
+    _confitems = (
+        ConfInstance(name='configparser', required=False),
+        ConfString(name='host', required=True),
+        ConfInt(name='port', required=False, default=smtplib.LMTP_PORT),
+    )
+
+    def initialize(self):
+        self.log.trace()
+        try:
+            self.server = smtplib.LMTP(self.conf['host'], self.conf['port'])
+        except smtplib.SMTPException as err:
+            raise getmailConfigurationError(
+                'Failed to connect to server'
+            ) from err
+
+    def __str__(self):
+        self.log.trace()
+        host = self.conf['host']
+        port = self.conf['port']
+        if host.startswith('/') or not port:
+            return 'MDA_lmtp at %s' % host
+        else:
+            return 'MDA_lmtp at %s:%d' % (host, port)
+
+    def showconf(self):
+        self.log.info('%s(%s)' % (type(self).__name__, self._confstring()))
+
+    def _deliver_message(self, msg, delivered_to, received):
+        self.log.trace()
+        try:
+            rcpt = self.server.send_message(
+                msg.content(), msg.sender, msg.recipient
+            )
+        except smtplib.SMTPRecipientsRefused as err:
+            rcpt = err.recipients
+        except smtplib.SMTPException as err:
+            raise getmailDeliveryError(
+                'LMTP error: %s: %s' % (type(err).__name__, err)
+            ) from None
+
+        if msg.recipient in rcpt:
+            raise getmailDeliveryError(rcpt[msg.recipient][1].decode('utf-8'))
+        return str(self)
+
 
 #######################################
 class MultiDestinationBase(DeliverySkeleton):
