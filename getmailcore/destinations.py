@@ -676,6 +676,7 @@ class MDA_lmtp(DeliverySkeleton):
         ConfInstance(name='configparser', required=False),
         ConfString(name='host', required=True),
         ConfInt(name='port', required=False, default=smtplib.LMTP_PORT),
+        ConfString(name='fallback', required=False, default=None),
     )
 
     def initialize(self):
@@ -699,12 +700,9 @@ class MDA_lmtp(DeliverySkeleton):
     def showconf(self):
         self.log.info('%s(%s)' % (type(self).__name__, self._confstring()))
 
-    def _deliver_message(self, msg, delivered_to, received):
-        self.log.trace()
+    def __send(self, msg, sender, recipient, *, __retrying=False):
         try:
-            rcpt = self.server.send_message(
-                msg.content(), msg.sender, msg.recipient
-            )
+            rcpt = self.server.send_message(msg, sender, recipient)
         except smtplib.SMTPRecipientsRefused as err:
             rcpt = err.recipients
         except smtplib.SMTPException as err:
@@ -712,8 +710,27 @@ class MDA_lmtp(DeliverySkeleton):
                 'LMTP error: %s: %s' % (type(err).__name__, err)
             ) from None
 
+        return rcpt
+
+    def _deliver_message(self, msg, delivered_to, received):
+        self.log.trace()
+        rcpt = self.__send(msg.content(), msg.sender, msg.recipient)
+
         if msg.recipient in rcpt:
-            raise getmailDeliveryError(rcpt[msg.recipient][1].decode('utf-8'))
+            status, error = rcpt[msg.recipient]
+            fb_recipient = self.conf['fallback']
+            if 500 <= status <= 599 and fb_recipient:
+                fb_rcpt = self.__send(msg.content(), msg.sender, fb_recipient)
+                if fb_recipient in fb_rcpt:
+                    raise getmailDeliveryError(
+                        'Cannot deliver to intended or fallback target: %d %s'
+                        % fb_rcpt[fb_recipient]
+                    )
+            else:
+                raise getmailDeliveryError(
+                    'Cannot deliver to intended target: %d %s'
+                    % rcpt[msg.recipient]
+                )
         return str(self)
 
 

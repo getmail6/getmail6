@@ -1744,7 +1744,7 @@ arguments = (&quot;--strip-forbidden-attachments&quot;, &quot;--recipient=%(reci
     </li>
 </ul>
 <p>
-    The MDA_lmtp destination also takes one optional parameter:
+    The MDA_lmtp destination also takes several optional parameters:
 </p>
 <ul>
     <li>
@@ -1753,6 +1753,13 @@ arguments = (&quot;--strip-forbidden-attachments&quot;, &quot;--recipient=%(reci
         &mdash; the remote port to connect to. Ignored if
         <span class="sample">host</span>
         is a Unix domain socket.
+    </li>
+    <li>
+        fallback
+        (<a href="#parameter-string">string</a>)
+        &mdash; an alternative recipient address to deliver to in case delivery
+        to the intended recipient fails permanently (i.e. with a 5xx status
+        code).
     </li>
 </ul>
 <p>

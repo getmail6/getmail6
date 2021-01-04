@@ -969,10 +969,13 @@ Creating a getmail rc file
      * host (string) — the host to connect to. Either a DNS-resolvable
        hostname, an IP address or absolute path to a Unix domain socket.
 
-   The MDA_lmtp destination also takes one optional parameter:
+   The MDA_lmtp destination also takes several optional parameters:
 
      * port (integer) — the remote port to connect to. Ignored if host is a
        Unix domain socket.
+     * fallback (string) — an alternative recipient address to deliver to in
+       case delivery to the intended recipient fails permanently (i.e. with a
+       5xx status code).
 
    A configuration connecting to a Dovecot LMTP server might look like this:
 
