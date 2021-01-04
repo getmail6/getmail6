@@ -400,8 +400,12 @@ def go(configs, idle):
             (retriever, msgs_retrieved, bytes_retrieved, msgs_skipped)
         )
 
-        log.info('  %d messages (%d bytes) retrieved, %d skipped\n'
-                 % (msgs_retrieved, bytes_retrieved, msgs_skipped))
+        if idle:
+            log.info('  %d messages (%d bytes) retrieved, %d skipped from %s\n'
+                     % (msgs_retrieved, bytes_retrieved, msgs_skipped, retriever))
+        else:
+            log.info('  %d messages (%d bytes) retrieved, %d skipped\n'
+                     % (msgs_retrieved, bytes_retrieved, msgs_skipped))
         if options['logfile'] and logverbose:
             options['logfile'].write(
                 '  %d messages (%d bytes) retrieved, %d skipped\n'
