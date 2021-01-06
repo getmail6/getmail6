@@ -65,27 +65,26 @@ def run_command(command, args):
     for arg in args:
         assert type(arg) in (bytes, unicode), 'arg is %s (%s)' % (arg, type(arg))
 
-    stdout = tempfile.TemporaryFile()
-    stderr = tempfile.TemporaryFile()
+    with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
 
-    cmd = [command] + args
+        cmd = [command] + args
 
-    try:
-        p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
-    except OSError as o:
-        if o.errno == errno.ENOENT:
-            # no such file, command not found
-            raise getmailConfigurationError('Program "%s" not found' % command)
-        #else:
-        raise
+        try:
+            p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+        except OSError as o:
+            if o.errno == errno.ENOENT:
+                # no such file, command not found
+                raise getmailConfigurationError('Program "%s" not found' % command)
+            #else:
+            raise
 
-    rc = p.wait()
-    stdout.seek(0)
-    stderr.seek(0)
-    if sys.version_info.major == 2:
-        return (rc, stdout.read().strip(), stderr.read().strip())
-    else:
-        return (rc, stdout.read().decode().strip(), stderr.read().decode().strip())
+        rc = p.wait()
+        stdout.seek(0)
+        stderr.seek(0)
+        if sys.version_info.major == 2:
+            return (rc, stdout.read().strip(), stderr.read().strip())
+        else:
+            return (rc, stdout.read().decode().strip(), stderr.read().decode().strip())
 
 #
 # Base classes

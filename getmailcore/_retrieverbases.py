@@ -1611,7 +1611,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.trace()
         self.mailboxes = self.conf.get('mailboxes', ('INBOX', ))
         # Handle password
-        if (self.conf.get('password', None) is None
+        if ((self.conf.get('password', None) is None or self.conf['use_xoauth2'])
                 and not (HAVE_KERBEROS_GSS and self.conf['use_kerberos'])):
             if self.conf['password_command']:
                 # Retrieve from an arbitrary external command
