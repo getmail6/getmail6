@@ -427,6 +427,7 @@ class ForkingBase(object):
         if not self.__child_exited.wait(3):
             self.log.warning('stopped waiting for child %d' % childpid)
             self.__child_pid = childpid
+            self.__child_status = os.WCONTINUED
         self.__child_exited.release()
         if self.__child_pid != childpid:
             #self.log.error('got child pid %d, not %d' % (pid, childpid))
