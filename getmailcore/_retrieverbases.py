@@ -1758,6 +1758,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.conn._command_complete('IDLE', tag)
         except imaplib.IMAP4.error as o:
             return False
+        except BrokenPipeError as o:
+            # The underlying TLS connection closed during IDLE
+            self.log.info('BrokenPipeError after IDLE\n')
+            return False
 
         if aborted:
             raise aborted
