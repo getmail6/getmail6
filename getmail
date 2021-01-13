@@ -163,6 +163,8 @@ def go(configs, idle):
                     syslog.syslog(syslog.LOG_INFO, logline)
                 retriever.initialize(options)
                 destination.retriever_info(retriever)
+                # session ready for idling
+                idling = idle
 
             for mailbox in retriever.mailboxes:
                 if mailbox:
@@ -206,13 +208,20 @@ def go(configs, idle):
                             try:
                                 msg = retriever.getmsg(msgid)
                             except getmailRetrievalError as o:
+                                # Check if xoauth2 token was expired
+                                # (Exchange Online only)
+                                if 'AccessTokenExpired' in str(o):
+                                    log.warn('Retrieval error: %s\n' % o)
+                                    idling = False
+                                    break
                                 errorexit = True
                                 log.error(
-                                    'Retrieval error: server for %s is broken; '
+                                    'Retrieval error: %s\n'
+                                    'Server for %s is broken; '
                                     'offered message %s but failed to provide it.  '
                                     'Please notify the administrator of the '
                                     'server.  Skipping message...\n'
-                                    % (retriever, msgid)
+                                    % (o, retriever, msgid)
                                 )
                                 continue
                             msgs_retrieved += 1
@@ -436,9 +445,16 @@ def go(configs, idle):
                 # what we want.
                 # Expunge and close the mailbox to  prevent the same messages
                 # being pulled again in some configurations.
-                retriever.close_mailbox()
                 try:
-                    idling = retriever.go_idle(idle)
+                    retriever.close_mailbox()
+                except imaplib.IMAP4.abort as o:
+                    # Treat "abort" exception as temporary failure
+                    log.info('%s: session aborted during close_mailbox (%s)\n'
+                             % (configfile, o))
+                    idling = False
+                try:
+                    if idling:
+                        idling = retriever.go_idle(idle)
                     # Returned from idle
                     retriever.set_new_timestamp()
                     configs.append(configs[0])
