@@ -95,6 +95,7 @@ Please refer to the git history regarding who changed what and when in this file
                     <li><a href="configuration.html#destination-maildir">Maildir</a></li>
                     <li><a href="configuration.html#destination-mboxrd">Mboxrd</a></li>
                     <li><a href="configuration.html#destination-mdaexternal">MDA_external</a></li>
+                    <li><a href="configuration.html#destination-mdalmtp">MDA_lmtp</a></li>
                     <li><a href="configuration.html#destination-multidestination">MultiDestination</a></li>
                     <li><a href="configuration.html#destination-multisorter">MultiSorter</a></li>
                     <li><a href="configuration.html#destination-multiguesser">MultiGuesser</a></li>
@@ -1403,6 +1404,10 @@ envelope_recipient = delivered-to:1
         and others.
     </li>
     <li>
+        <a href="#destination-mdalmtp">MDA_lmtp</a>
+        &mdash; deliver messages to an external MDA via the LMTP protocol.
+    </li>
+    <li>
         <a href="#destination-multidestination">MultiDestination</a>
         &mdash; unconditionally deliver messages to multiple destinations
         (maildirs, mbox files, external MDAs, or other destinations).
@@ -1720,6 +1725,59 @@ path = /path/to/mymda
 user = fred
 group = mail
 arguments = (&quot;--strip-forbidden-attachments&quot;, &quot;--recipient=%(recipient)&quot;)
+</pre>
+
+<h4 id="destination-mdalmtp">MDA_lmtp</h4>
+<p>
+    MDA_lmtp delivers messages via LMTP by connecting to a Unix domain or TCP
+    socket. It currently does not support any authentication.
+</p>
+<p>
+    The MDA_lmtp destination takes one required parameter:
+</p>
+<ul>
+    <li>
+        host
+        (<a href="#parameter-string">string</a>)
+        &mdash; the host to connect to. Either a DNS-resolvable hostname, an IP
+        address or absolute path to a Unix domain socket.
+    </li>
+</ul>
+<p>
+    The MDA_lmtp destination also takes several optional parameters:
+</p>
+<ul>
+    <li>
+        port
+        (<a href="#parameter-integer">integer</a>)
+        &mdash; the remote port to connect to. Ignored if
+        <span class="sample">host</span>
+        is a Unix domain socket.
+    </li>
+    <li>
+        fallback
+        (<a href="#parameter-string">string</a>)
+        &mdash; an alternative recipient address to deliver to in case delivery
+        to the intended recipient fails permanently (i.e. with a 5xx status
+        code).
+    </li>
+</ul>
+<p>
+    A configuration connecting to a Dovecot LMTP server might look like this:
+</p>
+<pre class="example">
+[destination]
+type = MDA_lmtp
+host = /run/dovecot/lmtp
+</pre>
+<p>
+    Another example delivering to a remote host on a non-standard port:
+</p>
+<pre class="example">
+[destination]
+type = MDA_lmtp
+host = mail.example.com
+port = 3333
 </pre>
 
 <h4 id="destination-multidestination">MultiDestination</h4>
