@@ -60,33 +60,6 @@ EOF
 "
 }
 
-@test "IMAPS, destination Maildir, from host" {
-testmail
-PORTNR=993
-KIND=IMAP
-TMPMAIL=/tmp/Mail
-MAILDIRIN=$TMPMAIL/$TESTEMAIL/INBOX
-rm -rf $MAILDIR
-mkdir -p $MAILDIRIN/{cur,tmp,new}
-cat > /tmp/getmail <<EOF
-[retriever]
-type = Simple${KIND}SSLRetriever
-server = localhost
-username = $TESTEMAIL
-port = $PORTNR
-password = $PSS
-[destination]
-type = Maildir
-path = $MAILDIRIN/
-[options]
-read_all = true
-delete = true
-EOF
-getmail --rcfile=getmail --getmaildir=/tmp
-[[ -n "$(find $MAILDIRIN/new -type f)" ]]
-assert_success
-}
-
 
 @test "IMAPS, destination Maildir" {
 testmail
