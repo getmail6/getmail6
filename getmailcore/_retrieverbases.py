@@ -1572,8 +1572,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             return {}
 
         ext = re.search(
-            rb'X-GM-THRID (?P<THRID>\d+) X-GM-MSGID (?P<MSGID>\d+)'
-            rb' X-GM-LABELS \((?P<LABELS>.*)\) UID',
+            b'X-GM-THRID (?P<THRID>\\d+) X-GM-MSGID (?P<MSGID>\\d+)'
+            b' X-GM-LABELS \\((?P<LABELS>.*)\\) UID',
             response[0]
         )
         if not ext:

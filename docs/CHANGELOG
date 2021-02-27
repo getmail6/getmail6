@@ -1,3 +1,8 @@
+Version 6.15
+todo
+    - #67 Implement a destination that delivers to a local LMTP server
+    - Added test folder: run tests with `make test`.
+
 Version 6.14
 14 December 2021
     - #64 getmail6: sometimes dies on running external filter program in version 6.13

@@ -669,7 +669,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             self.log.info('command %s: %s' % (self, child.err))
         return 'MDA_external command %s (%s)' % (self.conf['command'], child.out)
 
-#######################################
+
 class MDA_lmtp(DeliverySkeleton):
     """LMTP server destination."""
     _confitems = (
@@ -689,7 +689,7 @@ class MDA_lmtp(DeliverySkeleton):
         except smtplib.SMTPException as err:
             raise getmailConfigurationError(
                 'Failed to connect to server'
-            ) from err
+            ) #XXX not OK for Py2: from err
 
     def __str__(self):
         self.log.trace()
@@ -703,7 +703,7 @@ class MDA_lmtp(DeliverySkeleton):
     def showconf(self):
         self.log.info('%s(%s)' % (type(self).__name__, self._confstring()))
 
-    def __send(self, msg, sender, recipient, *, __retrying=False):
+    def __send(self, msg, sender, recipient, __retrying=False):
         try:
             rcpt = self.server.send_message(msg, sender, recipient)
         except smtplib.SMTPServerDisconnected as err:
@@ -718,7 +718,7 @@ class MDA_lmtp(DeliverySkeleton):
         except smtplib.SMTPException as err:
             raise getmailDeliveryError(
                 'LMTP error: %s: %s' % (type(err).__name__, err)
-            ) from None
+            ) #XXX not OK for Py2: from None
 
         return rcpt
 
