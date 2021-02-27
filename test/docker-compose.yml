@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mailserver:
+    image: docker.io/mailserver/docker-mailserver:latest
+    hostname: ${HOSTNAME}
+    domainname: ${DOMAINNAME}
+    container_name: ${CONTAINER_NAME}
+    env_file: mailserver.env
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - maildata:/var/mail
+      - mailstate:/var/mail-state
+      - maillogs:/var/log/mail
+      - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
+    restart: always
+    environment:
+      - SSL_TYPE=self-signed
+      - ENABLE_POP3=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_SPAMASSASSIN=1
+      - DOVECOT_TLS="yes"
+    cap_add:
+      #- NET_ADMIN
+      - SYS_PTRACE
+
+volumes:
+  maildata:
+  mailstate:
+  maillogs:
+
