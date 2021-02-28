@@ -38,12 +38,13 @@ function teardown_file() {
   assert_success
 }
 
-# pop   = 110
-# imap  = 143
-# imaps = 993
-# pops  = 995
-# smtp  = 25
-# smtps = 587
+# declare -A PORTNR
+# PORTNR["POP3"]=110
+# PORTNR["IMAP"]=143
+# PORTNR["IMAPSSL"]=993
+# PORTNR["POP3SSL"]=995
+# PORTNR["SMTP"]=25
+# PORTNR["SMTPSSL"]=587
 
 testmail(){
   docker exec $NAME bash -c "nc 0.0.0.0 25 << EOF
@@ -60,23 +61,22 @@ EOF
 "
 }
 
-
-@test "IMAPS, destination Maildir" {
-testmail
-PORTNR=993
-KIND=IMAP
-TMPMAIL=/home/getmail/Mail
-MAILDIR=$TMPMAIL/$TESTEMAIL
-MAILDIRIN=$MAILDIR/INBOX
-run docker exec -u getmail $NAME bash -c "
+simple_dest_maildir() {
+  KIND=$1
+  PORT=$2
+  testmail
+  TMPMAIL=/home/getmail/Mail
+  MAILDIR=$TMPMAIL/$TESTEMAIL
+  MAILDIRIN=$MAILDIR/INBOX
+  run docker exec -u getmail $NAME bash -c "
 rm -rf $MAILDIR && \
 mkdir -p $MAILDIRIN/{cur,tmp,new} && \
 cat > /home/getmail/getmail <<EOF
 [retriever]
-type = Simple${KIND}SSLRetriever
+type = Simple${KIND}Retriever
 server = localhost
 username = $TESTEMAIL
-port = $PORTNR
+port = $PORT
 password = $PSS
 [destination]
 type = Maildir
@@ -85,29 +85,43 @@ path = $MAILDIRIN/
 read_all = true
 delete = true
 EOF"
-assert_success
-docker exec -u getmail $NAME bash -c " \
-getmail --rcfile=getmail --getmaildir=/home/getmail"
-assert_success
+  assert_success
+  run docker exec -u getmail $NAME bash -c " \
+  getmail --rcfile=getmail --getmaildir=/home/getmail"
+  assert_success
 }
 
-@test "IMAPS, destination procmail filter spamassassin clamav" {
-testmail
-PORTNR=993
-KIND=IMAP
-TMPMAIL=/home/getmail/Mail
-MAILDIR=$TMPMAIL/$TESTEMAIL
-MAILDIRIN=$MAILDIR/INBOX
-run docker exec -u getmail $NAME bash -c " \
+@test "SimplePOP3Retriever, destination Maildir" {
+  simple_dest_maildir POP3 110
+}
+@test "SimplePOP3SSLRetriever, destination Maildir" {
+  simple_dest_maildir POP3SSL 995
+}
+@test "SimpleIMAPRetriever, destination Maildir" {
+  simple_dest_maildir IMAP 143
+}
+@test "SimpleIMAPSSLRetriever, destination Maildir" {
+  simple_dest_maildir IMAPSSL 993
+}
+
+
+simple_dest_procmail_filter() {
+  KIND=$1
+  PORT=$2
+  testmail
+  TMPMAIL=/home/getmail/Mail
+  MAILDIR=$TMPMAIL/$TESTEMAIL
+  MAILDIRIN=$MAILDIR/INBOX
+  run docker exec -u getmail $NAME bash -c " \
 rm -rf $MAILDIR && \
 mkdir -p $MAILDIRIN/{cur,tmp,new} && \
 mkdir -p $MAILDIR/tests/{cur,tmp,new} && \
 cat > /home/getmail/getmail <<EOF
 [retriever]
-type = Simple${KIND}SSLRetriever
+type = Simple${KIND}Retriever
 server = localhost
 username = $TESTEMAIL
-port = $PORTNR
+port = $PORT
 password = $PSS
 [destination]
 type = MDA_external
@@ -128,8 +142,8 @@ exitcodes_drop = (1,)
 read_all = true
 delete = true
 EOF"
-assert_success
-run docker exec -u getmail $NAME bash -c " \
+  assert_success
+  run docker exec -u getmail $NAME bash -c " \
 cat > /home/getmail/procmail <<EOF
 MAILDIR=$MAILDIR
 DEFAULT=\$MAILDIR/INBOX
@@ -139,9 +153,22 @@ tests/
 :0
 \$DEFAULT/
 EOF"
-assert_success
-run docker exec -u getmail $NAME bash -c " \
-getmail --rcfile=getmail --getmaildir=/home/getmail"
-assert_success
+  assert_success
+  run docker exec -u getmail $NAME bash -c " \
+  getmail --rcfile=getmail --getmaildir=/home/getmail"
+  assert_success
+}
+
+@test "SimplePOP3Retriever, destination procmail filter spamassassin clamav" {
+  simple_dest_procmail_filter POP3 110
+}
+@test "SimplePOP3SSLRetriever, destination procmail filter spamassassin clamav" {
+  simple_dest_procmail_filter POP3SSL 995
+}
+@test "SimpleIMAPRetriever, destination procmail filter spamassassin clamav" {
+  simple_dest_procmail_filter IMAP 143
+}
+@test "SimpleIMAPSSLRetriever, destination procmail filter spamassassin clamav" {
+  simple_dest_procmail_filter IMAPSSL 993
 }
 

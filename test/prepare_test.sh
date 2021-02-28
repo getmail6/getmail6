@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-: '
 # cwd = getmail/test
+
+: '
 # force renew of /tmp/mailserver:
 rm /tmp/mailserver/python?
 
@@ -11,16 +12,27 @@ docker-compose up -d
 docker exec -u 0 -it mail.domain.tld bash
 docker exec -u getmail -it mail.domain.tld bash
 
+# test ports
+docker exec -t mail.domain.tld bash -c " \
+    nmap -p25 localhost && \
+    nmap -p143 localhost && \
+    nmap -p587 localhost && \
+    nmap -p993 localhost "
+
+# update
 apt-get update
 apt-get -y install git make procmail iputils-ping nmap python-pip python3-pip
 cd /tmp/docker-mailserver/getmail6
 pip3 install .
 
+# TESTEMAIL from self_sign.sh
 source /tmp/docker-mailserver/self_sign.sh
 export TESTEMAIL
 
+# add email
 addmailuser $TESTEMAIL test
 
+# send email
 testmail(){
   cat > /tmp/smtponly.txt << EOF
 HELO mail.localhost
@@ -36,6 +48,7 @@ nc 0.0.0.0 25 < /tmp/smtponly.txt
 }
 testmail
 
+# getmail test
 PORTNR=993
 KIND=IMAP
 TMPMAIL=/tmp/Mail
@@ -55,12 +68,7 @@ path = $MAILDIRPATH/
 read_all = true
 delete = true
 EOF
-
 getmail --rcfile=getmail --getmaildir=$TMPMAIL
-
-cntreceived=$(find $MAILDIRPATH/new -type f)
-rm -rf $TMPMAIL
-[ -n $cntreceived ]
 
 exit
 '

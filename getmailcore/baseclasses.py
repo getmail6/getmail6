@@ -423,7 +423,7 @@ class ForkingBase(object):
 
     def _wait_for_child(self, childpid):
         self.__child_exited.acquire()
-        if not self.__child_exited.wait(60):
+        if self.__child_exited.wait(60) == False: # Py2, <Py3.2: always None
             raise getmailOperationError('waiting child pid %d timed out'
                                         % childpid)
         self.__child_exited.release()
