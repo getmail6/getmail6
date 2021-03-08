@@ -1,7 +1,8 @@
 Version 6.15
 todo
     - #67 Implement a destination that delivers to a local LMTP server
-    - Added test folder: run tests with `make test`.
+    - #71 allow "=" in ssl_ciphers to allow "ssl_ciphers = DEFAULT@SECLEVEL=1"
+    - Added test folder: run tests with `make test`. Tests and fixes.
 
 Version 6.14
 14 December 2021
