@@ -601,7 +601,7 @@ def check_ssl_ciphers(conf):
                 'specifying ssl_ciphers not supported by this installation of '
                 'Python; requires Python 2.7'
             )
-        if re.search(r'[^a-zA-z0-9, :!\-+@]', ssl_ciphers):
+        if re.search(r'[^a-zA-z0-9, :!\-+@=]', ssl_ciphers):
             raise getmailConfigurationError(
                 'invalid character in ssl_ciphers'
             )
