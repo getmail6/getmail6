@@ -94,11 +94,13 @@ function clone_mailserver() {
     if [[ ! -f /tmp/mailserver/python$PYVER ]]; then
         if [[ -d /tmp/mailserver ]]; then
             cd /tmp/mailserver
-            docker-compose down
+            docker-compose down &>/dev/null
             cd $CWD
+            echo "need sudo to rm /tmp/mailserver"
             sudo rm -rf /tmp/mailserver
         fi
         git clone --recursive $MAILSERVERSOURCE /tmp/mailserver
+        cd /tmp/mailserver
         git checkout tags/v9.0.1
         touch /tmp/mailserver/python$PYVER
         yes | cp -f $CWD/docker-compose.yml /tmp/mailserver/

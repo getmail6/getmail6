@@ -34,6 +34,7 @@ check:
 
 .PHONY: dist
 dist: doc
+	echo "need sudo to create wheel"
 	sudo python setup.py bdist_wheel
 
 .PHONY: up
