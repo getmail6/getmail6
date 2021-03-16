@@ -207,7 +207,7 @@ def go(configs, idle):
                         if retrieve:
                             try:
                                 msg = retriever.getmsg(msgid)
-                            except getmailRetrievalError as o:
+                            except (getmailRetrievalError,getmailConfigurationError) as o:
                                 # Check if xoauth2 token was expired
                                 # (Exchange Online only)
                                 if 'AccessTokenExpired' in str(o):
