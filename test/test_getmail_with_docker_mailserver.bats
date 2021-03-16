@@ -62,7 +62,7 @@ EOF
 }
 
 simple_dest_maildir() {
-  KIND=$1
+  RETRIEVER=$1
   PORT=$2
   testmail
   TMPMAIL=/home/getmail/Mail
@@ -73,7 +73,7 @@ rm -rf $MAILDIR && \
 mkdir -p $MAILDIRIN/{cur,tmp,new} && \
 cat > /home/getmail/getmail <<EOF
 [retriever]
-type = Simple${KIND}Retriever
+type = ${RETRIEVER}
 server = localhost
 username = $TESTEMAIL
 port = $PORT
@@ -92,21 +92,21 @@ EOF"
 }
 
 @test "SimplePOP3Retriever, destination Maildir" {
-  simple_dest_maildir POP3 110
+  simple_dest_maildir SimplePOP3Retriever 110
 }
 @test "SimplePOP3SSLRetriever, destination Maildir" {
-  simple_dest_maildir POP3SSL 995
+  simple_dest_maildir SimplePOP3SSLRetriever 995
 }
 @test "SimpleIMAPRetriever, destination Maildir" {
-  simple_dest_maildir IMAP 143
+  simple_dest_maildir SimpleIMAPRetriever 143
 }
 @test "SimpleIMAPSSLRetriever, destination Maildir" {
-  simple_dest_maildir IMAPSSL 993
+  simple_dest_maildir SimpleIMAPSSLRetriever 993
 }
 
 
 simple_dest_procmail_filter() {
-  KIND=$1
+  RETRIEVER=$1
   PORT=$2
   testmail
   TMPMAIL=/home/getmail/Mail
@@ -118,7 +118,7 @@ mkdir -p $MAILDIRIN/{cur,tmp,new} && \
 mkdir -p $MAILDIR/tests/{cur,tmp,new} && \
 cat > /home/getmail/getmail <<EOF
 [retriever]
-type = Simple${KIND}Retriever
+type = ${RETRIEVER}
 server = localhost
 username = $TESTEMAIL
 port = $PORT
@@ -160,21 +160,20 @@ EOF"
 }
 
 @test "SimplePOP3Retriever, destination procmail filter spamassassin clamav" {
-  simple_dest_procmail_filter POP3 110
+  simple_dest_procmail_filter SimplePOP3Retriever 110
 }
 @test "SimplePOP3SSLRetriever, destination procmail filter spamassassin clamav" {
-  simple_dest_procmail_filter POP3SSL 995
+  simple_dest_procmail_filter SimplePOP3SSLRetriever 995
 }
 @test "SimpleIMAPRetriever, destination procmail filter spamassassin clamav" {
-  simple_dest_procmail_filter IMAP 143
+  simple_dest_procmail_filter SimpleIMAPRetriever 143
 }
 @test "SimpleIMAPSSLRetriever, destination procmail filter spamassassin clamav" {
-  simple_dest_procmail_filter IMAPSSL 993
+  simple_dest_procmail_filter SimpleIMAPSSLRetriever 993
 }
 
-
 config_test() {
-  KIND=$1
+  RETRIEVER=$1
   PORT=$2
   MAX=$3
   READALL=$4
@@ -187,7 +186,7 @@ config_test() {
 rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
 cat > /home/getmail/getmail <<EOF
 [retriever]
-type = Simple${KIND}Retriever
+type = ${RETRIEVER}
 server = localhost
 username = $TESTEMAIL
 port = $PORT
@@ -229,19 +228,102 @@ chmod +x /home/getmail/pass
 
 #896 is message size
 
-@test "SimplePOP3Retriever, config test" {
-config_test POP3 110 800 False False
-config_test POP3 110 900 True  False
+@test "BrokenUIDLPOP3Retriever, config test" {
+config_test BrokenUIDLPOP3Retriever 110 800 False False
+config_test BrokenUIDLPOP3Retriever 110 900 True  False
 }
-@test "SimplePOP3SSLRetriever, config test" {
-config_test POP3SSL 995 800 0 0
-config_test POP3SSL 995 900 1 1
+@test "BrokenUIDLPOP3SSLRetriever, config test" {
+config_test BrokenUIDLPOP3SSLRetriever 995 800 0 0
+config_test BrokenUIDLPOP3SSLRetriever 995 900 1 1
 }
 @test "SimpleIMAPRetriever, config test" {
-config_test IMAP 143 800 false true
-config_test IMAP 143 900 false  true
+config_test SimpleIMAPRetriever 143 800 false true
+config_test SimpleIMAPRetriever 143 900 false  true
 }
 @test "SimpleIMAPSSLRetriever, config test" {
-config_test IMAPSSL 993 800 False False
-config_test IMAPSSL 993 900 True  True
+config_test SimpleIMAPSSLRetriever 993 800 False False
+config_test SimpleIMAPSSLRetriever 993 900 True  True
 }
+
+multidrop(){
+  docker exec $NAME bash -c "nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: ${TESTEMAIL}
+RCPT TO: ${TESTEMAIL}
+DATA
+Subject: test
+X-Envelope-To: ${TESTEMAIL}
+Content-Type: multipart/mixed; boundary=\"----=_NextPart_000_0012_A796884C.DCABE8FF\"
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0012_A796884C.DCABE8FF
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html
+
+<=21DOCTYPE HTML>
+
+<html><head><title></title>
+<meta http-equiv=3D=22X-UA-Compatible=22 content=3D=22IE=3Dedge=22>
+</head>
+<body style=3D=22margin: 0.4em;=22><p>Dear Sir/Madam,</p>
+</body></html>
+------=_NextPart_000_0012_A796884C.DCABE8FF--
+
+Content-Type: multipart/mixed; boundary=\"----=_NextPart_000_0012_A796884C.DCABE8FF\"
+This is the test text.
+------=_NextPart_000_0012_A796884C.DCABE8FF--
+.
+QUIT
+EOF
+"
+}
+
+multidrop_test() {
+  RETRIEVER=$1
+  PORT=$2
+  multidrop
+  TMPMAIL=/home/getmail/Mail
+  MAILDIR=$TMPMAIL/$TESTEMAIL
+  MAILDIRIN=$MAILDIR/INBOX
+  run docker exec -u getmail $NAME bash -c " \
+rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
+cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+envelope_recipient = X-Envelope-To
+[destination]
+type = Maildir
+path = $MAILDIRIN/
+[options]
+read_all = True
+delete = True
+EOF
+"
+  assert_success
+  run docker exec -u getmail $NAME bash -c " \
+  getmail --rcfile=getmail --getmaildir=/home/getmail"
+  assert_success
+}
+
+@test "MultidropPOP3Retriever" {
+multidrop_test SimplePOP3Retriever 110
+multidrop_test MultidropPOP3Retriever 110
+}
+@test "MultidropPOP3SSLRetriever" {
+multidrop_test SimplePOP3SSLRetriever 995
+multidrop_test MultidropPOP3SSLRetriever 995
+}
+@test "MultidropIMAPRetriever" {
+multidrop_test SimpleIMAPRetriever 143
+multidrop_test MultidropIMAPRetriever 143
+}
+@test "MultidropIMAPSSLRetriever" {
+multidrop_test SimpleIMAPSSLRetriever 993
+multidrop_test MultidropIMAPSSLRetriever 993
+}
+
