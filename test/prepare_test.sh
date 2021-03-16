@@ -116,8 +116,8 @@ EOF
 }
 
 function copy_tests() {
-    yes | cp -f *.bats /tmp/mailserver/test/
-    yes | cp -f self_sign.sh /tmp/mailserver/config/
+    yes | cp -f $TESTREPO/test/*.bats /tmp/mailserver/test/
+    yes | cp -f $TESTREPO/test/self_sign.sh /tmp/mailserver/config/
 
     cd  /tmp/mailserver/config
     rm -rf getmail6
