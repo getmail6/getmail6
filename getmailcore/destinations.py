@@ -274,7 +274,10 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             # Open mbox file, refusing to create it if it doesn't exist
             fd = os.open(self.conf['path'], os.O_RDWR)
             status_old = os.fstat(fd)
-            f = os.fdopen(fd, 'br+')
+            try:
+                f = os.fdopen(fd, 'br+')
+            except ValueError: # Py2
+                f = os.fdopen(fd, 'r+')
             lock_file(f, self.conf['locktype'])
             # Check if it _is_ an mbox file.  mbox files must start with "From "
             # in their first line, or are 0-length files.

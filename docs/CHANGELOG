@@ -2,6 +2,7 @@ Version 6.15
 todo
     - #67 Implement a destination that delivers to a local LMTP server
     - #71 allow "=" in ssl_ciphers to allow "ssl_ciphers = DEFAULT@SECLEVEL=1"
+    - #72 non-compliant e-mail header (in multidrop configuration) causes getmail to stop working
     - Added test folder: run tests with `make test`. Tests and fixes.
 
 Version 6.14

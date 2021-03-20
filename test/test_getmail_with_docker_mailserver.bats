@@ -59,6 +59,7 @@ This is the test text:
 QUIT
 EOF
 "
+sleep 1
 }
 
 simple_dest_maildir() {
@@ -159,16 +160,16 @@ EOF"
   assert_success
 }
 
-@test "SimplePOP3Retriever, destination procmail filter spamassassin clamav" {
+@test "SimplePOP3Retriever, destination MDA_external (procmail), filter spamassassin clamav" {
   simple_dest_procmail_filter SimplePOP3Retriever 110
 }
-@test "SimplePOP3SSLRetriever, destination procmail filter spamassassin clamav" {
+@test "SimplePOP3SSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
   simple_dest_procmail_filter SimplePOP3SSLRetriever 995
 }
-@test "SimpleIMAPRetriever, destination procmail filter spamassassin clamav" {
+@test "SimpleIMAPRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
   simple_dest_procmail_filter SimpleIMAPRetriever 143
 }
-@test "SimpleIMAPSSLRetriever, destination procmail filter spamassassin clamav" {
+@test "SimpleIMAPSSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
   simple_dest_procmail_filter SimpleIMAPSSLRetriever 993
 }
 
@@ -184,6 +185,7 @@ config_test() {
   MAILDIRIN=$MAILDIR/INBOX
   run docker exec -u getmail $NAME bash -c " \
 rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
+touch $MAILDIR/inbox && \
 cat > /home/getmail/getmail <<EOF
 [retriever]
 type = ${RETRIEVER}
@@ -192,8 +194,8 @@ username = $TESTEMAIL
 port = $PORT
 password_command = ('/home/getmail/pass',)
 [destination]
-type = Maildir
-path = $MAILDIRIN/
+type = Mboxrd
+path = $MAILDIR/inbox
 [options]
 read_all = $READALL
 delete = $DEL
@@ -277,15 +279,16 @@ This is the test text.
 QUIT
 EOF
 "
+sleep 1
 }
 
 multidrop_test() {
   RETRIEVER=$1
   PORT=$2
-  multidrop
   TMPMAIL=/home/getmail/Mail
   MAILDIR=$TMPMAIL/$TESTEMAIL
   MAILDIRIN=$MAILDIR/INBOX
+  multidrop
   run docker exec -u getmail $NAME bash -c " \
 rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
 cat > /home/getmail/getmail <<EOF
@@ -325,5 +328,61 @@ multidrop_test MultidropIMAPRetriever 143
 @test "MultidropIMAPSSLRetriever" {
 multidrop_test SimpleIMAPSSLRetriever 993
 multidrop_test MultidropIMAPSSLRetriever 993
+}
+
+multisorter_test() {
+  RETRIEVER=$1
+  PORT=$2
+  TMPMAIL=/home/getmail/Mail
+  MAILDIR=$TMPMAIL/$TESTEMAIL
+  MAILDIRIN=$MAILDIR/INBOX
+  multidrop
+  run docker exec -u getmail $NAME bash -c " \
+rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
+touch $MAILDIR/inbox && \
+cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+envelope_recipient = X-Envelope-To
+[destination]
+type = MultiSorter
+default = [localuser1]
+locals = (
+     ('address@', '[localuser1]'),
+     ('address@', '[localuser2]'),
+     )
+[localuser1]
+type = Maildir
+path = $MAILDIRIN/
+user = getmail
+[localuser2]
+type = Mboxrd
+path = $MAILDIR/inbox
+[options]
+read_all = True
+delete = True
+EOF
+"
+  assert_success
+  run docker exec -u getmail $NAME bash -c " \
+  getmail --rcfile=getmail --getmaildir=/home/getmail"
+  assert_success
+}
+
+@test "SimplePOP3Retriever, Multisorter" {
+multisorter_test SimplePOP3Retriever 110
+}
+@test "SimplePOP3SSLRetriever, Multisorter" {
+multisorter_test SimplePOP3SSLRetriever 995
+}
+@test "SimpleIMAPRetriever, Multisorter" {
+multisorter_test SimpleIMAPRetriever 143
+}
+@test "SimpleIMAPSSLRetriever, Multisorter" {
+multisorter_test SimpleIMAPSSLRetriever 993
 }
 
