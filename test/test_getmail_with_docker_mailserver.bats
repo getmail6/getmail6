@@ -386,3 +386,62 @@ multisorter_test SimpleIMAPRetriever 143
 multisorter_test SimpleIMAPSSLRetriever 993
 }
 
+lmtp_test() {
+if head `which getmail` | grep 'python3' ; then
+  RETRIEVER=$1
+  PORT=$2
+  TMPMAIL=/home/getmail/Mail
+  MAILDIR=$TMPMAIL/$TESTEMAIL
+  MAILDIRIN=$MAILDIR/INBOX
+  testmail
+  run docker exec -u getmail $NAME bash -c " \
+cat > /home/getmail/lmtpd.py <<EOF
+from smtpd import SMTPChannel, SMTPServer
+import asyncore
+class LMTPChannel(SMTPChannel):
+  def smtp_LHLO(self, arg):
+    self.smtp_HELO(arg)
+class LMTPServer(SMTPServer):
+  def __init__(self, localaddr, remoteaddr):
+    SMTPServer.__init__(self, localaddr, remoteaddr)
+  def process_message(self, peer, mailfrom, rcpttos, data):
+    return
+  def handle_accept(self):
+    conn, addr = self.accept()
+    channel = LMTPChannel(self, conn, addr)
+server = LMTPServer(('localhost', 23218), None)
+asyncore.loop()
+EOF
+"
+  run docker exec -u getmail $NAME bash -c "python3 /home/getmail/lmtpd.py &"
+  run docker exec -u getmail $NAME bash -c " \
+rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
+cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+[destination]
+#type = Maildir
+#path = $MAILDIRIN/
+type = MDA_lmtp
+host = 127.0.0.1
+port = 23218
+[options]
+read_all = True
+delete = True
+EOF
+"
+  assert_success
+  run docker exec -u getmail $NAME bash -c " \
+  getmail --rcfile=getmail --getmaildir=/home/getmail"
+  assert_success
+fi
+}
+
+@test "MDA_lmtp" {
+lmtp_test SimpleIMAPRetriever 143
+}
+

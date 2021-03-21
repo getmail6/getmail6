@@ -2,6 +2,9 @@
 
 # cwd = getmail/test
 
+DOCKER_CONFIG="/tmp/docker-mailserver"
+HOST_CONFIG="/tmp/mailserver/config"
+
 : '
 # force renew of /tmp/mailserver:
 rm /tmp/mailserver/python?
@@ -31,6 +34,7 @@ export TESTEMAIL
 
 # add email
 addmailuser $TESTEMAIL test
+listmailuser
 
 # send email
 testmail(){
@@ -120,7 +124,7 @@ function copy_tests() {
     yes | cp -f $TESTREPO/test/self_sign.sh /tmp/mailserver/config/
 
     cd  /tmp/mailserver/config
-    rm -rf getmail6
+    sudo rm -rf getmail6
     #git clone $TESTREPO
     cp -R $TESTREPO getmail6
 }
@@ -150,7 +154,7 @@ function docker_up() {
         docker exec -u 0 -t ${NAME} bash -c "freshclam &> /dev/null"
         #pip2 is 2.7.16
         #pip3 is 3.7.3
-        docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && pip$PYVER install ."
+        docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
         docker exec -u 0 -t ${NAME} bash -c "useradd -m -s /bin/bash getmail"
     fi
 }

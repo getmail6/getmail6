@@ -8,23 +8,17 @@ doc:
 	links -dump docs/faq.html > docs/faq.txt
 	links -dump docs/troubleshooting.html > docs/troubleshooting.txt
 
-.PHONY: python2
-python2:
-	cd test && ./prepare_test.sh 2
-
-.PHONY: python3
-python3:
-	cd test && ./prepare_test.sh 3
-
 .PHONY: test2
-test2: python2
+test2:
+	cd test && ./prepare_test.sh 2
 	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 
 .PHONY: test3
-test3: python3
+test3:
+	cd test && ./prepare_test.sh 3
 	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 
-.PHONY: test3
+.PHONY: test
 test: test2 test3
 
 .PHONY: check

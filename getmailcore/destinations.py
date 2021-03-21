@@ -683,6 +683,10 @@ class MDA_lmtp(DeliverySkeleton):
     )
 
     def initialize(self):
+        if sys.version_info.major < 3:
+            raise getmailConfigurationError(
+                'MDA_lmtp in config: that was implemented only for python 3'
+            )
         self.log.trace()
         self.__connect()
 
@@ -692,7 +696,7 @@ class MDA_lmtp(DeliverySkeleton):
         except smtplib.SMTPException as err:
             raise getmailConfigurationError(
                 'Failed to connect to server'
-            ) #XXX not OK for Py2: from err
+            )
 
     def __str__(self):
         self.log.trace()
@@ -721,7 +725,7 @@ class MDA_lmtp(DeliverySkeleton):
         except smtplib.SMTPException as err:
             raise getmailDeliveryError(
                 'LMTP error: %s: %s' % (type(err).__name__, err)
-            ) #XXX not OK for Py2: from None
+            )
 
         return rcpt
 
