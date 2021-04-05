@@ -1356,7 +1356,6 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         # so we do it explicitly here if we've deleted any messages.
         if self.deleted:
             self.conn.expunge()
-        self.conn.close()
         self.write_oldmailfile(self.mailbox_selected)
         # And clear some state
         self.mailbox_selected = False
@@ -1370,6 +1369,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.msgsizes = {}
         self.oldmail = {}
         self.__delivered = {}
+        self.conn.close()
 
     def select_mailbox(self, mailbox):
         self.log.trace()
@@ -1759,8 +1759,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         except imaplib.IMAP4.error as o:
             return False
         except BrokenPipeError as o:
-            # The underlying TLS connection closed during IDLE
+            # The underlying connection closed during IDLE
             self.log.info('BrokenPipeError after IDLE\n')
+            return False
+        except TimeoutError as o:
+            self.log.info('TimeoutError after IDLE\n')
             return False
 
         if aborted:
