@@ -188,6 +188,12 @@ class Message(object):
             except AttributeError:
                 strmsg = self.__msg.as_string()
                 strmsg = _NL.join(strmsg.splitlines() + [b''])
+            except UnicodeEncodeError:
+                # The sender did not properly encoding, e.g. via
+                # "über".encode('latin-1').decode('utf-8',errors="replace")
+                strm = self.__msg.as_string()
+                # � accumulate, and since proper decoding is not possible any more:
+                strmsg = re.sub('�+','�',strm).encode()
             if mangle_from:
                 # do mboxrd-style "From " line quoting (add one '>')
                 RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)
