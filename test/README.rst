@@ -26,9 +26,9 @@ The tests are in ``.bats`` files.
 ``make test`` runs tests for Python 2 and Python 3.
 ``/tmp/mailserver`` is renewed on repeated runs.
 
-To forces renew in the next make run.
+To force a renew in the next make run.
 
 .. code:: sh
 
-    rm /tmp/mailserver/python?
+    rm -rf /tmp/mailserver/python?
 

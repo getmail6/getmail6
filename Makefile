@@ -8,6 +8,10 @@ doc:
 	links -dump docs/faq.html > docs/faq.txt
 	links -dump docs/troubleshooting.html > docs/troubleshooting.txt
 
+.PHONY: cleantest
+cleantest:
+	rm -rf /tmp/mailserver/python?
+
 .PHONY: test2
 test2:
 	cd test && ./prepare_test.sh 2
@@ -19,7 +23,7 @@ test3:
 	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 
 .PHONY: test
-test: test2 test3
+test: cleantest test2 test3
 
 .PHONY: check
 check:
