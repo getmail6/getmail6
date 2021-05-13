@@ -11,7 +11,7 @@ filtering, and other features.
 
 import sys
 
-__version__ = '6.15'
+__version__ = '6.16'
 __license__ = 'GNU GPL version 2'
 
 __py_required__ = '2.7.16'

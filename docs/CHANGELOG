@@ -1,8 +1,8 @@
 Version 6.16
-TODO
+13 May 2021
     - #73: Additional exception handling for IMAP IDLE with xoauth2
     - #74: 'ascii' codec can't encode characters in position 4017-4018
-    - #75: Bring back "getmails" wrapper (this was a Debian addition, but now part of getmail 6)
+    - #75: Bring back "getmails" wrapper (was a Debian addition, but fits well to getmail itself)
 
 Version 6.15
 21 March 2021
