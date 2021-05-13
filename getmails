@@ -16,7 +16,8 @@ endwith () {
 [ "$1" != "${1%$2}" ] && return 0 || return 1
 }
 startswith () {
-[ "$1" != "${1#$2}" ] && return 0 || return 1
+BASE1=${1##*/}
+[ "$BASE1" != "${BASE1#$2}" ] && return 0 || return 1
 }
 UID_BY_ID=$(id -u)
 PID_GETMAILS=$(pgrep -U $UID_BY_ID '^getmails$')
