@@ -1,0 +1,68 @@
+.TH getmails "1" "May 2021" "getmail6" "User Commands"
+.SH NAME
+getmails \- wrapper for getmail to access multiple mailboxes
+.SH SYNOPSIS
+.B getmails
+[\fB-p\fR] 
+[\fIOPTION\fR] ...
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+.B getmails
+is a wrapper script for
+.B getmail 
+to retrieve messages with multiple independent configuration files
+.I $XDG_CONFIG_HOME/getmail/*
+or for backward compatibility
+.I ~/.getmail/config/*
+instead of a single
+.I ~/.getmailrc
+file.
+
+The configuration file name can be any arbitrary names.  It's a good idea to use
+the corresponding email address as its name since it is the most intuitive
+choice.  For example 
+.I $XDG_CONFIG_HOME/getmail/foo@example.org .
+
+To disable operation for an email account temporary, rename its configuration
+file to the hidden file such as
+.I $XDG_CONFIG_HOME/getmail/.foo@example.org .
+Then, it is ignored as configuration file.
+
+For the robust operation, the editor generated files such as
+.I $XDG_CONFIG_HOME/getmail/foo~
+,
+.I $XDG_CONFIG_HOME/getmail/#foo#
+,
+.I $XDG_CONFIG_HOME/getmail/foo.swp
+, and
+.I $XDG_CONFIG_HOME/getmail/foo.bak
+are also ignored as configuration file.
+
+When there are multiple email configuration files, 
+.B getmails
+retrieves mails sequentially.  But adding an optional option
+.B -p
+before other options makes
+.B getmails
+invoke
+.B getmail
+with each configuration file in parallel to retrieve mails.
+
+The option provided as \fIOPTION\fR is passed to \fBgetmail\fR as is.  The use
+of the \fB-r\fR option is not a good idea.
+
+The existence of 
+.I $XDG_CONFIG_HOME/getmail/stop 
+can prevent this wrapper script to execute \fBgetmail\fR.
+
+.SH "REPORTING BUGS"
+Report bugs to <https://github.com/getmail6/getmail6/issues>
+.SH COPYRIGHT
+Copyright 2011-2017 Osamu Aoki
+.br
+Copyright 2021 Roland Puntaier
+.br
+This is free software; see the file COPYING for copying conditions.
+.br
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

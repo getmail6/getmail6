@@ -82,6 +82,7 @@ setup(
     ],
     scripts=[
         'getmail',
+        'getmails',
         'getmail_fetch',
         'getmail_maildir',
         'getmail_mbox',
@@ -106,6 +107,7 @@ setup(
             'docs/troubleshooting.txt',
         ]),
         (MANDIR, [
+            'docs/getmails.1',
             'docs/getmail.1',
             'docs/getmail_fetch.1',
             'docs/getmail_maildir.1',

@@ -2,6 +2,7 @@ Version 6.16
 TODO
     - #73: Additional exception handling for IMAP IDLE with xoauth2
     - #74: 'ascii' codec can't encode characters in position 4017-4018
+    - #75: Bring back "getmails" wrapper (this was a Debian addition, but now part of getmail 6)
 
 Version 6.15
 21 March 2021
@@ -23,63 +24,63 @@ Version 6.13
     - fix #60: Need to refresh the OAuth access token when reconnecting (IMAP IDLE)
 
 Version 6.12
-31 December 2020
+31 December 2021
     - fix #53: unclosed file warnings
     - fix #52: getmail seems to lose its child process and hangs forever (pull #54)
     - documentation improvements (#55, #56)
 
 Version 6.11
-09 December 2020
+09 December 2021
     - comply more closely with the XDG basedir specification: allow an
       unset XDG_CONFIG_HOME environment variable.
     - Simplify the documentation around the location of the configuration directory.
     - fix #49: "'utf-8' codec can't decode" for mbox
 
 Version 6.10
-28 November 2020
+28 November 2021
     - fix #48: handle Header in address_no_brackets using Header.__str__
 
 Version 6.9
-02 November 2020
+02 November 2021
     - fix python 3.9 issues #42 #44
     - fix regex warning #45
     - add usage of Python keyring package in addition to gnomekeyring (#43)
 
 Version 6.8
-07 October 2020
+07 October 2021
     - fix #37: update copyright date and notices
     - fix #39: Slow mail retrieval
     - pull #40: fix UnboundLocalError when socket.error inside POP3_SSL_EXTENDED
 
 Version 6.7
-01 September 2020
+01 September 2021
     - use $XDG_CONFIG_HOME if defined
     - fix pip install (doc/man below site-packages)
     - fix #34: quote only for select
 
 Version 6.6
-29 August 2020
+29 August 2021
     - fix #34: quote mailbox if necessary
     - fix #36: use setuptools, suggest pip to install and uninstall
 
 Version 6.5
-28 August 2020
+28 August 2021
     - fix #23: port getmail-gmail-xoauth-tokens
     - fix #24: TypeError: 'gaierror' object is not subscriptable
     - documentation fixes
 
 Version 6.4
-24 August 2020
+24 August 2021
     - fix #20: mboxrd can't concat str to bytes
     - fix #21: version numbering from 6.0x to 6.x
 
 Version 6.03
-17 August 2020
+17 August 2021
     - fix #14: IDLE not working
     - documentation update
 
 Version 6.02
-12 August 2020
+12 August 2021
     - try to do as little own decoding as possible
     - issue #8
 
@@ -87,7 +88,7 @@ Version 6.01
     - fixes of reported issues on github up to #7
 
 Version 6.00
-02 May 2020
+02 May 2021
     - Make code compatible to Python 3 (losing some backward compatibility)
 
 Version 5.14

@@ -1,6 +1,6 @@
                     getmail Frequently Asked Questions (FAQ)
 
-   getmail6 is Copyright © 1998-2020 by Charles Cazabon and others:
+   getmail6 is Copyright © 1998-2021 by Charles Cazabon and others:
    <charlesc-getmail @ pyropus.ca>
    <roland.puntaier @ gmail.com>
 
@@ -660,7 +660,20 @@ How do I …
  done
  exec /path/to/getmail $rcfiles $@
 
-   See any beginner's tutorial on Unix shell scripting for details.
+   See any beginner's tutorial on Unix shell scripting for details. Note:
+   Since getmail 6.16
+
+ getmails
+
+   scans
+
+ $XDG_CONFIG_HOME/getmail/
+
+   for configuration files. See
+
+ man getmails
+
+   .
 
   How do I get getmail to deliver messages to different mailboxes based on …
 
@@ -857,7 +870,7 @@ Using getmail with other software
  [filter]
  type = Filter_external
  path = /usr/local/bin/spamc
- arguments = ("-s 10000", )
+ arguments = ("-s", "10000")
 
    The value supplied to the -s option is the maximum message size accepted
    (in bytes). The default is 250k.
