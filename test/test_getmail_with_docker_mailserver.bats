@@ -79,6 +79,7 @@ server = localhost
 username = $TESTEMAIL
 port = $PORT
 password = $PSS
+record_mailbox = True
 [destination]
 type = Maildir
 path = $MAILDIRIN/
@@ -90,6 +91,9 @@ EOF"
   run docker exec -u getmail $NAME bash -c " \
   getmail --rcfile=getmail --getmaildir=/home/getmail"
   assert_success
+  run docker exec -u getmail $NAME bash -c " \
+  grep utf-8 $MAILDIRIN/new/* | grep utf-8"
+  assert_failure
 }
 
 @test "SimplePOP3Retriever, destination Maildir" {

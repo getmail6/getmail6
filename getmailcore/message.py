@@ -213,7 +213,11 @@ class Message(object):
                                 include_from)
 
     def add_header(self, name, content):
-        self.__msg[name] = Header(content.rstrip(), 'utf-8')
+        is_ascii = lambda x:len(x.encode())==len(x)
+        if is_acii(content):
+            self.__msg[name] = Header(content.rstrip())
+        else:
+            self.__msg[name] = Header(content.rstrip(), 'utf-8')
 
     def remove_header(self, name):
         del self.__msg[name]
