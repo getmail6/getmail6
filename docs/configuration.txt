@@ -1378,6 +1378,24 @@ Creating a getmail rc file
        delete parameter has higher priority; if both are set, the messages
        will be deleted immediately. Default: 0, which means not to enable
        this feature.
+     * skip_imap_fetch_size (boolean) — will skip fetching RFC822.SIZE. This
+       speeds up mail checks, particularly with a davmail proxies.
+
+ skip_imap_fetch_size
+
+       is only valid for IMAP and not valid with any of
+
+ max_message_size
+
+       ,
+
+ max_bytes_per_session
+
+       ,
+
+ delete_bigger_than
+
+       .
      * delete_bigger_than (integer) — if set, getmail will delete messages
        larger than this number of bytes after retrieving them, even if the
        delete and delete_after options are disabled. The purpose of this
