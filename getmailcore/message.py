@@ -214,7 +214,7 @@ class Message(object):
 
     def add_header(self, name, content):
         is_ascii = lambda x:len(x.encode())==len(x)
-        if is_acii(content):
+        if is_ascii(content):
             self.__msg[name] = Header(content.rstrip())
         else:
             self.__msg[name] = Header(content.rstrip(), 'utf-8')

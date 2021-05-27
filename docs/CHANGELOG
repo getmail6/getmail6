@@ -1,8 +1,14 @@
+Version 6.17
+TODO
+    - #78: Don't encode pure ASCII X-getmail-retrieved-from-mailbox
+    - #69: skip_imap_fetch_size. IMAP requests size, making davmail download all the messages every time, making it slow
+
 Version 6.16
 13 May 2021
     - #73: Additional exception handling for IMAP IDLE with xoauth2
     - #74: 'ascii' codec can't encode characters in position 4017-4018
     - #75: Bring back "getmails" wrapper (was a Debian addition, but fits well to getmail itself)
+    - #76, #77: Revert replaced strings (from "2020" to "2021") in docs/CHANGELOG
 
 Version 6.15
 21 March 2021

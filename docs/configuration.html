@@ -2450,6 +2450,17 @@ localpart_translate = ('mailhostaccount-', '')
         Default: 0, which means not to enable this feature.
     </li>
     <li>
+        skip_imap_fetch_size
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; will skip fetching RFC822.SIZE.
+        This speeds up mail checks, particularly with a davmail proxies.
+        <pre>skip_imap_fetch_size</pre>
+        is only valid for IMAP and not valid with any of
+        <pre>max_message_size</pre>,
+        <pre>max_bytes_per_session</pre>,
+        <pre>delete_bigger_than</pre>.
+    </li>
+    <li>
         delete_bigger_than
         (<a href="#parameter-integer">integer</a>)
         &mdash; if set, getmail will delete messages larger than this number of

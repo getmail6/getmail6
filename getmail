@@ -45,6 +45,7 @@ options_bool = (
     'message_log_verbose',
     'message_log_syslog',
     'fingerprint',
+    'skip_imap_fetch_size',
 )
 options_int = (
     'delete_after',
@@ -101,6 +102,7 @@ defaults = {
     'message_log_syslog' : False,
     'logfile' : None,
     'fingerprint' : False,
+    'skip_imap_fetch_size' : False,
 }
 
 
@@ -131,6 +133,14 @@ def go(configs, idle):
         idle = False
 
     for (configfile, retriever, _filters, destination, options) in configs:
+        if options['skip_imap_fetch_size'] and (
+                options['max_message_size'] or
+                options['max_bytes_per_session'] or
+                options['delete_bigger_than']):
+            log.error('%s: skipping, because skip_imap_fetch_size not valid with any of '
+                    'max_message_size max_bytes_per_session delete_bigger_than.\n'
+                    % retriever)
+            continue
         if options['read_all'] and not options['delete']:
             if idle:
                 # This is a nonsense combination of options; every time the
@@ -660,6 +670,7 @@ def main():
                 'message_log_verbose' : defaults['message_log_verbose'],
                 'message_log_syslog' : defaults['message_log_syslog'],
                 'fingerprint' : defaults['fingerprint'],
+                'skip_imap_fetch_size' : defaults['skip_imap_fetch_size'],
             }
             # Python's ConfigParser .getboolean() couldn't handle booleans in
             # the defaults. Submitted a patch; they fixed it a different way.
