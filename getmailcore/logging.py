@@ -61,7 +61,15 @@ class _Logger(object):
                 continue
             if not handler['newline'] and msglevel == DEBUG:
                 handler['stream'].write('\n')
-            handler['stream'].write(msgtxt)
+            try:
+                handler['stream'].write(msgtxt)
+            except UnicodeError:
+                try:
+                    handler['stream'].write(
+                        msgtxt.encode('ascii',errors='backslashreplace').decode('ascii')
+                    )
+                except AttributeError:
+                    handler['stream'].write(msgtxt.decode('ascii',errors='backslashreplace'))
             handler['stream'].flush()
             if msgtxt.endswith('\n'):
                 handler['newline'] = True
