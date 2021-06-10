@@ -28,7 +28,7 @@
                     * Installing the getmailcore package in a non-standard
                       location
                     * Building a binary package from the source
-     * getmail configuration (version 5)
+     * getmail configuration (version 6)
      *    * Configuring getmail
           *    * Creating a getmail rc file
           * Running getmail

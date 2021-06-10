@@ -277,8 +277,8 @@ About getmail
 
   What are these oldmail* files? Can I delete or trim them?
 
-   getmail stores its state - its "memory" of what it has seen in your
-   POP/IMAP account - in the oldmail files.
+   getmail stores "<msgid>\0<timestamp>" of messages it has seen in your
+   POP/IMAP account in the oldmail files.
 
    Do NOT delete or edit these files. You'll make getmail re-retrieve all
    your old mail, or even prevent getmail from running. The files are tiny by
