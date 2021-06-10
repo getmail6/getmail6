@@ -3,6 +3,7 @@ TODO
     - #79: UnicodeEncodeError: 'ascii' codec can't encode character in position
     - #78: Don't encode pure ASCII X-getmail-retrieved-from-mailbox
     - #69: skip_imap_fetch_size. IMAP requests size, making davmail download all the messages every time, making it slow
+    - #81: Allow having IMAP message IDs recorded in headers (if received=True in config)
 
 Version 6.16
 13 May 2021

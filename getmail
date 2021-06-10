@@ -264,7 +264,7 @@ def go(configs, idle):
 
                             if msg is not None:
                                 r = destination.deliver_message(msg,
-                                    options['delivered_to'], options['received'])
+                                    options['delivered_to'], options['received']==True and msgid)
                                 log.debug('    delivered to %s\n' % r)
                                 info += ' delivered'
                                 if oplevel > 1:
