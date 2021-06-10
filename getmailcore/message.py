@@ -173,6 +173,7 @@ class Message(object):
             rcvd = 'from %s by %s with %s' % (
                 self.received_from, self.received_by, self.received_with
             )
+            rcvd += ' getmail6'
             if received != True:
                 rcvd += ' msgid:%s'%received
             if self.recipient is not None:
