@@ -1,5 +1,5 @@
 Version 6.17
-TODO
+15 June 2021
     - #79: UnicodeEncodeError: 'ascii' codec can't encode character in position
     - #78: Don't encode pure ASCII X-getmail-retrieved-from-mailbox
     - #69: skip_imap_fetch_size. IMAP requests size, making davmail download all the messages every time, making it slow
