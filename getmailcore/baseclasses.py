@@ -334,7 +334,7 @@ class ConfigurableBase(object):
                      - name - parameter name
                      - type - a type function to compare the parameter value
                        against (i.e. str, int, bool)
-                     - default - optional default value.  If not preseent, the
+                     - default - optional default value.  If not present, the
                        parameter is required.
     '''
 
