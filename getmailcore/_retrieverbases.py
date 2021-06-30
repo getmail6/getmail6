@@ -1425,6 +1425,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.mailbox = mailbox
         self.uidvalidity = uidvalidity
 
+        imap_search = self.conf['imap_search']
+        if imap_search:
+            self.conn.search(None,imap_search)
+
         self._getmsglist(count)
 
         return count

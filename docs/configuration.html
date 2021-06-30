@@ -673,6 +673,13 @@ mailboxes = ALL
         <a href="http://www.bytereef.org/howto/oauth2/getmail.html">additional
         information about using it here</a>.
     </li>
+    <li>
+        imap_search
+        (<a href="#parameter-string">string</a>)
+        &mdash; if set, this is the second parameter of Python's <a href="https://docs.python.org/3/library/imaplib.html#imaplib.IMAP4.search">IMAP search</a>.
+        Use <pre class="example">UNSEEN</pre> to skip read messages.
+        For more see <href="https://datatracker.ietf.org/doc/html/rfc3501#page-49">rfc3501 SEARCH</a>.
+    </li>
 </ul>
 
 <h4 id="retriever-ssl-client">SSL Client Parameters</h4>
@@ -1052,6 +1059,13 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
     </li>
+    <li>
+        imap_search
+        (<a href="#parameter-string">string</a>)
+        &mdash; see
+        <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
+        for definition.
+    </li>
 </ul>
 
 <h4 id="retriever-multidroppop3">MultidropPOP3Retriever</h4>
@@ -1221,6 +1235,13 @@ envelope_recipient = delivered-to:1
         <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
         for definition.
     </li>
+    <li>
+        imap_search
+        (<a href="#parameter-string">string</a>)
+        &mdash; see
+        <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
+        for definition.
+    </li>
 </ul>
 
 <h4 id="retriever-multidropimapssl">MultidropIMAPSSLRetriever</h4>
@@ -1294,6 +1315,13 @@ envelope_recipient = delivered-to:1
         (<a href="#parameter-tuplestrings">tuple of quoted strings</a>)
         &mdash; see <a href="#retriever-ssl-extra">SSL Certificate Validation and Server Parameters</a>
         for definition
+    </li>
+    <li>
+        imap_search
+        (<a href="#parameter-string">string</a>)
+        &mdash; see
+        <a href="#retriever-simpleimap">SimpleIMAPRetriever</a>
+        for definition.
     </li>
 </ul>
 

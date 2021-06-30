@@ -427,6 +427,16 @@ Creating a getmail rc file
        and where it writes the access and refresh tokens to, and the file
        requires manual initial setup. This functionality was contributed by
        Stefan Krah, who has additional information about using it here.
+     * imap_search (string) — if set, this is the second parameter of
+       Python's IMAP search. Use
+
+ UNSEEN
+
+       to skip read messages. For more see rfc3501 SEARCH. It could contain
+
+ CHARSET
+
+       , too.
 
     SSL Client Parameters
 
@@ -629,6 +639,7 @@ Creating a getmail rc file
        Parameters for definition
      * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
        Validation and Server Parameters for definition
+     * imap_search (string) — see SimpleIMAPRetriever for definition.
 
     MultidropPOP3Retriever
 
@@ -693,6 +704,7 @@ Creating a getmail rc file
      * mailboxes (tuple of quoted strings) — see common retriever parameters
        for definition.
      * move_on_delete (string) — see SimpleIMAPRetriever for definition.
+     * imap_search (string) — see SimpleIMAPRetriever for definition.
 
     MultidropIMAPSSLRetriever
 
@@ -718,6 +730,7 @@ Creating a getmail rc file
        Parameters for definition
      * ssl_fingerprints (tuple of quoted strings) — see SSL Certificate
        Validation and Server Parameters for definition
+     * imap_search (string) — see SimpleIMAPRetriever for definition.
 
   Retriever examples
 
