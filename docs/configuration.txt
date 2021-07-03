@@ -427,28 +427,32 @@ Creating a getmail rc file
        and where it writes the access and refresh tokens to, and the file
        requires manual initial setup. This functionality was contributed by
        Stefan Krah, who has additional information about using it here.
-     * imap_search, imap_on_delete (string) — if set,
-
- imap_search
-
-       is the second parameter of Python's IMAP search. Set
+     * imap_search, imap_on_delete (string) — imap_search is the second
+       parameter of Python's IMAP search. Set
 
  imap_search = UNSEEN
 
-       to skip read messages. Together with
+       to skip read messages. The value is case-insensitive. It may be in
+       parentheses. As an example
 
-  imap_on_delete = (\Seen)
+ 
+ imap_search = Unseen
+ imap_on_delete = \Seen
 
-       the message flag is set to
+       fetches only new messages and sets the message flag to
 
  SEEN
 
-       on "delete" and avoids further retrieval, without deleting the message
-       on the server. The default is
+       on "delete". To set the flag we need the global
 
-         imap_search = ALL
-         imap_on_delete = (\Deleted \Seen)
-        
+ 
+ delete = true
+
+       This avoids further retrieval, without deleting the message on the
+       server. The default is
+
+ imap_search = ALL
+ imap_on_delete = (\Deleted \Seen)
 
        For more on IMAP SEARCH see rfc3501.
 

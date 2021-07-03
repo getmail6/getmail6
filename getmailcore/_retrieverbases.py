@@ -1428,9 +1428,15 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         imap_search = self.conf['imap_search']
         if imap_search:
-            self.conn.search(None,imap_search)
-
-        self._getmsglist(count)
+            result, data = self.conn.search(None, imap_search)
+            data = [d for d in data if d is not None]
+            if result == 'OK' and data:
+                msgs = b','.join(data[0].split())
+                if sys.version_info.major > 2:
+                    msgs = msgs.decode()
+                self._getmsglist(msgs)
+        else:
+            self._getmsglist(count)
 
         return count
 
@@ -1440,7 +1446,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             if msgcount:
                 # Get UIDs and sizes for all messages in mailbox
                 response = self._parse_imapcmdresponse(
-                    'FETCH', '1:%d' % msgcount,
+                    'FETCH',
+                    isinstance(msgcount,str) and msgcount or '1:%d'%msgcount,
                     ('(UID)' if self.app_options['skip_imap_fetch_size'] else
                     '(UID RFC822.SIZE)')
                 )
