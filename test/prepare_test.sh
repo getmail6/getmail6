@@ -261,6 +261,8 @@ path = $MAILDIRIN/
 read_all = true
 delete = true
 EOF
+  retrieve
+  grep_mail test
 }
 d_simple_dest_maildir() {
 d_docker "simple_dest_maildir $@"

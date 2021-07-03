@@ -71,16 +71,7 @@ bats_check_mail(){
 
 bats_simple_dest_maildir (){
   run d_simple_dest_maildir "$@"
-  bats_check_mail
-}
-
-@test "Looping until it works" {
-  it_does_not_works="1"
-  while [ "$it_does_not_works" != "0" ]; do
-    run d_simple_dest_maildir "$@"
-    run d_grep_mail test
-    it_does_not_works="$?"
-  done
+  #bats_check_mail # moved into simple_dest_maildir, because it failed
 }
 
 @test "SimplePOP3Retriever, destination Maildir" {
@@ -204,8 +195,11 @@ bats_imap_search() {
   bats_imap_search "UNSEEN true"
 }
 @test "SimpleIMAPRetriever, UNSEEN, no unseen" {
-  bats_imap_search "UNSEEN true"
-  # should not succeed, because no mails should be retrieved
+  run d_imap_search "UNSEEN true"
+  run d_retrieve
+  assert_success # expect mail retrieval without error
+  run d_grep_mail test
+  assert_failure # expect no mail mail which contains "test"
 }
 @test "SimpleIMAPSSLRetriever, ALL, delete" {
   bats_imap_search "ALL true"
