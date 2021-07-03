@@ -674,11 +674,19 @@ mailboxes = ALL
         information about using it here</a>.
     </li>
     <li>
-        imap_search
+        imap_search, imap_on_delete
         (<a href="#parameter-string">string</a>)
-        &mdash; if set, this is the second parameter of Python's <a href="https://docs.python.org/3/library/imaplib.html#imaplib.IMAP4.search">IMAP search</a>.
-        Use <pre class="example">UNSEEN</pre> to skip read messages.
-        For more see <href="https://datatracker.ietf.org/doc/html/rfc3501#page-49">rfc3501 SEARCH</a>.
+        &mdash; if set, <pre>imap_search</pre> is the second parameter of Python's
+        <a href="https://docs.python.org/3/library/imaplib.html#imaplib.IMAP4.search">IMAP search</a>.
+        Set <pre class="example">imap_search = UNSEEN</pre> to skip read messages.
+        Together with <pre class="example"> imap_on_delete = (\Seen) </pre>
+        the message flag is set to <pre>SEEN</pre> on "delete"
+        and avoids further retrieval, without deleting the message on the server.
+        The default is <pre class="example">
+        imap_search = ALL
+        imap_on_delete = (\Deleted \Seen)
+        </pre>
+        For more on IMAP SEARCH see <href="https://datatracker.ietf.org/doc/html/rfc3501#page-49">rfc3501</a>.
     </li>
 </ul>
 

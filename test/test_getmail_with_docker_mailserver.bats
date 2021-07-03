@@ -1,9 +1,26 @@
 load 'test_helper/common'
 
-source config/self_sign.sh
-export PSS TESTEMAIL NAME
+: '
+
+cd /tmp/mailserver
+test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
+
+'
+
+#source config/self_sign.sh
+#export PSS TESTEMAIL NAME
+cd config/getmail6/test
+source prepare_test.sh
+cd ../../..
+
+run_only_test() {
+    if [ "$BATS_TEST_NUMBER" -ne "$1" ]; then
+        skip
+    fi
+}
 
 function setup() {
+    # run_only_test 3
     setup_file
 }
 
@@ -38,414 +55,161 @@ function teardown_file() {
   assert_success
 }
 
-# declare -A PORTNR
-# PORTNR["POP3"]=110
-# PORTNR["IMAP"]=143
-# PORTNR["IMAPSSL"]=993
-# PORTNR["POP3SSL"]=995
-# PORTNR["SMTP"]=25
-# PORTNR["SMTPSSL"]=587
-
-testmail(){
-  docker exec $NAME bash -c "nc 0.0.0.0 25 << EOF
-HELO mail.localhost
-MAIL FROM: ${TESTEMAIL}
-RCPT TO: ${TESTEMAIL}
-DATA
-Subject: test
-This is the test text:
-я αβ один süße créme in Tromsœ.
-.
-QUIT
-EOF
-"
-sleep 1
+@test "checking ports" {
+  run d_ports_test
+  assert_success
 }
 
-simple_dest_maildir() {
-  RETRIEVER=$1
-  PORT=$2
-  testmail
-  TMPMAIL=/home/getmail/Mail
-  MAILDIR=$TMPMAIL/$TESTEMAIL
-  MAILDIRIN=$MAILDIR/INBOX
-  run docker exec -u getmail $NAME bash -c "
-rm -rf $MAILDIR && \
-mkdir -p $MAILDIRIN/{cur,tmp,new} && \
-cat > /home/getmail/getmail <<EOF
-[retriever]
-type = ${RETRIEVER}
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $PSS
-record_mailbox = True
-[destination]
-type = Maildir
-path = $MAILDIRIN/
-[options]
-read_all = true
-delete = true
-EOF"
-  assert_success
-  run docker exec -u getmail $NAME bash -c " \
-  getmail --rcfile=getmail --getmaildir=/home/getmail"
-  assert_success
-  run docker exec -u getmail $NAME bash -c " \
-  grep utf-8 $MAILDIRIN/new/* | grep utf-8"
-  assert_failure
+bats_check_mail(){
+  run d_retrieve
+  assert_success # expect mail retrieval without error
+  run d_grep_mail test
+  assert_success # expect a mail which contains "test"
+  run d_grep_mail utf-8
+  assert_failure # expect no utf-8 encoding of INBOX
+}
+
+bats_simple_dest_maildir (){
+  run d_simple_dest_maildir "$@"
+  bats_check_mail
+}
+
+@test "Looping until it works" {
+  it_does_not_works="1"
+  while [ "$it_does_not_works" != "0" ]; do
+    run d_simple_dest_maildir "$@"
+    run d_grep_mail test
+    it_does_not_works="$?"
+  done
 }
 
 @test "SimplePOP3Retriever, destination Maildir" {
-  simple_dest_maildir SimplePOP3Retriever 110
+  bats_simple_dest_maildir POP3
 }
 @test "SimplePOP3SSLRetriever, destination Maildir" {
-  simple_dest_maildir SimplePOP3SSLRetriever 995
+  bats_simple_dest_maildir POP3SSL
 }
 @test "SimpleIMAPRetriever, destination Maildir" {
-  simple_dest_maildir SimpleIMAPRetriever 143
+  bats_simple_dest_maildir IMAP
 }
 @test "SimpleIMAPSSLRetriever, destination Maildir" {
-  simple_dest_maildir SimpleIMAPSSLRetriever 993
+  bats_simple_dest_maildir IMAPSSL
 }
 
-
-simple_dest_procmail_filter() {
-  RETRIEVER=$1
-  PORT=$2
-  testmail
-  TMPMAIL=/home/getmail/Mail
-  MAILDIR=$TMPMAIL/$TESTEMAIL
-  MAILDIRIN=$MAILDIR/INBOX
-  run docker exec -u getmail $NAME bash -c " \
-rm -rf $MAILDIR && \
-mkdir -p $MAILDIRIN/{cur,tmp,new} && \
-mkdir -p $MAILDIR/tests/{cur,tmp,new} && \
-cat > /home/getmail/getmail <<EOF
-[retriever]
-type = ${RETRIEVER}
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $PSS
-[destination]
-type = MDA_external
-path = /usr/bin/procmail
-arguments = ('-f', '%(sender)', '-m', '/home/getmail/procmail')
-#pacman -S spamassassin
-[filter-1]
-type = Filter_external
-path = /usr/bin/spamassassin
-ignore_header_shrinkage = True
-#pacman -S clamav
-[filter-2]
-type = Filter_classifier
-path = /usr/bin/clamscan
-arguments = ('--stdout', '--no-summary', '--scan-mail', '--infected', '-')
-exitcodes_drop = (1,)
-[options]
-read_all = true
-delete = true
-EOF"
-  assert_success
-  run docker exec -u getmail $NAME bash -c " \
-cat > /home/getmail/procmail <<EOF
-MAILDIR=$MAILDIR
-DEFAULT=\$MAILDIR/INBOX
-:0
-* ^Subject:.*test.*
-tests/
-:0
-\$DEFAULT/
-EOF"
-  assert_success
-  run docker exec -u getmail $NAME bash -c " \
-  getmail --rcfile=getmail --getmaildir=/home/getmail"
+bats_simple_dest_procmail_filter() {
+  run d_simple_dest_procmail_filter "$@"
   assert_success
 }
 
 @test "SimplePOP3Retriever, destination MDA_external (procmail), filter spamassassin clamav" {
-  simple_dest_procmail_filter SimplePOP3Retriever 110
+  bats_simple_dest_procmail_filter POP3
 }
 @test "SimplePOP3SSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
-  simple_dest_procmail_filter SimplePOP3SSLRetriever 995
+  bats_simple_dest_procmail_filter POP3SSL
 }
 @test "SimpleIMAPRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
-  simple_dest_procmail_filter SimpleIMAPRetriever 143
+  bats_simple_dest_procmail_filter IMAP
 }
 @test "SimpleIMAPSSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
-  simple_dest_procmail_filter SimpleIMAPSSLRetriever 993
+  bats_simple_dest_procmail_filter IMAPSSL
 }
 
-config_test() {
-  RETRIEVER=$1
-  PORT=$2
-  MAX=$3
-  READALL=$4
-  DEL=$5
-  testmail
-  TMPMAIL=/home/getmail/Mail
-  MAILDIR=$TMPMAIL/$TESTEMAIL
-  MAILDIRIN=$MAILDIR/INBOX
-  run docker exec -u getmail $NAME bash -c " \
-rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
-touch $MAILDIR/inbox && \
-cat > /home/getmail/getmail <<EOF
-[retriever]
-type = ${RETRIEVER}
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password_command = ('/home/getmail/pass',)
-[destination]
-type = Mboxrd
-path = $MAILDIR/inbox
-[options]
-read_all = $READALL
-delete = $DEL
-max_message_size = $MAX
-delete_after = 1
-delete_bigger_than = 800
-max_messages_per_session = 9
-max_bytes_per_session = 3000
-verbose = 3
-delivered_to = false
-received = false
-message_log_verbose = true
-message_log_syslog = true
-fingerprint = true
-logfile = /home/getmail/getmail.log
-message_log = ~/getmail_message.log
-EOF
-"
-  assert_success
-  run docker exec -u getmail $NAME bash -c " \
-cat >/home/getmail/pass <<EOF
-#!/bin/bash
-echo $PSS
-EOF
-chmod +x /home/getmail/pass
-"
-  assert_success
-  run docker exec -u getmail $NAME bash -c " \
-  getmail --rcfile=getmail --getmaildir=/home/getmail"
-  assert_success
+bats_config_test(){
+  run d_config_test "$@"
+  run d_retrieve
+  assert_success # expect mail retrieval without error
 }
 
 #896 is message size
 
 @test "BrokenUIDLPOP3Retriever, config test" {
-config_test BrokenUIDLPOP3Retriever 110 800 False False
-config_test BrokenUIDLPOP3Retriever 110 900 True  False
+bats_config_test "BrokenUIDLPOP3Retriever 110 800 False False"
+bats_config_test "BrokenUIDLPOP3Retriever 110 900 True  False"
 }
 @test "BrokenUIDLPOP3SSLRetriever, config test" {
-config_test BrokenUIDLPOP3SSLRetriever 995 800 0 0
-config_test BrokenUIDLPOP3SSLRetriever 995 900 1 1
+bats_config_test "BrokenUIDLPOP3SSLRetriever 995 800 0 0"
+bats_config_test "BrokenUIDLPOP3SSLRetriever 995 900 1 1"
 }
 @test "SimpleIMAPRetriever, config test" {
-config_test SimpleIMAPRetriever 143 800 false true
-config_test SimpleIMAPRetriever 143 900 false  true
+bats_config_test "SimpleIMAPRetriever 143 800 false true"
+bats_config_test "SimpleIMAPRetriever 143 900 false true"
 }
 @test "SimpleIMAPSSLRetriever, config test" {
-config_test SimpleIMAPSSLRetriever 993 800 False False
-config_test SimpleIMAPSSLRetriever 993 900 True  True
+bats_config_test "SimpleIMAPSSLRetriever 993 800 False False"
+bats_config_test "SimpleIMAPSSLRetriever 993 900 True  True"
 }
 
-multidrop(){
-  docker exec $NAME bash -c "nc 0.0.0.0 25 << EOF
-HELO mail.localhost
-MAIL FROM: ${TESTEMAIL}
-RCPT TO: ${TESTEMAIL}
-DATA
-Subject: test
-X-Envelope-To: ${TESTEMAIL}
-Content-Type: multipart/mixed; boundary=\"----=_NextPart_000_0012_A796884C.DCABE8FF\"
-
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_0012_A796884C.DCABE8FF
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/html
-
-<=21DOCTYPE HTML>
-
-<html><head><title></title>
-<meta http-equiv=3D=22X-UA-Compatible=22 content=3D=22IE=3Dedge=22>
-</head>
-<body style=3D=22margin: 0.4em;=22><p>Dear Sir/Madam,</p>
-</body></html>
-------=_NextPart_000_0012_A796884C.DCABE8FF--
-
-Content-Type: multipart/mixed; boundary=\"----=_NextPart_000_0012_A796884C.DCABE8FF\"
-This is the test text.
-------=_NextPart_000_0012_A796884C.DCABE8FF--
-.
-QUIT
-EOF
-"
-sleep 1
-}
-
-multidrop_test() {
-  RETRIEVER=$1
-  PORT=$2
-  TMPMAIL=/home/getmail/Mail
-  MAILDIR=$TMPMAIL/$TESTEMAIL
-  MAILDIRIN=$MAILDIR/INBOX
-  multidrop
-  run docker exec -u getmail $NAME bash -c " \
-rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
-cat > /home/getmail/getmail <<EOF
-[retriever]
-type = ${RETRIEVER}
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $PSS
-envelope_recipient = X-Envelope-To
-[destination]
-type = Maildir
-path = $MAILDIRIN/
-[options]
-read_all = True
-delete = True
-EOF
-"
-  assert_success
-  run docker exec -u getmail $NAME bash -c " \
-  getmail --rcfile=getmail --getmaildir=/home/getmail"
+bats_multidrop_test() {
+  run d_multidrop_test "$@"
+  run d_retrieve
   assert_success
 }
 
 @test "MultidropPOP3Retriever" {
-multidrop_test SimplePOP3Retriever 110
-multidrop_test MultidropPOP3Retriever 110
+bats_multidrop_test "SimplePOP3Retriever 110"
+bats_multidrop_test "MultidropPOP3Retriever 110"
 }
 @test "MultidropPOP3SSLRetriever" {
-multidrop_test SimplePOP3SSLRetriever 995
-multidrop_test MultidropPOP3SSLRetriever 995
+bats_multidrop_test "SimplePOP3SSLRetriever 995"
+bats_multidrop_test "MultidropPOP3SSLRetriever 995"
 }
 @test "MultidropIMAPRetriever" {
-multidrop_test SimpleIMAPRetriever 143
-multidrop_test MultidropIMAPRetriever 143
+bats_multidrop_test "SimpleIMAPRetriever 143"
+bats_multidrop_test "MultidropIMAPRetriever 143"
 }
 @test "MultidropIMAPSSLRetriever" {
-multidrop_test SimpleIMAPSSLRetriever 993
-multidrop_test MultidropIMAPSSLRetriever 993
+bats_multidrop_test "SimpleIMAPSSLRetriever 993"
+bats_multidrop_test "MultidropIMAPSSLRetriever 993"
 }
 
-multisorter_test() {
-  RETRIEVER=$1
-  PORT=$2
-  TMPMAIL=/home/getmail/Mail
-  MAILDIR=$TMPMAIL/$TESTEMAIL
-  MAILDIRIN=$MAILDIR/INBOX
-  multidrop
-  run docker exec -u getmail $NAME bash -c " \
-rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
-touch $MAILDIR/inbox && \
-cat > /home/getmail/getmail <<EOF
-[retriever]
-type = ${RETRIEVER}
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $PSS
-envelope_recipient = X-Envelope-To
-[destination]
-type = MultiSorter
-default = [localuser1]
-locals = (
-     ('address@', '[localuser1]'),
-     ('address@', '[localuser2]'),
-     )
-[localuser1]
-type = Maildir
-path = $MAILDIRIN/
-user = getmail
-[localuser2]
-type = Mboxrd
-path = $MAILDIR/inbox
-[options]
-read_all = True
-delete = True
-EOF
-"
-  assert_success
-  run docker exec -u getmail $NAME bash -c " \
-  getmail --rcfile=getmail --getmaildir=/home/getmail"
+
+bats_multisorter_test() {
+  run d_multisorter_test "$@"
+  bats_check_mail
+}
+
+@test "MultidropPOP3Retriever, Multisorter" {
+bats_multisorter_test "MultidropPOP3Retriever 110"
+}
+@test "MultidropPOP3SSLRetriever, Multisorter" {
+bats_multisorter_test "MultidropPOP3SSLRetriever 995"
+}
+@test "MultidropIMAPRetriever, Multisorter" {
+bats_multisorter_test "MultidropIMAPRetriever 143"
+}
+@test "MultidropIMAPSSLRetriever, Multisorter" {
+bats_multisorter_test "MultidropIMAPSSLRetriever 993"
+}
+
+bats_lmtp_test() {
+  run d_lmtp_test "$@"
+  run d_retrieve
   assert_success
 }
 
-@test "SimplePOP3Retriever, Multisorter" {
-multisorter_test SimplePOP3Retriever 110
-}
-@test "SimplePOP3SSLRetriever, Multisorter" {
-multisorter_test SimplePOP3SSLRetriever 995
-}
-@test "SimpleIMAPRetriever, Multisorter" {
-multisorter_test SimpleIMAPRetriever 143
-}
-@test "SimpleIMAPSSLRetriever, Multisorter" {
-multisorter_test SimpleIMAPSSLRetriever 993
-}
-
-lmtp_test() {
-if head `which getmail` | grep 'python3' ; then
-  RETRIEVER=$1
-  PORT=$2
-  TMPMAIL=/home/getmail/Mail
-  MAILDIR=$TMPMAIL/$TESTEMAIL
-  MAILDIRIN=$MAILDIR/INBOX
-  testmail
-  run docker exec -u getmail $NAME bash -c " \
-cat > /home/getmail/lmtpd.py <<EOF
-from smtpd import SMTPChannel, SMTPServer
-import asyncore
-class LMTPChannel(SMTPChannel):
-  def smtp_LHLO(self, arg):
-    self.smtp_HELO(arg)
-class LMTPServer(SMTPServer):
-  def __init__(self, localaddr, remoteaddr):
-    SMTPServer.__init__(self, localaddr, remoteaddr)
-  def process_message(self, peer, mailfrom, rcpttos, data):
-    return
-  def handle_accept(self):
-    conn, addr = self.accept()
-    channel = LMTPChannel(self, conn, addr)
-server = LMTPServer(('localhost', 23218), None)
-asyncore.loop()
-EOF
-"
-  run docker exec -u getmail $NAME bash -c "python3 /home/getmail/lmtpd.py &"
-  run docker exec -u getmail $NAME bash -c " \
-rm -rf $MAILDIR && mkdir -p $MAILDIRIN/{cur,tmp,new} && \
-cat > /home/getmail/getmail <<EOF
-[retriever]
-type = ${RETRIEVER}
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $PSS
-[destination]
-#type = Maildir
-#path = $MAILDIRIN/
-type = MDA_lmtp
-host = 127.0.0.1
-port = 23218
-[options]
-read_all = True
-delete = True
-EOF
-"
-  assert_success
-  run docker exec -u getmail $NAME bash -c " \
-  getmail --rcfile=getmail --getmaildir=/home/getmail"
-  assert_success
-fi
-}
 
 @test "MDA_lmtp" {
-lmtp_test SimpleIMAPRetriever 143
+bats_lmtp_test "SimpleIMAPRetriever 143"
 }
+
+bats_imap_search() {
+  run d_imap_search "$@"
+  bats_check_mail
+}
+
+@test "SimpleIMAPSSLRetriever, ALL, no delete" {
+  bats_imap_search "ALL false"
+}
+@test "SimpleIMAPRetriever, UNSEEN, set seen" {
+  bats_imap_search "UNSEEN true"
+}
+@test "SimpleIMAPRetriever, UNSEEN, no unseen" {
+  bats_imap_search "UNSEEN true"
+  # should not succeed, because no mails should be retrieved
+}
+@test "SimpleIMAPSSLRetriever, ALL, delete" {
+  bats_imap_search "ALL true"
+}
+
+
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
@@ -21,6 +22,17 @@ Currently implemented:
   MultidropIMAPSSLRetriever
 '''
 
+import os
+import poplib
+import imaplib
+import types
+
+from getmailcore.exceptions import *
+from getmailcore.constants import *
+from getmailcore.utilities import *
+from getmailcore.baseclasses import *
+from getmailcore._retrieverbases import *
+
 __all__ = [
     'SimplePOP3Retriever',
     'SimplePOP3SSLRetriever',
@@ -34,17 +46,6 @@ __all__ = [
     'MultidropIMAPRetriever',
     'MultidropIMAPSSLRetriever',
 ]
-
-import os
-import poplib
-import imaplib
-import types
-
-from getmailcore.exceptions import *
-from getmailcore.constants import *
-from getmailcore.utilities import *
-from getmailcore.baseclasses import *
-from getmailcore._retrieverbases import *
 
 
 #
@@ -392,6 +393,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
         ConfBool(name='use_kerberos', required=False, default=False),
         ConfBool(name='use_xoauth2', required=False, default=False),
         ConfString(name='imap_search', required=False, default=None),
+        ConfString(name='imap_on_delete', required=False, default=None),
     )
     received_from = None
     received_with = 'IMAP4'
@@ -444,6 +446,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
         ConfBool(name='use_xoauth2', required=False, default=False),
         ConfString(name='ssl_cert_hostname', required=False, default=None),
         ConfString(name='imap_search', required=False, default=None),
+        ConfString(name='imap_on_delete', required=False, default=None),
     )
     received_from = None
     received_with = 'IMAP4-SSL'
@@ -488,6 +491,7 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
         ConfBool(name='use_xoauth2', required=False, default=False),
         ConfString(name='envelope_recipient'),
         ConfString(name='imap_search', required=False, default=None),
+        ConfString(name='imap_on_delete', required=False, default=None),
     )
     received_from = None
     received_with = 'IMAP4'
@@ -541,6 +545,7 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
         ConfString(name='envelope_recipient'),
         ConfString(name='ssl_cert_hostname', required=False, default=None),
         ConfString(name='imap_search', required=False, default=None),
+        ConfString(name='imap_on_delete', required=False, default=None),
     )
     received_from = None
     received_with = 'IMAP4-SSL'

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
@@ -7,13 +8,6 @@ Currently implemented:
 
 '''
 
-__all__ = [
-    'FilterSkeleton',
-    'Filter_external',
-    'Filter_classifier',
-    'Filter_TMDA',
-]
-
 import os
 import tempfile
 import types
@@ -22,6 +16,13 @@ from getmailcore.exceptions import *
 from getmailcore.message import *
 from getmailcore.utilities import *
 from getmailcore.baseclasses import *
+
+__all__ = [
+    'FilterSkeleton',
+    'Filter_external',
+    'Filter_classifier',
+    'Filter_TMDA',
+]
 
 
 #######################################

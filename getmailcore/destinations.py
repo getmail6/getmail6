@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
@@ -13,19 +14,6 @@ Currently implemented:
   MultiSorter (deliver to a selection of maildirs/mbox files based on matching
     recipient address patterns)
 '''
-
-__all__ = [
-    'DeliverySkeleton',
-    'Maildir',
-    'Mboxrd',
-    'MDA_qmaillocal',
-    'MDA_external',
-    'MDA_lmtp',
-    'MultiDestinationBase',
-    'MultiDestination',
-    'MultiSorterBase',
-    'MultiSorter',
-]
 
 import sys
 import os
@@ -43,6 +31,19 @@ import pwd
 from getmailcore.exceptions import *
 from getmailcore.utilities import *
 from getmailcore.baseclasses import *
+
+__all__ = [
+    'DeliverySkeleton',
+    'Maildir',
+    'Mboxrd',
+    'MDA_qmaillocal',
+    'MDA_external',
+    'MDA_lmtp',
+    'MultiDestinationBase',
+    'MultiDestination',
+    'MultiSorterBase',
+    'MultiSorter',
+]
 
 def exit_with(stderr,errmsg):
     stderr.write(errmsg.encode())

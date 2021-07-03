@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
@@ -21,19 +22,6 @@ Base classes:
   IMAPRetrieverBase
   MultidropIMAPRetrieverBase
 '''
-
-__all__ = [
-    'IMAPinitMixIn',
-    'IMAPRetrieverBase',
-    'IMAPSSLinitMixIn',
-    'MultidropPOP3RetrieverBase',
-    'MultidropIMAPRetrieverBase',
-    'POP3_SSL_PORT',
-    'POP3initMixIn',
-    'POP3RetrieverBase',
-    'POP3SSLinitMixIn',
-    'RetrieverSkeleton',
-]
 
 import sys
 import os
@@ -68,6 +56,19 @@ except:
   ssl = None
   SSLError = Exception
 import hashlib
+
+__all__ = [
+    'IMAPinitMixIn',
+    'IMAPRetrieverBase',
+    'IMAPSSLinitMixIn',
+    'MultidropPOP3RetrieverBase',
+    'MultidropIMAPRetrieverBase',
+    'POP3_SSL_PORT',
+    'POP3initMixIn',
+    'POP3RetrieverBase',
+    'POP3SSLinitMixIn',
+    'RetrieverSkeleton',
+]
 
 tocode = lambda x: isinstance(x,bytes) and x or x.encode()
 
@@ -1494,7 +1495,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 )
             self.log.debug('deleting message "%s"' % uid + os.linesep)
             response = self._parse_imapuidcmdresponse(
-                'STORE', uid, 'FLAGS', r'(\Deleted \Seen)'
+                'STORE', uid, 'FLAGS',
+                self.conf.get('imap_on_delete',None) or r'(\Deleted \Seen)'
             )
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)

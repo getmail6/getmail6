@@ -1,3 +1,6 @@
+Tests
+=====
+
 A
 `docker-mailserver <https://github.com/docker-mailserver/docker-mailserver>`__
 image is created at ``/tmp/mailserver``.

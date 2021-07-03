@@ -1,8 +1,25 @@
+# -*- coding: utf-8 -*-
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
 '''Utility classes and functions for getmail.
 '''
+
+
+import os
+import os.path
+import socket
+import signal
+import stat
+import time
+import glob
+import re
+import fcntl
+import pwd
+import grp
+import getpass
+import subprocess
+import sys
 
 __all__ = [
     'address_no_brackets',
@@ -31,22 +48,6 @@ __all__ = [
     'tostr',
     'unicode',
 ]
-
-
-import os
-import os.path
-import socket
-import signal
-import stat
-import time
-import glob
-import re
-import fcntl
-import pwd
-import grp
-import getpass
-import subprocess
-import sys
 
 if sys.version_info.major > 2:
     unicode = str

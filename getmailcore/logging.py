@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
@@ -9,15 +10,15 @@ a certain level to one fd, and other messages of higher levels to a different fd
 (i.e. info to stdout, warnings to stderr).
 '''
 
-__all__ = [
-    'Logger',
-]
-
 import sys
 import os.path
 import traceback
 
 from getmailcore.constants import *
+
+__all__ = [
+    'Logger',
+]
 
 #######################################
 class _Logger(object):

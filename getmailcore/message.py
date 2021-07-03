@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
@@ -5,10 +6,7 @@
 
 '''
 
-__all__ = [
-    'Message',
-]
-
+from __future__ import unicode_literals
 import sys
 import os
 import time
@@ -31,6 +29,11 @@ from getmailcore.exceptions import *
 from getmailcore.utilities import mbox_from_escape, format_header, \
     address_no_brackets
 import getmailcore.logging
+
+__all__ = [
+    'Message',
+]
+
 
 message_attributes = (
     'sender',
@@ -196,7 +199,7 @@ class Message(object):
                 # "über".encode('latin-1').decode('utf-8',errors="replace")
                 strm = self.__msg.as_string()
                 # � accumulate, and since proper decoding is not possible any more:
-                strmsg = re.sub('�+','�',strm).encode()
+                strmsg = re.sub(u'�+',u'�',strm).encode()
             if mangle_from:
                 # do mboxrd-style "From " line quoting (add one '>')
                 RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)

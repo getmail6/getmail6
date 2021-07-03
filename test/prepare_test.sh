@@ -6,80 +6,99 @@ DOCKER_CONFIG="/tmp/docker-mailserver"
 HOST_CONFIG="/tmp/mailserver/config"
 
 : '
-# force renew of /tmp/mailserver:
+# run all tests
+#----------------------------------------------------------
+
+cd getmail6
+make test
+make test2
+make test3
+
+# force renew of /tmp/mailserver when running `make test`:
 rm /tmp/mailserver/python?
 
+# manual commands as root on docker
+#----------------------------------------------------------
+
+# check mailserver
 /tmp/mailserver
 docker-compose ps
 docker-compose up -d
 docker exec -u 0 -it mail.domain.tld bash
-docker exec -u getmail -it mail.domain.tld bash
 
-# test ports
-docker exec -t mail.domain.tld bash -c " \
-    nmap -p25 localhost && \
-    nmap -p143 localhost && \
-    nmap -p587 localhost && \
-    nmap -p993 localhost "
 
-# update
+# install in mailserver
 apt-get update
-apt-get -y install git make procmail iputils-ping nmap python-pip python3-pip
+apt-get -y install git make procmail iputils-ping nmap python-pip python3-pip vim
+
+#install getmail6 copied via prepare_test.sh copy_tests
 cd /tmp/docker-mailserver/getmail6
-pip3 install .
+cat setup.py | sed "s/^\s*download_url.*//p" | python2 - install
+cat setup.py | sed "s/^\s*download_url.*//p" | python3 - install
+
+# self_sign
+/tmp/docker-mailserver/self_sign.sh
 
 # TESTEMAIL from self_sign.sh
 source /tmp/docker-mailserver/self_sign.sh
-export TESTEMAIL
 
 # add email
-addmailuser $TESTEMAIL test
+which addmailuser
+ls /usr/local/bin/*mail*
+echo $TESTEMAIL $PSS
+addmailuser $TESTEMAIL $PSS
 listmailuser
 
-# send email
-testmail(){
-  cat > /tmp/smtponly.txt << EOF
-HELO mail.localhost
-MAIL FROM: ${TESTEMAIL}
-RCPT TO: ${TESTEMAIL}
-DATA
-Subject: test
-This is the test text.
-.
-QUIT
-EOF
-nc 0.0.0.0 25 < /tmp/smtponly.txt
-}
-testmail
+# delete
+delmailuser $TESTEMAIL
+exit
 
-# getmail test
-PORTNR=993
-KIND=IMAP
-TMPMAIL=/tmp/Mail
-MAILDIRPATH=$TMPMAIL/$TESTEMAIL/INBOX
-mkdir -p $MAILDIRPATH/{cur,tmp,new}
-cat > $TMPMAIL/getmail <<EOF
-[retriever]
-type = Simple${KIND}SSLRetriever
-server = localhost
-username = $TESTEMAIL
-port = $PORTNR
-password = "test"
-[destination]
-type = Maildir
-path = $MAILDIRPATH/
-[options]
-read_all = true
-delete = true
-EOF
-getmail --rcfile=getmail --getmaildir=$TMPMAIL
+# run commands as user on docker
+#----------------------------------------------------------
+
+# prepare_test.sh used in test_getmail_with_docker_mailserver.bats
+
+cd /home/roland/mine/getmail6/test
+source prepare_test.sh
+echo $GETMAIL6REPO
+
+cd /tmp/mailserver
+  d_simple_dest_maildir POP3
+  d_retrieve
+  d_grep_mail test
+  d_grep_mail utf-8
+  d_config_test "BrokenUIDLPOP3Retriever 110 800 False False"
+  d_docker "cat /home/getmail/getmail"
+  d_docker "rm /home/getmail/getmail"
+
+docker-compose down
+copy_tests
+docker_up
+
+cd /tmp/mailserver
+docker exec -u getmail -it mail.domain.tld bash
+  cat /home/getmail/getmail
+  ls /home/getmail
+cd /tmp/docker-mailserver/getmail6/test/
+source prepare_test.sh
+echo ${PORTNR[IMAPSSL]}
+
+simple_dest_maildir IMAPSSL
+grep_mail test && echo "success expected"
+grep_mail utf_8 || echo "fail expected"
+imap_search ALL false
+imap_search UNSEEN true
+imap_search ALL true
+config_test BrokenUIDLPOP3Retriever 110 800 False False
+
 
 exit
 '
 
+#getmail6/test
 CWD="$(pwd)"
-echo $CWD
-TESTREPO=${CWD%/*}
+# echo $CWD
+GETMAIL6REPO=${CWD%/*}
 
 source self_sign.sh
 export PSS TESTEMAIL NAME
@@ -88,7 +107,7 @@ MAILSERVERSOURCE="${HOME}/msrc/docker-mailserver"
 if [[ ! -d "$MAILSERVERSOURCE" ]]; then
     MAILSERVERSOURCE='https://github.com/docker-mailserver/docker-mailserver'
 fi
-echo $MAILSERVERSOURCE
+# echo $MAILSERVERSOURCE
 
 PYVER=3
 
@@ -120,13 +139,12 @@ EOF
 }
 
 function copy_tests() {
-    yes | cp -f $TESTREPO/test/*.bats /tmp/mailserver/test/
-    yes | cp -f $TESTREPO/test/self_sign.sh /tmp/mailserver/config/
+    yes | cp -f $GETMAIL6REPO/test/*.bats /tmp/mailserver/test/
+    yes | cp -f $GETMAIL6REPO/test/self_sign.sh /tmp/mailserver/config/
 
     cd  /tmp/mailserver/config
     sudo rm -rf getmail6
-    #git clone $TESTREPO
-    cp -R $TESTREPO getmail6
+    cp -R $GETMAIL6REPO getmail6
 }
 
 function docker_up() {
@@ -152,12 +170,379 @@ function docker_up() {
         apt-get update &>/dev/null && \
         apt-get -y install git make procmail iputils-ping nmap python-pip python3-pip &>/dev/null"
         docker exec -u 0 -t ${NAME} bash -c "freshclam &> /dev/null"
+        docker exec -u 0 -t ${NAME} bash -c "useradd -m -s /bin/bash getmail"
         #pip2 is 2.7.16
         #pip3 is 3.7.3
-        docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
-        docker exec -u 0 -t ${NAME} bash -c "useradd -m -s /bin/bash getmail"
+        docker exec -u 0 -t ${NAME} bash -c "yes | pip$PYVER uninstall getmail6"
+        #docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
+        docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && pip$PYVER install -e ."
     fi
 }
+
+##### for test_getmail_with_docker_mailserver.bats #####
+
+export TMPMAIL=/home/getmail/Mail
+export MAILDIR=$TMPMAIL/$TESTEMAIL
+export MAILDIRIN=$MAILDIR/INBOX
+declare -A PORTNR
+PORTNR["POP3"]=110
+PORTNR["IMAP"]=143
+PORTNR["IMAPSSL"]=993
+PORTNR["POP3SSL"]=995
+PORTNR["SMTP"]=25
+PORTNR["SMTPSSL"]=587
+export PORTNR
+
+d_docker(){
+cd /tmp/mailserver
+docker exec -u getmail $NAME bash -c "cd /tmp/docker-mailserver/getmail6/test
+source prepare_test.sh
+$@
+"
+}
+
+ports_test(){
+nmap -p25 localhost
+nmap -p143 localhost
+nmap -p587 localhost
+nmap -p993 localhost
+}
+d_ports_test(){
+d_docker ports_test
+}
+
+testmail(){
+  nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: ${TESTEMAIL}
+RCPT TO: ${TESTEMAIL}
+DATA
+Subject: test
+This is the test text:
+я αβ один süße créme in Tromsœ.
+.
+QUIT
+EOF
+sleep 1
+}
+d_testmail(){
+d_docker testmail
+}
+
+retrieve(){
+getmail --rcfile=getmail --getmaildir=/home/getmail
+}
+d_retrieve(){
+  d_docker retrieve
+}
+
+mail_clean(){
+  rm -rf $MAILDIR
+  mkdir -p $MAILDIRIN/{cur,tmp,new}
+}
+
+simple_dest_maildir() {
+  RETRIEVER=$1
+  PORT=${PORTNR[$1]}
+  testmail
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = Simple${RETRIEVER}Retriever
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+record_mailbox = True
+[destination]
+type = Maildir
+path = $MAILDIRIN/
+[options]
+read_all = true
+delete = true
+EOF
+}
+d_simple_dest_maildir() {
+d_docker "simple_dest_maildir $@"
+}
+
+grep_mail(){
+grep "$1" $MAILDIRIN/new/*
+}
+d_grep_mail(){
+d_docker "grep_mail $@"
+}
+
+
+simple_dest_procmail_filter() {
+  RETRIEVER=$1
+  PORT=${PORTNR[$RETRIEVER]}
+  testmail
+  mail_clean
+  mkdir -p $MAILDIR/tests/{cur,tmp,new}
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = Simple${RETRIEVER}Retriever
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+[destination]
+type = MDA_external
+path = /usr/bin/procmail
+arguments = ('-f', '%(sender)', '-m', '/home/getmail/procmail')
+#pacman -S spamassassin
+[filter-1]
+type = Filter_external
+path = /usr/bin/spamassassin
+ignore_header_shrinkage = True
+#pacman -S clamav
+[filter-2]
+type = Filter_classifier
+path = /usr/bin/clamscan
+arguments = ('--stdout', '--no-summary', '--scan-mail', '--infected', '-')
+exitcodes_drop = (1,)
+[options]
+read_all = true
+delete = true
+EOF
+  cat > /home/getmail/procmail <<EOF
+MAILDIR=$MAILDIR
+DEFAULT=\$MAILDIR/INBOX
+:0
+* ^Subject:.*test.*
+tests/
+:0
+\$DEFAULT/
+EOF
+}
+d_simple_dest_procmail_filter(){
+d_docker "simple_dest_procmail_filter $@"
+}
+
+config_test() {
+  RETRIEVER=$1
+  PORT=$2
+  MAX=$3
+  READALL=$4
+  DEL=$5
+  testmail
+  mail_clean
+  touch $MAILDIR/inbox
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = $RETRIEVER
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password_command = ('/home/getmail/pass',)
+[destination]
+type = Mboxrd
+path = $MAILDIR/inbox
+[options]
+read_all = $READALL
+delete = $DEL
+max_message_size = $MAX
+delete_after = 1
+delete_bigger_than = 800
+max_messages_per_session = 9
+max_bytes_per_session = 3000
+verbose = 3
+delivered_to = false
+received = false
+message_log_verbose = true
+message_log_syslog = true
+fingerprint = true
+logfile = /home/getmail/getmail.log
+message_log = ~/getmail_message.log
+EOF
+  cat > /home/getmail/pass <<EOF
+#!/bin/bash
+echo $PSS
+EOF
+  chmod +x /home/getmail/pass
+}
+d_config_test(){
+d_docker "config_test $@"
+}
+
+multidropmail(){
+  nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: ${TESTEMAIL}
+RCPT TO: ${TESTEMAIL}
+DATA
+Subject: test
+X-Envelope-To: ${TESTEMAIL}
+Content-Type: multipart/mixed; boundary=\"----=_NextPart_000_0012_A796884C.DCABE8FF\"
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0012_A796884C.DCABE8FF
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html
+
+<=21DOCTYPE HTML>
+
+<html><head><title></title>
+<meta http-equiv=3D=22X-UA-Compatible=22 content=3D=22IE=3Dedge=22>
+</head>
+<body style=3D=22margin: 0.4em;=22><p>Dear Sir/Madam,</p>
+</body></html>
+------=_NextPart_000_0012_A796884C.DCABE8FF--
+
+Content-Type: multipart/mixed; boundary=\"----=_NextPart_000_0012_A796884C.DCABE8FF\"
+This is the test text.
+------=_NextPart_000_0012_A796884C.DCABE8FF--
+.
+QUIT
+EOF
+sleep 1
+}
+d_multidropmail(){
+d_docker multidropmail
+}
+
+multidrop_test() {
+  RETRIEVER=$1
+  PORT=$2
+  multidropmail
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = $RETRIEVER
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+envelope_recipient = X-Envelope-To
+[destination]
+type = Maildir
+path = $MAILDIRIN/
+[options]
+read_all = True
+delete = True
+EOF
+}
+d_multidrop_test() {
+d_docker "multidrop_test $@"
+}
+
+multisorter_test() {
+  RETRIEVER=$1
+  PORT=$2
+  multidropmail
+  mail_clean
+  touch $MAILDIR/inbox
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = $RETRIEVER
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+envelope_recipient = X-Envelope-To
+[destination]
+type = MultiSorter
+default = [localuser1]
+locals = (
+     ('address@', '[localuser1]'),
+     ('address@', '[localuser2]'),
+     )
+[localuser1]
+type = Maildir
+path = $MAILDIRIN/
+user = getmail
+[localuser2]
+type = Mboxrd
+path = $MAILDIR/inbox
+[options]
+read_all = True
+delete = True
+EOF
+}
+d_multisorter_test() {
+d_docker "multisorter_test $@"
+}
+
+lmtp_test() {
+  RETRIEVER=$1
+  PORT=$2
+if head `which getmail` | grep 'python3' ; then
+  testmail
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+[destination]
+#type = Maildir
+#path = $MAILDIRIN/
+type = MDA_lmtp
+host = 127.0.0.1
+port = 23218
+[options]
+read_all = True
+delete = True
+EOF
+  cat > /home/getmail/lmtpd.py <<EOF
+from smtpd import SMTPChannel, SMTPServer
+import asyncore
+class LMTPChannel(SMTPChannel):
+  def smtp_LHLO(self, arg):
+    self.smtp_HELO(arg)
+class LMTPServer(SMTPServer):
+  def __init__(self, localaddr, remoteaddr):
+    SMTPServer.__init__(self, localaddr, remoteaddr)
+  def process_message(self, peer, mailfrom, rcpttos, data):
+    return
+  def handle_accept(self):
+    conn, addr = self.accept()
+    channel = LMTPChannel(self, conn, addr)
+server = LMTPServer(('localhost', 23218), None)
+asyncore.loop()
+EOF
+  python3 /home/getmail/lmtpd.py &
+fi
+}
+d_lmtp_test() {
+d_docker "lmtp_test $@"
+}
+
+imap_search() {
+  DELETE=$2
+  RETRIEVER=IMAPSSL
+  PORT=${PORTNR[$RETRIEVER]}
+  IMAPSEARCH=$1
+  IMAPDELETE="(\Seen)"
+  [ "$IMAPSEARCH" == "ALL" ] && testmail
+  [ "$IMAPSEARCH" == "ALL" ] && IMAPDELETE=""
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = Simple${RETRIEVER}Retriever
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+record_mailbox = True
+imap_search = $IMAPSEARCH
+imap_on_delete = $IMAPDELETE
+[destination]
+type = Maildir
+path = $MAILDIRIN/
+[options]
+read_all = true
+delete = $DELETE
+EOF
+}
+d_imap_search() {
+d_docker "imap_search $@"
+}
+
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     if [[ $# != 1 ]]; then

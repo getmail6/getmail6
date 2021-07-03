@@ -1,27 +1,10 @@
+# -*- coding: utf-8 -*-
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
 '''Base classes used elsewhere in the package.
 
 '''
-
-__all__ = [
-    'run_command',
-    'ConfigurableBase',
-    'ForkingBase',
-    'ConfInstance',
-    'ConfString',
-    'ConfBool',
-    'ConfInt',
-    'ConfTupleOfStrings',
-    'ConfTupleOfUnicode',
-    'ConfTupleOfTupleOfStrings',
-    'ConfPassword',
-    'ConfDirectory',
-    'ConfFile',
-    'ConfMaildirPath',
-    'ConfMboxPath',
-]
 
 import sys
 import os
@@ -40,6 +23,24 @@ import subprocess
 from getmailcore.exceptions import *
 import getmailcore.logging
 from getmailcore.utilities import *
+
+__all__ = [
+    'run_command',
+    'ConfigurableBase',
+    'ForkingBase',
+    'ConfInstance',
+    'ConfString',
+    'ConfBool',
+    'ConfInt',
+    'ConfTupleOfStrings',
+    'ConfTupleOfUnicode',
+    'ConfTupleOfTupleOfStrings',
+    'ConfPassword',
+    'ConfDirectory',
+    'ConfFile',
+    'ConfMaildirPath',
+    'ConfMboxPath',
+]
 
 if sys.version_info.major > 2:
     TemporaryFile23 = lambda: tempfile.TemporaryFile('bw+')
