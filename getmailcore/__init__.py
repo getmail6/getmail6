@@ -12,7 +12,7 @@ filtering, and other features.
 
 import sys
 
-__version__ = '6.17'
+__version__ = '6.18'
 __license__ = 'GNU GPL version 2'
 
 __py_required__ = '2.7.16'

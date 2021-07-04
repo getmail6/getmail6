@@ -1,3 +1,7 @@
+Version 6.18
+TODO
+    - #89: fetchmail feature: skip fetching read mail (new: imap_search, imap_on_delete)
+
 Version 6.17
 15 June 2021
     - #79: UnicodeEncodeError: 'ascii' codec can't encode character in position
