@@ -501,6 +501,19 @@ def go(configs, idle):
     return (not errorexit)
 
 
+def imap_search_flags(options_override_imap):
+    flags = None
+    search = None
+    ooi = options_override_imap
+    isflag = lambda x: x[0] in {',','\\'}
+    mkflag = lambda x: '\\'+(x[1:] or 'Seen')
+    if ooi:
+        flags = [ mkflag(x) for i in ooi for x in i.split() if isflag(x)]
+            ) if x[0] in {',','\\'}]
+        search = [x for i in ooi for x in i.split() if not isflag(x)]
+        search = search or ['Unseen']
+    return flags,search
+
 #######################################
 def main():
     try:
@@ -546,6 +559,18 @@ def main():
                 dest='store_keyring', action='store_true', default=False,
                 help='store the POP/IMAP password using the Python keyring package'
             )
+        parser.add_option(
+            '-s', '--searchset',
+            dest='override_imap',
+            action='append',
+            help=r'''override imap_search and imap_on_delete to set flags.
+A starting `,` becomes IMAP flag char `\`.
+To apply `,XXX=\XXX` entries on the IMAP server use with -d (-ds).
+`,` alone is '\SEEN'. No `,XXX=\XXX` is default for delete (`\Deleted \Seen`).
+All other entries are for search.
+No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,(\Seen)
+'''
+        )
         overrides = OptionGroup(
             parser, 'Overrides',
             'The following options override those specified in any '
@@ -641,6 +666,13 @@ def main():
                 'or specify alternate directory with --getmaildir option'
                 % (getmaildir_type, getmaildir)
             )
+
+        imap_override = {}
+        flags,search = imap_search_flags(options.override_imap)
+        if flags:
+            imap_override['imap_on_delete'] = '('+' '.join(flags)+')'
+        if search:
+            imap_override['imap_search'] = '('+' '.join(search)+')'
 
         configs = []
         for filename in options.rcfile:
@@ -783,6 +815,9 @@ def main():
                     retriever = retriever_func(**retriever_args)
                     log.debug('    checking retriever configuration for %s\n'
                               % retriever)
+                    for (name, value) in imap_override.items():
+                        if name in retriever:
+                            retriever.conf[name] = value
                     retriever.checkconf()
                 except getmailOperationError as o:
                     log.error('Error initializing retriever: %s\n' % o)

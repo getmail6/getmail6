@@ -343,9 +343,8 @@ class ConfigurableBase(object):
         self.log = getmailcore.logging.Logger()
         self.log.trace()
         self.conf = {}
-        allowed_params = set([item.name for item in self._confitems])
         for (name, value) in args.items():
-            if not name in allowed_params:
+            if name not in self:
                 self.log.warning('Warning: ignoring unknown parameter "%s" '
                                  '(value: %s)\n' % (name, value))
                 continue
@@ -388,6 +387,9 @@ class ConfigurableBase(object):
             else:
                 confstring += '%s="%s"' % (name, self.conf[name])
         return confstring
+
+    def __contains__(self, confitem):
+        return confitem in {item.name for item in self._confitems}
 
 #######################################
 
