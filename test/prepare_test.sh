@@ -56,17 +56,17 @@ exit
 # run commands as user on docker
 #----------------------------------------------------------
 
-# prepare_test.sh used in test_getmail_with_docker_mailserver.bats
-
+## prepare_test.sh used in test_getmail_with_docker_mailserver.bats
 cd /home/roland/mine/getmail6/test
 source prepare_test.sh
 echo $GETMAIL6REPO
-
+yes | cp test_getmail_with_docker_mailserver.bats /tmp/mailserver/test/test_getmail_with_docker_mailserver.bats
+yes | cp prepare_test.sh /tmp/mailserver/config/getmail6/test/prepare_test.sh
 cd /tmp/mailserver
   d_simple_dest_maildir POP3
+  d_imap_search "ALL true"
   d_retrieve
-  d_grep_mail test
-  d_grep_mail utf-8
+  d_override_test
   d_config_test "BrokenUIDLPOP3Retriever 110 800 False False"
   d_docker "cat /home/getmail/getmail"
   d_docker "rm /home/getmail/getmail"
@@ -84,13 +84,12 @@ source prepare_test.sh
 echo ${PORTNR[IMAPSSL]}
 
 simple_dest_maildir IMAPSSL
-grep_mail test && echo "success expected"
+grep_mail "$TESTGREP" && echo "success expected"
 grep_mail utf_8 || echo "fail expected"
 imap_search ALL false
 imap_search UNSEEN true
 imap_search ALL true
 config_test BrokenUIDLPOP3Retriever 110 800 False False
-
 
 exit
 '
@@ -179,7 +178,7 @@ function docker_up() {
     fi
 }
 
-##### for test_getmail_with_docker_mailserver.bats #####
+#---- for test_getmail_with_docker_mailserver.bats ----#
 
 export TMPMAIL=/home/getmail/Mail
 export MAILDIR=$TMPMAIL/$TESTEMAIL
@@ -211,6 +210,7 @@ d_ports_test(){
 d_docker ports_test
 }
 
+export TESTGREP="Troms"
 testmail(){
   nc 0.0.0.0 25 << EOF
 HELO mail.localhost
@@ -261,8 +261,8 @@ path = $MAILDIRIN/
 read_all = true
 delete = true
 EOF
-  retrieve
-  grep_mail test
+retrieve
+grep_mail "$TESTGREP"
 }
 d_simple_dest_maildir() {
 d_docker "simple_dest_maildir $@"
@@ -520,8 +520,9 @@ imap_search() {
   PORT=${PORTNR[$RETRIEVER]}
   IMAPSEARCH=$1
   IMAPDELETE="(\Seen)"
-  [ "$IMAPSEARCH" == "ALL" ] && testmail
-  [ "$IMAPSEARCH" == "ALL" ] && IMAPDELETE=""
+  [[ "$1" == "ALL" ]] && testmail
+  [[ "$1" == "ALL" ]] && IMAPDELETE=""
+  [[ "$1" == "ALL" ]] && IMAPSEARCH=""
   mail_clean
   cat > /home/getmail/getmail <<EOF
 [retriever]
@@ -545,6 +546,36 @@ d_imap_search() {
 d_docker "imap_search $@"
 }
 
+override_test(){
+getmail --rcfile=getmail --getmaildir=/home/getmail -s,
+grep_mail "$TESTGREP"
+mail_clean
+#(Unseen \Seen) so this time 0
+getmail --rcfile=getmail --getmaildir=/home/getmail -s,
+[[ "$(grep "$TESTGREP" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
+mail_clean
+getmail --rcfile=getmail --getmaildir=/home/getmail --searchset UNSEEN --searchset ,SEEN
+[[ "$(grep "$TESTGREP" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
+mail_clean
+getmail --rcfile=getmail --getmaildir=/home/getmail -s "FROM \"domain\" ,SEEN"
+grep_mail "$TESTGREP"
+mail_clean
+getmail --rcfile=getmail --getmaildir=/home/getmail -s "TEXT \"Troms\" ,SEEN"
+grep_mail "$TESTGREP"
+mail_clean
+getmail --rcfile=getmail --getmaildir=/home/getmail -s "TEXT \"NotThere\""
+[[ "$(grep "$TESTGREP" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
+getmail --rcfile=getmail --getmaildir=/home/getmail -s "ALL ,SEEN"
+grep_mail "$TESTGREP"
+mail_clean
+getmail --rcfile=getmail --getmaildir=/home/getmail -s "ALL"
+grep_mail "$TESTGREP"
+}
+
+d_override_test() {
+d_docker "imap_search ALL true"
+d_docker override_test
+}
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     if [[ $# != 1 ]]; then

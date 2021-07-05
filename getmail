@@ -506,12 +506,12 @@ def imap_search_flags(options_override_imap):
     search = None
     ooi = options_override_imap
     isflag = lambda x: x[0] in {',','\\'}
-    mkflag = lambda x: '\\'+(x[1:] or 'Seen')
+    mkflag = lambda x: '\\'+(x[1:] or 'SEEN')
     if ooi:
         flags = [ mkflag(x) for i in ooi for x in i.split() if isflag(x)]
-            ) if x[0] in {',','\\'}]
         search = [x for i in ooi for x in i.split() if not isflag(x)]
-        search = search or ['Unseen']
+        search = search or ['UNSEEN']
+        search = [x for x in search if x.strip()!='ALL']
     return flags,search
 
 #######################################

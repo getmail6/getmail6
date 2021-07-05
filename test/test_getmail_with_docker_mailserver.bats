@@ -63,8 +63,8 @@ function teardown_file() {
 bats_check_mail(){
   run d_retrieve
   assert_success # expect mail retrieval without error
-  run d_grep_mail test
-  assert_success # expect a mail which contains "test"
+  run d_grep_mail "$TESTGREP"
+  assert_success # expect a mail which contains "$TESTGREP"
   run d_grep_mail utf-8
   assert_failure # expect no utf-8 encoding of INBOX
 }
@@ -156,7 +156,7 @@ bats_multidrop_test "MultidropIMAPSSLRetriever 993"
 
 bats_multisorter_test() {
   run d_multisorter_test "$@"
-  bats_check_mail
+  assert_success
 }
 
 @test "MultidropPOP3Retriever, Multisorter" {
@@ -198,12 +198,16 @@ bats_imap_search() {
   run d_imap_search "UNSEEN true"
   run d_retrieve
   assert_success # expect mail retrieval without error
-  run d_grep_mail test
+  run d_grep_mail "$TESTGREP"
   assert_failure # expect no mail mail which contains "test"
 }
 @test "SimpleIMAPSSLRetriever, ALL, delete" {
   bats_imap_search "ALL true"
 }
 
-
-
+bats_override() {
+  run d_override_test
+}
+@test "IMAP override via command line -s" {
+  bats_override
+}
