@@ -671,18 +671,17 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                 % (getmaildir_type, getmaildir)
             )
 
-        _getmaildir = os.path.expanduser(getmaildir)
-
         if not options.rcfile:
             if not os.path.exists(
-                os.path.join(_getmaildir,defaults['rcfile'])):
-                options.rcfile = os.listdir(_getmaildir)
+                os.path.join(getmaildir,defaults['rcfile'])):
+                options.rcfile = [x for x in os.listdir(getmaildir)
+                                  if not x.startswith('oldmail-')]
             else:
                 options.rcfile.append(defaults['rcfile'])
 
         configs = []
         for filename in options.rcfile:
-            path = os.path.join(_getmaildir,filename)
+            path = os.path.join(getmaildir,filename)
             log.debug('processing rcfile %s\n' % path)
             if not os.path.exists(path):
                 raise getmailOperationError('configuration file %s does '
