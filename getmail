@@ -918,9 +918,10 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                     _filters.append(mail_filter)
 
             except ConfigParser.NoSectionError as o:
-                raise getmailConfigurationError(
+                log.warning(
                     'configuration file %s missing section (%s)' % (path, o)
                 )
+                continue
             except ConfigParser.NoOptionError as o:
                 raise getmailConfigurationError(
                     'configuration file %s missing option (%s)' % (path, o)
