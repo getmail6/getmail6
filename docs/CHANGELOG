@@ -1,5 +1,5 @@
 Version 6.18
-TODO
+06 July 2021
     - #89: fetchmail feature: skip fetching read mail.
       New `imap_search` and `imap_on_delete` to fetch only `Unseen` messages and set them to `\Seen`.
     - add `-s/--searchset` to override imap search and setting of flags for all rcfile's in the command
