@@ -417,16 +417,17 @@ Creating a getmail rc file
        http://honk.sigxcpu.org/projects/pykerberos/" for details.
      * use_xoauth2 (boolean) — whether to use XOAUTH2 for login with the IMAP
        server. If not set, normal password-based authenticaion is used. This
-       is currently only supported with Gmail; if anyone extends this to
-       support other IMAP providers, please let me know so I can include such
-       support in getmail. Note that using XOAUTH2 is no more secure than a
-       regular getmail configuration with a mode 0600 getmailrc file. You
-       will need to set password_command as well to tell getmail to invoke
-       the getmail-gmail-xoauth-tokens helper program; that script requires a
-       positional argument to tell it where to read the initial tokens from
-       and where it writes the access and refresh tokens to, and the file
-       requires manual initial setup. This functionality was contributed by
-       Stefan Krah, who has additional information about using it here.
+       currently supports Gmail and Microsoft Office 365; if anyone extends
+       this to support other IMAP providers, please let me know so I can
+       include such support in getmail. Note that using XOAUTH2 is no more
+       secure than a regular getmail configuration with a mode 0600 getmailrc
+       file. You will need to set password_command as well to tell getmail to
+       invoke the getmail-gmail-xoauth-tokens helper program; that script
+       requires a positional argument to tell it where to read the initial
+       tokens from and where it writes the access and refresh tokens to, and
+       the file requires manual initial setup. This functionality was
+       contributed by Stefan Krah, who has additional information about using
+       it here.
      * imap_search, imap_on_delete (string) — imap_search is the second
        parameter of Python's IMAP search. Set
 

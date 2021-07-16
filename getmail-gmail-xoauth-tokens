@@ -20,6 +20,7 @@
 # Derived from oauth2.py (https://github.com/google/gmail-oauth2-tools).
 # Heavily modified and rewritten by Stefan Krah.
 #
+# Works for Microsoft Office 365 in addition to Gmail.
 
 
 import os
