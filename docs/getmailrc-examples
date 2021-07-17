@@ -263,7 +263,7 @@ path = /path/to/my-mda
 arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
 
 #
-# Example 12:  xoauth2 example
+# Example 12: Gmail xoauth2 example
 # To initialize do:
 #
 # Step1: Create a new OAuth 2.0 Client-ID
@@ -306,3 +306,77 @@ use_xoauth2 = True
 server = imap.gmail.com
 username = your-gmail-user@gmail.com
 password_command = ("getmail-gmail-xoauth-tokens", "/path-to-your-users-getmail-directory/gmail.json")
+
+#
+# Example 13: Microsoft Office 365 xoauth2 example
+# To initialize do:
+#
+# Step1: Create App Registration in Azure
+#
+# In a browser, open https://portal.azure.com
+# Select "Manage Azure Active Directory" (use the search if needed)
+# Select "App Registrations"
+# Select "New Registration"
+# Enter a project name, eg "getmail".
+# Select "Accounts in this organizational directory only (Single tenant)" from "Supported account types"
+# Enter "http://localhost" for "Redirect URI"
+# Select "Register"
+#
+# Now, from the new App's details page, make a note of:
+# * client_id
+# * tenant_id
+# (These are in the "Essentials" section.)
+#
+# Next create a secret by selecting "Certificates and secrets"
+# Select "New client secret"
+# * Description: password
+# * Expires: select preferred expiry date
+# Make a note of:
+# * client_secret
+# It is available by selecting "Value".
+#
+# Next add permissions:
+#
+# Select "API permissions", then "Add a permission".
+# Select "Microsoft Graph"
+# Select "Delegated permissions"
+# Select the following permissions:
+# * IMAP.AccessAsUser.All
+# * POP.AccessAsUser.All
+# * SMTP.Send
+# Select "Add permissions"
+
+# Step 2: Add the new credentials to the microsoft.json template
+#
+# {"scope": "https://outlook.office365.com/IMAP.AccessAsUser.All https://outlook.office365.com/POP.AccessAsUser.All https://outlook.office365.com/SMTP.Send offline_access",
+#  "user": "firstname.lastname@example.com",
+#  "client_id": "<client_id>",
+#  "client_secret": "<secret>",
+#  "token_uri": "https://login.microsoftonline.com/<tenant_id>/oauth2/v2.0/token",
+#  "auth_uri": "https://login.microsoftonline.com/<tenant_id>/oauth2/v2.0/authorize",
+#  "redirect_uri": "http://localhost"}
+#
+# Step 3: excecute:
+#
+#    getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/microsoft.json
+#
+# This will give you a URL you need to open in a browser.
+# This will show you your verification code.
+# Note: The code will be present in the address bar of your web browser. You will
+# need to find, copy and paste the long "code" parameter's value from your brower's URL bar.
+# (You only need to do this once.)
+#
+# getmail-gmail-xoauth-tokens is waiting for you to enter the verification code.
+# Once you enter the code
+#
+# getmail-gmail-xoauth-tokens will update the microsoft.json file. The json file
+# will now contain the required token.
+#
+# Step 4: Update the `[retriever] `section of the rc file.
+
+[retriever]
+type = SimpleIMAPSSLRetriever
+use_xoauth2 = True
+server = outlook.office365.com
+username = firstname.lastname@example.com
+password_command = ("getmail-gmail-xoauth-tokens", "/path-to-your-users-getmail-directory/microsoft.json")
