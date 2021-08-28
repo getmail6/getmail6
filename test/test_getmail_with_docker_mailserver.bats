@@ -211,3 +211,19 @@ bats_override() {
 @test "IMAP override via command line -s" {
   bats_override
 }
+
+
+bats_local_mbox(){
+  run d_local_mbox
+}
+@test "getmail_mbox test" {
+  bats_local_mbox
+}
+
+bats_local_maildir(){
+  run d_local_maildir
+}
+@test "getmail_maildir test" {
+  bats_local_maildir
+}
+

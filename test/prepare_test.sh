@@ -330,7 +330,7 @@ config_test() {
   DEL=$5
   testmail
   mail_clean
-  touch $MAILDIR/inbox
+  touch $MAILDIR/mbx
   cat > /home/getmail/getmail <<EOF
 [retriever]
 type = $RETRIEVER
@@ -340,7 +340,7 @@ port = $PORT
 password_command = ('/home/getmail/pass',)
 [destination]
 type = Mboxrd
-path = $MAILDIR/inbox
+path = $MAILDIR/mbx
 [options]
 read_all = $READALL
 delete = $DEL
@@ -435,7 +435,7 @@ multisorter_test() {
   PORT=$2
   multidropmail
   mail_clean
-  touch $MAILDIR/inbox
+  touch $MAILDIR/mbx
   cat > /home/getmail/getmail <<EOF
 [retriever]
 type = $RETRIEVER
@@ -457,7 +457,7 @@ path = $MAILDIRIN/
 user = getmail
 [localuser2]
 type = Mboxrd
-path = $MAILDIR/inbox
+path = $MAILDIR/mbx
 [options]
 read_all = True
 delete = True
@@ -575,6 +575,20 @@ grep_mail "$TESTGREP"
 d_override_test() {
 d_docker "imap_search ALL true"
 d_docker override_test
+}
+
+
+d_local_mbox(){
+d_docker "mail_clean && \
+  touch $MAILDIR/mbx && \
+  echo 'βσSß' | getmail_mbox $MAILDIR/mbx && \
+  grep 'βσSß' $MAILDIR/mbx"
+}
+
+d_local_maildir(){
+d_docker "simple_dest_maildir POP3 \
+  echo 'βσSß' | getmail_maildir $MAILDIRIN/ && \
+  grep_mail 'βσSß'"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
