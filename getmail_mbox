@@ -61,7 +61,10 @@ def main():
     if os.path.exists(path) and not os.path.isfile(path):
         raise SystemExit('Error: %s is not an mbox' % path)
 
-    msg = Message(fromfile=sys.stdin)
+    try:
+        msg = Message(fromfile=sys.stdin.buffer)
+    except AttributeError: #py2
+        msg = Message(fromfile=sys.stdin)
     if 'SENDER' in os.environ:
         msg.sender = os.environ['SENDER']
     if 'RECIPIENT' in os.environ:

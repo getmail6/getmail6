@@ -1,6 +1,7 @@
 Version 6.18.4
 TODO
     - #91: UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 11: ordinal not in range(128)
+    - #92: getmail_maildir: bugfix for python3 using bytes buffer instead of str
 
 Version 6.18.3
 06 July 2021
