@@ -59,7 +59,7 @@ def main():
     if not is_maildir(path):
         raise SystemExit('Error: %s is not a maildir' % path)
 
-    msg = Message(fromfile=sys.stdin)
+    msg = Message(fromfile=sys.stdin.buffer)
     if 'SENDER' in os.environ:
         msg.sender = os.environ['SENDER']
     if 'RECIPIENT' in os.environ:
