@@ -13,6 +13,7 @@ try:
     import ConfigParser
 except:
     import configparser as ConfigParser
+import netrc
 import poplib
 import imaplib
 import pprint
@@ -46,6 +47,7 @@ options_bool = (
     'message_log_verbose',
     'message_log_syslog',
     'fingerprint',
+    'use_netrc',
     'skip_imap_fetch_size',
 )
 options_int = (
@@ -103,6 +105,8 @@ defaults = {
     'message_log_syslog' : False,
     'logfile' : None,
     'fingerprint' : False,
+    'use_netrc' : False,
+    'netrc_file' : None,
     'skip_imap_fetch_size' : False,
 }
 
@@ -707,6 +711,8 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                 'message_log_verbose' : defaults['message_log_verbose'],
                 'message_log_syslog' : defaults['message_log_syslog'],
                 'fingerprint' : defaults['fingerprint'],
+                'use_netrc' : defaults['use_netrc'],
+                'netrc_file' : defaults['netrc_file'],
                 'skip_imap_fetch_size' : defaults['skip_imap_fetch_size'],
             }
             # Python's ConfigParser .getboolean() couldn't handle booleans in
@@ -786,6 +792,14 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                             % (config['message_log'], o)
                         )
 
+                # see if a netrc file is configured
+                netrc_object = None
+                if config['use_netrc']:
+                    # informs user via FileNotFoundError, if file is not there
+                    netrc_object = netrc.netrc(
+                        config['netrc_file']
+                        and expand_user_vars(config['netrc_file']))
+
                 # Clear out the ConfigParser defaults before processing further
                 # sections
                 configparser._defaults = {}
@@ -813,6 +827,14 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                     else:
                         log.debug('    parameter %s="%s"\n' % (name, value))
                     retriever_args[name] = value
+                if netrc_object:
+                    # add username and password from netrc, as read above
+                    netrc_auth = netrc_object.authenticators(
+                        retriever_args['server'])
+                    if netrc_auth and netrc_auth[0]:
+                        retriever_args['username'] = netrc_auth[0]
+                    if netrc_auth and netrc_auth[2]:
+                        retriever_args['password'] = netrc_auth[2]
                 log.debug('    instantiating retriever %s with args %s\n'
                           % (retriever_type, format_params(retriever_args)))
                 try:

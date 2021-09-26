@@ -537,7 +537,9 @@ type = <span class="meta">typename</span>
     <li>
         username
         (<a href="#parameter-string">string</a>)
-        &mdash; username to provide when logging in to the mail server
+        &mdash; username to provide when logging in to the mail server.
+        If you enable <a href="#use_netrc">use_netrc</a>, the netrc file
+        can supply a username for each retriever.
     </li>
 </ul>
 <p>
@@ -560,6 +562,7 @@ type = <span class="meta">typename</span>
             <li>from the <span class="file">password</span> configuration item in the getmailrc file</li>
             <li>by running an arbitrary command specified with the password_command parameter (see below)</li>
             <li>from Python keyring if available</li>
+            <li>if <a href="#use_netrc">use_netrc</a> option is True, fom a .netrc file
             <li>if not found via any of the above methods, getmail will prompt for the password when run</li>
         </ol>
         To store your POP/IMAP account password into the Python keyring, ensure
@@ -2471,6 +2474,30 @@ localpart_translate = ('mailhostaccount-', '')
         (<a href="#parameter-boolean">boolean</a>)
         &mdash; if set, getmail retrieves all available messages.  If unset,
         getmail only retrieves messages it has not seen before.  Default: True.
+    </li>
+    <li>
+        <a name="use_netrc">use_netrc</a>
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set, getmail will read a <span class="file">.netrc</span>
+        or <span class="file">.authinfo</span> file to set the
+        <span class="file">username</span> and/or
+        <span class="file">password</span> parameter for matching
+        retrievers.
+        A retriever matches if its <span class="file">server</span> parameter
+        matches a <span class="file">machine</span> entry in the netrc file.
+        The location of the .netrc file to read can be set with
+        the <a href="#netrc_file">netrc_file</a> option.  Default: False.
+    </li>
+    <li>
+        <a name="netrc_file">netrc_file</a>
+        (<a href="#parameter-boolean">string</a>)
+        &mdash; sets the file that <a href="#use_netrc">use_netrc</a> reads.
+        Has no effect unless <a href="#use_netrc">use_netrc</a> is True.
+        Default: unset, which means <a href="#use_netrc">use_netrc</a> will
+        read the default netrc file for your system,
+        typically <span class="file">~/.netrc</span>, unless 
+        <span class="file">NETRC</span> or <span class="file">CURLOPT_NETRC_FILE</span>
+        is defined.
     </li>
     <li>
         delete
