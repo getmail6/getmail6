@@ -36,11 +36,11 @@ dist: doc
 	sudo python setup.py bdist_wheel
 
 .PHONY: up
-up:
+up: dist
 	twine upload dist/`ls dist -rt | tail -1`
 
 .PHONY: tag
-tag:
+tag: dist
 	$(eval TAGMSG="v$(shell ./getmail --version | cut -d ' ' -f 2)")
 	echo $(TAGMSG)
 	git tag -s $(TAGMSG) -m"$(TAGMSG)"

@@ -330,7 +330,8 @@ Creating a getmail rc file
      * server (string) — the name or IP address of the server to retrieve
        mail from
      * username (string) — username to provide when logging in to the mail
-       server
+       server. If you enable use_netrc, the netrc file can supply a username
+       for each retriever.
 
    All retriever types also take several optional parameters:
 
@@ -345,7 +346,8 @@ Creating a getmail rc file
          2. by running an arbitrary command specified with the
             password_command parameter (see below)
          3. from Python keyring if available
-         4. if not found via any of the above methods, getmail will prompt
+         4. if use_netrc option is True, fom a .netrc file
+         5. if not found via any of the above methods, getmail will prompt
             for the password when run
        To store your POP/IMAP account password into the Python keyring,
        ensure the password is not provided in the getmailrc file, and run
@@ -1400,6 +1402,15 @@ Creating a getmail rc file
      * read_all (boolean) — if set, getmail retrieves all available messages.
        If unset, getmail only retrieves messages it has not seen before.
        Default: True.
+     * use_netrc (boolean) — if set, getmail will read a .netrc or .authinfo
+       file to set the username and/or password parameter for matching
+       retrievers. A retriever matches if its server parameter matches a
+       machine entry in the netrc file. The location of the .netrc file to
+       read can be set with the netrc_file option. Default: False.
+     * netrc_file (string) — sets the file that use_netrc reads. Has no
+       effect unless use_netrc is True. Default: unset, which means use_netrc
+       will read the default netrc file for your system, typically ~/.netrc,
+       unless NETRC or CURLOPT_NETRC_FILE is defined.
      * delete (boolean) — if set, getmail will delete messages after
        retrieving and successfully delivering them. If unset, getmail will
        leave messages on the server after retrieving them. Default: False.
