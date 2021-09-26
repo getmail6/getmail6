@@ -34,7 +34,10 @@ check:
 dist: doc
 	echo "need sudo to create wheel"
 	sudo python setup.py bdist_wheel
+	echo "note:"
+	echo "use ./pypi.sh to upload to PYPI"
 
+# use ./pypi.sh to upload to PYPI
 .PHONY: up
 up: dist
 	twine upload dist/`ls dist -rt | tail -1`
