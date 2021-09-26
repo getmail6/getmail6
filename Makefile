@@ -23,7 +23,7 @@ test3:
 	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 
 .PHONY: test
-test: cleantest test2 test3
+test: cleantest test3 test2
 
 .PHONY: check
 check:
