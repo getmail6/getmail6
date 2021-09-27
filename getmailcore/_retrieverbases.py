@@ -1457,6 +1457,38 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                         # somehow -- try to just skip.
                         continue
                     r = self._parse_imapattrresponse(line)
+
+
+                    # RFC 3501, 6.1.2 states:
+                    # Since any command can return a status update as untagged data, the
+                    # NOOP command can be used as a periodic poll for new messages or
+                    # message status updates during a period of inactivity (this is the
+                    # preferred method to do this).
+                    #
+                    # This means also a FETCH command can contain a status update.
+                    # ProtonMail Bridge does so, a session can look like:
+                    #
+                    # a LOGIN me@domain password
+                    # ...
+                    # a SELECT INBOX
+                    # ...
+                    # a FETCH 1:50000 (UID RFC822.SIZE)
+                    # * 1 FETCH (UID 1 RFC822.SIZE 8938)
+                    # ...
+                    # * 49999 FETCH (UID 50001 RFC822.SIZE 15500)
+                    # * 50000 FETCH (UID 50002 RFC822.SIZE 9614)
+                    # * 51868 FETCH (FLAGS (NonJunk) UID 51958)
+                    # a OK FETCH completed
+                    #
+                    # While fetching, UID 51958 saw an update and gained new flags.
+                    # So we need to check whether FETCH response lines contain the
+                    # requested items.
+                    if 'uid' not in r:
+                        continue
+
+                    if (not self.app_options['skip_imap_fetch_size']) and ('rfc822.size' not in r):
+                        continue
+
                     # Don't allow / in UIDs we store, as we look for that to
                     # detect old-style oldmail files.  Can occur with IMAP, at
                     # least with some servers.
