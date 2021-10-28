@@ -135,7 +135,10 @@ def main():
 
         def get(self, key, value=None):
             return getattr(self, key, value)
-        options.get = types.MethodType(get, options, options.__class__)
+        try:
+            options.get = types.MethodType(get, options, options.__class__)
+        except TypeError: # py3
+            options.get = types.MethodType(get, options)
 
         msg = None
         if options.message is not None:
