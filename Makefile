@@ -22,8 +22,12 @@ test3:
 	cd test && ./prepare_test.sh 3
 	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 
+.PHONY: testpython
+testpython:
+	pytest test/test.py
+
 .PHONY: test
-test: cleantest test3 test2
+test: testpython cleantest test3 test2
 
 .PHONY: check
 check:

@@ -223,9 +223,15 @@ class Message(object):
         try:
             self.__msg[name] = Header(content_rstriped)
         except UnicodeDecodeError:
-            self.__msg[name] = Header(content_rstriped,
-                self.content().get_param('charset',failobj='utf-8'),
-                errors="replace")
+            for chs in self.__msg.get_charsets():
+                if chs is None:
+                    continue
+                try:
+                    self.__msg[name] = Header(content_rstriped,chs)
+                    return
+                except UnicodeError:
+                    continue
+            self.__msg[name] = Header(content_rstriped,'utf-8',errors="replace")
 
     def remove_header(self, name):
         del self.__msg[name]
