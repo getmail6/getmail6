@@ -6,12 +6,17 @@ DOCKER_CONFIG="/tmp/docker-mailserver"
 HOST_CONFIG="/tmp/mailserver/config"
 
 : '
-# run all tests
 #----------------------------------------------------------
 
+# requires pytest, docker, docker-compose < V2 (V2 does not work)
+
 cd getmail6
+
+# run all tests
 make test
+# run only python2 tests
 make test2
+# run only python3 tests
 make test3
 
 # force renew of /tmp/mailserver when running `make test`:
@@ -20,12 +25,18 @@ rm /tmp/mailserver/python?
 # manual commands as root on docker
 #----------------------------------------------------------
 
-# check mailserver
+cd test
+. ./prepare_test.sh
+export PYVER=3
+clone_mailserver
+
+# check mailserver after clone_mailserver
 /tmp/mailserver
 docker-compose ps
 docker-compose up -d
-docker exec -u 0 -it mail.domain.tld bash
 
+# interactive as root
+docker exec -u 0 -it mail.domain.tld bash
 
 # install in mailserver
 apt-get update
@@ -127,10 +138,10 @@ function clone_mailserver() {
         touch /tmp/mailserver/python$PYVER
         yes | cp -f $CWD/docker-compose.yml /tmp/mailserver/
         cat > /tmp/mailserver/.env << EOF
-HOSTNAME=mail
-DOMAINNAME=domain.tld
-CONTAINER_NAME=${NAME}
-SELINUX_LABEL=
+HOSTNAME="mail"
+DOMAINNAME="domain.tld"
+CONTAINER_NAME="${NAME}"
+SELINUX_LABEL=""
 EOF
         chmod a+x /tmp/mailserver/setup.sh
         new_clone="yes"
@@ -589,6 +600,17 @@ d_local_maildir(){
 d_docker "simple_dest_maildir POP3 \
   echo 'βσSß' | getmail_maildir $MAILDIRIN/ && \
   grep_mail 'βσSß'"
+}
+
+fetch_maildir() {
+  PORT=${PORTNR["POP3"]}
+  testmail
+  mail_clean
+  getmail_fetch -p $PORT localhost $TESTEMAIL $PSS $MAILDIRIN/
+  grep_mail "$TESTGREP"
+}
+d_fetch_maildir(){
+d_docker fetch_maildir
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

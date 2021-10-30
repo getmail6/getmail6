@@ -227,3 +227,10 @@ bats_local_maildir(){
   bats_local_maildir
 }
 
+bats_fetch_maildir(){
+  run d_fetch_maildir
+}
+@test "getmail_fetch test" {
+  bats_fetch_maildir
+}
+

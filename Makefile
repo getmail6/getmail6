@@ -28,6 +28,7 @@ testpython:
 
 .PHONY: test
 test: testpython cleantest test3 test2
+	cd /tmp/mailserver && docker-compose down
 
 .PHONY: check
 check:

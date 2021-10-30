@@ -188,8 +188,8 @@ Installing getmail
    configured to install under (typically /usr/local/ or /usr/, but other
    values are sometimes used):
 
-     * the scripts getmail, getmail_fetch, getmail_maildir, and getmail_mbox
-       will be installed under prefix/bin/
+     * the scripts getmail, getmails, getmail_fetch, getmail_maildir, and
+       getmail_mbox will be installed under prefix/bin/
      * the Python package getmailcore (which implements all the protocol–,
        filter–, and destination-specific code for getmail, plus various other
        bits) will be installed under the site-specific packages directory of
@@ -257,11 +257,11 @@ Installing getmail
 
    Note: if you use one of the above methods to install the getmailcore
    package into a directory other than the default, the four scripts
-   (getmail, getmail_fetch, getmail_maildir, and getmail_mbox) will almost
-   certainly be unable to locate the required files from the getmailcore
-   package, because they will not be in a directory in the standard Python
-   module search path. You will need to do one of the following to make those
-   files available to the scripts:
+   (getmail, getmails, getmail_fetch, getmail_maildir, and getmail_mbox) will
+   almost certainly be unable to locate the required files from the
+   getmailcore package, because they will not be in a directory in the
+   standard Python module search path. You will need to do one of the
+   following to make those files available to the scripts:
 
      * set the environment variable PYTHONPATH to tell Python where to find
        the appropriate modules. See the documentation at the Python.org
