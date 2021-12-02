@@ -60,6 +60,7 @@ options_int = (
 )
 options_str = (
     'message_log',
+    'netrc_file',
 )
 
 # Unix only
