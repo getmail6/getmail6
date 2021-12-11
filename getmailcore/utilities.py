@@ -20,6 +20,7 @@ import grp
 import getpass
 import subprocess
 import sys
+import secrets
 
 __all__ = [
     'address_no_brackets',
@@ -293,13 +294,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
         info['unique'] = 'M%(usecs)dP%(pid)s' % info
         if info['deliverycount'] is not None:
             info['unique'] += 'Q%(deliverycount)s' % info
-        try:
-            info['unique'] += 'R%s' % ''.join(
-                ['%02x' % ord(char)
-                 for char in open('/dev/urandom').read(8)]
-            )
-        except Exception:
-            pass
+        info['unique'] += 'R%s' % secrets.token_hex(8)
 
         filename = '%(secs)s.%(unique)s.%(hostname)s' % info
         fname_tmp = os.path.join(dir_tmp, filename)
