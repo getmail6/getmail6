@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   mailserver:
-    image: docker.io/mailserver/docker-mailserver:latest
+    build:
+      context: /tmp/mailserver
+    image: docker-mailserver-custom
     hostname: ${HOSTNAME}
     domainname: ${DOMAINNAME}
     container_name: ${CONTAINER_NAME}
