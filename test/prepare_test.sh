@@ -151,6 +151,7 @@ function copy_tests() {
     yes | cp -f $GETMAIL6REPO/test/self_sign.sh /tmp/mailserver/config/
 
     cd  /tmp/mailserver/config
+    echo "need sudo to rm /tmp/mailserver/config/getmail6"
     sudo rm -rf getmail6
     cp -R $GETMAIL6REPO getmail6
 }
@@ -464,7 +465,7 @@ d_multisorter_test() {
 d_docker "multisorter_test $@"
 }
 
-lmtp_test() {
+lmtp_test_py() {
   RETRIEVER=$1
   PORT=$2
 if head `which getmail` | grep 'python3' ; then
@@ -478,8 +479,6 @@ username = $TESTEMAIL
 port = $PORT
 password = $PSS
 [destination]
-#type = Maildir
-#path = $MAILDIRIN/
 type = MDA_lmtp
 host = 127.0.0.1
 port = 23218
@@ -507,8 +506,35 @@ EOF
   python3 /home/getmail/lmtpd.py &
 fi
 }
-d_lmtp_test() {
-d_docker "lmtp_test $@"
+d_lmtp_test_py() {
+d_docker "lmtp_test_py $@"
+}
+
+lmtp_test_unix_socket() {
+  RETRIEVER=$1
+  PORT=$2
+if head `which getmail` | grep 'python3' ; then
+  testmail
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+[destination]
+type = MDA_lmtp
+# use docker-mailserver/dovecot's lmtp listener
+host = /var/run/dovecot/lmtp
+[options]
+read_all = True
+delete = True
+EOF
+fi
+}
+d_lmtp_test_unix_socket() {
+d_docker "lmtp_test_unix_socket $@"
 }
 
 imap_search() {

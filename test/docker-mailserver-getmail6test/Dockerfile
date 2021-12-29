@@ -10,7 +10,9 @@ RUN apt-get update && apt-get -y install \
         python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -m -s /bin/bash getmail
+# add our user to postfix group so we can access dovecot's LMTP unix socket
+RUN useradd -m -s /bin/bash getmail \
+    && usermod -a -G postfix getmail
 
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh

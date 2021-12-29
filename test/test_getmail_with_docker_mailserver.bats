@@ -172,15 +172,22 @@ bats_multisorter_test "MultidropIMAPRetriever 143"
 bats_multisorter_test "MultidropIMAPSSLRetriever 993"
 }
 
-bats_lmtp_test() {
-  run d_lmtp_test "$@"
+bats_lmtp_test_py() {
+  run d_lmtp_test_py "$@"
+  run d_retrieve
+  assert_success
+}
+
+bats_lmtp_test_unix_socket() {
+  run d_lmtp_test_unix_socket "$@"
   run d_retrieve
   assert_success
 }
 
 
 @test "MDA_lmtp" {
-bats_lmtp_test "SimpleIMAPRetriever 143"
+bats_lmtp_test_py "SimpleIMAPRetriever 143"
+bats_lmtp_test_unix_socket "SimpleIMAPRetriever 143"
 }
 
 bats_imap_search() {
