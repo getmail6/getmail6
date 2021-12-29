@@ -132,11 +132,11 @@ function clone_mailserver() {
             echo "need sudo to rm /tmp/mailserver"
             sudo rm -rf /tmp/mailserver
         fi
-        git clone --recursive $MAILSERVERSOURCE /tmp/mailserver
+        git clone --recursive -c advice.detachedHead=false -b v9.0.1 $MAILSERVERSOURCE /tmp/mailserver
         cd /tmp/mailserver
-        git checkout tags/v9.0.1
         touch /tmp/mailserver/python$PYVER
         yes | cp -f $CWD/docker-compose.yml /tmp/mailserver/
+        cp -R $CWD/docker-mailserver-getmail6test /tmp/mailserver/
         cat > /tmp/mailserver/.env << EOF
 HOSTNAME="mail"
 DOMAINNAME="domain.tld"
@@ -144,6 +144,8 @@ CONTAINER_NAME="${NAME}"
 SELINUX_LABEL=""
 EOF
         chmod a+x /tmp/mailserver/setup.sh
+
+        docker-compose build
         new_clone="yes"
     fi
 }
@@ -167,20 +169,8 @@ function docker_up() {
         with_up="yes"
     fi
 
-    if [[ "$new_clone" == "yes" ]]; then
-        docker exec -u 0 -t ${NAME} bash -c "addmailuser ${TESTEMAIL} ${PSS}"
-        docker exec -u 0 -t ${NAME} bash -c "/tmp/docker-mailserver/self_sign.sh &> /dev/null"
-        docker-compose down
-        docker-compose up -d
-        with_up="yes"
-    fi
-
-    if [[ "$with_up" == "yes" ]]; then
-        docker exec -u 0 -t mail.domain.tld bash -c " \
-        apt-get update &>/dev/null && \
-        apt-get -y install git make procmail iputils-ping nmap python-pip python3-pip &>/dev/null"
+    if [[ "$with_up" == "yes" || "$new_clone" == "yes" ]]; then
         docker exec -u 0 -t ${NAME} bash -c "freshclam &> /dev/null"
-        docker exec -u 0 -t ${NAME} bash -c "useradd -m -s /bin/bash getmail"
         #pip2 is 2.7.16
         #pip3 is 3.7.3
         docker exec -u 0 -t ${NAME} bash -c "yes | pip$PYVER uninstall getmail6"

@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   mailserver:
-    image: docker.io/mailserver/docker-mailserver:latest
+    build:
+      context: /tmp/mailserver/docker-mailserver-getmail6test
+    image: docker-mailserver-getmail6test
     hostname: ${HOSTNAME}
     domainname: ${DOMAINNAME}
     container_name: ${CONTAINER_NAME}
@@ -24,6 +26,8 @@ services:
       - ENABLE_CLAMAV=1
       - ENABLE_SPAMASSASSIN=1
       - DOVECOT_TLS="yes"
+      - PSS=test
+      - TESTEMAIL=address@domain.tld
     cap_add:
       #- NET_ADMIN
       - SYS_PTRACE
