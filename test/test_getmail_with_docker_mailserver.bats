@@ -178,9 +178,37 @@ bats_lmtp_test_py() {
   assert_success
 }
 
+bats_check_lmtp_delivery() {
+  run d_grep_mail "$TESTGREP"
+  assert_failure # expect no mail because the mail was delivered to $TESTEMAIL's vmail mailbox
+  run d_maildir_clean_retrieve IMAP
+  assert_success # retrieves the mail we delivered using LMTP into our maildir
+  run d_grep_mail "$TESTGREP"
+  assert_success
+}
+
 bats_lmtp_test_unix_socket() {
   run d_lmtp_test_unix_socket "$@"
   run d_retrieve
+  assert_success
+  bats_check_lmtp_delivery
+}
+
+bats_lmtp_test_override() {
+  run d_lmtp_test_override "$@"
+  run d_retrieve
+  assert_success
+  bats_check_lmtp_delivery
+  run d_grep_mail "Subject: lmtp_test_override_x"
+  assert_success
+}
+
+bats_lmtp_test_override_fallback() {
+  run d_lmtp_test_override_fallback "$@"
+  run d_retrieve
+  assert_success
+  bats_check_lmtp_delivery
+  run d_grep_mail "Subject: lmtp_test_override_fallback_x"
   assert_success
 }
 
@@ -188,6 +216,8 @@ bats_lmtp_test_unix_socket() {
 @test "MDA_lmtp" {
 bats_lmtp_test_py "SimpleIMAPRetriever 143"
 bats_lmtp_test_unix_socket "SimpleIMAPRetriever 143"
+bats_lmtp_test_override "SimpleIMAPRetriever 143"
+bats_lmtp_test_override_fallback "SimpleIMAPRetriever 143"
 }
 
 bats_imap_search() {

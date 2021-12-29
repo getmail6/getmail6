@@ -5,6 +5,7 @@ if ! /usr/local/bin/listmailuser 2>/dev/null | egrep "^${TESTEMAIL}$" > /dev/nul
     echo "* creating mailuser"
     # the env vars are set by our docker-compose.yml
     /usr/local/bin/addmailuser "${TESTEMAIL}" "${PSS}"
+    /usr/local/bin/addmailuser "other-user@example.com" "${PSS}"
 fi
 
 if [[ ! -e "/tmp/docker-mailserver/ssl" ]]; then

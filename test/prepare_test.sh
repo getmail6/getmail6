@@ -239,10 +239,9 @@ mail_clean(){
   mkdir -p $MAILDIRIN/{cur,tmp,new}
 }
 
-simple_dest_maildir() {
+maildir_clean_retrieve() {
   RETRIEVER=$1
   PORT=${PORTNR[$1]}
-  testmail
   mail_clean
   cat > /home/getmail/getmail <<EOF
 [retriever]
@@ -259,8 +258,16 @@ path = $MAILDIRIN/
 read_all = true
 delete = true
 EOF
-retrieve
-grep_mail "$TESTGREP"
+  retrieve
+}
+d_maildir_clean_retrieve() {
+d_docker "maildir_clean_retrieve $@"
+}
+
+simple_dest_maildir() {
+  testmail
+  maildir_clean_retrieve $1
+  grep_mail "$TESTGREP"
 }
 d_simple_dest_maildir() {
 d_docker "simple_dest_maildir $@"
@@ -535,6 +542,87 @@ fi
 }
 d_lmtp_test_unix_socket() {
 d_docker "lmtp_test_unix_socket $@"
+}
+
+lmtp_test_override() {
+  RETRIEVER=$1
+  PORT=$2
+if head `which getmail` | grep 'python3' ; then
+  nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: a-user@example.com
+RCPT TO: other-user@example.com
+DATA
+From: a-user@example.com
+To: nonexistent-user@example.com
+Subject: lmtp_test_override_x
+This is the test text:
+я αβ один süße créme in Tromsœ.
+.
+QUIT
+EOF
+  sleep 1
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = other-user@example.com
+port = $PORT
+password = $PSS
+[destination]
+type = MDA_lmtp
+host = /var/run/dovecot/lmtp
+override = $TESTEMAIL
+[options]
+read_all = True
+delete = True
+EOF
+fi
+}
+d_lmtp_test_override() {
+d_docker "lmtp_test_override $@"
+}
+
+lmtp_test_override_fallback() {
+  RETRIEVER=$1
+  PORT=$2
+  if head `which getmail` | grep 'python3' ; then
+    nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: a-user@example.com
+RCPT TO: other-user@example.com
+DATA
+From: a-user@example.com
+To: nonexistent-user@example.com
+Subject: lmtp_test_override_fallback_x
+This is the test text:
+я αβ один süße créme in Tromsœ.
+.
+QUIT
+EOF
+    sleep 1
+    mail_clean
+    cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = other-user@example.com
+port = $PORT
+password = $PSS
+[destination]
+type = MDA_lmtp
+host = /var/run/dovecot/lmtp
+override = another-nonexistent-user
+fallback = $TESTEMAIL
+[options]
+read_all = True
+delete = True
+EOF
+fi
+}
+d_lmtp_test_override_fallback() {
+d_docker "lmtp_test_override_fallback $@"
 }
 
 imap_search() {
