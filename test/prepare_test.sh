@@ -122,7 +122,6 @@ fi
 PYVER=3
 
 function clone_mailserver() {
-    new_clone="no"
     # clone to reuse bats scripts
     if [[ ! -f /tmp/mailserver/python$PYVER ]]; then
         if [[ -d /tmp/mailserver ]]; then
@@ -144,9 +143,6 @@ CONTAINER_NAME="${NAME}"
 SELINUX_LABEL=""
 EOF
         chmod a+x /tmp/mailserver/setup.sh
-
-        docker-compose build
-        new_clone="yes"
     fi
 }
 
@@ -162,21 +158,21 @@ function copy_tests() {
 function docker_up() {
     cd  /tmp/mailserver
 
-    with_up="no"
+    # start container if not running
     if ! docker exec -t ${NAME} bash -c ":" &>/dev/null ; then
-        docker-compose up -d
+        docker-compose up --build -d
         docker-compose ps
-        with_up="yes"
+        
+        # update ClamAV after startup
+        docker exec -u 0 -t ${NAME} bash -c "freshclam &> /dev/null"
     fi
 
-    if [[ "$with_up" == "yes" || "$new_clone" == "yes" ]]; then
-        docker exec -u 0 -t ${NAME} bash -c "freshclam &> /dev/null"
-        #pip2 is 2.7.16
-        #pip3 is 3.7.3
-        docker exec -u 0 -t ${NAME} bash -c "yes | pip$PYVER uninstall getmail6"
-        #docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
-        docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && pip$PYVER install -e ."
-    fi
+    # always reinstall getmail6 to get newest changes
+    #pip2 is 2.7.16
+    #pip3 is 3.7.3
+    docker exec -u 0 -t ${NAME} bash -c "yes | pip$PYVER uninstall getmail6"
+    #docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
+    docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && pip$PYVER install -e ."
 }
 
 #---- for test_getmail_with_docker_mailserver.bats ----#
