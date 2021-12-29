@@ -122,7 +122,6 @@ fi
 PYVER=3
 
 function clone_mailserver() {
-    new_clone="no"
     # clone to reuse bats scripts
     if [[ ! -f /tmp/mailserver/python$PYVER ]]; then
         if [[ -d /tmp/mailserver ]]; then
@@ -132,11 +131,11 @@ function clone_mailserver() {
             echo "need sudo to rm /tmp/mailserver"
             sudo rm -rf /tmp/mailserver
         fi
-        git clone --recursive $MAILSERVERSOURCE /tmp/mailserver
+        git clone --recursive -c advice.detachedHead=false -b v9.0.1 $MAILSERVERSOURCE /tmp/mailserver
         cd /tmp/mailserver
-        git checkout tags/v9.0.1
         touch /tmp/mailserver/python$PYVER
         yes | cp -f $CWD/docker-compose.yml /tmp/mailserver/
+        cp -R $CWD/docker-mailserver-getmail6test /tmp/mailserver/
         cat > /tmp/mailserver/.env << EOF
 HOSTNAME="mail"
 DOMAINNAME="domain.tld"
@@ -144,7 +143,6 @@ CONTAINER_NAME="${NAME}"
 SELINUX_LABEL=""
 EOF
         chmod a+x /tmp/mailserver/setup.sh
-        new_clone="yes"
     fi
 }
 
@@ -160,33 +158,21 @@ function copy_tests() {
 function docker_up() {
     cd  /tmp/mailserver
 
-    with_up="no"
+    # start container if not running
     if ! docker exec -t ${NAME} bash -c ":" &>/dev/null ; then
-        docker-compose up -d
+        docker-compose up --build -d
         docker-compose ps
-        with_up="yes"
-    fi
-
-    if [[ "$new_clone" == "yes" ]]; then
-        docker exec -u 0 -t ${NAME} bash -c "addmailuser ${TESTEMAIL} ${PSS}"
-        docker exec -u 0 -t ${NAME} bash -c "/tmp/docker-mailserver/self_sign.sh &> /dev/null"
-        docker-compose down
-        docker-compose up -d
-        with_up="yes"
-    fi
-
-    if [[ "$with_up" == "yes" ]]; then
-        docker exec -u 0 -t mail.domain.tld bash -c " \
-        apt-get update &>/dev/null && \
-        apt-get -y install git make procmail iputils-ping nmap python-pip python3-pip &>/dev/null"
+        
+        # update ClamAV after startup
         docker exec -u 0 -t ${NAME} bash -c "freshclam &> /dev/null"
-        docker exec -u 0 -t ${NAME} bash -c "useradd -m -s /bin/bash getmail"
-        #pip2 is 2.7.16
-        #pip3 is 3.7.3
-        docker exec -u 0 -t ${NAME} bash -c "yes | pip$PYVER uninstall getmail6"
-        #docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
-        docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && pip$PYVER install -e ."
     fi
+
+    # always reinstall getmail6 to get newest changes
+    #pip2 is 2.7.16
+    #pip3 is 3.7.3
+    docker exec -u 0 -t ${NAME} bash -c "yes | pip$PYVER uninstall getmail6"
+    #docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
+    docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && pip$PYVER install -e ."
 }
 
 #---- for test_getmail_with_docker_mailserver.bats ----#
