@@ -517,6 +517,46 @@ d_lmtp_test_py() {
 d_docker "lmtp_test_py $@"
 }
 
+lmtp_test_unix_socket() {
+  RETRIEVER=$1
+  PORT=$2
+if head `which getmail` | grep 'python3' ; then
+  nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: a-user@example.com
+RCPT TO: ${TESTEMAIL}
+DATA
+From: a-user@example.com
+To: ${TESTEMAIL}
+Subject: lmtp_test_unix_socket_x
+This is the test text:
+я αβ один süße créme in Tromsœ.
+.
+QUIT
+EOF
+  sleep 1
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+[destination]
+type = MDA_lmtp
+# use docker-mailserver/dovecot's lmtp listener
+host = /var/run/dovecot/lmtp
+[options]
+read_all = True
+delete = True
+EOF
+fi
+}
+d_lmtp_test_unix_socket() {
+d_docker "lmtp_test_unix_socket $@"
+}
+
 lmtp_test_override() {
   RETRIEVER=$1
   PORT=$2

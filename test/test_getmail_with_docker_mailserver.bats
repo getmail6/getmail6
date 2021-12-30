@@ -187,6 +187,15 @@ bats_check_lmtp_delivery() {
   assert_success
 }
 
+bats_lmtp_test_unix_socket() {
+  run d_lmtp_test_unix_socket "$@"
+  run d_retrieve
+  assert_success
+  bats_check_lmtp_delivery
+  run d_grep_mail "Subject: lmtp_test_unix_socket_x"
+  assert_success
+}
+
 bats_lmtp_test_override() {
   run d_lmtp_test_override "$@"
   run d_retrieve
@@ -208,6 +217,7 @@ bats_lmtp_test_override_fallback() {
 
 @test "MDA_lmtp" {
 bats_lmtp_test_py "SimpleIMAPRetriever 143"
+bats_lmtp_test_unix_socket "SimpleIMAPRetriever 143"
 bats_lmtp_test_override "SimpleIMAPRetriever 143"
 bats_lmtp_test_override_fallback "SimpleIMAPRetriever 143"
 }
