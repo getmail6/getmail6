@@ -502,7 +502,7 @@ class LMTPChannel(SMTPChannel):
 class LMTPServer(SMTPServer):
   def __init__(self, localaddr, remoteaddr):
     SMTPServer.__init__(self, localaddr, remoteaddr)
-  def process_message(self, peer, mailfrom, rcpttos, data):
+  def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
     return
   def handle_accept(self):
     conn, addr = self.accept()
@@ -515,33 +515,6 @@ fi
 }
 d_lmtp_test_py() {
 d_docker "lmtp_test_py $@"
-}
-
-lmtp_test_unix_socket() {
-  RETRIEVER=$1
-  PORT=$2
-if head `which getmail` | grep 'python3' ; then
-  testmail
-  mail_clean
-  cat > /home/getmail/getmail <<EOF
-[retriever]
-type = ${RETRIEVER}
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $PSS
-[destination]
-type = MDA_lmtp
-# use docker-mailserver/dovecot's lmtp listener
-host = /var/run/dovecot/lmtp
-[options]
-read_all = True
-delete = True
-EOF
-fi
-}
-d_lmtp_test_unix_socket() {
-d_docker "lmtp_test_unix_socket $@"
 }
 
 lmtp_test_override() {
