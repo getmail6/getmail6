@@ -1576,8 +1576,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 except Exception as o:
                     sbody = None
                 if not sbody:
-                    self.log.error('bad message from server!')
-                    sbody = bytes(response)
+                    raise getmailRetrievalError('bad message from server!')
                 msg = Message(fromstring=sbody)
             except TypeError as o:
                 # response[0] is None instead of a message tuple
