@@ -20,7 +20,14 @@ import grp
 import getpass
 import subprocess
 import sys
-import secrets
+try:
+    import secrets
+except ImportError: #Py 2.7
+    class secrets:
+        @staticmethod
+        def token_hex(x):
+            return ''.join(['%02x' % ord(char)
+                     for char in open('/dev/urandom').read(x)])
 
 __all__ = [
     'address_no_brackets',
