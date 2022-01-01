@@ -1010,6 +1010,9 @@ Creating a getmail rc file
      * fallback (string) — an alternative recipient address to deliver to in
        case delivery to the intended recipient fails permanently (i.e. with a
        5xx status code).
+     * override (string) — deliver mail to an alternative recipient address
+       instead of the one given by the envelope or mail headers. Behaviour of
+       the fallback parameter still applies in case delivery fails.
 
    A configuration connecting to a Dovecot LMTP server might look like this:
 
@@ -1023,6 +1026,15 @@ Creating a getmail rc file
  type = MDA_lmtp
  host = mail.example.com
  port = 3333
+
+   An example where each mail is delivered to user alice, but if this fails
+   (i.e. their user quota has been reached) it is delivered to bob:
+
+ [destination]
+ type = MDA_lmtp
+ host = mail.example.com
+ override = alice
+ fallback = bob
 
     MultiDestination
 

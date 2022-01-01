@@ -45,11 +45,11 @@ function create_demo_CA() {
 EOF
     SUBJCA="${SUBJ}for.test.ca"
     CONFIG="-subj $SUBJCA -passin pass:$PSS -passout pass:$PSS"
-    openssl req $CONFIG -new -keyout $CATOP/private/cakey.pem -out $CATOP/careq.pem
+    openssl req $CONFIG -new -keyout $CATOP/private/cakey.pem -out $CATOP/careq.pem 2> /dev/null
     openssl ca -subj $SUBJCA -passin pass:$PSS -create_serial \
             -out $CATOP/cacert.pem $CADAYS -batch \
             -keyfile $CATOP/private/cakey.pem \
-            -selfsign -extensions v3_ca -infiles $CATOP/careq.pem
+            -selfsign -extensions v3_ca -infiles $CATOP/careq.pem 2> /dev/null
 }
 
 # persists
@@ -77,14 +77,14 @@ function generate_self_signed() {
     # Create an unpassworded private key and create an unsigned public key certificate
     openssl req -subj "${SUBJ}{$FQDN}" \
         -new -nodes -keyout "${SSL_CFG_PATH}"/"${FQDN}"-key.pem \
-        -out "${SSL_CFG_PATH}"/"${FQDN}"-req.pem -days 3652
+        -out "${SSL_CFG_PATH}"/"${FQDN}"-req.pem -days 3652 2> /dev/null
 
     [[ -f "${SSL_CFG_PATH}"/"${FQDN}"-key.pem ]] && echo "${FQDN}-key.pem is there"
     [[ -f "${SSL_CFG_PATH}"/"${FQDN}"-req.pem ]] && echo "${FQDN}-req.pem is there"
 
     # Sign the public key certificate with CA certificate
     openssl ca -out "${SSL_CFG_PATH}"/"${FQDN}"-cert.pem -batch \
-        -passin pass:$PSS -infiles "${SSL_CFG_PATH}"/"${FQDN}"-req.pem
+        -passin pass:$PSS -infiles "${SSL_CFG_PATH}"/"${FQDN}"-req.pem 2> /dev/null
 
     [[ -f "${SSL_CFG_PATH}"/"${FQDN}"-cert.pem ]] && echo "${FQDN}-cert.pem is there"
 

@@ -681,6 +681,7 @@ class MDA_lmtp(DeliverySkeleton):
         ConfString(name='host', required=True),
         ConfInt(name='port', required=False, default=smtplib.LMTP_PORT),
         ConfString(name='fallback', required=False, default=None),
+        ConfString(name='override', required=False, default=None),
     )
 
     def initialize(self):
@@ -732,10 +733,11 @@ class MDA_lmtp(DeliverySkeleton):
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        rcpt = self.__send(msg.content(), msg.sender, msg.recipient)
+        recipient = self.conf.get('override', msg.recipient)
+        rcpt = self.__send(msg.content(), msg.sender, recipient)
 
-        if msg.recipient in rcpt:
-            status, error = rcpt[msg.recipient]
+        if recipient in rcpt:
+            status, error = rcpt[recipient]
             fb_recipient = self.conf['fallback']
             if 500 <= status <= 599 and fb_recipient:
                 fb_rcpt = self.__send(msg.content(), msg.sender, fb_recipient)
@@ -747,7 +749,7 @@ class MDA_lmtp(DeliverySkeleton):
             else:
                 raise getmailDeliveryError(
                     'Cannot deliver to intended target: %d %s'
-                    % rcpt[msg.recipient]
+                    % rcpt[recipient]
                 )
         return str(self)
 

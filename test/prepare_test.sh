@@ -122,7 +122,6 @@ fi
 PYVER=3
 
 function clone_mailserver() {
-    new_clone="no"
     # clone to reuse bats scripts
     if [[ ! -f /tmp/mailserver/python$PYVER ]]; then
         if [[ -d /tmp/mailserver ]]; then
@@ -132,11 +131,11 @@ function clone_mailserver() {
             echo "need sudo to rm /tmp/mailserver"
             sudo rm -rf /tmp/mailserver
         fi
-        git clone --recursive $MAILSERVERSOURCE /tmp/mailserver
+        git clone --recursive -c advice.detachedHead=false -b v9.0.1 $MAILSERVERSOURCE /tmp/mailserver
         cd /tmp/mailserver
-        git checkout tags/v9.0.1
         touch /tmp/mailserver/python$PYVER
         yes | cp -f $CWD/docker-compose.yml /tmp/mailserver/
+        cp -R $CWD/docker-mailserver-getmail6test /tmp/mailserver/
         cat > /tmp/mailserver/.env << EOF
 HOSTNAME="mail"
 DOMAINNAME="domain.tld"
@@ -144,7 +143,6 @@ CONTAINER_NAME="${NAME}"
 SELINUX_LABEL=""
 EOF
         chmod a+x /tmp/mailserver/setup.sh
-        new_clone="yes"
     fi
 }
 
@@ -153,6 +151,7 @@ function copy_tests() {
     yes | cp -f $GETMAIL6REPO/test/self_sign.sh /tmp/mailserver/config/
 
     cd  /tmp/mailserver/config
+    echo "need sudo to rm /tmp/mailserver/config/getmail6"
     sudo rm -rf getmail6
     cp -R $GETMAIL6REPO getmail6
 }
@@ -160,33 +159,21 @@ function copy_tests() {
 function docker_up() {
     cd  /tmp/mailserver
 
-    with_up="no"
+    # start container if not running
     if ! docker exec -t ${NAME} bash -c ":" &>/dev/null ; then
-        docker-compose up -d
+        docker-compose up --build -d
         docker-compose ps
-        with_up="yes"
-    fi
-
-    if [[ "$new_clone" == "yes" ]]; then
-        docker exec -u 0 -t ${NAME} bash -c "addmailuser ${TESTEMAIL} ${PSS}"
-        docker exec -u 0 -t ${NAME} bash -c "/tmp/docker-mailserver/self_sign.sh &> /dev/null"
-        docker-compose down
-        docker-compose up -d
-        with_up="yes"
-    fi
-
-    if [[ "$with_up" == "yes" ]]; then
-        docker exec -u 0 -t mail.domain.tld bash -c " \
-        apt-get update &>/dev/null && \
-        apt-get -y install git make procmail iputils-ping nmap python-pip python3-pip &>/dev/null"
+        
+        # update ClamAV after startup
         docker exec -u 0 -t ${NAME} bash -c "freshclam &> /dev/null"
-        docker exec -u 0 -t ${NAME} bash -c "useradd -m -s /bin/bash getmail"
-        #pip2 is 2.7.16
-        #pip3 is 3.7.3
-        docker exec -u 0 -t ${NAME} bash -c "yes | pip$PYVER uninstall getmail6"
-        #docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
-        docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && pip$PYVER install -e ."
     fi
+
+    # always reinstall getmail6 to get newest changes
+    #pip2 is 2.7.16
+    #pip3 is 3.7.3
+    docker exec -u 0 -t ${NAME} bash -c "yes | pip$PYVER uninstall getmail6"
+    #docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
+    docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && pip$PYVER install -e ."
 }
 
 #---- for test_getmail_with_docker_mailserver.bats ----#
@@ -252,10 +239,9 @@ mail_clean(){
   mkdir -p $MAILDIRIN/{cur,tmp,new}
 }
 
-simple_dest_maildir() {
+maildir_clean_retrieve() {
   RETRIEVER=$1
   PORT=${PORTNR[$1]}
-  testmail
   mail_clean
   cat > /home/getmail/getmail <<EOF
 [retriever]
@@ -272,8 +258,16 @@ path = $MAILDIRIN/
 read_all = true
 delete = true
 EOF
-retrieve
-grep_mail "$TESTGREP"
+  retrieve
+}
+d_maildir_clean_retrieve() {
+d_docker "maildir_clean_retrieve $@"
+}
+
+simple_dest_maildir() {
+  testmail
+  maildir_clean_retrieve $1
+  grep_mail "$TESTGREP"
 }
 d_simple_dest_maildir() {
 d_docker "simple_dest_maildir $@"
@@ -478,7 +472,7 @@ d_multisorter_test() {
 d_docker "multisorter_test $@"
 }
 
-lmtp_test() {
+lmtp_test_py() {
   RETRIEVER=$1
   PORT=$2
 if head `which getmail` | grep 'python3' ; then
@@ -492,8 +486,6 @@ username = $TESTEMAIL
 port = $PORT
 password = $PSS
 [destination]
-#type = Maildir
-#path = $MAILDIRIN/
 type = MDA_lmtp
 host = 127.0.0.1
 port = 23218
@@ -510,7 +502,7 @@ class LMTPChannel(SMTPChannel):
 class LMTPServer(SMTPServer):
   def __init__(self, localaddr, remoteaddr):
     SMTPServer.__init__(self, localaddr, remoteaddr)
-  def process_message(self, peer, mailfrom, rcpttos, data):
+  def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
     return
   def handle_accept(self):
     conn, addr = self.accept()
@@ -521,8 +513,129 @@ EOF
   python3 /home/getmail/lmtpd.py &
 fi
 }
-d_lmtp_test() {
-d_docker "lmtp_test $@"
+d_lmtp_test_py() {
+d_docker "lmtp_test_py $@"
+}
+
+lmtp_test_unix_socket() {
+  RETRIEVER=$1
+  PORT=$2
+if head `which getmail` | grep 'python3' ; then
+  nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: a-user@example.com
+RCPT TO: ${TESTEMAIL}
+DATA
+From: a-user@example.com
+To: ${TESTEMAIL}
+Subject: lmtp_test_unix_socket_x
+This is the test text:
+я αβ один süße créme in Tromsœ.
+.
+QUIT
+EOF
+  sleep 1
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+[destination]
+type = MDA_lmtp
+# use docker-mailserver/dovecot's lmtp listener
+host = /var/run/dovecot/lmtp
+[options]
+read_all = True
+delete = True
+EOF
+fi
+}
+d_lmtp_test_unix_socket() {
+d_docker "lmtp_test_unix_socket $@"
+}
+
+lmtp_test_override() {
+  RETRIEVER=$1
+  PORT=$2
+if head `which getmail` | grep 'python3' ; then
+  nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: a-user@example.com
+RCPT TO: other-user@example.com
+DATA
+From: a-user@example.com
+To: nonexistent-user@example.com
+Subject: lmtp_test_override_x
+This is the test text:
+я αβ один süße créme in Tromsœ.
+.
+QUIT
+EOF
+  sleep 1
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = other-user@example.com
+port = $PORT
+password = $PSS
+[destination]
+type = MDA_lmtp
+host = /var/run/dovecot/lmtp
+override = $TESTEMAIL
+[options]
+read_all = True
+delete = True
+EOF
+fi
+}
+d_lmtp_test_override() {
+d_docker "lmtp_test_override $@"
+}
+
+lmtp_test_override_fallback() {
+  RETRIEVER=$1
+  PORT=$2
+  if head `which getmail` | grep 'python3' ; then
+    nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: a-user@example.com
+RCPT TO: other-user@example.com
+DATA
+From: a-user@example.com
+To: nonexistent-user@example.com
+Subject: lmtp_test_override_fallback_x
+This is the test text:
+я αβ один süße créme in Tromsœ.
+.
+QUIT
+EOF
+    sleep 1
+    mail_clean
+    cat > /home/getmail/getmail <<EOF
+[retriever]
+type = ${RETRIEVER}
+server = localhost
+username = other-user@example.com
+port = $PORT
+password = $PSS
+[destination]
+type = MDA_lmtp
+host = /var/run/dovecot/lmtp
+override = another-nonexistent-user
+fallback = $TESTEMAIL
+[options]
+read_all = True
+delete = True
+EOF
+fi
+}
+d_lmtp_test_override_fallback() {
+d_docker "lmtp_test_override_fallback $@"
 }
 
 imap_search() {
