@@ -475,7 +475,6 @@ d_docker "multisorter_test $@"
 lmtp_test_py() {
   RETRIEVER=$1
   PORT=$2
-if head `which getmail` | grep 'python3' ; then
   testmail
   mail_clean
   cat > /home/getmail/getmail <<EOF
@@ -510,8 +509,7 @@ class LMTPServer(SMTPServer):
 server = LMTPServer(('localhost', 23218), None)
 asyncore.loop()
 EOF
-  python3 /home/getmail/lmtpd.py &
-fi
+  python$PYVER /home/getmail/lmtpd.py &
 }
 d_lmtp_test_py() {
 d_docker "lmtp_test_py $@"
@@ -520,7 +518,6 @@ d_docker "lmtp_test_py $@"
 lmtp_test_unix_socket() {
   RETRIEVER=$1
   PORT=$2
-if head `which getmail` | grep 'python3' ; then
   nc 0.0.0.0 25 << EOF
 HELO mail.localhost
 MAIL FROM: a-user@example.com
@@ -551,7 +548,6 @@ host = /var/run/dovecot/lmtp
 read_all = True
 delete = True
 EOF
-fi
 }
 d_lmtp_test_unix_socket() {
 d_docker "lmtp_test_unix_socket $@"
@@ -560,7 +556,6 @@ d_docker "lmtp_test_unix_socket $@"
 lmtp_test_override() {
   RETRIEVER=$1
   PORT=$2
-if head `which getmail` | grep 'python3' ; then
   nc 0.0.0.0 25 << EOF
 HELO mail.localhost
 MAIL FROM: a-user@example.com
@@ -591,7 +586,6 @@ override = $TESTEMAIL
 read_all = True
 delete = True
 EOF
-fi
 }
 d_lmtp_test_override() {
 d_docker "lmtp_test_override $@"
@@ -600,8 +594,7 @@ d_docker "lmtp_test_override $@"
 lmtp_test_override_fallback() {
   RETRIEVER=$1
   PORT=$2
-  if head `which getmail` | grep 'python3' ; then
-    nc 0.0.0.0 25 << EOF
+  nc 0.0.0.0 25 << EOF
 HELO mail.localhost
 MAIL FROM: a-user@example.com
 RCPT TO: other-user@example.com
@@ -614,9 +607,9 @@ This is the test text:
 .
 QUIT
 EOF
-    sleep 1
-    mail_clean
-    cat > /home/getmail/getmail <<EOF
+  sleep 1
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
 [retriever]
 type = ${RETRIEVER}
 server = localhost
@@ -632,7 +625,6 @@ fallback = $TESTEMAIL
 read_all = True
 delete = True
 EOF
-fi
 }
 d_lmtp_test_override_fallback() {
 d_docker "lmtp_test_override_fallback $@"

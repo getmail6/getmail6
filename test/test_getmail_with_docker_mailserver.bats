@@ -214,12 +214,13 @@ bats_lmtp_test_override_fallback() {
   assert_success
 }
 
-
 @test "MDA_lmtp" {
+if head `which getmail` | grep 'python3' ; then
 bats_lmtp_test_py "SimpleIMAPRetriever 143"
 bats_lmtp_test_unix_socket "SimpleIMAPRetriever 143"
 bats_lmtp_test_override "SimpleIMAPRetriever 143"
 bats_lmtp_test_override_fallback "SimpleIMAPRetriever 143"
+fi
 }
 
 bats_imap_search() {
