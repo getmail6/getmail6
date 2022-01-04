@@ -721,7 +721,7 @@ class MDA_lmtp(DeliverySkeleton):
             else:
                 self.log.info('Lost connection to LMTP server, reconnecting')
                 self.__connect()
-                self.__send(msg, sender, recipient, __retrying=True)
+                return self.__send(msg, sender, recipient, __retrying=True)
         except smtplib.SMTPRecipientsRefused as err:
             rcpt = err.recipients
         except smtplib.SMTPException as err:
