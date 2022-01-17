@@ -112,75 +112,144 @@ def wrap_socket(sock, keyfile=None, certfile=None,
 if ssl:
     ssl.wrap_socket = wrap_socket
 
-def _dnsname_match(dn, hostname, max_wildcards=1):
+##############################################
+# to avoid deprecation warnings
+# match_hostname from Python 3.10 ssl.py
+# starting here down to ssl_match_hostname_END
+##############################################
+
+def _dnsname_match(dn, hostname):
     """Matching according to RFC 6125, section 6.4.3
-    http://tools.ietf.org/html/rfc6125#section-6.4.3
+
+    - Hostnames are compared lower case.
+    - For IDNA, both dn and hostname must be encoded as IDN A-label (ACE).
+    - Partial wildcards like 'www*.example.org', multiple wildcards, sole
+      wildcard or wildcards in labels other then the left-most label are not
+      supported and a CertificateError is raised.
+    - A wildcard must match at least one character.
     """
-    pats = []
     if not dn:
         return False
 
-    parts = dn.split(r'.')
-    leftmost = parts[0]
-    remainder = parts[1:]
-
-    wildcards = leftmost.count('*')
-    if wildcards > max_wildcards:
-        # Issue #17980: avoid denials of service by refusing more
-        # than one wildcard per fragment.  A survery of established
-        # policy among SSL implementations showed it to be a
-        # reasonable choice.
-        raise getmailOperationError(
-            "too many wildcards in certificate DNS name: " + repr(dn))
-
+    wildcards = dn.count('*')
     # speed up common case w/o wildcards
     if not wildcards:
         return dn.lower() == hostname.lower()
 
-    # RFC 6125, section 6.4.3, subitem 1.
-    # The client SHOULD NOT attempt to match a presented identifier
-    # in which the wildcard character comprises a label other than
-    # the left-most label.
-    if leftmost == '*':
-        # When '*' is a fragment by itself, it matches a non-empty
-        # dotless fragment.
-        pats.append('[^.]+')
-    elif leftmost.startswith('xn--') or hostname.startswith('xn--'):
-        # RFC 6125, section 6.4.3, subitem 3.
-        # The client SHOULD NOT attempt to match a presented identifier
-        # where the wildcard character is embedded within an A-label or
-        # U-label of an internationalized domain name.
-        pats.append(re.escape(leftmost))
+    if wildcards > 1:
+        raise CertificateError(
+            "too many wildcards in certificate DNS name: {!r}.".format(dn))
+
+    dn_leftmost, sep, dn_remainder = dn.partition('.')
+
+    if '*' in dn_remainder:
+        # Only match wildcard in leftmost segment.
+        raise CertificateError(
+            "wildcard can only be present in the leftmost label: "
+            "{!r}.".format(dn))
+
+    if not sep:
+        # no right side
+        raise CertificateError(
+            "sole wildcard without additional labels are not support: "
+            "{!r}.".format(dn))
+
+    if dn_leftmost != '*':
+        # no partial wildcard matching
+        raise CertificateError(
+            "partial wildcards in leftmost label are not supported: "
+            "{!r}.".format(dn))
+
+    hostname_leftmost, sep, hostname_remainder = hostname.partition('.')
+    if not hostname_leftmost or not sep:
+        # wildcard must match at least one char
+        return False
+    return dn_remainder.lower() == hostname_remainder.lower()
+
+
+def _inet_paton(ipname):
+    """Try to convert an IP address to packed binary form
+
+    Supports IPv4 addresses on all platforms and IPv6 on platforms with IPv6
+    support.
+    """
+    # inet_aton() also accepts strings like '1', '127.1', some also trailing
+    # data like '127.0.0.1 whatever'.
+    try:
+        addr = _socket.inet_aton(ipname)
+    except OSError:
+        # not an IPv4 address
+        pass
     else:
-        # Otherwise, '*' matches any dotless string, e.g. www*
-        pats.append(re.escape(leftmost).replace(r'\*', '[^.]*'))
+        if _socket.inet_ntoa(addr) == ipname:
+            # only accept injective ipnames
+            return addr
+        else:
+            # refuse for short IPv4 notation and additional trailing data
+            raise ValueError(
+                "{!r} is not a quad-dotted IPv4 address.".format(ipname)
+            )
 
-    # add the remaining fragments, ignore any wildcards
-    for frag in remainder:
-        pats.append(re.escape(frag))
+    try:
+        return _socket.inet_pton(_socket.AF_INET6, ipname)
+    except OSError:
+        raise ValueError("{!r} is neither an IPv4 nor an IP6 "
+                         "address.".format(ipname))
+    except AttributeError:
+        # AF_INET6 not available
+        pass
 
-    pat = re.compile(r'\A' + r'\.'.join(pats) + r'\Z', re.IGNORECASE)
-    return pat.match(hostname)
+    raise ValueError("{!r} is not an IPv4 address.".format(ipname))
 
 
-def ssl_match_hostname(cert, hostname):
+def _ipaddress_match(cert_ipaddress, host_ip):
+    """Exact matching of IP addresses.
+
+    RFC 6125 explicitly doesn't define an algorithm for this
+    (section 1.7.2 - "Out of Scope").
+    """
+    # OpenSSL may add a trailing newline to a subjectAltName's IP address,
+    # commonly woth IPv6 addresses. Strip off trailing \n.
+    ip = _inet_paton(cert_ipaddress.rstrip())
+    return ip == host_ip
+
+
+def match_hostname(cert, hostname):
     """Verify that *cert* (in decoded format as returned by
-    SSLSocket.getpeercert()) matches the *hostname*. RFC 2818 and
-    RFC 6125 rules are followed, but IP addresses are not accepted
-    for *hostname*.
+    SSLSocket.getpeercert()) matches the *hostname*.  RFC 2818 and RFC 6125
+    rules are followed.
 
-    getmailOperationError is raised on failure. On success, the function
+    The function matches IP addresses rather than dNSNames if hostname is a
+    valid ipaddress string. IPv4 addresses are supported on all platforms.
+    IPv6 addresses are supported on platforms with IPv6 support (AF_INET6
+    and inet_pton).
+
+    CertificateError is raised on failure. On success, the function
     returns nothing.
     """
+    # warnings.warn(
+    #     "ssl.match_hostname() is deprecated",
+    #     category=DeprecationWarning,
+    #     stacklevel=2
+    # )
     if not cert:
-        raise ValueError("empty or no certificate, ssl_match_hostname "
-                         "needs an SSL socket or SSL context with "
-                         "either CERT_OPTIONAL or CERT_REQUIRED")
+        raise ValueError("empty or no certificate, match_hostname needs a "
+                         "SSL socket or SSL context with either "
+                         "CERT_OPTIONAL or CERT_REQUIRED")
+    try:
+        host_ip = _inet_paton(hostname)
+    except ValueError:
+        # Not an IP address (common case)
+        host_ip = None
     dnsnames = []
     san = cert.get('subjectAltName', ())
     for key, value in san:
         if key == 'DNS':
-            if _dnsname_match(value, hostname):
+            if host_ip is None and _dnsname_match(value, hostname):
+                return
+            dnsnames.append(value)
+        elif key == 'IP Address':
+            if host_ip is not None and _ipaddress_match(value, host_ip):
                 return
             dnsnames.append(value)
     if not dnsnames:
@@ -188,23 +257,34 @@ def ssl_match_hostname(cert, hostname):
         # in subjectAltName
         for sub in cert.get('subject', ()):
             for key, value in sub:
-                # XXX according to RFC 2818, the most specific
-                # Common Name must be used.
+                # XXX according to RFC 2818, the most specific Common Name
+                # must be used.
                 if key == 'commonName':
                     if _dnsname_match(value, hostname):
                         return
                     dnsnames.append(value)
     if len(dnsnames) > 1:
-        raise getmailOperationError("hostname %s "
+        raise CertificateError("hostname %r "
             "doesn't match either of %s"
             % (hostname, ', '.join(map(repr, dnsnames))))
     elif len(dnsnames) == 1:
-        raise getmailOperationError("hostname %s "
-            "doesn't match %s"
+        raise CertificateError("hostname %r "
+            "doesn't match %r"
             % (hostname, dnsnames[0]))
     else:
-        raise getmailOperationError("no appropriate commonName or "
+        raise CertificateError("no appropriate commonName or "
             "subjectAltName fields were found")
+
+def ssl_match_hostname(cert, hostname):
+    try:
+        return match_hostname(cert, hostname)
+    except (ValueError, CertificateError) as e:
+        raise getmailOperationError("%s"%e)
+
+##############################################
+# match_hostname from Python 3.10 ssl.py
+# ssl_match_hostname_END
+##############################################
 
 from getmailcore.exceptions import *
 from getmailcore.constants import *
