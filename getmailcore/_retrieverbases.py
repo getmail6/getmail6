@@ -75,11 +75,9 @@ tocode = lambda x: isinstance(x,bytes) and x or x.encode()
 # If we have an ssl module:
 has_sni = ssl and getattr(ssl, 'HAS_SNI', False)
 
-proto_best = ssl and getattr(ssl, 'PROTOCOL_TLS_CLIENT', None)
+proto_best = ssl and getattr(ssl, 'PROTOCOL_TLS', None)
 if not proto_best:
-    proto_best = ssl and getattr(ssl, 'PROTOCOL_TLS', None)
-    if not proto_best:
-        proto_best = ssl and getattr(ssl, 'PROTOCOL_SSLv23', None)
+    proto_best = ssl and getattr(ssl, 'PROTOCOL_SSLv23', None)
 
 has_ciphers = sys.hexversion >= 0x2070000
 
