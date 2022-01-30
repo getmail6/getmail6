@@ -49,6 +49,7 @@ options_bool = (
     'fingerprint',
     'use_netrc',
     'skip_imap_fetch_size',
+    'to_oldmail_on_each_mail',
 )
 options_int = (
     'delete_after',
@@ -95,6 +96,7 @@ defaults = {
     'read_all' : True,
     'delete' : False,
     'delete_after' : 0,
+    'to_old_mail_on_each_mail' : False,
     'delete_bigger_than' : 0,
     'max_message_size' : 0,
     'max_messages_per_session' : 0,
@@ -699,6 +701,7 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                 'read_all' : defaults['read_all'],
                 'delete' : defaults['delete'],
                 'delete_after' : defaults['delete_after'],
+                'to_old_mail_on_each_mail' : defaults['to_old_mail_on_each_mail'],
                 'delete_bigger_than' : defaults['delete_bigger_than'],
                 'max_message_size' : defaults['max_message_size'],
                 'max_messages_per_session' :

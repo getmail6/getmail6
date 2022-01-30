@@ -2535,6 +2535,14 @@ localpart_translate = ('mailhostaccount-', '')
         Default: 0, which means not to enable this feature.
     </li>
     <li>
+        to_oldmail_on_each_mail
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set, getmail will update the oldmail file on each mail.
+        This is slower, but avoids re-downloading mails,
+        if something went wrong, like the server dying.
+        Default: False.
+    </li>
+    <li>
         skip_imap_fetch_size
         (<a href="#parameter-boolean">boolean</a>)
         &mdash; will skip fetching RFC822.SIZE.

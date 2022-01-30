@@ -351,6 +351,7 @@ read_all = $READALL
 delete = $DEL
 max_message_size = $MAX
 delete_after = 1
+to_oldmail_on_each_mail = true
 delete_bigger_than = 800
 max_messages_per_session = 9
 max_bytes_per_session = 3000
