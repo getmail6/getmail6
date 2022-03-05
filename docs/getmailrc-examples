@@ -264,18 +264,37 @@ arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
 
 #
 # Example 12: Gmail xoauth2 example
+#
+# A client_id and client_secret identify a web app or a desktop app.
+# You need desktop app (native app),
+# as the redirect "urn:ietf:wg:oauth:2.0:oob" used below does only work for desktop apps,
+# not for web apps.
+# See also
+# https://developers.google.com/identity/protocols/oauth2/native-app
+#
 # To initialize do:
 #
 # Step1: Create a new OAuth 2.0 Client-ID
 #
-# Go to the google page for „OAuth 2.0 for Mobile & Desktop Apps“
-# https://developers.google.com/identity/protocols/oauth2/native-app
+# - project create:
+#   https://console.cloud.google.com/projectcreate
+# - consent screen:
+#   https://console.cloud.google.com/apis/credentials/consent
+#   only external available for non-workspace users.
+#   [ADD OR REMOVE SCOPE] https://mail.google.com/
+#   Test User: Add all your emails you want to use with getmail.
+# - credential:
+#   https://console.cloud.google.com/apis/credentials
+#   [Create Credentials/Oauth client ID] Desktop App / getmail
+#   DOWNLOAD JSON
 #
-# Follow the link to the Credentials page: https://console.developers.google.com/apis/credentials
+# Step 2: for each email you mentioned as test user above,
+# create a file <email>.json according the below template.
 #
-# Create a new client id + secret for your getmail
-#
-# Step 2: Add the new credentials to the gmail.json template
+# - Edit the email in each json file
+# - copy two lines from the downloaded json into each json file
+#   client_id
+#   client_secret
 #
 # {"scope": "https://mail.google.com/",
 #  "user": "your-gmail-user@gmail.com",
@@ -286,26 +305,29 @@ arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
 #  "redirect_uri": "urn:ietf:wg:oauth:2.0:oob",
 #  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs"}
 #
-# Step 3: excecute:
+# Step 3: execute for each json file
 #
-#    getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/gmail.json
+#    getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/<email>.json
 #
 # This will give you a URL you need to open in a browser.
-# This will show you your verification code.
+# There will be several warnings that the App is not verified by Google.
+# Finally you get a verification code.
 #
 # getmail-gmail-xoauth-tokens is waiting for you to enter the verification code.
 # Once you enter the code
 #
-# getmail-gmail-xoauth-tokens will update the gmail.json file.
+# getmail-gmail-xoauth-tokens will update the <email>.json file.
 #
-# Step 4: Update the `[retriever] `section of the rc file.
+# Step 4: Update the `[retriever]` section of the rc file.
+# use_xoauth2 must be True, else [AUTHENTICATIONFAILED]
+#
 
 [retriever]
 type = SimpleIMAPSSLRetriever
 use_xoauth2 = True
 server = imap.gmail.com
 username = your-gmail-user@gmail.com
-password_command = ("getmail-gmail-xoauth-tokens", "/path-to-your-users-getmail-directory/gmail.json")
+password_command = ("getmail-gmail-xoauth-tokens", "/path/to/your/users/getmail/directory/<email>.json")
 
 #
 # Example 13: Microsoft Office 365 xoauth2 example
