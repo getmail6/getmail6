@@ -70,6 +70,16 @@ An example::
   read_all = true
   delete = true
 
+Oauth2 Privacy Policy
+---------------------
+
+getmail is a native app.
+See
+https://developers.google.com/identity/protocols/oauth2/native-app
+
+To download your email from gmail to your computer
+you need to grant getmail OAuth2 access to the scope ``https://mail.google.com/``.
+
 Tests
 -----
 
