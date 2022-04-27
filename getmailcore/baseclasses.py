@@ -16,6 +16,7 @@ from collections import namedtuple
 import tempfile
 import errno
 from threading import Condition
+import socket
 
 from argparse import Namespace
 import subprocess
@@ -429,7 +430,7 @@ class ForkingBase(object):
 
     def _wait_for_child(self, childpid):
         self.__child_exited.acquire()
-        if self.__child_exited.wait(60) == False: # Py2, <Py3.2: always None
+        if self.__child_exited.wait(socket.getdefaulttimeout() or 60) == False: # Py2, <Py3.2: always None
             raise getmailOperationError('waiting child pid %d timed out'
                                         % childpid)
         self.__child_exited.release()
