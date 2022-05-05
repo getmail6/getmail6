@@ -61,6 +61,8 @@ class OAuth2(object):
     def code_url(self):
         params = self.copy('scope', 'client_id', 'redirect_uri')
         params['response_type'] = 'code'
+        params['access_type'] = 'offline'
+        params['prompt'] = 'consent'
         return '%s?%s' % (self.data['auth_uri'], self.query(params))
 
     def get_response(self, url, params):
