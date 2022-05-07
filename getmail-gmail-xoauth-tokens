@@ -31,11 +31,41 @@ import time
 try:
     import urllib.request as urllibrequest
     import urllib.parse as urllibparse
-    raw_input = input
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+    urlparse = urllibparse
+    def codebytes(b): return b.encode("utf8")
 except: #py2
+    import urlparse
     import urllib as urllibparse
+    from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
     urllibrequest = urllibparse
+    def codebytes(b): return b
 
+# Local webserver nonsense required to receive code from redirect
+class OAuthRedirectHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        response = urlparse.urlparse(self.path)
+        query_string = urlparse.parse_qs(response.query)
+        code = query_string["code"][0]
+        self.server.oauth_code = code
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"<html><head></head><body><h2>Code is " + codebytes(code) + b"</h2></body></html>")
+
+class OAuthRedirectServer(HTTPServer):
+    def __init__(self, server_port):
+        self.oauth_code = None
+        HTTPServer.__init__(self, ("127.0.0.1", server_port), OAuthRedirectHandler)
+
+def receive_oauth_redirect(port, timeout=None):
+    oauthd = OAuthRedirectServer(port)
+    oauthd.timeout = timeout
+    try:
+        oauthd.handle_request()
+    finally:
+        oauthd.server_close()
+    return oauthd.oauth_code
 
 class OAuth2(object):
 
@@ -58,8 +88,9 @@ class OAuth2(object):
             lst.append('%s=%s' % (param[0], escaped))
         return '&'.join(lst)
 
-    def code_url(self):
-        params = self.copy('scope', 'client_id', 'redirect_uri')
+    def code_url(self, port):
+        params = self.copy('scope', 'client_id')
+        params['request_uri'] = 'http://127.0.0.1:' + str(port) + '/'
         params['response_type'] = 'code'
         params['access_type'] = 'offline'
         params['prompt'] = 'consent'
@@ -110,15 +141,17 @@ if __name__ == '__main__':
                         help="initialize access and refresh tokens")
     parser.add_argument('tokenfile', metavar='<token data file path>',
                         help="location of the token data file")
+    parser.add_argument("-p", "--port", default=8083,
+                        help="local port to use for receiving oauth2 redirect")
 
     args = parser.parse_args()
     auth = OAuth2(args.tokenfile)
 
     if args.init:
         print("Visit this url to obtain a verification code:")
-        print("    %s\n" % auth.code_url())
+        print("    %s\n" % auth.code_url(args.port))
 
-        code = raw_input("Enter verification code: ")
+        code = receive_oauth_redirect(args.port)
         response = auth.init_tokens(code)
     else:
         sys.stdout.write("%s" % auth.token())
