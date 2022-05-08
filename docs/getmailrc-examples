@@ -266,11 +266,9 @@ arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
 # Example 12: Gmail xoauth2 example
 #
 # A client_id and client_secret identify a web app or a desktop app.
-# You need desktop app (native app),
-# as the redirect "urn:ietf:wg:oauth:2.0:oob" used below does only work for desktop apps,
-# not for web apps.
-# See also
-# https://developers.google.com/identity/protocols/oauth2/native-app
+# getmail-gmail-xoauth-tokens
+# creates a local server with loopback redirect (127.0.0.1) to get the autorization.
+# https://developers.google.com/identity/protocols/oauth2/native-app#redirect-uri_loopback
 #
 # To initialize do:
 #
@@ -302,24 +300,21 @@ arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
 #  "client_secret": "the new secret",
 #  "token_uri": "https://accounts.google.com/o/oauth2/token",
 #  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-#  "redirect_uri": "urn:ietf:wg:oauth:2.0:oob",
 #  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs"}
 #
 # Step 3: execute for each json file
 #
 #    getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/<email>.json
 #
-# This will give you a URL you need to open in a browser.
-# There will be several warnings that the App is not verified by Google.
-# Finally you get a verification code.
-#
-# getmail-gmail-xoauth-tokens is waiting for you to enter the verification code.
-# Once you enter the code
+# It will ask you to visit a http url.
+# On the browser:
+# - There will be a warning "Google hasn't verified this app": continue.
+# - Then there will be the consent screen: continue.
 #
 # getmail-gmail-xoauth-tokens will update the <email>.json file.
 #
-# Step 4: Update the `[retriever]` section of the rc file.
-# use_xoauth2 must be True, else [AUTHENTICATIONFAILED]
+# Step 4: Update the `[retriever]` section of the rc file as below.
+# use_xoauth2 must be True, else [AUTHENTICATIONFAILED].
 #
 
 [retriever]

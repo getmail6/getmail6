@@ -51,21 +51,13 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(b"<html><head></head><body><h2>Code is " + codebytes(code) + b"</h2></body></html>")
+        self.wfile.write(b"<html><head></head><body><h2>Your json file is updated.</h2></body></html>")
 
 class OAuthRedirectServer(HTTPServer):
     def __init__(self, server_port):
         self.oauth_code = None
         HTTPServer.__init__(self, ("127.0.0.1", server_port), OAuthRedirectHandler)
-
-def receive_oauth_redirect(port, timeout=None):
-    oauthd = OAuthRedirectServer(port)
-    oauthd.timeout = timeout
-    try:
-        oauthd.handle_request()
-    finally:
-        oauthd.server_close()
-    return oauthd.oauth_code
+        self.timeout = None
 
 class OAuth2(object):
 
@@ -90,7 +82,7 @@ class OAuth2(object):
 
     def code_url(self, port):
         params = self.copy('scope', 'client_id')
-        params['request_uri'] = 'http://127.0.0.1:' + str(port) + '/'
+        params['redirect_uri'] = 'http://127.0.0.1:' + str(port) + '/'
         params['response_type'] = 'code'
         params['access_type'] = 'offline'
         params['prompt'] = 'consent'
@@ -112,9 +104,9 @@ class OAuth2(object):
         with open(self.token_data_path, "w") as f:
             json.dump(self.data, f)
 
-    def init_tokens(self, code):
-        params = self.copy('user', 'client_id', 'client_secret',
-                           'redirect_uri')
+    def init_tokens(self, code, port):
+        params = self.copy('user', 'client_id', 'client_secret')
+        params['redirect_uri'] = 'http://127.0.0.1:' + str(port) + '/'
         params['code'] = code
         params['grant_type'] = 'authorization_code'
 
@@ -150,10 +142,14 @@ if __name__ == '__main__':
     if args.init:
         print("Visit this url to obtain a verification code:")
         print("    %s\n" % auth.code_url(args.port))
+        oauthd = OAuthRedirectServer(args.port)
+        try:
+            oauthd.handle_request()
+            auth.init_tokens(oauthd.oauth_code,args.port)
+        finally:
+            oauthd.server_close()
+        print("\naccess token\n")
 
-        code = receive_oauth_redirect(args.port)
-        response = auth.init_tokens(code)
-    else:
-        sys.stdout.write("%s" % auth.token())
+    print("%s" % auth.token())
 
     sys.exit(0)
