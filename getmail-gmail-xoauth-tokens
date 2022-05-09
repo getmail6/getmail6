@@ -54,9 +54,9 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
         self.wfile.write(b"<html><head></head><body><h2>Your json file is updated.</h2></body></html>")
 
 class OAuthRedirectServer(HTTPServer):
-    def __init__(self, server_port):
+    def __init__(self, port):
         self.oauth_code = None
-        HTTPServer.__init__(self, ("127.0.0.1", server_port), OAuthRedirectHandler)
+        HTTPServer.__init__(self, ("localhost", int(port)), OAuthRedirectHandler)
         self.timeout = None
 
 class OAuth2(object):
@@ -82,7 +82,7 @@ class OAuth2(object):
 
     def code_url(self, port):
         params = self.copy('scope', 'client_id')
-        params['redirect_uri'] = 'http://127.0.0.1:' + str(port) + '/'
+        params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
         params['response_type'] = 'code'
         params['access_type'] = 'offline'
         params['prompt'] = 'consent'
@@ -106,7 +106,7 @@ class OAuth2(object):
 
     def init_tokens(self, code, port):
         params = self.copy('user', 'client_id', 'client_secret')
-        params['redirect_uri'] = 'http://127.0.0.1:' + str(port) + '/'
+        params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
         params['code'] = code
         params['grant_type'] = 'authorization_code'
 
@@ -133,7 +133,7 @@ if __name__ == '__main__':
                         help="initialize access and refresh tokens")
     parser.add_argument('tokenfile', metavar='<token data file path>',
                         help="location of the token data file")
-    parser.add_argument("-p", "--port", default=8083,
+    parser.add_argument("-p", "--port", default="8083",
                         help="local port to use for receiving oauth2 redirect")
 
     args = parser.parse_args()
