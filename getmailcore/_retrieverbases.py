@@ -26,6 +26,7 @@ Base classes:
 import sys
 import os
 import socket
+from socket import _socket
 from ssl import CertificateError
 import time
 import email
