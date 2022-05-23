@@ -978,7 +978,7 @@ class RetrieverSkeleton(ConfigurableBase):
 
     def delivered(self, msgid):
         self.__delivered[msgid] = None
-        if self.app_options['to_oldmail_on_each_mail']:
+        if self.app_options.get('to_oldmail_on_each_mail',False):
             self.write_oldmailfile(self.mailbox_selected)
             self.__delivered = {}
 

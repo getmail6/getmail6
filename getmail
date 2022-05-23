@@ -619,6 +619,11 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
             dest='override_read_all', action='store_false',
             help='retrieve only unread messages'
         )
+        overrides.add_option(
+            '--to-oldmail-on-each-mail',
+            dest='override_to_oldmail_on_each_mail', action='store_true',
+            help='store retrieved mails in oldmail file after every mail'
+        )
         parser.add_option_group(overrides)
 
         (options, args) = parser.parse_args(sys.argv[1:])
@@ -964,7 +969,7 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                 )
 
             # Apply overrides from commandline
-            for option in ('read_all', 'delete', 'verbose', 'fingerprint'):
+            for option in ('read_all', 'delete', 'verbose', 'fingerprint', 'to_oldmail_on_each_mail'):
                 val = getattr(options, 'override_%s' % option)
                 if val is not None:
                     log.debug('overriding option %s from commandline %s\n'
