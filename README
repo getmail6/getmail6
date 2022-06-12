@@ -70,15 +70,40 @@ An example::
   read_all = true
   delete = true
 
+Google gmail
+------------
+
+For **gmail**,
+after having enabled 2-Step Authentication,
+let google generate an "app password" for you.
+Then, for the above example,
+use ``pass edit <your_email_here>`` and change to the generate one.
+
+- Go to https://mail.google.com
+- If you are signed in, on the left upper corner there is a cogwheel symbol for settings
+- Choose "See all Settings"
+- "Accounts and Imports" tab, then "Other Google Account Settings"/"Security" brings you to
+  https://myaccount.google.com/u/0/security?hl=en
+- Turn on "2-Step Verification" (also known as 2-factor-authentication or 2FA)
+- In "App passwords" generated a password for your device
+- Update this in your password command.
+
+See also: https://support.google.com/accounts/answer/185833
+
 Oauth2 Privacy Policy
 ---------------------
 
 getmail is a native app.
 See
 https://developers.google.com/identity/protocols/oauth2/native-app
-
-To download your email from gmail to your computer
-you need to grant getmail OAuth2 access to the scope ``https://mail.google.com/``.
+Still, to download your email from gmail to your computer using OAuth2
+you need to grant getmail OAuth2 access to the scope ``https://mail.google.com/``,
+as you would to web apps.
+Unfortunately, the init step in example 12 in ``docs/getmailrc-examples``
+has to be repeated regularly.
+This makes the *app password* method above a better alternative.
+Don't forget to remove the ``use_xoauth2`` line,
+if you switch from Oauth2 to *app password*.
 
 Tests
 -----

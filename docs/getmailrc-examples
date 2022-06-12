@@ -9,6 +9,26 @@
 #
 
 #
+# Example 0:  Using pass as password_command to manage your passwords,
+# storing all messages in a maildir.
+#
+
+[retriever]
+type = SimpleIMAPSSLRetriever
+server = imap.gmail.com 
+port = 993
+username = <your_email_here>
+password_command = ("pass", "<your_email_here>")
+
+[destination]
+type = Maildir
+path = ~/Mail/<your_email_here>/INBOX/
+
+[options]
+read_all = true
+delete = true
+
+#
 # Example 1:  simplest case of retrieving mail from one POP3 server and
 # storing all messages in a maildir.
 #
@@ -302,7 +322,7 @@ arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
 #  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
 #  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs"}
 #
-# Step 3: execute for each json file
+# Step 3: init step, execute for each json file
 #
 #    getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/<email>.json
 #
@@ -312,6 +332,9 @@ arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
 # - Then there will be the consent screen: continue.
 #
 # getmail-gmail-xoauth-tokens will update the <email>.json file.
+#
+# Unfortunately this Step 3 needs to be repeated regularly.
+# Therefore on should better opt for an google generated "app password".
 #
 # Step 4: Update the `[retriever]` section of the rc file as below.
 # use_xoauth2 must be True, else [AUTHENTICATIONFAILED].
