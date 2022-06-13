@@ -1,3 +1,8 @@
+Version 6.18.10
+TODO
+    - readme: mention "app password" for gmail
+    - fix #122: Inappropriate error message for external password command
+
 Version 6.18.9
 11 May 2022
     - #119: NameError: name 'CertificateError' is not defined (ca_certs option)

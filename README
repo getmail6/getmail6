@@ -85,7 +85,7 @@ use ``pass edit <your_email_here>`` and change to the generate one.
 - "Accounts and Imports" tab, then "Other Google Account Settings"/"Security" brings you to
   https://myaccount.google.com/u/0/security?hl=en
 - Turn on "2-Step Verification" (also known as 2-factor-authentication or 2FA)
-- In "App passwords" generated a password for your device
+- In "App passwords", generate a password for your device
 - Update this in your password command.
 
 See also: https://support.google.com/accounts/answer/185833

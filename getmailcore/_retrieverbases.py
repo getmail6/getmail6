@@ -1014,12 +1014,12 @@ class RetrieverSkeleton(ConfigurableBase):
         rc, stdout, stderr = run_command(command,args)
         if rc:
             raise getmailOperationError(
-                'External program error (%s exited with %d)' % (args[0],rc)
+                'External program error (%s exited with %d)' % (command,rc)
             )
         if stderr:
             self.log.warning(
                 'External password program "%s" wrote to stderr: %s'
-                % (args[0], stderr)
+                % (command, stderr)
             )
         password = stdout
         self.conf['password'] = password
