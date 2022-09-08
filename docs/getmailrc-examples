@@ -401,16 +401,17 @@ password_command = ("getmail-gmail-xoauth-tokens", "/path/to/your/users/getmail/
 #    getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/microsoft.json
 #
 # This will give you a URL you need to open in a browser.
-# This will show you your verification code.
-# Note: The code will be present in the address bar of your web browser. You will
-# need to find, copy and paste the long "code" parameter's value from your brower's URL bar.
+# Opening this URL will generate a HTTP-redirect that connects back and updates the json file.
+# Note: The script starts a local HTTP-server listening on http://localhost:8083.
+# If you connect from a remote machine, you will need to forward that port to your local
+# machine, so that the server can be reached via localhost:8083 on the machine running the browser.
 # (You only need to do this once.)
 #
-# getmail-gmail-xoauth-tokens is waiting for you to enter the verification code.
-# Once you enter the code
+# getmail-gmail-xoauth-tokens is waiting for the reconnect with the URL that contains the verification code.
+# Once it received the callback
 #
 # getmail-gmail-xoauth-tokens will update the microsoft.json file. The json file
-# will now contain the required token.
+# will now contain the required tokens.
 #
 # Step 4: Update the `[retriever] `section of the rc file.
 
