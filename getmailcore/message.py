@@ -25,6 +25,7 @@ except ImportError:
     from email.generator import Generator
     from email.header import Header
 
+
 from getmailcore.exceptions import *
 from getmailcore.utilities import mbox_from_escape, format_header, \
     address_no_brackets
@@ -101,7 +102,7 @@ class Message(object):
         try:
             parser = Parser.BytesParser()
             parsestr = parser.parsebytes
-        except:
+        except: #py2
             parser = Parser.Parser()
             parsestr = parser.parsestr
 
@@ -113,19 +114,25 @@ class Message(object):
         if fromlines:
             try:
                 self.__msg = parsestr(_NL.join(fromlines))
-            except Errors.MessageError as o:
+                #_msg = ucparse(parsestr,_NL.join(["über".encode('latin-1'),"Höhen".encode('latin-1')]))
+                #type(_msg) #<class 'email.message.Message'>
+            except (Errors.MessageError,UnicodeDecodeError) as o:
                 self.__msg = corrupt_message(o, fromlines=fromlines)
             self.__raw = _NL.join(fromlines)
         elif fromstring:
             try:
                 self.__msg = parsestr(fromstring)
-            except Errors.MessageError as o:
+                #_msg = ucparse(parsestr,"über\nHöhen".encode('latin-1'))
+            except (Errors.MessageError,UnicodeDecodeError) as o:
                 self.__msg = corrupt_message(o, fromstring=fromstring)
             self.__raw = fromstring
         elif fromfile:
             try:
                 self.__msg = parser.parse(fromfile)
-            except Errors.MessageError as o:
+                #from io import BytesIO
+                #fromfile=BytesIO(_NL.join(["über".encode('latin-1'),"Höhen".encode('latin-1')]))
+                #_msg = ucparse(parser.parse,fromfile)
+            except (Errors.MessageError,UnicodeDecodeError) as o:
                 # Shouldn't happen
                 self.__msg = corrupt_message(o, fromstring=fromfile.read())
             # fromfile is only used by getmail_maildir, getmail_mbox, and
@@ -188,25 +195,21 @@ class Message(object):
             rcvline = ''
         # From_ handled above, always tell the generator not to include it
         try:
-            try:
-                strmsg = self.__msg.as_bytes(
+            try: #py3
+                #bmsg = _msg.as_bytes(policy=_msg.policy.clone(linesep=os.linesep))
+                bmsg = self.__msg.as_bytes(
                     policy=self.__msg.policy.clone(linesep=os.linesep))
-            except AttributeError:
-                strmsg = self.__msg.as_string()
-                strmsg = _NL.join(strmsg.splitlines() + [b''])
-            except UnicodeEncodeError:
-                # The sender did not properly encoding, e.g. via
-                # "über".encode('latin-1').decode('utf-8',errors="replace")
-                strm = self.__msg.as_string()
-                # � accumulate, and since proper decoding is not possible any more:
-                strmsg = re.sub(u'�+',u'�',strm).encode()
+            except AttributeError: #py2
+                bmsg = self.__msg.as_string()
+                bmsg = _NL.join(bmsg.splitlines() + [b''])
             if mangle_from:
                 # do mboxrd-style "From " line quoting (add one '>')
                 RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)
-                strmsg = RE_FROMLINE.sub(b'>\\1', strmsg)
+                bmsg = RE_FROMLINE.sub(b'>\\1', bmsg)
 
-            return ((fromline+rpline+dtline+rcvline).encode()+strmsg)
-        except TypeError as o:
+            return ((fromline+rpline+dtline+rcvline).encode('ASCII',errors="replace")+bmsg)
+
+        except (TypeError,UnicodeEncodeError) as o:
             # email module chokes on some badly-misformatted messages, even
             # late during flatten().  Hope this is fixed in Python 2.4.
             if self.__raw is None:
@@ -215,8 +218,8 @@ class Message(object):
                 raise getmailDeliveryError('failed to parse retrieved message '
                                            'and could not recover (%s)' % o)
             self.__msg = corrupt_message(o, fromstring=self.__raw)
-            return self.flatten(delivered_to, received, mangle_from,
-                                include_from)
+            return self.flatten(delivered_to, received, mangle_from, include_from)
+
 
     def add_header(self, name, content):
         content_rstriped = content.rstrip()

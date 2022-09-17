@@ -277,7 +277,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             status_old = os.fstat(fd)
             try:
                 f = os.fdopen(fd, 'br+')
-            except ValueError: # Py2
+            except ValueError: # py2
                 f = os.fdopen(fd, 'r+')
             lock_file(f, self.conf['locktype'])
             # Check if it _is_ an mbox file.  mbox files must start with "From "

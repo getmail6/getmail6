@@ -303,7 +303,7 @@ class ConfMboxPath(ConfString):
         status_old = os.fstat(fd)
         try:
             f = os.fdopen(fd, 'br+')
-        except ValueError: # Py2
+        except ValueError: # py2
             f = os.fdopen(fd, 'r+')
         # Check if it _is_ an mbox file.  mbox files must start with "From "
         # in their first line, or are 0-length files.
@@ -430,7 +430,7 @@ class ForkingBase(object):
 
     def _wait_for_child(self, childpid):
         self.__child_exited.acquire()
-        if self.__child_exited.wait(socket.getdefaulttimeout() or 60) == False: # Py2, <Py3.2: always None
+        if self.__child_exited.wait(socket.getdefaulttimeout() or 60) == False: # py2, <py3.2: always None
             raise getmailOperationError('waiting child pid %d timed out'
                                         % childpid)
         self.__child_exited.release()
