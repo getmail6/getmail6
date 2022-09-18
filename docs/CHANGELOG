@@ -1,10 +1,14 @@
 Version 6.18.10
-TODO
+20 September 2022
     - readme: mention "app password" for gmail
     - fix #122: Inappropriate error message for external password command
+    - fix #125: exclude files ending in .json if no --rcfile
+    - pull #131: Update getmailrc-examples (ChrisTG742/getmail6)
+    - fix #132: forward to corrupted_message on encoding problems
 
 Version 6.18.9
 11 May 2022
+    - pull #115: Add support for local webserver to receive oauth2 redirect
     - #119: NameError: name 'CertificateError' is not defined (ca_certs option)
 
 Version 6.18.8
