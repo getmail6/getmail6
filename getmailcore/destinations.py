@@ -592,6 +592,9 @@ class MDA_external(DeliverySkeleton, ForkingBase):
 
       ignore_stderr (boolean, optional) - if set, getmail will not consider the
             program writing to stderr to be an error.  The default is False.
+            
+      pipe_stdout (boolean, optional) - if set, stdout from external command
+            will be forwared to stdout of getmail.  The default is True. 
     '''
     _confitems = (
         ConfInstance(name='configparser', required=False),
@@ -602,6 +605,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         ConfBool(name='allow_root_commands', required=False, default=False),
         ConfBool(name='unixfrom', required=False, default=False),
         ConfBool(name='ignore_stderr', required=False, default=False),
+        ConfBool(name='pipe_stdout', required=False, default=True),
     )
 
     def initialize(self):
@@ -654,7 +658,10 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             lambda o,e: self._deliver_command(
                 msg, msginfo, delivered_to, received, o, e)
             )
-
+        
+        if self.conf['pipe_stdout'] and child.out:
+            self.log.info('%s\n' % (''.join(map(chr, child.out))))
+        
         self.log.debug('command %s %d exited %d\n'
                        % (self.conf['command'], child.childpid, child.exitcode))
         if child.exitcode:
