@@ -594,7 +594,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
             program writing to stderr to be an error.  The default is False.
             
       pipe_stdout (boolean, optional) - if set, stdout from external command
-            will be forwared to stdout of getmail.  The default is True. 
+            will be forwarded to stdout of getmail.  The default is True. 
     '''
     _confitems = (
         ConfInstance(name='configparser', required=False),
