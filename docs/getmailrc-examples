@@ -359,7 +359,7 @@ password_command = ("getmail-gmail-xoauth-tokens", "/path/to/your/users/getmail/
 # Select "New Registration"
 # Enter a project name, eg "getmail".
 # Select "Accounts in this organizational directory only (Single tenant)" from "Supported account types"
-# Enter "http://localhost" for "Redirect URI"
+# Select type "Web" and enter "http://localhost:8083" for "Redirect URI"
 # Select "Register"
 #
 # Now, from the new App's details page, make a note of:
