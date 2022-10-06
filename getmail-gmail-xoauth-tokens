@@ -31,12 +31,14 @@ import time
 try:
     import urllib.request as urllibrequest
     import urllib.parse as urllibparse
+    import urllib.error as urlliberror
     from http.server import HTTPServer, BaseHTTPRequestHandler
     urlparse = urllibparse
     def codebytes(b): return b.encode("utf8")
 except: #py2
     import urlparse
     import urllib as urllibparse
+    import urllib2 as urlliberror
     from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
     urllibrequest = urllibparse
     def codebytes(b): return b
@@ -89,9 +91,14 @@ class OAuth2(object):
         return '%s?%s' % (self.data['auth_uri'], self.query(params))
 
     def get_response(self, url, params):
-        encoded = urllibparse.urlencode(params).encode('ascii')
-        response = urllibrequest.urlopen(url, encoded).read()
-        return json.loads(response)
+        try:
+            encoded = urllibparse.urlencode(params).encode('ascii')
+            response = urllibrequest.urlopen(url, encoded).read()
+            return json.loads(response)
+        except urlliberror.HTTPError as httpError:
+            error = httpError.read().decode()
+            print("error: " + error)
+            sys.exit(1)
 
     def update_config(self, d):
         self.data['access_token'] = d['access_token']
@@ -145,7 +152,7 @@ if __name__ == '__main__':
         oauthd = OAuthRedirectServer(args.port)
         try:
             oauthd.handle_request()
-            auth.init_tokens(oauthd.oauth_code,args.port)
+            auth.init_tokens(oauthd.oauth_code, args.port)
         finally:
             oauthd.server_close()
         print("\naccess token\n")
