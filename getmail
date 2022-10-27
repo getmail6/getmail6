@@ -689,6 +689,7 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                 options.rcfile = [x for x in os.listdir(getmaildir)
                                   if not x.startswith('oldmail-')
                                   and not x.endswith('.json')
+                                  and not x.startswith('.')
                                   ]
             else:
                 options.rcfile.append(defaults['rcfile'])
