@@ -696,7 +696,7 @@ imap_search = ALL
 imap_on_delete = (\Deleted \Seen)</pre>
         For more on IMAP SEARCH see <href="https://datatracker.ietf.org/doc/html/rfc3501#page-49">rfc3501</a>.
         <p>
-        <span class="file">--searchset/-s</span>
+        <pre class="file">--searchset/-s</pre>
         </p><p>
         overrides imap_search and imap_on_delete to set flags on the command line.
         A starting
@@ -801,6 +801,8 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         for details.
         If the specified setting results in no possible ciphers available,
         getmail will abort the connection.
+        E.g. on error <span class="file">DH_KEY_TOO_SMALL</span>, one could downgrade the security level via
+        <pre class="file">ssl_ciphers = DEFAULT@SECLEVEL=1</pre>
         <strong>Note: this option is only available with Python 2.7 or higher.</strong>
     </li>
     <li>

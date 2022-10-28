@@ -460,7 +460,7 @@ Creating a getmail rc file
 
        For more on IMAP SEARCH see rfc3501.
 
-       --searchset/-s
+ --searchset/-s
 
        overrides imap_search and imap_on_delete to set flags on the command
        line. A starting , becomes IMAP flag char \. To apply ,XXX=\XXX
@@ -537,8 +537,12 @@ Creating a getmail rc file
      * ssl_ciphers (string) — advanced option to control which SSL cipher
        algorithms will be allowed to proceed. See the Open SSL documentation
        for details. If the specified setting results in no possible ciphers
-       available, getmail will abort the connection. Note: this option is
-       only available with Python 2.7 or higher.
+       available, getmail will abort the connection. E.g. on error
+       DH_KEY_TOO_SMALL, one could downgrade the security level via
+
+ ssl_ciphers = DEFAULT@SECLEVEL=1
+
+       Note: this option is only available with Python 2.7 or higher.
      * ssl_version (string) — advanced option to control which SSL version
        getmail tries to use to connect to the server; the default is
        "sslv23". Another useful value is probably "sslv3". The possible
