@@ -460,6 +460,15 @@ Creating a getmail rc file
 
        For more on IMAP SEARCH see rfc3501.
 
+       --searchset/-s
+
+       overrides imap_search and imap_on_delete to set flags on the command
+       line. A starting , becomes IMAP flag char \. To apply ,XXX=\XXX
+       entries on the IMAP server use with -d (-ds). , alone is \SEEN. No
+       ,XXX=\XXX is default for delete (`\Deleted \Seen) All other entries
+       are for search. No other entry is Unseen, i.e. -s, means
+       imap_search,imap_on_delete=Unseen,(\Seen)
+
     SSL Client Parameters
 
    All SSL-enabled retriever types also take the following options, to allow
