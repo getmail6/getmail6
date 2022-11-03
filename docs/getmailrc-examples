@@ -380,10 +380,11 @@ password_command = ("getmail-gmail-xoauth-tokens", "/path/to/your/users/getmail/
 # Select "API permissions", then "Add a permission".
 # Select "Microsoft Graph"
 # Select "Delegated permissions"
-# Select the following permissions:
+# Search and select the following permissions:
 # * IMAP.AccessAsUser.All
 # * POP.AccessAsUser.All
 # * SMTP.Send
+# * offline_access
 # Select "Add permissions"
 
 # Step 2: Add the new credentials to the microsoft.json template
