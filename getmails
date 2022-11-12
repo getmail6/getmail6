@@ -27,6 +27,10 @@ startswith () {
 BASE1=${1##*/}
 [ "$BASE1" != "${BASE1#$2}" ] && return 0 || return 1
 }
+shellquote() {
+    # Replace ' => '\''
+    printf '%s\n' "'${1//\'/\'\\\'\'}'"
+}
 UID_BY_ID=$(id -u)
 PID_GETMAILS=$(pgrep -U $UID_BY_ID '^getmails$')
 if [ "x$PID_GETMAILS" != "x$$" ]; then
@@ -80,7 +84,7 @@ else
            ! startswith "$file" 'oldmail-' && \
            ! endwith "$file" '.swp' && \
            ! endwith "$file" '.bak' ; then
-    	rcfiles="$rcfiles --rcfile \"$file\""
+            rcfiles="$rcfiles --rcfile $(shellquote "$file")"
         fi
     done
     eval "$rcfiles $@"
