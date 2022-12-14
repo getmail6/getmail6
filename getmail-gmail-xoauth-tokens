@@ -149,10 +149,19 @@ if __name__ == '__main__':
     if args.init:
         print("Visit this url to obtain a verification code:")
         print("    %s\n" % auth.code_url(args.port))
+        print("Press Ctrl+C if you are installing getmail on a device without a browser.")
         oauthd = OAuthRedirectServer(args.port)
         try:
             oauthd.handle_request()
             auth.init_tokens(oauthd.oauth_code, args.port)
+        except:
+            #handles offline usage (for headless servers)
+            print("Please paste the response from the address bar of the browser you used for the url above:")
+            codeinput = input()
+            response = urlparse.urlparse(codeinput)
+            query_string = urlparse.parse_qs(response.query)
+            code = query_string["code"][0]
+            auth.init_tokens(code,args.port) 
         finally:
             oauthd.server_close()
         print("\naccess token\n")
