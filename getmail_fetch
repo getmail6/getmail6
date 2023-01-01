@@ -25,7 +25,7 @@ log.addhandler(sys.stderr, logging.WARNING)
 
 def blurb():
     log.info('getmail version %s\n' % __version__)
-    log.info('Copyright (C) 1998-2022 Charles Cazabon and others. '
+    log.info('Copyright (C) 1998-2023 Charles Cazabon and others. '
              'Licensed under %s.\n'%__license__)
 
 #######################################

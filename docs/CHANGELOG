@@ -1,3 +1,15 @@
+Version 6.18.11
+1 January 2023
+     #149 (h3xx/fix-shell-quote) added ability to process token creation on a headless server (device without a browser)
+     #146 (ykasap/appperms) Fix shell quoting issue
+     #145 add "offline_access" permission in Example 13 docs/getmailrc-examples (Exchange Online)
+     #141 add documentation for --searchset/-s
+     #142 dont consider hidden files as config file (if no --rcfile)
+     #138 (ChrisTG742) partial fix for #135 (getmail-gmail-xoauth-tokens errors are confusing)
+          HTTP exception handling for GET requests
+     #134 (ChrisTG742) fix #129 (MDA_external: screen output of called script silently dropped)
+          new option "pipe_stdout" to the [destination] settings block
+
 Version 6.18.10
 20 September 2022
     - readme: mention "app password" for gmail

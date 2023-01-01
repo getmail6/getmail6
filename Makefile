@@ -1,6 +1,9 @@
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
+# Needs Docker Daemon running
+# systemctl start docker
+
 .PHONY: doc
 doc:
 	links -dump docs/documentation.html > docs/documentation.txt
@@ -33,6 +36,10 @@ test: testpython cleantest test3 test2
 .PHONY: check
 check:
 	/usr/bin/man -l docs/getmail.1
+	/usr/bin/man -l docs/getmails.1
+	/usr/bin/man -l docs/getmail_fetch.1
+	/usr/bin/man -l docs/getmail_maildir.1
+	/usr/bin/man -l docs/getmail_mbox.1
 	restview --long-description --strict
 
 .PHONY: dist
