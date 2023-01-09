@@ -1,3 +1,7 @@
+Version 6.18.12
+TODO
+    - #157 undo #148 getmails shell quoting
+
 Version 6.18.11
 1 January 2023
     - #149 (h3xx/fix-shell-quote) added ability to process token creation on a headless server (device without a browser)
@@ -9,6 +13,7 @@ Version 6.18.11
       HTTP exception handling for GET requests
     - #134 (ChrisTG742) fix #129 (MDA_external: screen output of called script silently dropped)
       new option "pipe_stdout" to the [destination] settings block
+    - #148 getmails shell quoting
 
 Version 6.18.10
 20 September 2022
