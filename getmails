@@ -27,10 +27,6 @@ startswith () {
 BASE1=${1##*/}
 [ "$BASE1" != "${BASE1#$2}" ] && return 0 || return 1
 }
-shellquote() {
-    # Replace ' => '\''
-    printf '%s\n' "'${1//\'/\'\\\'\'}'"
-}
 UID_BY_ID=$(id -u)
 PID_GETMAILS=$(pgrep -U $UID_BY_ID '^getmails$')
 if [ "x$PID_GETMAILS" != "x$$" ]; then
@@ -48,7 +44,7 @@ if [ -f $getmailrcdir/stop ]; then
 	echo "Do not run getmail ... (if not, remove $getmailrcdir/stop)" >&2
 	exit 1
 fi
-rcfiles="/usr/bin/getmail"
+rcfiles="getmail"
 # Address concerns raised by #863856
 #  emacs backup files:   foo~ foo#
 #  vim backup files:     foo~ foo.swp
@@ -84,7 +80,7 @@ else
            ! startswith "$file" 'oldmail-' && \
            ! endwith "$file" '.swp' && \
            ! endwith "$file" '.bak' ; then
-            rcfiles="$rcfiles --rcfile $(shellquote "$file")"
+            rcfiles="$rcfiles --rcfile \"$file\""
         fi
     done
     eval "$rcfiles $@"
