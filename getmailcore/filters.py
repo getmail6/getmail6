@@ -226,7 +226,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
         self.log.trace()
         self.log.info('Filter_external(%s)\n' % self._confstring())
 
-    def _filter_command(self, msg, msginfo, stdout, stderr):
+    def __filter_command(self, msg, msginfo, stdout, stderr):
         try:
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
@@ -255,7 +255,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
         self.some_security()
 
         return self.forkchild(
-            lambda o, e: self._filter_command(msg, msginfo, o, e)
+            lambda o, e: self.__filter_command(msg, msginfo, o, e)
             , with_out=False)
 
     def _filter_message(self, msg):
@@ -347,7 +347,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
         self.log.trace()
         self.log.info('Filter_TMDA(%s)\n' % self._confstring())
 
-    def _filter_command(self, msg, stdout, stderr):
+    def __filter_command(self, msg, stdout, stderr):
         try:
             args = [self.conf['path'], self.conf['path']]
             # Set environment for TMDA
@@ -381,7 +381,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
         self.some_security()
 
         child = self.forkchild(
-            lambda o,e: self._filter_command(msg, o, e)
+            lambda o,e: self.__filter_command(msg, o, e)
             , with_out=False)
 
         self.log.debug('command %s %d exited %d\n' % (

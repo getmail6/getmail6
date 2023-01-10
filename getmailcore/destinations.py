@@ -462,7 +462,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
     def showconf(self):
         self.log.info('MDA_qmaillocal(%s)\n' % self._confstring())
 
-    def _deliver_qmaillocal(self, msg, msginfo, delivered_to, received, stdout,
+    def __deliver_qmaillocal(self, msg, msginfo, delivered_to, received, stdout,
             stderr):
         try:
             args = (
@@ -523,7 +523,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
                        % (msginfo['dash'], msginfo['ext']))
 
         child = self.forkchild(
-            lambda o,e: self._deliver_qmaillocal(
+            lambda o,e: self.__deliver_qmaillocal(
                 msg, msginfo, delivered_to, received, o, e)
             )
 
@@ -628,7 +628,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
     def showconf(self):
         self.log.info('MDA_external(%s)\n' % self._confstring())
 
-    def _deliver_command(self, msg, msginfo, delivered_to, received,
+    def __deliver_command(self, msg, msginfo, delivered_to, received,
                          stdout, stderr):
         try:
             args = [self.conf['path'], self.conf['path']]
@@ -655,7 +655,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         msginfo = self.get_msginfo(msg)
 
         child = self.forkchild(
-            lambda o,e: self._deliver_command(
+            lambda o,e: self.__deliver_command(
                 msg, msginfo, delivered_to, received, o, e)
             )
         
