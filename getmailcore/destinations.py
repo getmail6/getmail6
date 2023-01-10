@@ -200,10 +200,13 @@ class Maildir(DeliverySkeleton, ForkingBase):
                         'refuse to deliver mail as GID 0'
                     )
 
-        child = self.forkchild(
-            lambda o,e: self.__deliver_message_maildir(
-                uid, gid, msg, delivered_to, received, o, e)
-            )
+        try:
+            child = self.forkchild(
+                lambda o,e: self.__deliver_message_maildir(
+                    uid, gid, msg, delivered_to, received, o, e)
+                )
+        except getmailOperationError as oe:
+            raise getmailDeliveryError( 'delivery %s child operation error: %s' % (self, oe) )
 
         self.log.debug('maildir delivery process %d exited %d\n'
                        % (child.childpid, child.exitcode))
@@ -355,10 +358,13 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
                     'refuse to deliver mail as GID 0'
                 )
 
-        child = self.forkchild(
-            lambda o,e: self.__deliver_message_mbox(
-                uid, gid, msg, delivered_to, received, o, e)
-            )
+        try:
+            child = self.forkchild(
+                lambda o,e: self.__deliver_message_mbox(
+                    uid, gid, msg, delivered_to, received, o, e)
+                )
+        except getmailOperationError as oe:
+            raise getmailDeliveryError( 'delivery %s child operation error: %s' % (self, oe) )
 
         self.log.debug('mboxrd delivery process %d exited %d\n'
                        % (child.childpid, child.exitcode))
@@ -522,10 +528,13 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
         self.log.debug('recipient: set dash to "%s", ext to "%s"\n'
                        % (msginfo['dash'], msginfo['ext']))
 
-        child = self.forkchild(
-            lambda o,e: self.__deliver_qmaillocal(
-                msg, msginfo, delivered_to, received, o, e)
-            )
+        try:
+            child = self.forkchild(
+                lambda o,e: self.__deliver_qmaillocal(
+                    msg, msginfo, delivered_to, received, o, e)
+                )
+        except getmailOperationError as oe:
+            raise getmailDeliveryError( 'delivery %s child operation error: %s' % (self, oe) )
 
 
         self.log.debug('qmail-local %d exited %d\n' % (child.childpid, child.exitcode))
@@ -654,10 +663,13 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         self.log.trace()
         msginfo = self.get_msginfo(msg)
 
-        child = self.forkchild(
-            lambda o,e: self.__deliver_command(
-                msg, msginfo, delivered_to, received, o, e)
-            )
+        try:
+            child = self.forkchild(
+                lambda o,e: self.__deliver_command(
+                    msg, msginfo, delivered_to, received, o, e)
+                )
+        except getmailOperationError as oe:
+            raise getmailDeliveryError( 'delivery %s child operation error: %s' % (self, oe) )
         
         if self.conf['pipe_stdout'] and child.out:
             self.log.info('%s\n' % (''.join(map(chr, child.out))))

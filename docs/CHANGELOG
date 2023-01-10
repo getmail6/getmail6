@@ -1,5 +1,6 @@
 Version 6.18.12
 TODO
+    - #156 Continue after error in child
     - #157 undo #148 getmails shell quoting
 
 Version 6.18.11
