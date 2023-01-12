@@ -259,7 +259,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
                 lambda o, e: self.__filter_command(msg, msginfo, o, e)
                 , with_out=False)
         except getmailOperationError as oe:
-            raise getmailFilterError( 'filter %s child operation error: %s\n' (self, oe) )
+            raise getmailFilterError( 'filter %s child operation error: %s\n'%(self, oe) )
 
         return res
 
@@ -390,7 +390,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
                 lambda o,e: self.__filter_command(msg, o, e)
                 , with_out=False)
         except getmailOperationError as oe:
-            raise getmailFilterError( 'filter %s child operation error: %s\n' (self, oe) )
+            raise getmailFilterError( 'filter %s child operation error: %s\n'%(self, oe) )
 
         self.log.debug('command %s %d exited %d\n' % (
             self.conf['command'], child.childpid, child.exitcode))
