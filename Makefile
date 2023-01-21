@@ -11,8 +11,8 @@ doc:
 	links -dump docs/faq.html > docs/faq.txt
 	links -dump docs/troubleshooting.html > docs/troubleshooting.txt
 
-.PHONY: cleantest
-cleantest:
+.PHONY: testclean
+testclean:
 	rm -rf /tmp/mailserver/python?
 
 .PHONY: test2
@@ -30,7 +30,7 @@ testpython:
 	pytest test/test.py
 
 .PHONY: test
-test: testpython cleantest test3 test2
+test: testpython testclean test3 test2
 	cd /tmp/mailserver && docker-compose down
 
 .PHONY: check
