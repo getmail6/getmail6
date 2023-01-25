@@ -686,10 +686,15 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
         if not options.rcfile:
             if not os.path.exists(
                 os.path.join(getmaildir,defaults['rcfile'])):
-                options.rcfile = [x for x in os.listdir(getmaildir)
-                                  if not x.startswith('oldmail-')
-                                  and not x.endswith('.json')
+                options.rcfile = [x for x in os.listdir(getmaildir) # keep in sync with getmails
+                                  if not x.endswith('~')
+                                  and not x.endswith('#')
+                                  and not x.startswith('oldmail-')
                                   and not x.startswith('.')
+                                  and not x.endswith('.json')
+                                  and not x.endswith('.swp')
+                                  and not x.endswith('.bak')
+                                  and os.path.isfile(x)
                                   ]
             else:
                 options.rcfile.append(defaults['rcfile'])

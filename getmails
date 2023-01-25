@@ -27,6 +27,16 @@ startswith () {
 BASE1=${1##*/}
 [ "$BASE1" != "${BASE1#$2}" ] && return 0 || return 1
 }
+isrc() {
+! endwith "$1" '~' && \
+! endwith "$1" '#' && \
+! startswith "$1" 'oldmail-' && \
+! startswith "$1" '.' && \
+! endwith "$1" '.json' && \
+! endwith "$1" '.swp' && \
+! endwith "$1" '.bak' && \
+[ -f "$1" ] && return 0 || return 1;
+}
 UID_BY_ID=$(id -u)
 PID_GETMAILS=$(pgrep -U $UID_BY_ID '^getmails$')
 if [ "x$PID_GETMAILS" != "x$$" ]; then
@@ -53,12 +63,7 @@ rcfiles="getmail"
 if $para ; then
     pids=""
     for file in $getmailrcdir/* ; do
-        if ! endwith "$file" '~' && \
-           ! endwith "$file" '#' && \
-           ! startswith "$file" 'oldmail-' && \
-           ! endwith "$file" '.swp' && \
-           ! endwith "$file" '.bak' && \
-           [ -f "$file" ]; then
+        if isrc $file ; then
 	    $rcfiles --rcfile "$file" "$@" &
 	    pids="$pids $!"
         fi
@@ -76,12 +81,7 @@ if $para ; then
     exit $rc
 else
     for file in $getmailrcdir/* ; do
-        if ! endwith "$file" '~' && \
-           ! endwith "$file" '#' && \
-           ! startswith "$file" 'oldmail-' && \
-           ! endwith "$file" '.swp' && \
-           ! endwith "$file" '.bak' && \
-           [ -f "$file" ]; then
+        if isrc $file ; then
             rcfiles="$rcfiles --rcfile \"$file\""
         fi
     done
