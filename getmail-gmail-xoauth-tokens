@@ -87,7 +87,10 @@ class OAuth2(object):
         params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
         params['response_type'] = 'code'
         params['access_type'] = 'offline'
-        params['prompt'] = 'consent'
+        if 'prompt' in self.data:
+            params['prompt'] = self.data['prompt']
+        else:
+            params['prompt'] = 'consent'
         return '%s?%s' % (self.data['auth_uri'], self.query(params))
 
     def get_response(self, url, params):
