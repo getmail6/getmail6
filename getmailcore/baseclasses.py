@@ -415,7 +415,8 @@ class ForkingBase(object):
             self.log.warning('handler called, but no children (%s)' % o)
             notify()
             return
-        signal.signal(signal.SIGCHLD, self.__orig_handler)
+        if self.__orig_handler:
+            signal.signal(signal.SIGCHLD, self.__orig_handler)
         self.__child_pid = pid
         self.__child_status = r
         self.log.trace('handler reaped child %s with status %s' % (pid, r))
@@ -426,6 +427,7 @@ class ForkingBase(object):
         self.__child_exited = Condition()
         self.__child_pid = 0
         self.__child_status = None
+        self.__orig_handler = None
         self.__orig_handler = signal.signal(signal.SIGCHLD, self._child_handler)
 
     def _wait_for_child(self, childpid):
