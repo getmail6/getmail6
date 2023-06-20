@@ -165,7 +165,7 @@ Error messages
 
    By default, getmail will not invoke external commands (in destinations or
    filters) when it is running with root privileges, for security reasons.
-   See the documenation for possible solutions.
+   See the documentation for possible solutions.
 
     Configuration error: no such command path
 

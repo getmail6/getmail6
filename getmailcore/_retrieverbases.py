@@ -209,7 +209,7 @@ def _ipaddress_match(cert_ipaddress, host_ip):
     (section 1.7.2 - "Out of Scope").
     """
     # OpenSSL may add a trailing newline to a subjectAltName's IP address,
-    # commonly woth IPv6 addresses. Strip off trailing \n.
+    # commonly with IPv6 addresses. Strip off trailing \n.
     ip = _inet_paton(cert_ipaddress.rstrip())
     return ip == host_ip
 
@@ -748,7 +748,7 @@ class RetrieverSkeleton(ConfigurableBase):
 
       __str__(self) - return a simple string representing the class instance.
 
-      _getmsglist(self) - retieve a list of all available messages, and store
+      _getmsglist(self) - retrieve a list of all available messages, and store
                           unique message identifiers in the dict
                           self.msgnum_by_msgid.
                           Message identifiers must be unique and persistent
@@ -759,7 +759,7 @@ class RetrieverSkeleton(ConfigurableBase):
       _delmsgbyid(self, msgid) - delete a message from the message store based
                                  on its message identifier.
 
-      _getmsgbyid(self, msgid) - retreive and return a message from the message
+      _getmsgbyid(self, msgid) - retrieve and return a message from the message
                                  store based on its message identifier.  The
                                  message is returned as a Message() class
                                  object. The message will have additional data
@@ -1579,7 +1579,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     self._mboxuids[msgid] = r['uid']
                     self._mboxuidorder.append(msgid)
                     self.msgnum_by_msgid[msgid] = None
-                    self.msgsizes[msgid] = (0 if
+                    self.msgsizes[msgid] = (0 if 
                         self.app_options['skip_imap_fetch_size']
                                         else int(r['rfc822.size']))
 

@@ -562,7 +562,7 @@ type = <span class="meta">typename</span>
             <li>from the <span class="file">password</span> configuration item in the getmailrc file</li>
             <li>by running an arbitrary command specified with the password_command parameter (see below)</li>
             <li>from Python keyring if available</li>
-            <li>if <a href="#use_netrc">use_netrc</a> option is True, fom a .netrc file
+            <li>if <a href="#use_netrc">use_netrc</a> option is True, from a .netrc file
             <li>if not found via any of the above methods, getmail will prompt for the password when run</li>
         </ol>
         To store your POP/IMAP account password into the Python keyring, ensure
@@ -1171,7 +1171,7 @@ envelope_recipient = delivered-to:1
     </li>
 </ul>
 <p>
-    The MultidropPOP3SSLRetriever class alo takes the following optional
+    The MultidropPOP3SSLRetriever class also takes the following optional
     parameters:
 </p>
 <ul>
@@ -2246,7 +2246,7 @@ user = log
     you want to filter on.
 </p>
 <p>
-    If you want to filter based on arbitrary message critera, like &quot;What address
+    If you want to filter based on arbitrary message criteria, like &quot;What address
     is in the To: header field?&quot; or &quot;Who is the message from?&quot;, then
     use the filtering MDA of your choice, called from a getmail
     <a href="#destination-mdaexternal">MDA_external</a> destination.
@@ -2628,7 +2628,7 @@ localpart_translate = ('mailhostaccount-', '')
         (<a href="#parameter-integer">integer</a>)
         &mdash; if set, getmail will process a maximum of this number of
         messages before closing the session with the server.  This can be useful
-        if your network or the server is particuarly unreliable.  Default: 0,
+        if your network or the server is particularly unreliable.  Default: 0,
         which means not to enable this feature.
     </li>
     <li>
@@ -2763,7 +2763,7 @@ message_log = ~/.getmail/log
         &mdash; supply the message to an external program, which can then modify
         the message in any fashion.  The program must print the modified message
         to stdout. getmail reads the modified message from the program in this
-        fasion before proceeding to the next filter or destination.  Messages
+        fashion before proceeding to the next filter or destination.  Messages
         can be dropped by having the filter return specific exit codes.
     </li>
     <li>
