@@ -601,9 +601,9 @@ class MDA_external(DeliverySkeleton, ForkingBase):
 
       ignore_stderr (boolean, optional) - if set, getmail will not consider the
             program writing to stderr to be an error.  The default is False.
-            
+
       pipe_stdout (boolean, optional) - if set, stdout from external command
-            will be forwarded to stdout of getmail.  The default is True. 
+            will be forwarded to stdout of getmail.  The default is True.
     '''
     _confitems = (
         ConfInstance(name='configparser', required=False),
@@ -670,10 +670,10 @@ class MDA_external(DeliverySkeleton, ForkingBase):
                 )
         except getmailOperationError as oe:
             raise getmailDeliveryError( 'delivery %s child operation error: %s' % (self, oe) )
-        
+
         if self.conf['pipe_stdout'] and child.out:
             self.log.info('%s\n' % (''.join(map(chr, child.out))))
-        
+
         self.log.debug('command %s %d exited %d\n'
                        % (self.conf['command'], child.childpid, child.exitcode))
         if child.exitcode:
@@ -975,7 +975,7 @@ class MultiSorter(MultiSorterBase):
                ("jason@example.org", "/home/jasonk/Maildir/"),
                ("sales@example.org", "/home/karlyk/Mail/sales"),
                ("abuse@(example.org|example.net)", "/home/kellyw/Mail/abuse/"),
-               ("^(jeff|jefferey)(\.s(mith)?)?@.*$", "[jeff-mail-delivery]"),
+               ("^(jeff|jefferey)(\\.s(mith)?)?@.*$", "[jeff-mail-delivery]"),
                ("^.*@(mail.)?rapinder.example.org$", "/home/rapinder/Maildir/")
                )
 

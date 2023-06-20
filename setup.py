@@ -48,7 +48,7 @@ if '--show-default-install-dirs' in args:
     print('  Python modules : %s' % distutils.sysconfig.get_python_lib())
     print('  documentation :  %s' % GETMAILDOCDIR)
     print('  man(1) pages :   %s' % GETMAILMANDIR)
-    raise SystemExit()
+    raise SystemExit
 
 setup(
     name='getmail6',
