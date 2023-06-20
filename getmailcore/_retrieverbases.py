@@ -1579,7 +1579,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     self._mboxuids[msgid] = r['uid']
                     self._mboxuidorder.append(msgid)
                     self.msgnum_by_msgid[msgid] = None
-                    self.msgsizes[msgid] = (0 if 
+                    self.msgsizes[msgid] = (0 if
                         self.app_options['skip_imap_fetch_size']
                                         else int(r['rfc822.size']))
 
