@@ -50,7 +50,7 @@ else:
 
 #######################################
 def run_command(command, args):
-    # Simple subprocess wrapper for running a command and fetching its exit 
+    # Simple subprocess wrapper for running a command and fetching its exit
     # status and output/stderr.
     if args is None:
         args = []

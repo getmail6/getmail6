@@ -4,7 +4,7 @@
 
 '''Logging support for getmail.
 
-The new standard Python libary module logging didn't cut it for me; it doesn't
+The new standard Python library module logging didn't cut it for me; it doesn't
 seem capable of handling some very simple requirements like logging messages of
 a certain level to one fd, and other messages of higher levels to a different fd
 (i.e. info to stdout, warnings to stderr).

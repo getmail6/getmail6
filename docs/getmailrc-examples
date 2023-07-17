@@ -287,7 +287,7 @@ arguments = ("-f", "%(sender)", "${HOME}/.mymdarc")
 #
 # A client_id and client_secret identify a web app or a desktop app.
 # getmail-gmail-xoauth-tokens
-# creates a local server with loopback redirect (127.0.0.1) to get the autorization.
+# creates a local server with loopback redirect (127.0.0.1) to get the authorization.
 # https://developers.google.com/identity/protocols/oauth2/native-app#redirect-uri_loopback
 #
 # To initialize do:
@@ -397,7 +397,7 @@ password_command = ("getmail-gmail-xoauth-tokens", "/path/to/your/users/getmail/
 #  "auth_uri": "https://login.microsoftonline.com/<tenant_id>/oauth2/v2.0/authorize",
 #  "redirect_uri": "http://localhost"}
 #
-# Step 3: excecute:
+# Step 3: execute:
 #
 #    getmail-gmail-xoauth-tokens --init /path-to-your-users-getmail-directory/microsoft.json
 #

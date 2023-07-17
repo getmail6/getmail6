@@ -536,7 +536,7 @@ Configuring getmail
 
    Confusion often arises among novice users about the difference between the
    message header and the message envelope; they seem to believe that they
-   are not independant. This appears to be an artifact of their use of
+   are not independent. This appears to be an artifact of their use of
    simple-minded GUI mail user agents (MUAs) that do not allow them to set
    the envelopes of their messages explicitly, but instead simply use the
    contents of the From: header field as the envelope sender address, and any
