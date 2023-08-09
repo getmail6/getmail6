@@ -225,7 +225,7 @@ class Message(object):
         content_rstriped = content.rstrip()
         try:
             self.__msg[name] = Header(content_rstriped)
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, LookupError):
             for chs in self.__msg.get_charsets():
                 if chs is None:
                     continue
