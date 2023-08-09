@@ -49,8 +49,6 @@ else:
     TemporaryFile23 = lambda: tempfile.TemporaryFile('w+')
 
 
-def is_bytes_or_unicode(command): return isinstance(command, bytes) or isinstance(command, unicode)
-
 #######################################
 def run_command(command, args):
     # Simple subprocess wrapper for running a command and fetching its exit
@@ -61,14 +59,14 @@ def run_command(command, args):
         args = list(args)
 
     # Programmer sanity checks
-    assert is_bytes_or_unicode(command), (
+    assert isinstance(command, (bytes, unicode)), (
         'command is %s (%s)' % (command, type(command))
     )
     assert isinstance(args, list), (
         'args is %s (%s)' % (args, type(args))
     )
     for arg in args:
-        assert is_bytes_or_unicode(arg), 'arg is %s (%s)' % (arg, type(arg))
+        assert isinstance(arg, (bytes, unicode)), 'arg is %s (%s)' % (arg, type(arg))
 
     with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
 
