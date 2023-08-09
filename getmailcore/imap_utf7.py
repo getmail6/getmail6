@@ -137,7 +137,7 @@ class StreamWriter(codecs.StreamWriter):
 _codecInfo = codecs.CodecInfo(encoder, decoder, StreamReader, StreamWriter)
 
 def imap4_utf_7(name):
-    if name == 'imap4-utf-7' or name == 'imap4_utf_7':
+    if name in {'imap4-utf-7', 'imap4_utf_7'}:
         return _codecInfo
 
 codecs.register(imap4_utf_7)

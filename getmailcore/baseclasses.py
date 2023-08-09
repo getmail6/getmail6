@@ -48,24 +48,27 @@ if sys.version_info.major > 2:
 else:
     TemporaryFile23 = lambda: tempfile.TemporaryFile('w+')
 
+
+def is_bytes_or_unicode(command): return isinstance(command, bytes) or isinstance(command, unicode)
+
 #######################################
 def run_command(command, args):
     # Simple subprocess wrapper for running a command and fetching its exit
     # status and output/stderr.
     if args is None:
         args = []
-    if type(args) == tuple:
+    if isinstance(args, tuple):
         args = list(args)
 
     # Programmer sanity checks
-    assert type(command) in (bytes, unicode), (
+    assert is_bytes_or_unicode(command), (
         'command is %s (%s)' % (command, type(command))
     )
-    assert type(args) == list, (
+    assert isinstance(args, list), (
         'args is %s (%s)' % (args, type(args))
     )
     for arg in args:
-        assert type(arg) in (bytes, unicode), 'arg is %s (%s)' % (arg, type(arg))
+        assert is_bytes_or_unicode(arg), 'arg is %s (%s)' % (arg, type(arg))
 
     with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
 
@@ -162,7 +165,7 @@ class ConfTupleOfStrings(ConfString):
             if not val:
                 val = '()'
             tup = eval(val)
-            if type(tup) != tuple:
+            if not isinstance(tup, tuple):
                 raise ValueError('not a tuple')
             val = tup
         except (ValueError, SyntaxError) as o:
@@ -187,7 +190,7 @@ class ConfTupleOfUnicode(ConfString):
             if tup in self.specials:
                 val = [tup]
             else:
-                if type(tup) != tuple:
+                if not isinstance(tup, tuple):
                     raise ValueError('not a tuple')
                 vals = []
                 for item in tup:
@@ -216,7 +219,7 @@ class ConfTupleOfTupleOfStrings(ConfString):
             if not val:
                 val = '()'
             tup = eval(val)
-            if type(tup) != tuple:
+            if not isinstance(tup, tuple):
                 raise ValueError('not a tuple')
             val = tup
         except (ValueError, SyntaxError) as o:
@@ -224,12 +227,12 @@ class ConfTupleOfTupleOfStrings(ConfString):
                 '%s: incorrect format (%s)' % (self.name, o)
             )
         for tup in val:
-            if type(tup) != tuple:
+            if not isinstance(tup, tuple):
                 raise ValueError('contained value "%s" not a tuple' % tup)
             if len(tup) != 2:
                 raise ValueError('contained value "%s" not length 2' % tup)
             for part in tup:
-                if type(part) != str:
+                if not isinstance(part,str):
                     raise ValueError('contained value "%s" has non-string part '
                                      '"%s"' % (tup, part))
 

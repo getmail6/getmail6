@@ -623,7 +623,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         if not os.access(self.conf['path'], os.X_OK):
             raise getmailConfigurationError('%s not executable'
                                             % self.conf['path'])
-        if type(self.conf['arguments']) != tuple:
+        if not isinstance(self.conf['arguments'], tuple):
             raise getmailConfigurationError(
                 'incorrect arguments format; see documentation (%s)'
                 % self.conf['arguments']
@@ -912,12 +912,12 @@ class MultiSorterBase(MultiDestinationBase):
         try:
             _locals = self.conf['locals']
             # Special case for convenience if user supplied one base 2-tuple
-            if (len(_locals) == 2 and type(_locals[0]) == str
-                    and type(_locals[1]) == str):
+            if (len(_locals) == 2 and
+                isinstance(_locals[0], str) and isinstance(_locals[1], str)):
                 _locals = (_locals, )
             for item in _locals:
-                if not (type(item) == tuple and len(item) == 2
-                        and type(item[0]) == str and type(item[1]) == str):
+                if (not isinstance(item, tuple) and len(item) == 2 and
+                    isinstance(item[0], str) and isinstance(item[1], str)):
                     raise getmailConfigurationError(
                         'invalid syntax for locals; see documentation'
                     )
