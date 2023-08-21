@@ -1,3 +1,7 @@
+Version 6.18.13
+TODO
+    - not doing python2 tests any more
+
 Version 6.18.12
 21 January 2023
     - #156 Continue after error in child

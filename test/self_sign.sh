@@ -4,7 +4,7 @@ export PSS="test"
 export TESTEMAIL="address@domain.tld"
 export NAME="mail.domain.tld"
 
-: '
+: ' manual_self_sign:
 /tmp/mailserver
 docker-compose ps
 docker exec -u 0 -it mail.domain.tld bash
@@ -13,6 +13,7 @@ rm -rf *
 cd /tmp/docker-mailserver/
 ls
 ./self_sign.sh
+exit
 '
 
 export CATOP="/tmp/docker-mailserver/ssl/demoCA"

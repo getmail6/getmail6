@@ -13,16 +13,11 @@ doc:
 
 .PHONY: testclean
 testclean:
-	rm -rf /tmp/mailserver/python?
-
-.PHONY: test2
-test2:
-	cd test && ./prepare_test.sh 2
-	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
+	[ -d /tmp/mailserver/ ] && rm -rf /tmp/mailserver/python? || true
 
 .PHONY: test3
 test3:
-	cd test && ./prepare_test.sh 3
+	cd test && ./prepare_test.sh
 	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 
 .PHONY: testpython
@@ -30,7 +25,7 @@ testpython:
 	pytest test/test.py
 
 .PHONY: test
-test: testpython testclean test3 test2
+test: testpython testclean test3
 	cd /tmp/mailserver && docker-compose down
 
 .PHONY: check

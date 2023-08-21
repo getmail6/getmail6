@@ -9,7 +9,7 @@ test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 
 #source config/self_sign.sh
 #export PSS TESTEMAIL NAME
-cd config/getmail6/test
+cd config/getmail6/test || exit
 source prepare_test.sh
 cd ../../..
 

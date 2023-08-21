@@ -62,7 +62,7 @@ if sys.version_info.major > 2:
     tostr = lambda lts: lts.decode()
 else:
     tostr = lambda lts: lts
-
+    unicode = unicode  # due to above unicode entry in __all__
 try:
     import ssl
 except ImportError:

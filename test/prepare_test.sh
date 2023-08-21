@@ -6,6 +6,7 @@ DOCKER_CONFIG="/tmp/docker-mailserver"
 HOST_CONFIG="/tmp/mailserver/config"
 
 : '
+
 #----------------------------------------------------------
 
 # requires pytest, docker, docker-compose < V2 (V2 does not work)
@@ -13,10 +14,6 @@ HOST_CONFIG="/tmp/mailserver/config"
 cd getmail6
 
 # run all tests
-make test
-# run only python2 tests
-make test2
-# run only python3 tests
 make test3
 
 # force renew of /tmp/mailserver when running `make test`:
@@ -27,24 +24,23 @@ rm /tmp/mailserver/python?
 
 cd test
 . ./prepare_test.sh
-export PYVER=3
 clone_mailserver
 
 # check mailserver after clone_mailserver
 /tmp/mailserver
 docker-compose ps
+docker-compose down
 docker-compose up -d
 
 # interactive as root
 docker exec -u 0 -it mail.domain.tld bash
 
-# install in mailserver
+# manual_install_in_mailserver
 apt-get update
-apt-get -y install git make procmail iputils-ping nmap python-pip python3-pip vim
+apt-get -y install git make procmail iputils-ping nmap python3-pip vim
 
 #install getmail6 copied via prepare_test.sh copy_tests
 cd /tmp/docker-mailserver/getmail6
-cat setup.py | sed "s/^\s*download_url.*//p" | python2 - install
 cat setup.py | sed "s/^\s*download_url.*//p" | python3 - install
 
 # self_sign
@@ -119,11 +115,9 @@ if [[ ! -d "$MAILSERVERSOURCE" ]]; then
 fi
 # echo $MAILSERVERSOURCE
 
-PYVER=3
-
 function clone_mailserver() {
     # clone to reuse bats scripts
-    if [[ ! -f /tmp/mailserver/python$PYVER ]]; then
+    if [[ ! -f /tmp/mailserver/python3 ]]; then
         if [[ -d /tmp/mailserver ]]; then
             cd /tmp/mailserver
             docker-compose down &>/dev/null
@@ -133,7 +127,7 @@ function clone_mailserver() {
         fi
         git clone --recursive -c advice.detachedHead=false -b v9.0.1 $MAILSERVERSOURCE /tmp/mailserver
         cd /tmp/mailserver
-        touch /tmp/mailserver/python$PYVER
+        touch /tmp/mailserver/python3
         yes | cp -f $CWD/docker-compose.yml /tmp/mailserver/
         cp -R $CWD/docker-mailserver-getmail6test /tmp/mailserver/
         cat > /tmp/mailserver/.env << EOF
@@ -169,12 +163,10 @@ function docker_up() {
     fi
 
     # always reinstall getmail6 to get newest changes
-    #pip2 is 2.7.16
-    #pip3 is 3.7.3
-    docker exec -u 0 -t ${NAME} bash -c "yes | pip$PYVER uninstall getmail6"
-    #docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && cat setup.py | sed 's/^\s*download_url.*//p' | python$PYVER - install"
-    docker exec -u 0 -t ${NAME} bash -c "cd /tmp/docker-mailserver/getmail6 && pip$PYVER install -e ."
+    docker exec -u 0 -t ${NAME} bash -c "yes | pip3 uninstall getmail6"
+    docker exec -u 0 -t ${NAME} bash -c "pip3 install /tmp/docker-mailserver/getmail6"
 }
+
 
 #---- for test_getmail_with_docker_mailserver.bats ----#
 
@@ -510,7 +502,7 @@ class LMTPServer(SMTPServer):
 server = LMTPServer(('localhost', 23218), None)
 asyncore.loop()
 EOF
-  python$PYVER /home/getmail/lmtpd.py &
+  python3 /home/getmail/lmtpd.py &
 }
 d_lmtp_test_py() {
 d_docker "lmtp_test_py $@"
@@ -720,11 +712,6 @@ d_docker fetch_maildir
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    if [[ $# != 1 ]]; then
-      echo "usage: ./prepare_test.sh <2 or 3>"
-      exit 0
-    fi
-    export PYVER=${1}
     clone_mailserver
     copy_tests
     docker_up

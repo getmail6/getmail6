@@ -6,7 +6,6 @@ RUN apt-get update && apt-get -y install \
         make \
         nmap \
         procmail \
-        python-pip \
         python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
