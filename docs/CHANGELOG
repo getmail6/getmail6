@@ -1,6 +1,13 @@
 Version 6.18.13
-TODO
+22 August 2023
     - not doing python2 tests any more
+    - #169 failure to recover corrupt message
+    - #168 LookupError: unknown encoding: unicode
+    - #167 from cclauss/ruff (lint python code with ruff)
+    - #166 help about write access to oauth2 token file
+    - bring getmail and getmails rc file filtering in sync
+    - #160 from MatthiasPetermann/master (Enable overriding the prompt parameter in the XOAUTH URL)
+    - #158 from horrad/master (Ignore directories in getmailrcdir)
 
 Version 6.18.12
 21 January 2023
