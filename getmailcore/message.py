@@ -61,7 +61,7 @@ def corrupt_message(why, fromlines=None, fromstring=None):
         b'A badly-corrupt message was retrieved and could not be parsed',
         b'for the following reason:',
         b'',
-        b'    %s' % why,
+        b'    %s' % str(why).encode(),
         b'',
         b'Below the following line is the original message contents.',
         b'',
@@ -196,7 +196,6 @@ class Message(object):
         # From_ handled above, always tell the generator not to include it
         try:
             try: #py3
-                #bmsg = _msg.as_bytes(policy=_msg.policy.clone(linesep=os.linesep))
                 bmsg = self.__msg.as_bytes(
                     policy=self.__msg.policy.clone(linesep=os.linesep))
             except AttributeError: #py2

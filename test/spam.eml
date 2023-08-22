@@ -1,0 +1,164 @@
+Delivered-To: dchurch000@gmail.com
+Received: by 2002:a05:6022:309a:b0:43:2441:240c with SMTP id f26csp669608laa;
+        Tue, 15 Aug 2023 15:10:06 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHcLZeOyLv5owq9ieSZGCRD3fyuOoK1I1LVDAk5WEq0xaFijf4RG8s1q06TBOJwIhfOwA+B
+X-Received: by 2002:a05:6a20:2447:b0:144:3272:31ec with SMTP id t7-20020a056a20244700b00144327231ecmr196341pzc.23.1692137405688;
+        Tue, 15 Aug 2023 15:10:05 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1692137405; cv=none;
+        d=google.com; s=arc-20160816;
+        b=DbEmcWvdisuZy3Wh4VeaGOuoQNkXvidN3qbCdhHBSVUk1rfflcbGQRd48BeOC6JfTk
+         VqNsc2QL2uOQYnvltraO4Xa0K5QPV8gN1jDTVlSIryWe8e5Hi3GTkPasRUU9xyav4ZF6
+         r2w39px0e0lYcPn7OxvIzCzgVv4bciQa/ybc730ciW16n7SsHrJ4kuOGqgxxE444QUSP
+         I484K92BUfxNFX8DtvCiCI6EKllc/la4Lham17h1dNf3ROq1PsgFp9NJfVfkKb8J6eX2
+         /zfAagUjIBT1JNQMqs42OAASo3PrBLqVgkAMbCEWRdmx0iYi5Q82FCQpCQBIbXAkf7J3
+         jBEA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=feedback-id:message-id:to:subject:envelope-to:list-unsubscribe:from
+         :date;
+        bh=tRUnM384fXQnm8eyAilCpWIl8tnMdNkl7Rj9c5D29bU=;
+        fh=kfoG8ec0SP6dly43PxymCzxcZ4LwCW+f/2tiWqcxHRM=;
+        b=n2V0zYfeMpsJSzLIq2WrBRo8ZqN9ZhmD+VRCM8ld9EgrwcXeDjdo24DAIxJj/FcUHb
+         dRS0oo3q0dqnSkRAgOWGtcYUDXIkD+stcvlpD2zaoa3XeNFV6Ph8BZxUovtOReHDflkV
+         N6dvm3n3OyMf3xEsB5qz41vWULzLsVWZnIxkqz9xRPbbT4Tie2IVLardlBNa+/Dja5io
+         iI43b8AwrMRQPzYlf5xwfNRJqiQ9WFYCTUM8y2C4f6aQGtCwPy120yZ9psWsBUFD+K5y
+         JUEb611Y9TpY3K5QCSJEKVvKyHzuYETfjeuDGHhqvNiGPT2gk7OiENSmf49EuynFPJCe
+         llxQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: domain of newsletter.80275@irregularynx.uk.net designates 209.141.38.223 as permitted sender) smtp.mailfrom=newsletter.80275@irregularynx.uk.net
+Return-Path: <newsletter.80275@irregularynx.uk.net>
+Received: from juarez.capitalunique.com (juarez.capitalunique.com. [209.141.38.223])
+        by mx.google.com with ESMTP id q85-20020a632a58000000b00565cc4508ffsi2480783pgq.367.2023.08.15.15.10.04
+        for <dchurch000@gmail.com>;
+        Tue, 15 Aug 2023 15:10:05 -0700 (PDT)
+Received-SPF: pass (google.com: domain of newsletter.80275@irregularynx.uk.net designates 209.141.38.223 as permitted sender) client-ip=209.141.38.223;
+Authentication-Results: mx.google.com;
+       spf=pass (google.com: domain of newsletter.80275@irregularynx.uk.net designates 209.141.38.223 as permitted sender) smtp.mailfrom=newsletter.80275@irregularynx.uk.net
+Received: from efianalytics.com (efianalytics.com. 216.244.76.116)
+Date: Tue, 15 Aug 2023 18:10:04 -0400 (EDT)
+From: "⭕Cᴏɴꜰɪʀᴍ⭕" <zewauikwz@kodehexa.net>
+X-EMMAIL: mailto:marrybenh@kodehexa.net
+List-Unsubscribe: <mailto:<6kb5309jhvfamn7t0kt-kaax908vqkw50im3kvdmbzmvyh3taf.ljdg2j.quk3tu.9@unsub-sj.mktomail.com>
+Envelope-To: <dchurch000@gmail.com>
+Subject: Dchurch - 🔴 𝗣𝗮𝘆𝗼𝘂𝘁 𝗩𝗲𝗿𝗳𝗶𝗰𝗮𝘁𝗶𝗼𝗻💸✅💸𝗬𝗼𝘂 𝗛𝗮𝘃𝗲 𝗕𝗲𝗲𝗻 𝗣𝗮𝗶𝗱💰 𝗧𝗮𝗸𝗲 𝗿𝗲𝗰𝗲𝗶𝗽𝘁 𝗼𝗳 𝘆𝗼𝘂𝗿 𝗰𝗮𝘀𝗵🤑_80275
+To: <[an18]@itlgopk.uk>
+Message-Id: <-@vevida.net>
+X-MarketoID: vKD-Gha-rogvwyhi:0:jJKk4V:9:oB3EVd:besLKX8VE
+Feedback-ID: 1.us-east-1.psHyoMfnH8hkuQnF72JGzzQK1By9IkayShm7uIk1GIc=:AmazonSES
+X-PVIQ: mkto-RdMCgBVWW-NB6yqY-hZCeCx-FdLezk
+Content-Type: multipart/report; boundary="000000000000SGCNuB7Qm6umj710elBSQB";
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http: //https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http: //https://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
+
+<HTML>
+<!-- Inliner Build Version 4380b7741bb759d6cb997545f3add21ad48f010b -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title></title>
+</head>
+
+</head>
+<img src="https://tinyurl.com/dffdfds/HlTUQCJys.dbm?f7KykbbcjMPlcyGmbcdcZDcLcCsgYcbbdcbbb5q" width='1' height='1'>
+<body>
+		<span style="display:none !important; visibility:hidden; mso-hide:all; font-size:1px; color:#ffffff; line-height:1px; 
+			   max-height:0; max-width:0; opacity:0; overflow:hidden;">To go on 
+		with the delivery, just confirm your contact details</span><div>
+
+  	<a href="https://bit.ly/3Qzx4A2#Aw8DB3y8oJm.asp?fxqjjCccmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p" target="_blank" style="text-decoration:none;;">
+	<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
+		<tr>
+			<td align="left" background="#" valign="top">
+			<div style="max-width:566px; border:3px solid #F6F9FC; padding:0 10px;margin:0 auto; background-color:white; -webkit-box-shadow: 0px 6px 28px -9px rgba(0,0,0,0.75); -moz-box-shadow: 0px 6px 28px -9px rgba(0,0,0,0.75); box-shadow: 0px 6px 28px -9px rgba(0,0,0,0.75);">
+				<h1 style="font-family:Arial;margin-bottom:10px;font-size:30px;text-align:center;color:#008000;;margin-top:25px">
+			<a href=https://bit.ly/3Qzx4A2#Aw8DB3y8oJm.asp?fxqjjCccmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p><font color="#008000">
+			Claim Your Money  
+			</font> <span style="background-color: #FFFF00">$$.$$$</span><font color="#008000">
+			NOW 
+			</font> </a></h1>
+				<h2 style="font-family:Arial;font-size:20px;color:black;text-align:center;font-weight:400;color:#000000; line-height:25px;padding-left:20px;padding-right:20px;">
+				<u><b><font color="#FF0000">IMPORTANT: </font></b></u>We've Been 
+				Trying to Contact You Many Times, to 
+				<span style="background-color: #FFFF00"><a href=https://bit.ly/3Qzx4A2#Aw8DB3y8oJm.asp?fxqjjCccmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p>
+				deliver your $$.$$$</a></span> To Your CashApp® Account</h2>
+
+
+<a href="https://bit.ly/3Qzx4A2#Aw8DB3y8oJm.asp?fxqjjCccmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p" style=" text-decoration:none; color:black;">
+				<p align="center">
+<font face="Copperplate Gothic Bold" size="5" color="#000000"><strong>
+	<span style="background-color: #FFFF00">You have received money</span><span style="background-color: #FFFFFF">&nbsp;&nbsp; </span>
+	<span style="background-color: #FFFF00">$$,$$$ <br>to your Account.</span></strong></font></p>
+</a>
+				<p style="font-family:Arial;font-size:20px;color:black;text-align:center;font-weight:700;color:#000000; line-height:25px;padding-left:20px;padding-right:20px">
+				<a href="https://bit.ly/3Qzx4A2#Aw8DB3y8oJm.asp?fxqjjCccmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p"><font color="#FF0000">
+				<font size="5">Notification Num254456!</font><font size="7">
+				</font></font></a></p>
+				<table align="center" bgcolor="#ADC9E7" cellpadding="4" style="width:91%; font-family: Arial; font-size: 14px; color: #000000; background:#F4F8FB; margin-top:20px;padding: 10px" height="115">
+					<a href="https://bit.ly/3Qzx4A2#Aw8DB3y8oJm.asp?fxqjjCccmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p" target="_blank" style="text-decoration:none;;">
+					<tr>
+						<td bgcolor="#FFFF00"><strong>
+						<font style="font-family:Arial;font-size:17px;">&nbsp;Money 
+						Received: $$.$$$</font>
+						</strong></td>
+						<td bgcolor="#FFFF00"><b>
+						<font style="font-family:Arial;font-size:17px;">Status: 
+						Pending confirmation</font>
+						</b>
+						</td>
+					</tr>
+				</table>
+				<p>&nbsp;</p>
+				<table border="0" cellpadding="0" cellspacing="0" style="margin-top:20px;" width="100%">
+					<tr>
+						<td align="center">
+						<!-- Button border -->
+						<table border="0" cellpadding="5" cellspacing="0">
+							<tr>
+								<td>
+								<!-- Button  -->
+								<p></p>
+								<table bgcolor="#00D54B" border="0" cellpadding="0" cellspacing="0">
+									<tr>
+										<td class="text-btn-2" style="color:#ffffff; font-family:Arial, sans-serif, 'Lato'; min-width:200px !important; font-size:25px;padding:20px 0; line-height:24px; text-align:center; font-weight:bold">
+										<a class="link-white" data-id="4393186784" data-title="Yes, this is me" data-untrack="0" href="https://bit.ly/3Qzx4A2#Aw8DB3y8oJm.asp?fxqjjCccmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p" style="color:#ffffff; text-decoration:none" target="_blank">
+										<span class="link-white" style="color:#ffffff; text-decoration:none">
+										Click Here To Confirm</span></a></td>
+									</tr>
+								</table>
+								</td>
+							</tr>
+						</table>
+						<p></p>
+						</td>
+					</tr>
+				</table>
+<br>
+				<span style="color:#000000;"></span></div>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+
+<body>
+<center>
+<p style="font-family: Arial, sans-serif; text-size-adjust: 100%; text-align: -webkit-center; background-color: rgb(248, 249, 252);"><span style="text-size-adjust: 100%; font-size: 10px; line-height: 10px; font-family: sans-serif;">
+-- You can unsubscribe at any time. <a hREF="https://bit.ly/3Qzx4A2#Aw8DB3y8oJm.asp?fxqjjCccmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p" style="text-size-adjust: 100%;" target="_blank"> 
+Unsubscribe </a></span></p>
+<br /><center style="text-align: center;">
+<p class="footerparagraph" style="font-size: 12px;color: #666;">
+
+
+<center><h6> <p style="color:#000000; font-family:Arial, Helvetica, sans-serif; font-size:9px; text-
+align:center">unsubscribe__<a href="https://bit.ly/3Qzx4A2#Aw8DB3y8oJm.asp?fxqjjCccmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p">Here</a><span style="color: #919191">_</span>or_write_to:__1985_Henderson_Rd._Suite_1263,__Columbus,_OH,_43220-2401</p>
+</body></html></h6>
+</center><br><br><br>
+
+</p></center>
+</center>
+</body>
+			</td>
+		</tr>
+	</table>
+</div>
+<img src="https://tinyurl.com/estgtersgrtg/Aw8DB3y8oJm.dbm?fxqjjCbcmPmjcyGKMcdcYSdsc3jJtcbbdcbbb5p" width='1' height='1'>

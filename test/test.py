@@ -1,6 +1,8 @@
-from getmailcore.message import Message
 
-import smtplib, ssl
+from getmailcore.message import Message
+from getmailcore.exceptions import *
+
+import os, smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.message import EmailMessage
@@ -76,4 +78,18 @@ def test_add_header2():
     assert gmm.content()['X-greetde'] != greetde
     #mm.as_string()
 
+def test_spam_1():
+    fl = os.path.join(os.path.split(__file__)[0],'spam.eml')
+    with open(fl,'br') as f:
+        spam_eml = f.read()
+    gm = Message(fromstring=spam_eml)
+    gmfl = gm.flatten(None,None)
+    assert b'corrupt' in gmfl # check recover
 
+def test_spam_2():
+    fl = os.path.join(os.path.split(__file__)[0],'spam.eml')
+    gmm = Message(fromfile=open(fl,'rb'))
+    try:
+        gmfl = gmm.flatten(None,None)
+    except getmailDeliveryError as o:
+        assert 'could not recover' in str(o)
