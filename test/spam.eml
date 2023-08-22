@@ -1,4 +1,4 @@
-Delivered-To: dchurch000@gmail.com
+Delivered-To: EMAIL-REDACTED@example.com
 Received: by 2002:a05:6022:309a:b0:43:2441:240c with SMTP id f26csp669608laa;
         Tue, 15 Aug 2023 15:10:06 -0700 (PDT)
 X-Google-Smtp-Source: AGHT+IHcLZeOyLv5owq9ieSZGCRD3fyuOoK1I1LVDAk5WEq0xaFijf4RG8s1q06TBOJwIhfOwA+B
@@ -28,7 +28,7 @@ ARC-Authentication-Results: i=1; mx.google.com;
 Return-Path: <newsletter.80275@irregularynx.uk.net>
 Received: from juarez.capitalunique.com (juarez.capitalunique.com. [209.141.38.223])
         by mx.google.com with ESMTP id q85-20020a632a58000000b00565cc4508ffsi2480783pgq.367.2023.08.15.15.10.04
-        for <dchurch000@gmail.com>;
+        for <EMAIL-REDACTED@example.com>;
         Tue, 15 Aug 2023 15:10:05 -0700 (PDT)
 Received-SPF: pass (google.com: domain of newsletter.80275@irregularynx.uk.net designates 209.141.38.223 as permitted sender) client-ip=209.141.38.223;
 Authentication-Results: mx.google.com;
@@ -38,7 +38,7 @@ Date: Tue, 15 Aug 2023 18:10:04 -0400 (EDT)
 From: "⭕Cᴏɴꜰɪʀᴍ⭕" <zewauikwz@kodehexa.net>
 X-EMMAIL: mailto:marrybenh@kodehexa.net
 List-Unsubscribe: <mailto:<6kb5309jhvfamn7t0kt-kaax908vqkw50im3kvdmbzmvyh3taf.ljdg2j.quk3tu.9@unsub-sj.mktomail.com>
-Envelope-To: <dchurch000@gmail.com>
+Envelope-To: <EMAIL-REDACTED@example.com>
 Subject: Dchurch - 🔴 𝗣𝗮𝘆𝗼𝘂𝘁 𝗩𝗲𝗿𝗳𝗶𝗰𝗮𝘁𝗶𝗼𝗻💸✅💸𝗬𝗼𝘂 𝗛𝗮𝘃𝗲 𝗕𝗲𝗲𝗻 𝗣𝗮𝗶𝗱💰 𝗧𝗮𝗸𝗲 𝗿𝗲𝗰𝗲𝗶𝗽𝘁 𝗼𝗳 𝘆𝗼𝘂𝗿 𝗰𝗮𝘀𝗵🤑_80275
 To: <[an18]@itlgopk.uk>
 Message-Id: <-@vevida.net>
