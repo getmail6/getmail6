@@ -92,4 +92,4 @@ def test_spam_2():
     try:
         gmfl = gmm.flatten(None,None)
     except getmailDeliveryError as o:
-        assert 'could not recover' in str(o)
+        assert 'could not recover' in str(o) # noqa: PT017
