@@ -83,8 +83,9 @@ class OAuth2(object):
         return '&'.join(lst)
 
     def code_url(self, port):
-        params = self.copy('scope', 'client_id')
-        params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
+        params = self.copy('scope', 'client_id', 'redirect_uri')
+        if not params['redirect_uri']:
+            params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
         params['response_type'] = 'code'
         params['access_type'] = 'offline'
         if 'prompt' in self.data:
@@ -115,8 +116,9 @@ class OAuth2(object):
             json.dump(self.data, f)
 
     def init_tokens(self, code, port):
-        params = self.copy('user', 'client_id', 'client_secret')
-        params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
+        params = self.copy('user', 'client_id', 'client_secret', 'redirect_uri')
+        if not params['redirect_uri']:
+            params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
         params['code'] = code
         params['grant_type'] = 'authorization_code'
 
@@ -150,23 +152,26 @@ if __name__ == '__main__':
     auth = OAuth2(args.tokenfile)
 
     if args.init:
+        interrupted = False
         print("Visit this url to obtain a verification code:")
         print("    %s\n" % auth.code_url(args.port))
-        print("Press Ctrl+C if you are installing getmail on a device without a browser.")
-        oauthd = OAuthRedirectServer(args.port)
-        try:
-            oauthd.handle_request()
-            auth.init_tokens(oauthd.oauth_code, args.port)
-        except:
-            #handles offline usage (for headless servers)
+        if not auth.copy('redirect_uri'):
+            print("Press Ctrl+C if you are installing getmail on a device without a browser.")
+            oauthd = OAuthRedirectServer(args.port)
+            try:
+                oauthd.handle_request()
+                auth.init_tokens(oauthd.oauth_code, args.port)
+            except:
+                interrupted = True
+            finally:
+                oauthd.server_close()
+        if auth.copy('redirect_uri') or interrupted:
             print("Please paste the response from the address bar of the browser you used for the url above:")
             codeinput = input()
             response = urlparse.urlparse(codeinput)
             query_string = urlparse.parse_qs(response.query)
             code = query_string["code"][0]
-            auth.init_tokens(code,args.port) 
-        finally:
-            oauthd.server_close()
+            auth.init_tokens(code,args.port)
         print("\naccess token\n")
 
     print("%s" % auth.token())
