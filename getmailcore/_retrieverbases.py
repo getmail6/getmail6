@@ -1615,6 +1615,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     'COPY', uid, self.conf['move_on_delete']
                 )
             self.log.debug('deleting message "%s"' % uid + os.linesep)
+
+            # On GMail you need to remove LABELS before deleting
+            if 'X-GM-EXT-1' in self.conn.capabilities:
+                self._parse_imapuidcmdresponse('STORE', uid,'X-GM-LABELS', '()')
+
             response = self._parse_imapuidcmdresponse(
                 'STORE', uid, 'FLAGS',
                 self.conf.get('imap_on_delete',None) or r'(\Deleted \Seen)'
