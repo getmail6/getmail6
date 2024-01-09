@@ -1495,7 +1495,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.mailbox_selected = mailbox
             # use *last* EXISTS returned
             count = int(count[-1])
-            uidvalidity = tostr(self.conn.response('UIDVALIDITY')[1][0])
+            uidvalidity = tostr(self.conn.response('UIDVALIDITY')[1][0] or b"") or None
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except (IndexError, ValueError) as o:
