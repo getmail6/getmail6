@@ -1,3 +1,9 @@
+Version 6.18.14
+TODO
+    - Allow to customize 'redirect_uri' (pull request #179 from jerome-pouiller/master)
+    - remove "Labels" before deleting uid (pull request #175 from ewft/fix_gmail_deletion)
+    - Redact real email in test data (pull request #170 from h3xx/remove-email)
+
 Version 6.18.13
 22 August 2023
     - not doing python2 tests any more

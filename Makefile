@@ -28,8 +28,13 @@ testpython:
 test: testpython testclean test3
 	cd /tmp/mailserver && docker-compose down
 
+.PHONY: lint
+lint:
+	# codespell
+	ruff --output-format=github .
+
 .PHONY: check
-check:
+check: lint
 	/usr/bin/man -l docs/getmail.1
 	/usr/bin/man -l docs/getmails.1
 	/usr/bin/man -l docs/getmail_fetch.1
