@@ -1721,7 +1721,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         results = ext.groupdict()
         metadata = {}
         for item in ('LABELS', 'THRID', 'MSGID'):
-            if item in results and results[item]:
+            if results.get(item):
                 metadata['X-GMAIL-%s' % item] = results[item]
 
         return metadata
