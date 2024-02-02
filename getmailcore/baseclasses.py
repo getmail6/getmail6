@@ -412,8 +412,7 @@ class ForkingBase(object):
         try:
             pid, r = os.waitpid(self.child.childpid,0)
         except OSError as o:
-            # No children on SIGCHLD.  Can't happen?
-            self.log.warning('handler called, but no children (%s)' % o)
+            self.log.trace('handler called, but no children (%s)' % o)
             notify()
             return
         if self.__orig_handler:
@@ -486,7 +485,7 @@ class ForkingBase(object):
         child.childpid = os.fork()
         if child.childpid != 0: # here (in the parent)
             self._prepare_child()
-            self.log.debug('spawned child %d\n' % child.childpid)
+            self.log.trace('spawned child %d\n' % child.childpid)
             child.exitcode = self._wait_for_child(child.childpid)
             child.stderr.seek(0)
             child.err = child.stderr.read().strip().decode()
