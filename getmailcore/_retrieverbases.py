@@ -603,7 +603,13 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
        self.ssl_version = ssl_version
        self.ca_certs = ca_certs
        self.ssl_ciphers = ssl_ciphers
-       imaplib.IMAP4_SSL.__init__(self, host, port, keyfile, certfile)
+       self.keyfile = keyfile
+       self.certfile = certfile
+       try:
+           imaplib.IMAP4_SSL.__init__(self, host, port, keyfile, certfile)
+       except TypeError:
+           imaplib.IMAP4_SSL.__init__(self, host, port)
+
 
     def open(self, host='', port=imaplib.IMAP4_SSL_PORT, timeout=None):
        self.host = host
