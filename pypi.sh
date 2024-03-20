@@ -3,7 +3,7 @@
 
 if git status | grep nothing; then
     make dist
-    make up
+    make up6
     sed -i -e "s/name.*=.*getmail6./name = 'getmail'/g" setup.py
     make dist
     make up
