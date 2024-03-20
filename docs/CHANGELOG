@@ -4,6 +4,7 @@ Version 6.18.14
     - fix #183: in case of TypeError keyfile and certfile are used later in wrap_socket (Python 3.12)
     - fix #182: make log to trace
     - Allow to customize 'redirect_uri' (pull request #179 from jerome-pouiller/master)
+    - fix #176: Maildir Filename Generation Issue with Truncated Hostname (use full hostname)
     - remove "Labels" before deleting uid (pull request #175 from ewft/fix_gmail_deletion)
     - Redact real email in test data (pull request #170 from h3xx/remove-email)
 

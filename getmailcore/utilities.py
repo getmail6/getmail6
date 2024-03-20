@@ -287,7 +287,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
 
     info = {
         'deliverycount' : dcount,
-        'hostname' : hostname.split('.')[0].replace('/', '\\057').replace(
+        'hostname' : hostname.replace('/', '\\057').replace(
             ':', '\\072'),
         'pid' : os.getpid(),
     }
