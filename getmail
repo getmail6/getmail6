@@ -185,17 +185,18 @@ def go(configs, idle):
                 idling = idle
 
             for mailbox in retriever.mailboxes:
+                mailboxname = mailbox and mailbox.encode('utf-8') or ''
                 if mailbox:
                     # For POP this is None and uninteresting
                     log.debug('  checking mailbox %s ...\n'
-                              % mailbox.encode('utf-8'))
+                              % mailboxname)
                 try:
                     retriever.select_mailbox(mailbox)
                 except getmailMailboxSelectError as o:
                     errorexit = True
                     log.info('  mailbox %s not selectable (%s) - verify the '
                                 'mailbox exists and you have sufficient '
-                                'permissions\n' % (mailbox.encode('utf-8'), o))
+                                'permissions\n' % (mailboxname, o))
                     continue
                 nummsgs = len(retriever)
                 fmtlen = len(str(nummsgs))
@@ -207,8 +208,8 @@ def go(configs, idle):
                     delete = False
                     timestamp = retriever.oldmail.get(msgid, None)
                     size = retriever.getmsgsize(msgid)
-                    info = ('msg %*d/%*d (%d bytes)'
-                            % (fmtlen, msgnum, fmtlen, nummsgs, size))
+                    info = ('[%s] %*d/%*d (%d bytes)'
+                            % (mailboxname, fmtlen, msgnum, fmtlen, nummsgs, size))
                     logline = '%s msgid %s' % (info, msgid)
                     if options['read_all'] or timestamp is None:
                         retrieve = True
