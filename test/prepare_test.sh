@@ -164,7 +164,7 @@ function docker_up() {
 
     # always reinstall getmail6 to get newest changes
     docker exec -u 0 -t ${NAME} bash -c "yes | pip3 uninstall getmail6"
-    docker exec -u 0 -t ${NAME} bash -c "pip3 install /tmp/docker-mailserver/getmail6"
+    docker exec -u 0 -t ${NAME} bash -c "rm /tmp/docker-mailserver/getmail6/pyproject.toml && pip3 install /tmp/docker-mailserver/getmail6"
 }
 
 

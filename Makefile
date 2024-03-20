@@ -13,7 +13,8 @@ doc:
 
 .PHONY: testclean
 testclean:
-	[ -d /tmp/mailserver/ ] && rm -rf /tmp/mailserver/python? || true
+	[ -d /tmp/mailserver/ ] && (cd /tmp/mailserver && docker-compose down) || true
+	[ -d /tmp/mailserver/ ] && sudo rm -rf /tmp/mailserver || true
 
 .PHONY: test3
 test3:
@@ -31,7 +32,7 @@ test: testpython testclean test3
 .PHONY: lint
 lint:
 	# codespell
-	ruff --output-format=github .
+	ruff check .
 
 .PHONY: check
 check: lint

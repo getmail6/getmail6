@@ -1,5 +1,8 @@
 Version 6.18.14
-TODO
+20 March 2024
+    - fix make lint
+    - fix #183: in case of TypeError keyfile and certfile are used later in wrap_socket (Python 3.12)
+    - fix #182: make log to trace
     - Allow to customize 'redirect_uri' (pull request #179 from jerome-pouiller/master)
     - remove "Labels" before deleting uid (pull request #175 from ewft/fix_gmail_deletion)
     - Redact real email in test data (pull request #170 from h3xx/remove-email)

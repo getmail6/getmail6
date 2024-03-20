@@ -1,6 +1,6 @@
                     getmail Frequently Asked Questions (FAQ)
 
-   getmail6 is Copyright © 1998-2023 by Charles Cazabon and others:
+   getmail6 is Copyright © 1998-2024 by Charles Cazabon and others:
    <charlesc-getmail @ pyropus.ca>
    <roland.puntaier @ gmail.com>
 
