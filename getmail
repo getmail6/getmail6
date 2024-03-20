@@ -208,8 +208,10 @@ def go(configs, idle):
                     delete = False
                     timestamp = retriever.oldmail.get(msgid, None)
                     size = retriever.getmsgsize(msgid)
-                    info = ('[%s] %*d/%*d (%d bytes)'
-                            % (mailboxname, fmtlen, msgnum, fmtlen, nummsgs, size))
+                    info = ('msg %*d/%*d (%d bytes)'
+                            % (fmtlen, msgnum, fmtlen, nummsgs, size))
+                    if mailbox:
+                        info = '[%s] '%mailboxname + info
                     logline = '%s msgid %s' % (info, msgid)
                     if options['read_all'] or timestamp is None:
                         retrieve = True
