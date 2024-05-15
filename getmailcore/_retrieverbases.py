@@ -38,7 +38,7 @@ except ImportError:
     from email.header import decode_header
     import email.parser as Parser
 import poplib
-import imaplib
+import imaplib2 as imaplib
 import re
 import select
 
@@ -801,6 +801,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self._clear_state()
         self.conn = None
         self.supports_idle = False
+        self.supports_id = False
         ConfigurableBase.__init__(self, **args)
 
     def set_new_timestamp(self):
@@ -1431,6 +1432,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.trace('got %s' % r + os.linesep)
         return r
 
+    def id(self):
+        server_id = self.conn.id('name', 'getmail', 'version', '6.0.0')
+        return server_id
+
     def list_mailboxes(self):
         '''List (selectable) IMAP folders in account.'''
         cmd = ('LIST', )
@@ -1826,6 +1831,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             if 'IDLE' in self.conn.capabilities:
                 self.supports_idle = True
                 imaplib.Commands['IDLE'] = ('AUTH', 'SELECTED')
+
+            if 'ID' in self.conn.capabilities:
+                self.supports_id = True
 
             if self.mailboxes == ('ALL', ):
                 # Special value meaning all mailboxes in account

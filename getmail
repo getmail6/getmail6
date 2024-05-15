@@ -184,6 +184,8 @@ def go(configs, idle):
                 # session ready for idling
                 idling = idle
 
+            if retriever.supports_id:
+                retriever.id()
             for mailbox in retriever.mailboxes:
                 if mailbox:
                     # For POP this is None and uninteresting
