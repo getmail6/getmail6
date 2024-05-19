@@ -111,6 +111,7 @@ defaults = {
     'use_netrc' : False,
     'netrc_file' : None,
     'skip_imap_fetch_size' : False,
+    'imap_id_extension': False,
 }
 
 
@@ -625,6 +626,11 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
             dest='override_to_oldmail_on_each_mail', action='store_true',
             help='store retrieved mails in oldmail file after every mail'
         )
+        overrides.add_option(
+            '-I', '--imap-id',
+            dest='override_imap_id_extension', action='store_true',
+            help='enable IMAP ID extension (RFC 2971)'
+        )
         parser.add_option_group(overrides)
 
         (options, args) = parser.parse_args(sys.argv[1:])
@@ -732,6 +738,7 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                 'use_netrc' : defaults['use_netrc'],
                 'netrc_file' : defaults['netrc_file'],
                 'skip_imap_fetch_size' : defaults['skip_imap_fetch_size'],
+                'imap_id_extension': defaults['imap_id_extension'],
             }
             # Python's ConfigParser .getboolean() couldn't handle booleans in
             # the defaults. Submitted a patch; they fixed it a different way.
@@ -853,6 +860,8 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
                         retriever_args['username'] = netrc_auth[0]
                     if netrc_auth and netrc_auth[2]:
                         retriever_args['password'] = netrc_auth[2]
+                if options.override_imap_id_extension is not None:
+                    retriever_args['imap_id_extension'] = options.override_imap_id_extension
                 log.debug('    instantiating retriever %s with args %s\n'
                           % (retriever_type, format_params(retriever_args)))
                 try:

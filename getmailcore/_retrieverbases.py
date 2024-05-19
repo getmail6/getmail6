@@ -51,6 +51,35 @@ try:
 except ImportError:
     pass
 
+###
+# Monkey-patch imaplib to support the ID command ([RFC 2971](https://www.rfc-editor.org/rfc/rfc2971)) - begin
+###
+imaplib.Commands['ID'] = ('AUTH', 'SELECTED')
+def imap_id_rfc2971(self, *kv_pairs, **kw):
+    """(typ, [data]) = <instance>.id(kv_pairs)
+    'kv_pairs' is a possibly empty list of keys and values.
+    'data' is a list of ID key value pairs or NIL.
+    NB: a single argument is assumed to be correctly formatted and is passed through unchanged
+    (for backward compatibility with earlier version).
+    Exchange information for problem analysis and determination.
+    The ID extension is defined in RFC 2971. """
+
+    name = 'ID'
+
+    if not kv_pairs:
+        data = 'NIL'
+    elif len(kv_pairs) == 1:
+        data = kv_pairs[0]     # Assume invoker passing correctly formatted string (back-compat)
+    else:
+        data = '(%s)' % ' '.join([(arg and self._quote(arg) or 'NIL') for arg in kv_pairs])
+
+    return self._simple_command(name, data, **kw)
+
+imaplib.IMAP4.id = imap_id_rfc2971
+###
+# Monkey-patch imaplib to support the ID command (RFC 2971) - end
+###
+
 try:
   import ssl
   SSLError = ssl.SSLError
@@ -801,6 +830,7 @@ class RetrieverSkeleton(ConfigurableBase):
         self._clear_state()
         self.conn = None
         self.supports_idle = False
+        self.supports_id = False
         ConfigurableBase.__init__(self, **args)
 
     def set_new_timestamp(self):
@@ -1431,6 +1461,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.trace('got %s' % r + os.linesep)
         return r
 
+    def id(self):
+        server_id = self.conn.id('name', 'getmail', 'version', '6.0.0')
+        return server_id
+
     def list_mailboxes(self):
         '''List (selectable) IMAP folders in account.'''
         cmd = ('LIST', )
@@ -1826,6 +1860,12 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             if 'IDLE' in self.conn.capabilities:
                 self.supports_idle = True
                 imaplib.Commands['IDLE'] = ('AUTH', 'SELECTED')
+
+            if 'ID' in self.conn.capabilities:
+                self.supports_id = True
+
+            if self.supports_id and self.conf['imap_id_extension']:
+                self.id()
 
             if self.mailboxes == ('ALL', ):
                 # Special value meaning all mailboxes in account
