@@ -127,7 +127,7 @@ def convert_to_sigint(unused1, unused2):
 signal.signal(signal.SIGTERM, convert_to_sigint)
 
 #######################################
-def go(configs, idle):
+def go(configs, idle, accounts=[]):
     """Main code.
 
     Returns True if all goes well, False if any error condition occurs.
@@ -142,6 +142,10 @@ def go(configs, idle):
         idle = False
 
     for (configfile, retriever, _filters, destination, options) in configs:
+        username = retriever.conf.get('username')
+        if accounts and len(accounts) > 0 and username not in accounts:
+            continue
+
         if options['skip_imap_fetch_size'] and (
                 options['max_message_size'] or
                 options['max_bytes_per_session'] or
@@ -633,6 +637,12 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
         )
         parser.add_option_group(overrides)
 
+        parser.add_option(
+            '-A', '--account',
+            dest='account', action='append',
+            help='check specified account only (may be given multiple times)'
+        )
+
         (options, args) = parser.parse_args(sys.argv[1:])
         if args:
             raise getmailOperationError('unknown argument(s) %s ; try --help'
@@ -1029,7 +1039,7 @@ No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,
             sys.exit()
 
         # Go!
-        success = go(configs, options.idle)
+        success = go(configs, options.idle, options.account)
         if not success:
             raise SystemExit(127)
 
