@@ -588,6 +588,11 @@ If no flag is given "\Seen" is assumed.
 `imap_search` defaults to "Unseen" and `imap_on_delete` defaults to "\Deleted \Seen".
 '''
         )
+        parser.add_option(
+            '-R', '--mark-read',
+            dest='mark_read', action='store_true',
+            help='mark read after retrieve (synonym to `-ds,`)'
+        )
         overrides = OptionGroup(
             parser, 'Overrides',
             'The following options override those specified in any '
@@ -612,12 +617,12 @@ If no flag is given "\Seen" is assumed.
         overrides.add_option(
             '-d', '--delete',
             dest='override_delete', action='store_true',
-            help='delete messages from server after retrieving'
+            help='after retrieving flag Deleted or as given by `-s,`'
         )
         overrides.add_option(
             '-l', '--dont-delete',
             dest='override_delete', action='store_false',
-            help='do not delete messages from server after retrieving'
+            help='after retrieving do not flag messages Deleted or as given by `-s,`'
         )
         overrides.add_option(
             '-a', '--all',
@@ -655,6 +660,9 @@ If no flag is given "\Seen" is assumed.
         if options.trace:
             log.clearhandlers()
 
+        if options.mark_read:
+            options.override_imap = [',']
+
         s = ''
         for attr in dir(options):
             if attr.startswith('_'):
@@ -668,6 +676,7 @@ If no flag is given "\Seen" is assumed.
         flags,search = imap_search_flags(options.override_imap)
         if flags:
             imap_override['imap_on_delete'] = '('+' '.join(flags)+')'
+            options.override_delete = True # intention given by -s,
         if search:
             imap_override['imap_search'] = '('+' '.join(search)+')'
 
