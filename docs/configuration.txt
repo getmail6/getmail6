@@ -453,8 +453,8 @@ Creating a getmail rc file
  
  delete = true
 
-       This avoids further retrieval, without deleting the message on the
-       server. The default is
+       which is made sure via -d in the command line. This avoids further
+       retrieval without deleting the message on the server. The default is
 
  imap_search = ALL
  imap_on_delete = (\Deleted \Seen)
@@ -464,11 +464,9 @@ Creating a getmail rc file
  --searchset/-s
 
        overrides imap_search and imap_on_delete to set flags on the command
-       line. A starting , becomes IMAP flag char \. To apply ,XXX=\XXX
-       entries on the IMAP server use with -d (-ds). , alone is \SEEN. No
-       ,XXX=\XXX is default for delete (`\Deleted \Seen) All other entries
-       are for search. No other entry is Unseen, i.e. -s, means
-       imap_search,imap_on_delete=Unseen,(\Seen)
+       line. A starting , becomes IMAP flag char \. To apply flags on the
+       IMAP server use with -d (-ds). , alone is \SEEN. -ds, means "mark as
+       read". Without , it is a search string to select mail to retrieve.
 
     SSL Client Parameters
 

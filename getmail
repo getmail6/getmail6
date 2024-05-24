@@ -320,10 +320,10 @@ def go(configs, idle, accounts=[]):
                             delete = False
 
                         if delete:
-                            retriever.delmsg(msgid)
-                            log.debug('    deleted\n')
-                            info += ', deleted'
-                            logline += ', deleted'
+                            if retriever.delmsg(msgid):
+                                log.debug('    deleted\n')
+                                info += ', deleted'
+                                logline += ', deleted'
 
                     except getmailDeliveryError as o:
                         errorexit = True
@@ -576,12 +576,16 @@ def main():
             '-s', '--searchset',
             dest='override_imap',
             action='append',
-            help=r'''override imap_search and imap_on_delete to set flags.
-A starting `,` becomes IMAP flag char `\`.
-To apply `,XXX=\XXX` entries on the IMAP server use with -d (-ds).
-`,` alone is '\SEEN'. No `,XXX=\XXX` is default for delete (`\Deleted \Seen`).
-All other entries are for search.
-No other entry is `Unseen`, i.e. `-s,` means `imap_search,imap_on_delete=Unseen,(\Seen)
+            help=r'''`-s` can be repeated to add more search strings to select mails to retrieve.
+After retrieval flags are set if `delete=True'. `-d` makes sure it is True.
+`-ds,<flag>` to set flags other than "\Deleted"`.
+`,` gets converted to the IMAP flag char `\`.
+If no flag is given "\Seen" is assumed.
+
+`-ds,` is like mark-read.
+
+`-s` overrides `imap_search` and `imap_on_delete` existing in the rcfile, or the defaults.
+`imap_search` defaults to "Unseen" and `imap_on_delete` defaults to "\Deleted \Seen".
 '''
         )
         overrides = OptionGroup(

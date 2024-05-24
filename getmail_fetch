@@ -64,8 +64,8 @@ def go(retriever, destination, options, startmsg):
                 log.info(' delivered')
                 retriever.delivered(msgid)
                 if options.delete:
-                    retriever.delmsg(msgid)
-                    log.info(', deleted')
+                    if retriever.delmsg(msgid):
+                        log.info(', deleted')
                 log.info('\n')
 
             except getmailDeliveryError as o:

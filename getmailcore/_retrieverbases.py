@@ -791,8 +791,9 @@ class RetrieverSkeleton(ConfigurableBase):
                           octets) in a dictionary self.msgsizes, using the
                           message identifiers as keys.
 
-      _delmsgbyid(self, msgid) - delete a message from the message store based
-                                 on its message identifier.
+      _flagmsgbyid(self, msgid) - On default flag message msgid for deletion.
+                                  For IMAP imap_on_delete allows other flag:
+                                  return True if `Deleted` is among the flags.
 
       _getmsgbyid(self, msgid) - retrieve and return a message from the message
                                  store based on its message identifier.  The
@@ -1041,8 +1042,9 @@ class RetrieverSkeleton(ConfigurableBase):
     def delmsg(self, msgid):
         if not self.__initialized:
             raise getmailOperationError('not initialized')
-        self._delmsgbyid(msgid)
-        self.deleted[msgid] = True
+        deleted = self._flagmsgbyid(msgid)
+        self.deleted[msgid] = deleted
+        return deleted
 
     def run_password_command(self):
         command = self.conf['password_command'][0]
@@ -1167,10 +1169,11 @@ class POP3RetrieverBase(RetrieverSkeleton):
             )
         self.gotmsglist = True
 
-    def _delmsgbyid(self, msgid):
+    def _flagmsgbyid(self, msgid):
         self.log.trace()
         msgnum = self._getmsgnumbyid(msgid)
         self.conn.dele(msgnum)
+        return True
 
     def _getmsgbyid(self, msgid):
         self.log.debug('msgid %s' % msgid + os.linesep)
@@ -1477,7 +1480,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         # Close current mailbox so deleted mail is expunged.  One getmail
         # user had a buggy IMAP server that didn't do the automatic expunge,
         # so we do it explicitly here if we've deleted any messages.
-        if self.deleted:
+        if any(self.deleted):
             self.conn.expunge()
         self.write_oldmailfile(self.mailbox_selected)
         # And clear some state
@@ -1642,7 +1645,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def __getitem__(self, i):
         return self._mboxuidorder[i]
 
-    def _delmsgbyid(self, msgid):
+    def _flagmsgbyid(self, msgid):
         self.log.trace()
         try:
             uid = self._getmboxuidbymsgid(msgid)
@@ -1660,10 +1663,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             if 'X-GM-EXT-1' in self.conn.capabilities:
                 self._parse_imapuidcmdresponse('STORE', uid,'X-GM-LABELS', '()')
 
+            flag = self.conf.get('imap_on_delete',None) or r'(\Deleted \Seen)'
             response = self._parse_imapuidcmdresponse(
-                'STORE', uid, 'FLAGS',
-                self.conf.get('imap_on_delete',None) or r'(\Deleted \Seen)'
+                'STORE', uid, 'FLAGS', flag
             )
+            return 'Deleted' in flags
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
 
