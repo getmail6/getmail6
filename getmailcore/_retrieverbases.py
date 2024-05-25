@@ -795,9 +795,6 @@ class RetrieverSkeleton(ConfigurableBase):
                                   For IMAP imap_on_delete allows other flag:
                                   return True if `Deleted` is among the flags.
 
-      _mark_msg_read_by_id(self, msgid) - mark a message as read based on its
-                                          message identifier.
-
       _getmsgbyid(self, msgid) - retrieve and return a message from the message
                                  store based on its message identifier.  The
                                  message is returned as a Message() class
@@ -1049,11 +1046,6 @@ class RetrieverSkeleton(ConfigurableBase):
         self.deleted[msgid] = deleted
         return deleted
 
-    def mark_msg_read(self, msgid):
-        if not self.__initialized:
-            raise getmailOperationError('not initialized')
-        self._mark_msg_read_by_id(msgid)
-
     def run_password_command(self):
         command = self.conf['password_command'][0]
         args = self.conf['password_command'][1:]
@@ -1182,9 +1174,6 @@ class POP3RetrieverBase(RetrieverSkeleton):
         msgnum = self._getmsgnumbyid(msgid)
         self.conn.dele(msgnum)
         return True
-
-    def _mark_msg_read_by_id(self, msgid):
-        pass
 
     def _getmsgbyid(self, msgid):
         self.log.debug('msgid %s' % msgid + os.linesep)
@@ -1678,18 +1667,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             response = self._parse_imapuidcmdresponse(
                 'STORE', uid, 'FLAGS', flag
             )
-            return 'Deleted' in flags
-        except imaplib.IMAP4.error as o:
-            raise getmailOperationError('IMAP error (%s)' % o)
-
-    def _mark_msg_read_by_id(self, msgid):
-        self.log.trace()
-        try:
-            uid = self._getmboxuidbymsgid(msgid)
-            response = self._parse_imapuidcmdresponse(
-                'STORE', uid, '+FLAGS',
-                r'\Seen'
-            )
+            return 'Deleted' in flag
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
 
