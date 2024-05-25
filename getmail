@@ -170,6 +170,9 @@ def go(configs, idle, accounts=[]):
                             'be retrieved each time getmail is run\n'
                             % retriever)
 
+        if options['mark_read']:
+            options['delete'] = True
+
         oplevel = options['verbose']
         logverbose = options['message_log_verbose']
         now = int(time.time())
@@ -178,7 +181,6 @@ def go(configs, idle, accounts=[]):
         msgs_skipped = 0
         if options['message_log_syslog']:
             syslog.openlog('getmail', 0, syslog.LOG_MAIL)
-        mark_read = options['mark_read']
         try:
             if not idling:
                 log.info('%s:\n' % retriever)
@@ -327,23 +329,6 @@ def go(configs, idle, accounts=[]):
                                 log.debug('    deleted\n')
                                 info += ', deleted'
                                 logline += ', deleted'
-
-                        if retrieve and mark_read:
-                            try:
-                                retriever.mark_msg_read(msgid)
-                                log.debug('    marked read\n')
-                                info += ', marked read'
-                                logline += ', marked read'
-                            except getmailOperationError as o:
-                                # mark_read = False
-                                #log.warn('%s: operation error (%s)\n' % (configfile, o))
-                                log.warn('%s: mark read failed this operation may not be supported. ignoring\n' % configfile)
-                                if options['logfile']:
-                                    options['logfile'].write('getmailOperationError warning (%s)' % o)
-                                if options['message_log_syslog']:
-                                    syslog.syslog(syslog.LOG_WARN,
-                                                  'getmailOperationError warning (%s)' % o)
-                                pass
 
                     except getmailDeliveryError as o:
                         errorexit = True
@@ -664,11 +649,6 @@ If no flag is given "\Seen" is assumed.
             dest='override_imap_id_extension', action='store_true',
             help='enable IMAP ID extension (RFC 2971)'
         )
-        overrides.add_option(
-            '-R', '--mark-read',
-            dest='override_mark_read', action='store_true',
-            help='mark read after retrieve'
-        )
         parser.add_option_group(overrides)
 
         parser.add_option(
@@ -893,6 +873,17 @@ If no flag is given "\Seen" is assumed.
                     'getmaildir' : getmaildir,
                     'configparser' : configparser,
                 }
+
+                mark_read = configparser.get('options', 'mark_read')
+                if mark_read:
+                    override_imap = [',']
+                    flags,search = imap_search_flags(override_imap)
+                    if flags:
+                        imap_override['imap_on_delete'] = '('+' '.join(flags)+')'
+                        ## options.override_delete = True # commented out, to avoid skipping when both read_all and mark_read are set
+                    if search:
+                        imap_override['imap_search'] = '('+' '.join(search)+')'
+
                 for (name, value) in configparser.items('retriever'):
                     if name in ('type', 'configparser'):
                         continue
@@ -1036,12 +1027,15 @@ If no flag is given "\Seen" is assumed.
                 )
 
             # Apply overrides from commandline
-            for option in ('read_all', 'delete', 'verbose', 'fingerprint', 'to_oldmail_on_each_mail', 'mark_read'):
+            for option in ('read_all', 'delete', 'verbose', 'fingerprint', 'to_oldmail_on_each_mail'):
                 val = getattr(options, 'override_%s' % option)
                 if val is not None:
                     log.debug('overriding option %s from commandline %s\n'
                               % (option, val))
                     config[option] = val
+            val = getattr(options, 'mark_read')
+            if val is not None:
+                config['mark_read'] = val
 
             if config['verbose'] > 2:
                 config['verbose'] = 2
