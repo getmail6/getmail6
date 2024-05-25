@@ -581,7 +581,8 @@ def main():
             '-s', '--searchset',
             dest='override_imap',
             action='append',
-            help=r'''`-s` can be repeated to add more search strings to select mails to retrieve.
+            help=r'''search and set.
+`-s` can be repeated to add more search strings to select mails to retrieve.
 After retrieval flags are set if `delete=True'. `-d` makes sure it is True.
 `-ds,<flag>` to set flags other than "\Deleted"`.
 `,` gets converted to the IMAP flag char `\`.

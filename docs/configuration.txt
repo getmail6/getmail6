@@ -463,10 +463,11 @@ Creating a getmail rc file
 
  --searchset/-s
 
-       overrides imap_search and imap_on_delete to set flags on the command
-       line. A starting , becomes IMAP flag char \. To apply flags on the
-       IMAP server use with -d (-ds). , alone is \SEEN. -ds, means "mark as
-       read". Without , it is a search string to select mail to retrieve.
+       (search and set) overrides imap_search and imap_on_delete to set flags
+       on the command line. A starting , becomes IMAP flag char \. To apply
+       flags on the IMAP server use with -d (-ds). , alone is \SEEN. -ds,
+       means "mark as read". Without , it is a search string to select mail
+       to retrieve.
 
     SSL Client Parameters
 
@@ -1455,10 +1456,6 @@ Creating a getmail rc file
        mails, if something went wrong, like the server dying. Default: False.
      * skip_imap_fetch_size (boolean) — will skip fetching RFC822.SIZE. This
        speeds up mail checks, particularly with a davmail proxies.
-     * mark_read: (boolean) — if set, getmail will mark messages as read after
-       retrieving them instead of delete. It is setting both
-       imap_search = "\Unseen" and imap_on_delete = "\Seen" synonymously
-       and override.
 
  skip_imap_fetch_size
 
@@ -1521,13 +1518,17 @@ Creating a getmail rc file
        actually retrieved, and about error conditions. Note that this has no
        effect if neither message_log nor message_log_syslog is in use.
        Default: False.
+     * mark_read (boolean) — if set, getmail will mark messages as read after
+       retrieving them instead of delete. It is setting both imap_search =
+       "\Unseen" and imap_on_delete = "\Seen" synonymously and override.
+       Default: False.
 
    Most users will want to either enable the delete option (to delete mail
    after retrieving it), or disable the read_all option (to only retrieve
    previously-unread mail).
 
-   The verbose, read_all, delete, and mark_read parameters can be overridden at
-   run time with commandline options.
+   The verbose, read_all, delete, and mark_read parameters can be overridden
+   at run time with commandline options.
 
     [options] example
 
