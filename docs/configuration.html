@@ -2674,6 +2674,14 @@ localpart_translate = ('mailhostaccount-', '')
         </span>
         Default: False.
     </li>
+    <li>
+        mark_read
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set, getmail will mark messages as read after retrieving
+	them instead of delete. It is setting both imap_search = "\Unseen"
+	and imap_on_delete = "\Seen" synonymously and override.
+        Default: False.
+    </li>
 </ul>
 <p>
     Most users will want to either enable the
@@ -2683,8 +2691,8 @@ localpart_translate = ('mailhostaccount-', '')
     option (to only retrieve previously-unread mail).
 </p>
 <p>
-    The verbose, read_all, and delete parameters can be overridden at run time
-    with
+    The verbose, read_all, delete, and mark_read parameters can be overridden
+    at run time with
     <a href="#running">commandline options</a>.
 </p>
 

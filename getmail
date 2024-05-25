@@ -50,6 +50,7 @@ options_bool = (
     'use_netrc',
     'skip_imap_fetch_size',
     'to_oldmail_on_each_mail',
+    'mark_read',
 )
 options_int = (
     'delete_after',
@@ -112,6 +113,7 @@ defaults = {
     'netrc_file' : None,
     'skip_imap_fetch_size' : False,
     'imap_id_extension': False,
+    'mark_read': False,
 }
 
 
@@ -167,6 +169,9 @@ def go(configs, idle, accounts=[]):
                 log.warning('%s: read_all and not delete -- all messages will '
                             'be retrieved each time getmail is run\n'
                             % retriever)
+
+        if options['mark_read']:
+            options['delete'] = True
 
         oplevel = options['verbose']
         logverbose = options['message_log_verbose']
@@ -762,6 +767,7 @@ If no flag is given "\Seen" is assumed.
                 'netrc_file' : defaults['netrc_file'],
                 'skip_imap_fetch_size' : defaults['skip_imap_fetch_size'],
                 'imap_id_extension': defaults['imap_id_extension'],
+                'mark_read': defaults['mark_read'],
             }
             # Python's ConfigParser .getboolean() couldn't handle booleans in
             # the defaults. Submitted a patch; they fixed it a different way.
@@ -867,6 +873,17 @@ If no flag is given "\Seen" is assumed.
                     'getmaildir' : getmaildir,
                     'configparser' : configparser,
                 }
+
+                mark_read = configparser.get('options', 'mark_read')
+                if mark_read:
+                    override_imap = [',']
+                    flags,search = imap_search_flags(override_imap)
+                    if flags:
+                        imap_override['imap_on_delete'] = '('+' '.join(flags)+')'
+                        ## options.override_delete = True # commented out, to avoid skipping when both read_all and mark_read are set
+                    if search:
+                        imap_override['imap_search'] = '('+' '.join(search)+')'
+
                 for (name, value) in configparser.items('retriever'):
                     if name in ('type', 'configparser'):
                         continue
@@ -1016,6 +1033,9 @@ If no flag is given "\Seen" is assumed.
                     log.debug('overriding option %s from commandline %s\n'
                               % (option, val))
                     config[option] = val
+            val = getattr(options, 'mark_read')
+            if val is not None:
+                config['mark_read'] = val
 
             if config['verbose'] > 2:
                 config['verbose'] = 2
