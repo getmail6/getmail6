@@ -1455,6 +1455,10 @@ Creating a getmail rc file
        mails, if something went wrong, like the server dying. Default: False.
      * skip_imap_fetch_size (boolean) — will skip fetching RFC822.SIZE. This
        speeds up mail checks, particularly with a davmail proxies.
+     * mark_read: (boolean) — if set, getmail will mark messages as read after
+       retrieving them instead of delete. It is setting both
+       imap_search = "\Unseen" and imap_on_delete = "\Seen" synonymously
+       and override.
 
  skip_imap_fetch_size
 
@@ -1522,8 +1526,8 @@ Creating a getmail rc file
    after retrieving it), or disable the read_all option (to only retrieve
    previously-unread mail).
 
-   The verbose, read_all, and delete parameters can be overridden at run time
-   with commandline options.
+   The verbose, read_all, delete, and mark_read parameters can be overridden at
+   run time with commandline options.
 
     [options] example
 
