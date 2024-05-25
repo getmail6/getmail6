@@ -1667,7 +1667,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             response = self._parse_imapuidcmdresponse(
                 'STORE', uid, 'FLAGS', flag
             )
-            return 'Deleted' in flags
+            return 'Deleted' in flag
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
 
