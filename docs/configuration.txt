@@ -410,7 +410,7 @@ Creating a getmail rc file
        containing the name of the selected mailbox that the message was
        retrieved from. This is on by default, but can be disabled.
      * use_kerberos (boolean) — whether to use Kerberos authentication with
-       the IMAP server. If not set, normal password-based authenticaion is
+       the IMAP server. If not set, normal password-based authentication is
        used. Note that when you use Kerberos authentication, it is up to you
        to ensure you have a valid Kerberos ticket (perhaps by running a
        ticket-renewing agent such as kstart or similar). This feature
@@ -418,7 +418,7 @@ Creating a getmail rc file
        installed; check your OS distribution or see
        http://honk.sigxcpu.org/projects/pykerberos/" for details.
      * use_xoauth2 (boolean) — whether to use XOAUTH2 for login with the IMAP
-       server. If not set, normal password-based authenticaion is used. This
+       server. If not set, normal password-based authentication is used. This
        currently supports Gmail and Microsoft Office 365; if anyone extends
        this to support other IMAP providers, please let me know so I can
        include such support in getmail. Note that using XOAUTH2 is no more
