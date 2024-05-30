@@ -1,3 +1,9 @@
+Version 6.18.15
+TODO
+    - #191 -m/--mark-read and mark_read in [options] of rcfile
+    - #190 -o/--only-account to choose rcfile by username (=email)
+    - #189 IMAP retrievers support imap_id_extension
+
 Version 6.18.14
 20 March 2024
     - fix make lint

@@ -20,7 +20,7 @@ Please refer to the git history regarding who changed what and when in this file
 <h1 id="title">getmail documentation</h1>
 <p class="introduction">
     This is the documentation for getmail version 6,
-    a port of getmail version 5 to python 3 without adding features.
+    a port of getmail version 5 to python 3.
 </p>
 <p class="about">
     getmail6 is Copyright &copy; 1998-2024 by Charles Cazabon and others:<br>
@@ -688,29 +688,36 @@ mailboxes = ALL
         As an example <pre class="example"> 
 imap_search = Unseen
 imap_on_delete = \Seen</pre>
-        fetches only new messages and sets the message flag to <pre>SEEN</pre> on "delete".
-        To set the flag we need the global <pre class="example"> 
-delete = true</pre> which is made sure via -d in the command line.
-        This avoids further retrieval without deleting the message on the server.
+        fetches only new messages and sets the message flag to <span class="file">SEEN</span> on "delete"
+        (only <span class="file">\Delete</span> in it will actually delete the email on the server).
+        Setting the flag will also override the global <span class="file">delete = true</span>
+        (which is also made sure via <span class="file">-d</span> in the command line).
+        <span class="file">\Seen</span> avoids further retrieval without deleting the message on the server.
         The default is <pre class="example">
 imap_search = ALL
 imap_on_delete = (\Deleted \Seen)</pre>
         For more on IMAP SEARCH see <href="https://datatracker.ietf.org/doc/html/rfc3501#page-49">rfc3501</a>.
         <p>
+        The command line parameter
         <pre class="file">--searchset/-s</pre>
         </p><p>
-        (search and set) overrides imap_search and imap_on_delete to set flags on the command line.
+        (search and set) overrides imap_search to select emails to retrieve and imap_on_delete to set flags on the server
         A starting
         <span class="file">,</span>
         becomes IMAP flag char
         <span class="file">\</span>.
-        To apply flags on the IMAP server use with -d (-ds).
-        <span class="file">,</span>
+        <span class="file">-s</span> implies <span class="file">-d</span>, ie is like <span class="file">-ds</span>.
+        <span class="file">-ds,</span>
         alone is
         <span class="file">\SEEN</span>.
         <span class="file">-ds,</span> means "mark as read".
         Without <span class="file">,</span> it is a search string to select mail to retrieve.
         </p>
+    </li>
+    <li>
+        imap_id_extension (<a href="#parameter-string">boolean</a>).
+        If set, getmail sends <span class="file">getmail 6.0.0</span> as client ID to the server.
+        The default is <span class="file">False</span>.
     </li>
 </ul>
 
@@ -2581,6 +2588,16 @@ localpart_translate = ('mailhostaccount-', '')
         <pre>delete_bigger_than</pre>.
     </li>
     <li>
+        mark_read
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set, getmail will mark messages as read after retrieving.
+        It sets, the IMAP <span class="file">(\Seen)</span> flag on the server.
+        The command parameter <span class="file">-m/--mark-read</span> can be used to override the option.
+        <span class="file">-m/--mark-read</span> is related to <span class="file">--searchset/-s</span>,
+        a synonym to <span class="file">-ds,</span> = <span class="file">-ds,Seen</span>.
+        Default: False.
+    </li>
+    <li>
         delete_bigger_than
         (<a href="#parameter-integer">integer</a>)
         &mdash; if set, getmail will delete messages larger than this number of
@@ -2672,14 +2689,6 @@ localpart_translate = ('mailhostaccount-', '')
             Note that this has no effect if neither message_log nor
             message_log_syslog is in use.
         </span>
-        Default: False.
-    </li>
-    <li>
-        mark_read
-        (<a href="#parameter-boolean">boolean</a>)
-        &mdash; if set, getmail will mark messages as read after retrieving
-	them instead of delete. It is setting both imap_search = "\Unseen"
-	and imap_on_delete = "\Seen" synonymously and override.
         Default: False.
     </li>
 </ul>
@@ -3215,6 +3224,26 @@ type = Filter_TMDA
         <span class="meta">getmaildir</span>
         are used, apart from
         <span class="file">oldmail-*, *.json, .*</span>
+    </li>
+    <li>
+        --only-account=<span class="meta">email@address</span>
+        or
+        -o<span class="meta">email@address</span>
+        choses the rc file based on the username/email.
+    </li>
+    <li>
+        --searchset=,<span class="meta">flag</span> or
+        --searchset=<span class="meta">search string</span>
+        or -s,<span class="meta">flag</span>.
+        No flag -s, is -s,Seen.
+        See imap_search and imap_on_delete.
+    </li>
+    <li>
+        -m/--mark-read is like <span class="file">-ds,</span>.
+        It overrides
+        <span class="file">mark_read</span>
+        in
+        <span class="file">[options]</span>
     </li>
     <li>
         --dump &mdash; read rc files, dump configuration, and exit (debugging)

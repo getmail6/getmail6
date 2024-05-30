@@ -3,28 +3,31 @@
 .. docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 .. Please refer to the git history regarding who changed what and when in this file.
 
-getmail6
-========
+Description
+===========
 
 getmail6 is a flexible, extensible mail retrieval system with
 support for POP3, IMAP4, SSL variants of both, maildirs, mboxrd files,
 external MDAs, arbitrary message filtering, single-user and domain-mailboxes,
 and many other useful features.
 
+Licence
+=======
+
 getmail is Copyright (C) 1998-2024 Charles Cazabon and others.
 getmail is licensed for use under the GNU General Public License version 2 (only).
 See ``docs/COPYING`` for specific terms and distribution information.
+
+Bugs
+====
 
 getmail6 has adaptations to work with Python 3.
 These changes might still contain some bugs.
 Please report them at https://github.com/getmail6/getmail6.
 See ``docs/BUGS`` for instructions on reporting bugs.
 
-getmail6 will probably not work with Python versions older than 2.7.
-Use getmail 5.14 with them.
-
 Installation
-------------
+============
 
 To install::
 
@@ -39,16 +42,19 @@ You can install getmail6 in your home directory if you add ``--user``.
 If getmail6 is available via your Linux distribution, you better use that.
 
 Usage
------
+=====
 
 getmail6 is not a python API.
 getmail6 provides command line tools:
 
 - getmail
-- getmail_maildir,
+- getmail_maildir
 - getmail_mbox
 - getmail_fetch
 - getmail-gmail-xoauth-tokens
+
+Configuration
+=============
 
 Before using ``getmail`` you must configure it.
 See ``docs/configuration.txt`` and ``docs/getmailrc-examples``.
@@ -70,8 +76,8 @@ An example::
   read_all = true
   delete = true
 
-Google gmail
-------------
+Gmail
+=====
 
 For **gmail**,
 after having enabled 2-Step Authentication,
@@ -90,9 +96,6 @@ use ``pass edit <your_email_here>`` and change to the generate one.
 
 See also: https://support.google.com/accounts/answer/185833
 
-Oauth2 Privacy Policy
----------------------
-
 getmail is a native app.
 See
 https://developers.google.com/identity/protocols/oauth2/native-app
@@ -106,9 +109,7 @@ Don't forget to remove the ``use_xoauth2`` line,
 if you switch from Oauth2 to *app password*.
 
 Tests
------
-
-getmail 5.14 did not come with tests.
+=====
 
 There is now a test folder that uses
 `docker-mailserver <https://github.com/docker-mailserver/docker-mailserver>`__
@@ -119,17 +120,19 @@ This still tests Python 2.7.
 Tests are work in progress.
 
 Documentation
--------------
+=============
 
 See the HTML documentation for details on setting up and using ``getmail``.
-It is included in the ``docs`` subdirectory,
-and will be installed in ``<PREFIX>/doc/getmail-<version>/`` (by default).
 
 ::
 
-  docs/documentation.txt
-  docs/configuration.txt
-  docs/faq.txt
-  docs/troubleshooting.txt
+  docs/documentation.html
+  docs/configuration.html
+  docs/faq.html
+  docs/troubleshooting.html
+
+
+It is included in the ``docs`` subdirectory,
+and will be installed in ``<PREFIX>/doc/getmail-<version>/`` (by default).
 
 

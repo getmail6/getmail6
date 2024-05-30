@@ -729,7 +729,6 @@ If no flag is given "\Seen" is assumed.
                 'read_all' : options_defaults['read_all'],
                 'delete' : options_defaults['delete'],
                 'delete_after' : options_defaults['delete_after'],
-                'to_oldmail_on_each_mail' : options_defaults['to_oldmail_on_each_mail'],
                 'delete_bigger_than' : options_defaults['delete_bigger_than'],
                 'max_message_size' : options_defaults['max_message_size'],
                 'max_messages_per_session' :
@@ -745,6 +744,7 @@ If no flag is given "\Seen" is assumed.
                 'fingerprint' : options_defaults['fingerprint'],
                 'use_netrc' : options_defaults['use_netrc'],
                 'netrc_file' : options_defaults['netrc_file'],
+                'to_oldmail_on_each_mail' : options_defaults['to_oldmail_on_each_mail'],
                 'skip_imap_fetch_size' : options_defaults['skip_imap_fetch_size'],
                 'mark_read': options_defaults['mark_read'],
             }

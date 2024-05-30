@@ -31,7 +31,6 @@ test: testpython testclean test3
 
 .PHONY: lint
 lint:
-	# codespell
 	ruff check .
 
 .PHONY: check
