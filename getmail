@@ -39,32 +39,6 @@ try:
 except ImportError:
     keyring = None
 
-options_bool = (
-    'read_all',
-    'delete',
-    'delivered_to',
-    'received',
-    'message_log_verbose',
-    'message_log_syslog',
-    'fingerprint',
-    'use_netrc',
-    'skip_imap_fetch_size',
-    'to_oldmail_on_each_mail',
-    'mark_read',
-)
-options_int = (
-    'delete_after',
-    'delete_bigger_than',
-    'max_message_size',
-    'max_messages_per_session',
-    'max_bytes_per_session',
-    'verbose',
-)
-options_str = (
-    'message_log',
-    'netrc_file',
-)
-
 # Unix only
 try:
     import syslog
@@ -90,14 +64,39 @@ def blurb():
     log.info('Copyright (C) 1998-2024 Charles Cazabon and others. '
              'Licensed under %s.\n'%__license__)
 
-defaults = {
+options_bool = (
+    'read_all',
+    'delete',
+    'delivered_to',
+    'received',
+    'message_log_verbose',
+    'message_log_syslog',
+    'fingerprint',
+    'use_netrc',
+    'to_oldmail_on_each_mail',
+    'skip_imap_fetch_size',
+    'mark_read',
+)
+options_int = (
+    'delete_after',
+    'delete_bigger_than',
+    'max_message_size',
+    'max_messages_per_session',
+    'max_bytes_per_session',
+    'verbose',
+)
+options_str = (
+    'message_log',
+    'netrc_file',
+)
+
+options_defaults = {
     'rcfile' : 'getmailrc',
 
     'verbose' : 1,
     'read_all' : True,
     'delete' : False,
     'delete_after' : 0,
-    'to_oldmail_on_each_mail' : False,
     'delete_bigger_than' : 0,
     'max_message_size' : 0,
     'max_messages_per_session' : 0,
@@ -111,8 +110,8 @@ defaults = {
     'fingerprint' : False,
     'use_netrc' : False,
     'netrc_file' : None,
+    'to_oldmail_on_each_mail' : False,
     'skip_imap_fetch_size' : False,
-    'imap_id_extension': False,
     'mark_read': False,
 }
 
@@ -129,7 +128,7 @@ def convert_to_sigint(unused1, unused2):
 signal.signal(signal.SIGTERM, convert_to_sigint)
 
 #######################################
-def go(configs, idle, accounts=[]):
+def go(configs, idle, only_account=[]):
     """Main code.
 
     Returns True if all goes well, False if any error condition occurs.
@@ -145,7 +144,7 @@ def go(configs, idle, accounts=[]):
 
     for (configfile, retriever, _filters, destination, options) in configs:
         username = retriever.conf.get('username')
-        if accounts and len(accounts) > 0 and username not in accounts:
+        if only_account and len(only_account) > 0 and username not in only_account:
             continue
 
         if options['skip_imap_fetch_size'] and (
@@ -169,9 +168,6 @@ def go(configs, idle, accounts=[]):
                 log.warning('%s: read_all and not delete -- all messages will '
                             'be retrieved each time getmail is run\n'
                             % retriever)
-
-        if options['mark_read']:
-            options['delete'] = True
 
         oplevel = options['verbose']
         logverbose = options['message_log_verbose']
@@ -518,15 +514,14 @@ def go(configs, idle, accounts=[]):
 
     return (not errorexit)
 
-
-def imap_search_flags(options_override_imap):
-    flags = None
-    search = None
-    ooi = options_override_imap
+def imap_search_flags(imap_search_n_set):
+    flags = []
+    search = []
+    ooi = imap_search_n_set
     isflag = lambda x: x[0] in {',','\\'}
-    mkflag = lambda x: '\\'+(x[1:] or 'SEEN')
+    mkflag = lambda x: '\\'+(x[1:] or 'Seen')
     if ooi:
-        flags = [ mkflag(x) for i in ooi for x in i.split() if isflag(x)]
+        flags = [mkflag(x) for i in ooi for x in i.split() if isflag(x)]
         search = [x for i in ooi for x in i.split() if not isflag(x)]
         search = search or ['UNSEEN']
         search = [x for x in search if x.strip()!='ALL']
@@ -579,7 +574,7 @@ def main():
             )
         parser.add_option(
             '-s', '--searchset',
-            dest='override_imap',
+            dest='imap_search_n_set',
             action='append',
             help=r'''search and set.
 `-s` can be repeated to add more search strings to select mails to retrieve.
@@ -593,11 +588,6 @@ If no flag is given "\Seen" is assumed.
 `-s` overrides `imap_search` and `imap_on_delete` existing in the rcfile, or the defaults.
 `imap_search` defaults to "Unseen" and `imap_on_delete` defaults to "\Deleted \Seen".
 '''
-        )
-        parser.add_option(
-            '-R', '--mark-read',
-            dest='mark_read', action='store_true',
-            help='mark read after retrieve (synonym to `-ds,`)'
         )
         overrides = OptionGroup(
             parser, 'Overrides',
@@ -643,18 +633,18 @@ If no flag is given "\Seen" is assumed.
         overrides.add_option(
             '--to-oldmail-on-each-mail',
             dest='override_to_oldmail_on_each_mail', action='store_true',
-            help='store retrieved mails in oldmail file after every mail'
+            help='store retrieved mails in oldmail file after every mail to avoid re-download in case of session crash'
         )
         overrides.add_option(
-            '-I', '--imap-id',
-            dest='override_imap_id_extension', action='store_true',
-            help='enable IMAP ID extension (RFC 2971)'
+            '-m', '--mark-read',
+            dest='override_mark_read', action='store_true',
+            help='mark read after retrieve (synonym to `-ds,`)'
         )
         parser.add_option_group(overrides)
 
         parser.add_option(
-            '-A', '--account',
-            dest='account', action='append',
+            '-o', '--only-account',
+            dest='only_account', action='append',
             help='check specified account only (may be given multiple times)'
         )
 
@@ -666,9 +656,6 @@ If no flag is given "\Seen" is assumed.
         if options.trace:
             log.clearhandlers()
 
-        if options.mark_read:
-            options.override_imap = [',']
-
         s = ''
         for attr in dir(options):
             if attr.startswith('_'):
@@ -677,14 +664,6 @@ If no flag is given "\Seen" is assumed.
                 s += ','
             s += '%s="%s"' % (attr, pprint.pformat(getattr(options, attr)))
         log.debug('parsed options:  %s\n' % s)
-
-        imap_override = {}
-        flags,search = imap_search_flags(options.override_imap)
-        if flags:
-            imap_override['imap_on_delete'] = '('+' '.join(flags)+')'
-            options.override_delete = True # intention given by -s,
-        if search:
-            imap_override['imap_search'] = '('+' '.join(search)+')'
 
         if options.getmaildir is None:
             getmaildir_type = 'Default'
@@ -721,7 +700,7 @@ If no flag is given "\Seen" is assumed.
 
         if not options.rcfile:
             if not os.path.exists(
-                os.path.join(getmaildir,defaults['rcfile'])):
+                os.path.join(getmaildir,options_defaults['rcfile'])):
                 options.rcfile = [x for x in os.listdir(getmaildir) # keep in sync with getmails
                                   if not x.endswith('~')
                                   and not x.endswith('#')
@@ -733,7 +712,7 @@ If no flag is given "\Seen" is assumed.
                                   and os.path.isfile(os.path.join(getmaildir,x))
                                   ]
             else:
-                options.rcfile.append(defaults['rcfile'])
+                options.rcfile.append(options_defaults['rcfile'])
 
         configs = []
         for filename in options.rcfile:
@@ -745,35 +724,34 @@ If no flag is given "\Seen" is assumed.
             elif not os.path.isfile(path):
                 raise getmailOperationError('%s is not a file' % path)
             f = open(path, 'r')
-            config = {
-                'verbose' : defaults['verbose'],
-                'read_all' : defaults['read_all'],
-                'delete' : defaults['delete'],
-                'delete_after' : defaults['delete_after'],
-                'to_oldmail_on_each_mail' : defaults['to_oldmail_on_each_mail'],
-                'delete_bigger_than' : defaults['delete_bigger_than'],
-                'max_message_size' : defaults['max_message_size'],
+            defaultopt = {
+                'verbose' : options_defaults['verbose'],
+                'read_all' : options_defaults['read_all'],
+                'delete' : options_defaults['delete'],
+                'delete_after' : options_defaults['delete_after'],
+                'to_oldmail_on_each_mail' : options_defaults['to_oldmail_on_each_mail'],
+                'delete_bigger_than' : options_defaults['delete_bigger_than'],
+                'max_message_size' : options_defaults['max_message_size'],
                 'max_messages_per_session' :
-                    defaults['max_messages_per_session'],
+                    options_defaults['max_messages_per_session'],
                 'max_bytes_per_session' :
-                    defaults['max_bytes_per_session'],
-                'delivered_to' : defaults['delivered_to'],
-                'received' : defaults['received'],
-                'logfile' : defaults['logfile'],
-                'message_log' : defaults['message_log'],
-                'message_log_verbose' : defaults['message_log_verbose'],
-                'message_log_syslog' : defaults['message_log_syslog'],
-                'fingerprint' : defaults['fingerprint'],
-                'use_netrc' : defaults['use_netrc'],
-                'netrc_file' : defaults['netrc_file'],
-                'skip_imap_fetch_size' : defaults['skip_imap_fetch_size'],
-                'imap_id_extension': defaults['imap_id_extension'],
-                'mark_read': defaults['mark_read'],
+                    options_defaults['max_bytes_per_session'],
+                'delivered_to' : options_defaults['delivered_to'],
+                'received' : options_defaults['received'],
+                'logfile' : options_defaults['logfile'],
+                'message_log' : options_defaults['message_log'],
+                'message_log_verbose' : options_defaults['message_log_verbose'],
+                'message_log_syslog' : options_defaults['message_log_syslog'],
+                'fingerprint' : options_defaults['fingerprint'],
+                'use_netrc' : options_defaults['use_netrc'],
+                'netrc_file' : options_defaults['netrc_file'],
+                'skip_imap_fetch_size' : options_defaults['skip_imap_fetch_size'],
+                'mark_read': options_defaults['mark_read'],
             }
             # Python's ConfigParser .getboolean() couldn't handle booleans in
             # the defaults. Submitted a patch; they fixed it a different way.
             # But for the extant, unfixed versions, an ugly hack....
-            parserdefaults = config.copy()
+            parserdefaults = defaultopt.copy()
             for (key, value) in parserdefaults.items():
                 if type(value) == bool:
                     parserdefaults[key] = str(value)
@@ -791,10 +769,10 @@ If no flag is given "\Seen" is assumed.
                         log.debug('got "%s"'
                                   % configparser.get('options', option))
                         try:
-                            config[option] = configparser.getboolean(
+                            defaultopt[option] = configparser.getboolean(
                                 'options', option
                             )
-                            log.debug('-> %s' % config[option])
+                            log.debug('-> %s' % defaultopt[option])
                         except ValueError:
                             raise getmailConfigurationError(
                                 'configuration file %s incorrect (option %s '
@@ -813,9 +791,9 @@ If no flag is given "\Seen" is assumed.
                             'got "%s"' % configparser.get('options', option)
                         )
                         try:
-                            config[option] = configparser.getint('options',
+                            defaultopt[option] = configparser.getint('options',
                                                                  option)
-                            log.debug('-> %s' % config[option])
+                            log.debug('-> %s' % defaultopt[option])
                         except ValueError:
                             raise getmailConfigurationError(
                                 'configuration file %s incorrect (option %s '
@@ -833,27 +811,52 @@ If no flag is given "\Seen" is assumed.
                     if configparser.has_option('options', option):
                         log.debug('got "%s"'
                                   % configparser.get('options', option))
-                        config[option] = configparser.get('options', option)
-                        log.debug('-> %s' % config[option])
+                        defaultopt[option] = configparser.get('options', option)
+                        log.debug('-> %s' % defaultopt[option])
                     else:
                         log.debug('not found')
                     log.debug('\n')
-                if config['message_log']:
+                if defaultopt['message_log']:
                     try:
-                        config['logfile'] = logfile(config['message_log'])
+                        defaultopt['logfile'] = logfile(defaultopt['message_log'])
                     except IOError as o:
                         raise getmailConfigurationError(
                             'error opening message_log file %s (%s)'
-                            % (config['message_log'], o)
+                            % (defaultopt['message_log'], o)
                         )
 
                 # see if a netrc file is configured
                 netrc_object = None
-                if config['use_netrc']:
+                if defaultopt['use_netrc']:
                     # informs user via FileNotFoundError, if file is not there
                     netrc_object = netrc.netrc(
-                        config['netrc_file']
-                        and expand_user_vars(config['netrc_file']))
+                        defaultopt['netrc_file']
+                        and expand_user_vars(defaultopt['netrc_file']))
+
+                # Apply overrides from commandline
+                for o in (
+                    'override_read_all',
+                    'override_delete',
+                    'override_verbose',
+                    'override_fingerprint',
+                    'override_to_oldmail_on_each_mail',
+                    'override_mark_read',
+                ):
+                    val = getattr(options, o)
+                    if val is not None:
+                        option_org = o.split('_',1)[1]
+                        log.debug('overriding option %s from commandline %s\n'
+                                % (option_org, val))
+                        defaultopt[option_org] = val
+                imap_override = {}
+                flags,search = imap_search_flags(options.imap_search_n_set)
+                if defaultopt['mark_read'] and ('\\SEEN' not in {x.upper() for x in flags}):
+                    flags += ['\\SEEN']
+                if flags:
+                    imap_override['imap_on_delete'] = '('+' '.join(flags)+')'
+                    options.override_delete = True # intention given by -s,
+                if search:
+                    imap_override['imap_search'] = '('+' '.join(search)+')'
 
                 # Clear out the ConfigParser defaults before processing further
                 # sections
@@ -875,16 +878,6 @@ If no flag is given "\Seen" is assumed.
                     'configparser' : configparser,
                 }
 
-                mark_read = configparser.get('options', 'mark_read')
-                if mark_read:
-                    override_imap = [',']
-                    flags,search = imap_search_flags(override_imap)
-                    if flags:
-                        imap_override['imap_on_delete'] = '('+' '.join(flags)+')'
-                        ## options.override_delete = True # commented out, to avoid skipping when both read_all and mark_read are set
-                    if search:
-                        imap_override['imap_search'] = '('+' '.join(search)+')'
-
                 for (name, value) in configparser.items('retriever'):
                     if name in ('type', 'configparser'):
                         continue
@@ -901,10 +894,10 @@ If no flag is given "\Seen" is assumed.
                         retriever_args['username'] = netrc_auth[0]
                     if netrc_auth and netrc_auth[2]:
                         retriever_args['password'] = netrc_auth[2]
-                if options.override_imap_id_extension is not None:
-                    retriever_args['imap_id_extension'] = options.override_imap_id_extension
+
                 log.debug('    instantiating retriever %s with args %s\n'
                           % (retriever_type, format_params(retriever_args)))
+
                 try:
                     retriever = retriever_func(**retriever_args)
                     log.debug('    checking retriever configuration for %s\n'
@@ -1027,26 +1020,15 @@ If no flag is given "\Seen" is assumed.
                     'configuration file %s incorrect (%s)' % (path, o)
                 )
 
-            # Apply overrides from commandline
-            for option in ('read_all', 'delete', 'verbose', 'fingerprint', 'to_oldmail_on_each_mail'):
-                val = getattr(options, 'override_%s' % option)
-                if val is not None:
-                    log.debug('overriding option %s from commandline %s\n'
-                              % (option, val))
-                    config[option] = val
-            val = getattr(options, 'mark_read')
-            if val is not None:
-                config['mark_read'] = val
+            if defaultopt['verbose'] > 2:
+                defaultopt['verbose'] = 2
 
-            if config['verbose'] > 2:
-                config['verbose'] = 2
-
-            if not options.trace and config['verbose'] == 0:
+            if not options.trace and defaultopt['verbose'] == 0:
                 log.clearhandlers()
                 log.addhandler(sys.stderr, logging.WARNING)
 
             configs.append((os.path.basename(filename), retriever, _filters,
-                            destination, config.copy()))
+                            destination, defaultopt.copy()))
 
         if options.dump_config:
             # Override any "verbose = 0" in the config file
@@ -1054,7 +1036,7 @@ If no flag is given "\Seen" is assumed.
             log.addhandler(sys.stdout, logging.INFO, maxlevel=logging.INFO)
             log.addhandler(sys.stderr, logging.WARNING)
             blurb()
-            for (filename, retriever, _filters, destination, config) in configs:
+            for (filename, retriever, _filters, destination, configopt) in configs:
                 log.info('getmail configuration:\n')
                 log.info('  getmail version %s\n' % __version__)
                 log.info('  Python version %s\n' % sys.version)
@@ -1067,13 +1049,13 @@ If no flag is given "\Seen" is assumed.
                 log.info('  destination:  ')
                 destination.showconf()
                 log.info('  options:\n')
-                for name in sorted(config.keys()):
-                    log.info('    %s : %s\n' % (name, config[name]))
+                for name in sorted(configopt.keys()):
+                    log.info('    %s : %s\n' % (name, configopt[name]))
                 log.info('\n')
             sys.exit()
 
         # Go!
-        success = go(configs, options.idle, options.account)
+        success = go(configs, options.idle, options.only_account)
         if not success:
             raise SystemExit(127)
 
