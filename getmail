@@ -850,8 +850,11 @@ If no flag is given "\Seen" is assumed.
                         defaultopt[option_org] = val
                 imap_override = {}
                 flags,search = imap_search_flags(options.imap_search_n_set)
-                if defaultopt['mark_read'] and ('\\SEEN' not in {x.upper() for x in flags}):
-                    flags += ['\\SEEN']
+                if defaultopt['mark_read']:
+                    if '\\SEEN' not in {x.upper() for x in flags}:
+                        flags += ['\\SEEN']
+                    if 'UNSEEN' not in {x.upper() for x in search}:
+                        search += ['UNSEEN']
                 if flags:
                     imap_override['imap_on_delete'] = '('+' '.join(flags)+')'
                     options.override_delete = True # intention given by -s,
