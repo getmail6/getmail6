@@ -515,6 +515,22 @@ def go(configs, idle, only_account=[]):
     return (not errorexit)
 
 def imap_search_flags(imap_search_n_set):
+    """
+    >>> imap_search_n_set=[',']
+    >>> imap_search_flags(imap_search_n_set)
+    (['\\Seen'], ['UNSEEN'])
+    >>> imap_search_n_set=['Unseen',',']
+    >>> imap_search_flags(imap_search_n_set)
+    (['\\Seen'], ['Unseen'])
+    >>> imap_search_n_set=['Seen',',Seen']
+    >>> imap_search_flags(imap_search_n_set)
+    (['\\Seen'], ['Seen'])
+    >>> imap_search_n_set=['\\Seen']
+    >>> flags,search = imap_search_flags(imap_search_n_set)
+    >>> '\\SEEN' in {x.upper() for x in flags}
+    True
+
+    """
     flags = []
     search = []
     ooi = imap_search_n_set
