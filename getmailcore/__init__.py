@@ -9,14 +9,14 @@ simple and multidrop POP3 mailboxes, multidrop SDPS mailboxes, simple and
 multidrop IMAP mailboxes.  Also supports POP3- and IMAP-over-SSL, message
 filtering, and other features.
 
-getmail is Copyright (C) 1998-2019 Charles Cazabon.  All rights reserved.
+getmail is Copyright (C) 1998-2024 Charles Cazabon.  All rights reserved.
 Distributed under the terms of the GNU General Public License version 2 (only).
 You should have received a copy of the license in the file COPYING.
 '''
 
 import sys
 
-__version__ = '6.19.00'
+__version__ = '6.19.01'
 __license__ = 'GNU GPL version 2'
 
 __py_required__ = '2.7.16'
