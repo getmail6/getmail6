@@ -72,7 +72,10 @@ class OAuth2(object):
     def copy(self, *keys):
         data = {}
         for k in keys:
-            data[k] = self.data[k]
+            try:
+                data[k] = self.data[k]
+            except KeyError:
+                pass
         return data
 
     def query(self, params):
@@ -84,7 +87,7 @@ class OAuth2(object):
 
     def code_url(self, port):
         params = self.copy('scope', 'client_id', 'redirect_uri')
-        if not params['redirect_uri']:
+        if 'redirect_uri' not in params:
             params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
         params['response_type'] = 'code'
         params['access_type'] = 'offline'
@@ -117,7 +120,7 @@ class OAuth2(object):
 
     def init_tokens(self, code, port):
         params = self.copy('user', 'client_id', 'client_secret', 'redirect_uri')
-        if not params['redirect_uri']:
+        if 'redirect_uri' not in params:
             params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
         params['code'] = code
         params['grant_type'] = 'authorization_code'
