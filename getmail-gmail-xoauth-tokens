@@ -148,8 +148,13 @@ if __name__ == '__main__':
                         help="initialize access and refresh tokens")
     parser.add_argument('tokenfile', metavar='<token data file path>',
                         help="location of the token data file")
-    parser.add_argument("-p", "--port", default="8083",
-                        help="local port to use for receiving oauth2 redirect")
+    parser.add_argument("-p", "--port", default=None,
+                        help="local port to use for receiving oauth2 redirect (default 8083)")
+
+    force_local_redirect = True
+    if not args.port:
+        force_local_redirect = False
+        args.port = 8083
 
     args = parser.parse_args()
     auth = OAuth2(args.tokenfile)
@@ -158,7 +163,7 @@ if __name__ == '__main__':
         interrupted = False
         print("Visit this url to obtain a verification code:")
         print("    %s\n" % auth.code_url(args.port))
-        if not auth.copy('redirect_uri'):
+        if not auth.copy('redirect_uri') or force_local_redirect:
             print("Press Ctrl+C if you are installing getmail on a device without a browser.")
             oauthd = OAuthRedirectServer(args.port)
             try:
