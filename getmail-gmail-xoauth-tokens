@@ -151,12 +151,13 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--port", default=None,
                         help="local port to use for receiving oauth2 redirect (default 8083)")
 
+    args = parser.parse_args()
+
     force_local_redirect = True
     if not args.port:
         force_local_redirect = False
         args.port = 8083
 
-    args = parser.parse_args()
     auth = OAuth2(args.tokenfile)
 
     if args.init:
