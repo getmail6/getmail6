@@ -12,4 +12,4 @@ jobs:
     steps:
     - run: pip install --user codespell[toml] ruff
     - run: codespell
-    - run: ruff --output-format=github .
+    - run: ruff check .
