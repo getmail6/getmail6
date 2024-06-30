@@ -1,3 +1,8 @@
+Version 6.19.02
+TODO
+    - #196 fix: handle KeyError
+    - #197 ifx: detect if --port is set to force the use of the local http server
+
 Version 6.19.01
 7 June 2024
     - #195 fix: make mark_read option act same as -ds,
