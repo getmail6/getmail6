@@ -533,8 +533,7 @@ def check_ca_certs(conf):
         ca_certs = expand_user_vars(ca_certs)
         if ssl is None:
             raise getmailConfigurationError(
-                'specifying ca_certs not supported by this installation of '
-                'Python; requires Python 2.6'
+                'specifying ca_certs not supported by this Python'
             )
     if ca_certs and not os.path.isfile(ca_certs):
         raise getmailConfigurationError(
@@ -549,8 +548,7 @@ def check_ssl_version(conf):
         return None
     if ssl is None:
         raise getmailConfigurationError(
-            'specifying ssl_version not supported by this installation of '
-            'Python; requires Python 2.6'
+            'specifying ssl_version not supported by this Python'
         )
     def get_or_fail(version, symbol):
         if symbol is not None:
@@ -581,8 +579,7 @@ def check_ssl_fingerprints(conf):
         return ()
     if ssl is None or hashlib is None:
         raise getmailConfigurationError(
-            'specifying ssl_fingerprints not supported by this installation of '
-            'Python; requires Python 2.6'
+            'specifying ssl_fingerprints not supported by this Python'
         )
 
     normalized_fprs = []
@@ -601,8 +598,7 @@ def check_ssl_ciphers(conf):
     if ssl_ciphers:
         if sys.version_info < (2, 7, 0):
             raise getmailConfigurationError(
-                'specifying ssl_ciphers not supported by this installation of '
-                'Python; requires Python 2.7'
+                'specifying ssl_ciphers not supported by this Python'
             )
         if re.search(r'[^a-zA-z0-9, :!\-+@=]', ssl_ciphers):
             raise getmailConfigurationError(

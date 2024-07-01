@@ -489,16 +489,16 @@ Creating a getmail rc file
    connection.
 
    Note: using these features, including server certificate validation,
-   requires using Python 2.6 or Python 2.7 or higher with getmail. If you use
-   an earlier version of Python, these features will not work, and no server
-   certificate validation will be performed. Also note that these features
-   are not currently implemented for SPDS retrievers; I would be interested
-   in hearing from SPDS users who desire these features.
+   requires using Python 2.7 or higher with getmail. If you use an earlier
+   version of Python, these features will not work, and no server certificate
+   validation will be performed. Also note that these features are not
+   currently implemented for SPDS retrievers; I would be interested in
+   hearing from SPDS users who desire these features.
 
      * ca_certs (string) — advanced option to perform validation of the
        server's SSL certificate. Specify the path to a PEM-formatted list of
        1 or more valid and trusted root certification authority (CA)
-       certificates. Note: this option is only available with Python 2.6 or
+       certificates. Note: this option is only available with Python 2.7 or
        higher.
        To find out which root CA is used to sign the chain of certificates
        for a given server, you can run
@@ -558,7 +558,7 @@ Creating a getmail rc file
        this option at all. Using this option without knowing what you are
        doing can reduce the effectiveness of your encrypted connection.
 
-       Note: this option is only available with Python 2.6 or higher.
+       Note: this option is only available with Python 2.7 or higher.
 
        Note: see the FAQ for details on how to work around Gmail connection
        problems with OpenSSL v.1.1.1 and later.
@@ -569,7 +569,7 @@ Creating a getmail rc file
        fingerprints; if it is not, getmail will abort the connection. Getmail
        will log the fingerprint of the server's certificate if you supply the
        --fingerprint commandline option. Note: this option is only available
-       with Python 2.6 or higher.
+       with Python 2.7 or higher.
      * ssl_cert_hostname (string) — advanced option to specify an alternate
        hostname which is expected in the server's SSL certificate hostname
        field. Specify this if the name used to connect to the server is known

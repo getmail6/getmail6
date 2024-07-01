@@ -750,7 +750,7 @@ imap_on_delete = (\Deleted \Seen)</pre>
 </p>
 <p>
     <strong>Note: using these features, including server certificate validation,
-    requires using Python 2.6 or Python 2.7 or higher with getmail.</strong>
+    requires using Python 2.7 or higher with getmail.</strong>
     If you use an earlier version of Python, these features will not work, and
     no server certificate validation will be performed.
     Also note that these features are not currently implemented for SPDS
@@ -764,7 +764,7 @@ imap_on_delete = (\Deleted \Seen)</pre>
         &mdash; advanced option to perform validation of the server's SSL
         certificate.  Specify the path to a PEM-formatted list of 1 or more
         valid and trusted root certification authority (CA) certificates.
-        <strong>Note: this option is only available with Python 2.6 or higher.</strong>
+        <strong>Note: this option is only available with Python 2.7 or higher.</strong>
         <br />
         To find out which root CA is used to sign the chain of certificates for
         a given server, you can run
@@ -823,7 +823,7 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         knowing what you are doing can reduce the effectiveness of
         your encrypted connection.
 
-        <p><strong>Note: this option is only available with Python 2.6 or higher.</strong>
+        <p><strong>Note: this option is only available with Python 2.7 or higher.</strong>
 
         <p>Note: see the <a href="faq.html#faq-notabug-gmail-tls-sni">FAQ for details
         on how to work around Gmail connection problems with OpenSSL v.1.1.1 and later</a>.
@@ -837,7 +837,7 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
         in the list of allowed fingerprints; if it is not, getmail will abort
         the connection.  Getmail will log the fingerprint of the server's certificate
         if you supply the <span class="file">--fingerprint</span> commandline option.
-        <strong>Note: this option is only available with Python 2.6 or higher.</strong>
+        <strong>Note: this option is only available with Python 2.7 or higher.</strong>
     </li>
     <li>
         ssl_cert_hostname

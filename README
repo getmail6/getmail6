@@ -115,8 +115,6 @@ There is now a test folder that uses
 `docker-mailserver <https://github.com/docker-mailserver/docker-mailserver>`__
 for black box testing.
 
-This still tests Python 2.7.
-
 Tests are work in progress.
 
 Documentation

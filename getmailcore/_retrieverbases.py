@@ -521,8 +521,7 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
 
 #######################################
 class POP3SSLinitMixIn(CertMixIn):
-    '''Mix-In class to do POP3 over SSL initialization with Python 2.4's
-    poplib.POP3_SSL class.
+    '''Mix-In class to do POP3 over SSL with the poplib.POP3_SSL class.
     '''
     SSL = True
     def _connect(self):
@@ -535,8 +534,6 @@ class POP3SSLinitMixIn(CertMixIn):
         try:
             if ca_certs or ssl_version or ssl_ciphers:
                 using_extended_certs_interface = True
-                # Python 2.6 or higher required, use above class instead of
-                # vanilla stdlib one
                 msg = ''
                 if keyfile:
                     msg += 'with keyfile %s, certfile %s' % (keyfile, certfile)
@@ -645,7 +642,8 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
        self.port = port
        self.sock = socket.create_connection((host, port))
 
-       # Note timeout is available in python 3.9 in native imaplib's/ssl's open, but wrap_socket does not support it.  Keep it for the future.
+       # Note timeout is available in python 3.9 in native imaplib's/ssl's open,
+       # but wrap_socket does not support it.  Keep it for the future.
        self.timeout = timeout
 
        extra_args = { 'server_hostname': host }
@@ -666,7 +664,7 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
 
 #######################################
 class IMAPSSLinitMixIn(CertMixIn):
-    '''Mix-In class to do IMAP over SSL initialization.
+    '''Mix-In class to do IMAP over SSL.
     '''
     SSL = True
     def _connect(self):
@@ -679,8 +677,6 @@ class IMAPSSLinitMixIn(CertMixIn):
         try:
             if ca_certs or ssl_version or ssl_ciphers:
                 using_extended_certs_interface = True
-                # Python 2.6 or higher required, use above class instead of
-                # vanilla stdlib one
                 msg = ''
                 if keyfile:
                     msg += 'with keyfile %s, certfile %s' % (keyfile, certfile)

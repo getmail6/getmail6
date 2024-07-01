@@ -209,8 +209,6 @@ class Message(object):
             return ((fromline+rpline+dtline+rcvline).encode('ASCII',errors="replace")+bmsg)
 
         except (TypeError,UnicodeEncodeError) as o:
-            # email module chokes on some badly-misformatted messages, even
-            # late during flatten().  Hope this is fixed in Python 2.4.
             if self.__raw is None:
                 # Argh -- a filter took a correctly-formatted message
                 # and returned a badly-misformatted one?
