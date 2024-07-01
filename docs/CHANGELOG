@@ -1,7 +1,7 @@
 Version 6.19.02
-TODO
-    - #196 fix: handle KeyError
-    - #197 ifx: detect if --port is set to force the use of the local http server
+01 July 2024
+    - #196 fix: handle KeyError (getmail-gmail-xoauth-tokens)
+    - #197 ifx: detect if --port is set to force the use of the local http server (getmail-gmail-xoauth-tokens)
 
 Version 6.19.01
 7 June 2024
