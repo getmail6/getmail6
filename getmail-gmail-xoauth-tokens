@@ -174,7 +174,7 @@ if __name__ == '__main__':
                 interrupted = True
             finally:
                 oauthd.server_close()
-        if auth.copy('redirect_uri') or interrupted:
+        if (auth.copy('redirect_uri') and not force_local_redirect) or interrupted:
             print("Please paste the response from the address bar of the browser you used for the url above:")
             codeinput = input()
             response = urlparse.urlparse(codeinput)
