@@ -421,8 +421,6 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
         ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        # socket.ssl() and socket timeouts were incompatible in Python 2.3;
-        # if you have problems, comment this line out
         ConfInt(name='timeout', required=False, default=180),
         ConfString(name='server'),
         ConfInt(name='port', required=False, default=imaplib.IMAP4_SSL_PORT),
@@ -521,8 +519,6 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
         ConfInstance(name='configparser', required=False),
         ConfDirectory(name='getmaildir', required=False, default='~/.getmail/'),
 
-        # socket.ssl() and socket timeouts were incompatible in Python 2.3;
-        # if you have problems, comment this line out
         ConfInt(name='timeout', required=False, default=180),
         ConfString(name='server'),
         ConfInt(name='port', required=False, default=imaplib.IMAP4_SSL_PORT),

@@ -43,6 +43,8 @@ except: #py2
     urllibrequest = urllibparse
     def codebytes(b): return b
 
+force_local_redirect = True
+
 # Local webserver nonsense required to receive code from redirect
 class OAuthRedirectHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -153,7 +155,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    force_local_redirect = True
     if not args.port:
         force_local_redirect = False
         args.port = 8083
