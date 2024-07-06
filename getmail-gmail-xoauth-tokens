@@ -87,7 +87,7 @@ class OAuth2(object):
 
     def code_url(self, port):
         params = self.copy('scope', 'client_id', 'redirect_uri')
-        if 'redirect_uri' not in params:
+        if 'redirect_uri' not in params or force_local_redirect:
             params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
         params['response_type'] = 'code'
         params['access_type'] = 'offline'
@@ -120,7 +120,7 @@ class OAuth2(object):
 
     def init_tokens(self, code, port):
         params = self.copy('user', 'client_id', 'client_secret', 'redirect_uri')
-        if 'redirect_uri' not in params:
+        if 'redirect_uri' not in params or force_local_redirect:
             params['redirect_uri'] = 'http://localhost:' + str(port) + '/'
         params['code'] = code
         params['grant_type'] = 'authorization_code'
@@ -174,7 +174,7 @@ if __name__ == '__main__':
                 interrupted = True
             finally:
                 oauthd.server_close()
-        if auth.copy('redirect_uri') or interrupted:
+        if (auth.copy('redirect_uri') and not force_local_redirect) or interrupted:
             print("Please paste the response from the address bar of the browser you used for the url above:")
             codeinput = input()
             response = urlparse.urlparse(codeinput)
