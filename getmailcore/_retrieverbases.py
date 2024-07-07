@@ -707,7 +707,7 @@ class IMAPSSLinitMixIn(CertMixIn):
                        keyfile, certfile)
                     + os.linesep
                 )
-                self.conn = imaplib.IMAP4_SSL(
+                self.conn = IMAP4_SSL_EXTENDED(
                     self.conf['server'], self.conf['port'], keyfile, certfile
                 )
             else:
