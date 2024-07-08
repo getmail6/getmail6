@@ -1,7 +1,11 @@
+Version 6.19.03
+08 July 2024
+    - #199 fix: fails with "TypeError: IMAP4_SSL.__init__()" after changing to Python 3.12 (when keyfile/cerfile in config)
+
 Version 6.19.02
 01 July 2024
     - #196 fix: handle KeyError (getmail-gmail-xoauth-tokens)
-    - #197 ifx: detect if --port is set to force the use of the local http server (getmail-gmail-xoauth-tokens)
+    - #197 fix: detect if --port is set to force the use of the local http server (getmail-gmail-xoauth-tokens)
 
 Version 6.19.01
 7 June 2024
