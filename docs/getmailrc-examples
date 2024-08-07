@@ -354,7 +354,7 @@ password_command = ("getmail-gmail-xoauth-tokens", "/path/to/your/users/getmail/
 # Step1: Create App Registration in Azure
 #
 # In a browser, open https://portal.azure.com
-# Select "Manage Azure Active Directory" (use the search if needed)
+# Select "Microsoft Entra ID" (use the search if needed)
 # Select "App Registrations"
 # Select "New Registration"
 # Enter a project name, eg "getmail".
@@ -394,8 +394,7 @@ password_command = ("getmail-gmail-xoauth-tokens", "/path/to/your/users/getmail/
 #  "client_id": "<client_id>",
 #  "client_secret": "<secret>",
 #  "token_uri": "https://login.microsoftonline.com/<tenant_id>/oauth2/v2.0/token",
-#  "auth_uri": "https://login.microsoftonline.com/<tenant_id>/oauth2/v2.0/authorize",
-#  "redirect_uri": "http://localhost"}
+#  "auth_uri": "https://login.microsoftonline.com/<tenant_id>/oauth2/v2.0/authorize"}
 #
 # Step 3: execute:
 #
