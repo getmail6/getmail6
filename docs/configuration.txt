@@ -367,6 +367,24 @@ Creating a getmail rc file
  password_command = ("/path/to/password-retriever", "-p", "myaccount@example.org")
         
 
+   All POP3 retriever types also take the following optional parameters:
+
+     * use_xoauth2 (boolean) — whether to use XOAUTH2 for login with the POP3
+       server. If not set, normal password-based authentication is used. This
+       currently supports Gmail and Microsoft Office 365; if anyone extends
+       this to support other POP3 providers, please let me know so I can
+       include such support in getmail. Note that using XOAUTH2 is no more
+       secure than a regular getmail configuration with a mode 0600 getmailrc
+       file. You will need to set password_command as well to tell getmail to
+       invoke the getmail-gmail-xoauth-tokens helper program; that script
+       requires a positional argument to tell it json file where to read the
+       initial tokens from and where it writes the access and refresh tokens
+       to, and the file requires manual initial setup. Keep write access to
+       the json file. This functionality was contributed by Stefan Krah, who
+       has additional information about using it here:
+       http://www.bytereef.org/howto/oauth2/getmail.html. See
+       docs/getmailrc-examples.
+
    All IMAP retriever types also take the following optional parameters:
 
      * mailboxes (tuple of quoted strings) — a list of mailbox paths to
@@ -440,7 +458,6 @@ Creating a getmail rc file
        to skip read messages. The value is case-insensitive. It may be in
        parentheses. As an example
 
- 
  imap_search = Unseen
  imap_on_delete = \Seen
 
