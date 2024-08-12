@@ -66,6 +66,7 @@ class SimplePOP3Retriever(POP3RetrieverBase, POP3initMixIn):
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         ConfBool(name='use_apop', required=False, default=False),
         ConfBool(name='delete_dup_msgids', required=False, default=False),
     )
@@ -100,6 +101,7 @@ class SimplePOP3SSLRetriever(POP3RetrieverBase, POP3SSLinitMixIn):
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         ConfBool(name='use_apop', required=False, default=False),
         ConfBool(name='delete_dup_msgids', required=False, default=False),
         ConfFile(name='keyfile', required=False, default=None),
@@ -178,6 +180,7 @@ class BrokenUIDLPOP3Retriever(BrokenUIDLPOP3RetrieverBase, POP3initMixIn):
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         ConfBool(name='use_apop', required=False, default=False),
     )
     received_with = 'POP3'
@@ -209,6 +212,7 @@ class BrokenUIDLPOP3SSLRetriever(BrokenUIDLPOP3RetrieverBase, POP3SSLinitMixIn):
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         ConfBool(name='use_apop', required=False, default=False),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
@@ -247,6 +251,7 @@ class MultidropPOP3Retriever(MultidropPOP3RetrieverBase, POP3initMixIn):
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         ConfBool(name='use_apop', required=False, default=False),
         ConfString(name='envelope_recipient'),
     )
@@ -281,6 +286,7 @@ class MultidropPOP3SSLRetriever(MultidropPOP3RetrieverBase, POP3SSLinitMixIn):
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         ConfBool(name='use_apop', required=False, default=False),
         ConfString(name='envelope_recipient'),
         ConfFile(name='keyfile', required=False, default=None),
@@ -329,6 +335,7 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
         ConfString(name='username'),
         ConfPassword(name='password', required=False, default=None),
         ConfTupleOfStrings(name='password_command', required=False, default=()),
+        ConfBool(name='use_xoauth2', required=False, default=False),
         # Demon apparently doesn't support APOP
         ConfBool(name='use_apop', required=False, default=False),
     )
@@ -563,4 +570,3 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
         self.log.trace()
         self.log.info('MultidropIMAPSSLRetriever(%s)' % self._confstring()
                       + os.linesep)
-

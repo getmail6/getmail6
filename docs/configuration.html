@@ -587,6 +587,31 @@ password_command = (&quot;/path/to/password-retriever&quot;, &quot;-p&quot;, &qu
     </li>
 </ul>
 <p>
+    All POP3 retriever types also take the following optional parameters:
+</p>
+<ul>
+    <li>
+        use_xoauth2
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; whether to use XOAUTH2 for login with the POP3 server.
+        If not set, normal password-based authentication is used.  This currently
+        supports Gmail and Microsoft Office 365; if anyone extends this to support
+        other POP3 providers, please let me know so I can include such support
+        in getmail.  <strong>Note that using XOAUTH2 is no more secure than a
+        regular getmail configuration with a mode 0600 getmailrc file</strong>.
+        You will need to set <a href="#password_command">password_command</a>
+        as well to tell getmail to invoke the getmail-gmail-xoauth-tokens
+        helper program; that script requires a positional argument to tell it
+        json file where to read the initial tokens from and where it writes the access
+        and refresh tokens to, and the file requires manual initial setup.
+        Keep write access to the json file.
+        This functionality was contributed by Stefan Krah,
+        who has additional information about using it here:
+        <a href="http://www.bytereef.org/howto/oauth2/getmail.html">http://www.bytereef.org/howto/oauth2/getmail.html</a>.
+        See docs/getmailrc-examples.
+    </li>
+</ul>
+<p>
     All IMAP retriever types also take the following optional parameters:
 </p>
 <ul>
@@ -685,7 +710,7 @@ mailboxes = ALL
         <a href="https://docs.python.org/3/library/imaplib.html#imaplib.IMAP4.search">IMAP search</a>.
         Set <pre class="example">imap_search = UNSEEN</pre> to skip read messages.
         The value is case-insensitive. It may be in parentheses.
-        As an example <pre class="example"> 
+        As an example <pre class="example">
 imap_search = Unseen
 imap_on_delete = \Seen</pre>
         fetches only new messages and sets the message flag to <span class="file">SEEN</span> on "delete"
@@ -2547,7 +2572,7 @@ localpart_translate = ('mailhostaccount-', '')
         Has no effect unless <a href="#use_netrc">use_netrc</a> is True.
         Default: unset, which means <a href="#use_netrc">use_netrc</a> will
         read the default netrc file for your system,
-        typically <span class="file">~/.netrc</span>, unless 
+        typically <span class="file">~/.netrc</span>, unless
         <span class="file">NETRC</span> or <span class="file">CURLOPT_NETRC_FILE</span>
         is defined.
     </li>

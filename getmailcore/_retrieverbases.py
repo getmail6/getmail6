@@ -41,6 +41,7 @@ import poplib
 import imaplib
 import re
 import select
+import base64
 
 try:
     # do we have a recent pykerberos?
@@ -1219,6 +1220,12 @@ class POP3RetrieverBase(RetrieverSkeleton):
             if self.conf['use_apop']:
                 self.conn.apop(self.conf['username'],
                                self.conf['password'])
+            elif self.conf['use_xoauth2']:
+                # octal 1 / ctrl-A used as separator
+                auth = 'user=%s\1auth=Bearer %s\1\1' % (self.conf['username'],
+                                                        self.conf['password'])
+                auth = base64.b64encode(auth.encode()).decode()
+                self.conn._shortcmd('AUTH XOAUTH2 %s' % auth)
             else:
                 self.conn.user(self.conf['username'])
                 self.conn.pass_(self.conf['password'])
@@ -2027,4 +2034,3 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
             )
         msg.recipient = address_no_brackets(line.strip())
         return msg
-
