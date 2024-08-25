@@ -66,3 +66,8 @@ tag: dist
 	git verify-tag $(TAGMSG)
 	git push origin $(TAGMSG) --follow-tags
 
+.PHONY: cleandocker
+cleandocker:
+	docker network prune
+	docker rm -vf $$(docker ps -aq)
+	docker rmi -f $$(docker images -aq)

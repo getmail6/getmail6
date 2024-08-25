@@ -1,3 +1,8 @@
+Version 6.19.04
+25.August.2024
+    - Update getmailrc-examples (#204, #206, #207)
+    - #205: pop3: Support use_xoauth2
+
 Version 6.19.03
 08 July 2024
     - #199 fix: fails with "TypeError: IMAP4_SSL.__init__()" after changing to Python 3.12 (when keyfile/certfile in config)

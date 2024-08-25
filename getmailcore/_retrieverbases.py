@@ -1927,7 +1927,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         try:
             aborted = None
-            (readable, unused, unused) = select.select([self.conn.sock], [], [], timeout)
+            (readable, unused, _) = select.select([self.conn.sock], [], [], timeout)
         except KeyboardInterrupt as o:
             # Delay raising this until we've stopped IDLE mode
             aborted = o

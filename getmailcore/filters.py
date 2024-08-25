@@ -197,7 +197,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
             raise getmailConfigurationError(
                 '%s not executable' % self.conf['path']
             )
-        if type(self.conf['arguments']) != tuple:
+        if not isinstance(self.conf['arguments'],tuple):
             raise getmailConfigurationError(
                 'incorrect arguments format; see documentation (%s)'
                 % self.conf['arguments']
