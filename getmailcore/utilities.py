@@ -246,7 +246,7 @@ def alarm_handler(*unused):
 def is_maildir(d):
     '''Verify a path is a maildir.
     '''
-    dir_parent = os.path.dirname(d.endswith('/') and d[:-1] or d)
+    dir_parent = os.path.dirname(d.endswith('/') and d[:-1] or d) or '.'
     if not os.access(dir_parent, os.X_OK):
         raise getmailConfigurationError(
             'cannot read contents of parent directory of %s '
