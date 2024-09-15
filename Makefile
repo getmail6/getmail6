@@ -45,18 +45,18 @@ check: lint
 .PHONY: dist
 dist: doc
 	echo "need sudo to create wheel"
-	sudo python setup.py bdist_wheel
+	sudo python setup.py bdist_wheel sdist
 	echo "note:"
 	echo "use ./pypi.sh to upload to PYPI"
 
 # use ./pypi.sh to upload to PYPI
 .PHONY: up6
 up6: dist
-	twine upload dist/`ls dist -rt | tail -1` -u__token__ -p`pass show pypi.org/getmail6_api_token`
+	twine upload dist/`ls dist -rt *.whl | tail -1` dist/`ls dist -rt *.tar.gz | tail -1` -u__token__ -p`pass show pypi.org/getmail6_api_token`
 
 .PHONY: up
 up: dist
-	twine upload dist/`ls dist -rt | tail -1` -u__token__ -p`pass show pypi.org/getmail_api_token`
+	twine upload dist/`ls dist -rt *.whl | tail -1` dist/`ls dist -rt *.tar.gz | tail -1` -u__token__ -p`pass show pypi.org/getmail_api_token`
 
 .PHONY: tag
 tag: dist
