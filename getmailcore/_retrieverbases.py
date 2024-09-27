@@ -963,6 +963,7 @@ class RetrieverSkeleton(ConfigurableBase):
                 t = self.oldmail.get(msgid, self.timestamp)
                 self.log.debug(' timestamp %s' % t + os.linesep)
                 oldmailfile.write('%s\0%i%s' % (msgid, t, os.linesep))
+                self.oldmail[msgid] = t
                 wrote += 1
             oldmailfile.close()
             self.log.moreinfo('wrote %i uids for %s%s'
