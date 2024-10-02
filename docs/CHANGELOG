@@ -1,3 +1,12 @@
+Version 6.19.05
+02.October.2024
+    - fix #211: --only-oldmail-file command line = only_oldmail_file config: regenerate oldmail file with mails currenlty on server
+    - fix #212: oldmail-* reverts when --to-oldmail-on-each-mail is used 
+    - Pyp2 fixes (#210)
+    - fix #209: using the suggested simpler fix as pathlib is not used so far
+    - build and upload sdist
+    - Fix invalid SPDX expression
+
 Version 6.19.04
 25.August.2024
     - Update getmailrc-examples (#204, #206, #207)

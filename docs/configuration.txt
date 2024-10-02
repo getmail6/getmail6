@@ -1470,7 +1470,12 @@ Creating a getmail rc file
        this feature.
      * to_oldmail_on_each_mail (boolean) — if set, getmail will update the
        oldmail file on each mail. This is slower, but avoids re-downloading
-       mails, if something went wrong, like the server dying. Default: False.
+       mails, if something went wrong, like the server dying.
+       --to-oldmail-on-each-mail in the command line. Default: False.
+     * only_oldmail_file (boolean) — if set, getmail will not retrieve mails
+       but only update the oldmail file with mails currently on the server.
+       These mails will not be retrieved as long as the oldmail file exists.
+       --only-oldmail-file in the command line. Default: False.
      * skip_imap_fetch_size (boolean) — will skip fetching RFC822.SIZE. This
        speeds up mail checks, particularly with a davmail proxies.
 
