@@ -74,6 +74,7 @@ options_bool = (
     'fingerprint',
     'use_netrc',
     'to_oldmail_on_each_mail',
+    'only_oldmail_file',
     'skip_imap_fetch_size',
     'mark_read',
 )
@@ -111,6 +112,7 @@ options_defaults = {
     'use_netrc' : False,
     'netrc_file' : None,
     'to_oldmail_on_each_mail' : False,
+    'only_oldmail_file': False,
     'skip_imap_fetch_size' : False,
     'mark_read': False,
 }
@@ -219,6 +221,10 @@ def go(configs, idle, only_account=[]):
                     logline = '%s msgid %s' % (info, msgid)
                     if options['read_all'] or timestamp is None:
                         retrieve = True
+                    if options['only_oldmail_file']:
+                        retriever.delivered(msgid)
+                        retrieve = False
+                        reason = 'only oldmail file option'
                     if (options['max_message_size']
                             and size > options['max_message_size']):
                         retrieve = False
@@ -318,6 +324,9 @@ def go(configs, idle, only_account=[]):
                         if not retrieve and timestamp is None:
                             # We haven't retrieved this message.  Don't delete it.
                             log.debug('    not yet retrieved, not deleting\n')
+                            delete = False
+
+                        if options['only_oldmail_file']:
                             delete = False
 
                         if delete:
@@ -652,6 +661,11 @@ If no flag is given "\Seen" is assumed.
             help='store retrieved mails in oldmail file after every mail to avoid re-download in case of session crash'
         )
         overrides.add_option(
+            '--only-oldmail-file',
+            dest='override_only_oldmail_file', action='store_true',
+            help='generates an oldmail file of mails now on server without retreiving them (neither in the future, due to the generated oldmail file)'
+        )
+        overrides.add_option(
             '-m', '--mark-read',
             dest='override_mark_read', action='store_true',
             help='mark read after retrieve (synonym to `-ds,`)'
@@ -761,6 +775,7 @@ If no flag is given "\Seen" is assumed.
                 'use_netrc' : options_defaults['use_netrc'],
                 'netrc_file' : options_defaults['netrc_file'],
                 'to_oldmail_on_each_mail' : options_defaults['to_oldmail_on_each_mail'],
+                'only_oldmail_file' : options_defaults['only_oldmail_file'],
                 'skip_imap_fetch_size' : options_defaults['skip_imap_fetch_size'],
                 'mark_read': options_defaults['mark_read'],
             }
@@ -856,6 +871,7 @@ If no flag is given "\Seen" is assumed.
                     'override_verbose',
                     'override_fingerprint',
                     'override_to_oldmail_on_each_mail',
+                    'override_only_oldmail_file',
                     'override_mark_read',
                 ):
                     val = getattr(options, o)

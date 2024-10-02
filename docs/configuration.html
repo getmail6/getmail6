@@ -2599,6 +2599,15 @@ localpart_translate = ('mailhostaccount-', '')
         &mdash; if set, getmail will update the oldmail file on each mail.
         This is slower, but avoids re-downloading mails,
         if something went wrong, like the server dying.
+        <span class="file">--to-oldmail-on-each-mail</span> in the command line.
+        Default: False.
+    </li>
+    <li>
+        only_oldmail_file
+        (<a href="#parameter-boolean">boolean</a>)
+        &mdash; if set, getmail will not retrieve mails but only update the oldmail file with mails currently on the server.
+        These mails will not be retrieved as long as the oldmail file exists.
+        <span class="file">--only-oldmail-file</span> in the command line.
         Default: False.
     </li>
     <li>
