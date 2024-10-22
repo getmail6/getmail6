@@ -35,6 +35,7 @@ __all__ = [
     'MDA_external',
     'MDA_lmtp',
     'MDA_qmaillocal',
+    'MDA_smtp',
     'MultiDestination',
     'MultiDestinationBase',
     'MultiSorter',
@@ -733,6 +734,82 @@ class MDA_lmtp(DeliverySkeleton):
         except smtplib.SMTPException as err:
             raise getmailDeliveryError(
                 'LMTP error: %s: %s' % (type(err).__name__, err)
+            )
+
+        return rcpt
+
+    def _deliver_message(self, msg, delivered_to, received):
+        self.log.trace()
+        recipient = self.conf.get('override', msg.recipient) or None
+        rcpt = self.__send(msg.content(), msg.sender, recipient)
+
+        if recipient in rcpt:
+            status, _ = rcpt[recipient]
+            fb_recipient = self.conf['fallback']
+            if 500 <= status <= 599 and fb_recipient:
+                fb_rcpt = self.__send(msg.content(), msg.sender, fb_recipient)
+                if fb_recipient in fb_rcpt:
+                    raise getmailDeliveryError(
+                        'Cannot deliver to intended or fallback target: %d %s'
+                        % fb_rcpt[fb_recipient]
+                    )
+            else:
+                raise getmailDeliveryError(
+                    'Cannot deliver to intended target: %d %s'
+                    % rcpt[recipient]
+                )
+        return str(self)
+
+
+class MDA_smtp(DeliverySkeleton):
+    """SMTP server destination."""
+    _confitems = (
+        ConfInstance(name='configparser', required=False),
+        ConfString(name='host', required=True),
+        ConfInt(name='port', required=False, default=smtplib.SMTP_PORT),
+        ConfString(name='fallback', required=False, default=None),
+        ConfString(name='override', required=False, default=None),
+    )
+
+    def initialize(self):
+        self.log.trace()
+        self.__connect()
+
+    def __connect(self):
+        try:
+            self.server = smtplib.SMTP(self.conf['host'], self.conf['port'])
+        except smtplib.SMTPException as err:
+            raise getmailConfigurationError(
+                'Failed to connect to server'
+            )
+
+    def __str__(self):
+        self.log.trace()
+        host = self.conf['host']
+        port = self.conf['port']
+        if host.startswith('/') or not port:
+            return 'MDA_smtp at %s' % host
+        else:
+            return 'MDA_smtp at %s:%d' % (host, port)
+
+    def showconf(self):
+        self.log.info('%s(%s)' % (type(self).__name__, self._confstring()))
+
+    def __send(self, msg, sender, recipient, _retrying=False):
+        try:
+            rcpt = self.server.send_message(msg, sender, recipient)
+        except (smtplib.SMTPServerDisconnected, smtplib.SMTPSenderRefused) as err:
+            if _retrying:
+                raise
+            else:
+                self.log.info('Lost connection to SMTP server, reconnecting')
+                self.__connect()
+                return self.__send(msg, sender, recipient, _retrying=True)
+        except smtplib.SMTPRecipientsRefused as err:
+            rcpt = err.recipients
+        except smtplib.SMTPException as err:
+            raise getmailDeliveryError(
+                'SMTP error: %s: %s' % (type(err).__name__, err)
             )
 
         return rcpt

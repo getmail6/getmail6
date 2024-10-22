@@ -53,6 +53,7 @@
                          * Mboxrd
                          * MDA_external
                          * MDA_lmtp
+                         * MDA_smtp
                          * MultiDestination
                          * MultiSorter
                          * MultiGuesser
@@ -866,6 +867,7 @@ Creating a getmail rc file
      * MDA_external — use an external message delivery agent (MDA) to deliver
        messages. Typical MDAs include maildrop, procmail, and others.
      * MDA_lmtp — deliver messages to an external MDA via the LMTP protocol.
+     * MDA_smtp — deliver messages to an external MTA via the SMTP protocol.
      * MultiDestination — unconditionally deliver messages to multiple
        destinations (maildirs, mbox files, external MDAs, or other
        destinations).
@@ -1078,6 +1080,49 @@ Creating a getmail rc file
 
  [destination]
  type = MDA_lmtp
+ host = mail.example.com
+ override = alice
+ fallback = bob
+
+    MDA_smtp
+
+   MDA_smtp delivers messages via SMTP by connecting to a Unix domain or TCP
+   socket. It currently does not support any authentication.
+
+   The MDA_smtp destination takes one required parameter:
+
+     * host (string) — the host to connect to. Either a DNS-resolvable
+       hostname, an IP address or absolute path to a Unix domain socket.
+
+   The MDA_smtp destination also takes several optional parameters:
+
+     * port (integer) — the remote port to connect to. Ignored if host is a
+       Unix domain socket.
+     * fallback (string) — an alternative recipient address to deliver to in
+       case delivery to the intended recipient fails permanently (i.e. with a
+       5xx status code).
+     * override (string) — deliver mail to an alternative recipient address
+       instead of the one given by the envelope or mail headers. Behaviour of
+       the fallback parameter still applies in case delivery fails.
+
+   A configuration connecting to a remote SMTP Server might look like this:
+
+ [destination]
+ type = MDA_smtp
+ host = mail.example.com
+
+   Another example delivering to a remote host on a non-standard port:
+
+ [destination]
+ type = MDA_smtp
+ host = mail.example.com
+ port = 3333
+
+   An example where each mail is delivered to user alice, but if this fails
+   (i.e. their user quota has been reached) it is delivered to bob:
+
+ [destination]
+ type = MDA_smtp
  host = mail.example.com
  override = alice
  fallback = bob
