@@ -1506,7 +1506,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def _fileexpand(self, filename):
         getmaildir = self.conf['getmaildir']
         f = os.path.expanduser(filename)
-        if f[0] != "/" and getmaildir:
+        if not os.path.isabs(f) and getmaildir:
             f = os.path.join(getmaildir, f)
         return(f)
 
@@ -1516,12 +1516,11 @@ class IMAPRetrieverBase(RetrieverSkeleton):
     def _findmaxuid(self, mailbox, uidvalidity):
         self._mboxmaxuid = 1
         self._mboxmaxuid_changed = False
-        if not self.conf['imap_cache_uid']:
-            return
-        if not uidvalidity:
+        if (not self.app_options['imap_cache_uid']
+            or not uidvalidity):
             return
         try:
-            with open(self._fileexpand(self.conf['imap_cache_uid'])) as C:
+            with open(self._fileexpand(self.app_options['imap_cache_uid'])) as C:
                 for line in C:
                     (mbox, oldvalidity, uid) = line.split(" ")
                     if mbox == mailbox:
@@ -1534,18 +1533,20 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             return
 
     def _savemaxuid(self, mailbox, uidvalidity):
-        if not self.conf['imap_cache_uid'] or not self._mboxmaxuid_changed or not uidvalidity:
+        if (not self.app_options['imap_cache_uid']
+            or not self._mboxmaxuid_changed
+            or not uidvalidity):
             return
         uidcache = {}
         try:
-            with open(self._fileexpand(self.conf['imap_cache_uid'])) as C:
+            with open(self._fileexpand(self.app_options['imap_cache_uid'])) as C:
                 for line in C:
                     (mbox, oldvalidity, uid) = line.split(" ")
                     uidcache[mbox] = line
         except FileNotFoundError:
             pass
         uidcache[mailbox] = " ".join((mailbox, self._sane_validity(uidvalidity), str(self._mboxmaxuid)))+"\n"
-        with open(self._fileexpand(self.conf['imap_cache_uid']),"w") as C:
+        with open(self._fileexpand(self.app_options['imap_cache_uid']),"w") as C:
             for line in uidcache.values():
                 print(line, file=C, end="")
 
@@ -1680,7 +1681,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
                     try:
                         nuid = int(uid)
-                        if (nuid > self._mboxmaxuid):
+                        if nuid > self._mboxmaxuid:
                             self._mboxmaxuid = nuid
                             self._mboxmaxuid_changed = True
                     except ValueError:

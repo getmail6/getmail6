@@ -342,6 +342,7 @@ path = $MAILDIR/mbx
 read_all = $READALL
 delete = $DEL
 max_message_size = $MAX
+imap_cache_uid = uid.txt
 delete_after = 1
 to_oldmail_on_each_mail = true
 delete_bigger_than = 800

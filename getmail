@@ -943,7 +943,6 @@ If no flag is given "\Seen" is assumed.
                     for (name, value) in imap_override.items():
                         if name in retriever:
                             retriever.conf[name] = value
-                    retriever.conf['imap_cache_uid'] = defaultopt['imap_cache_uid']
 
                     retriever.checkconf()
                 except getmailOperationError as o:

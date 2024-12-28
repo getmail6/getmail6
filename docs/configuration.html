@@ -2579,12 +2579,9 @@ localpart_translate = ('mailhostaccount-', '')
     <li>
         <a name="imap_cache_uid">imap_cache_uid</a>
         (<a href="#parameter-boolean">string</a>)
-        &mdash; enables specific functionality and set the file for the cache.
-        Specifically, this enables an efficiency feature where the highest imap UID
-        previously seen will be used as the starting position for downloading new files.
-        This dramatically increases efficiency of network utilization for large upstream
-        mailboxes when delete (see next parameter) is not used since the same messages
-        are not downloaded over and over and over again, only to be thrown away.
+        &mdash; by setting the file for the cache one enables
+        caching the highest imap UID seen to be used as the starting position
+        when fetching the uid list the next time.
     </li>
     <li>
         delete

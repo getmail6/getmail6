@@ -1458,14 +1458,9 @@ Creating a getmail rc file
        effect unless use_netrc is True. Default: unset, which means use_netrc
        will read the default netrc file for your system, typically ~/.netrc,
        unless NETRC or CURLOPT_NETRC_FILE is defined.
-     * imap_cache_uid (string) — enables specific functionality and set
-       the file for the cache. Specifically, this enables an efficiency
-       feature where the highest imap UID previously seen will be used as the
-       starting position for downloading new files. This dramatically
-       increases efficiency of network utilization for large upstream
-       mailboxes when delete (see next parameter) is not used since the same
-       messages are not downloaded over and over and over again, only to be
-       thrown away.
+     * imap_cache_uid (string) — by setting the file for the cache one
+       enables caching the highest imap UID seen to be used as the starting
+       position when fetching the uid list the next time.
      * delete (boolean) — if set, getmail will delete messages after
        retrieving and successfully delivering them. If unset, getmail will
        leave messages on the server after retrieving them. Default: False.
