@@ -89,6 +89,7 @@ options_int = (
 options_str = (
     'message_log',
     'netrc_file',
+    'imap_cache_uid',
 )
 
 options_defaults = {
@@ -111,6 +112,7 @@ options_defaults = {
     'fingerprint' : False,
     'use_netrc' : False,
     'netrc_file' : None,
+    'imap_cache_uid' : None,
     'to_oldmail_on_each_mail' : False,
     'only_oldmail_file': False,
     'skip_imap_fetch_size' : False,
@@ -774,6 +776,7 @@ If no flag is given "\Seen" is assumed.
                 'fingerprint' : options_defaults['fingerprint'],
                 'use_netrc' : options_defaults['use_netrc'],
                 'netrc_file' : options_defaults['netrc_file'],
+                'imap_cache_uid' : options_defaults['imap_cache_uid'],
                 'to_oldmail_on_each_mail' : options_defaults['to_oldmail_on_each_mail'],
                 'only_oldmail_file' : options_defaults['only_oldmail_file'],
                 'skip_imap_fetch_size' : options_defaults['skip_imap_fetch_size'],
@@ -940,6 +943,8 @@ If no flag is given "\Seen" is assumed.
                     for (name, value) in imap_override.items():
                         if name in retriever:
                             retriever.conf[name] = value
+                    retriever.conf['imap_cache_uid'] = defaultopt['imap_cache_uid']
+
                     retriever.checkconf()
                 except getmailOperationError as o:
                     log.error('Error initializing retriever: %s\n' % o)
