@@ -664,6 +664,13 @@ mailboxes = ALL
         will not be moved at all.
     </li>
     <li>
+        <a name="uid_cache">cache_uid</a>
+        (<a href="#parameter-boolean">string</a>)
+        &mdash; by setting the file for the cache one enables
+        caching the highest imap UID seen to be used as the starting position
+        when fetching the uid list the next time.
+    </li>
+    <li>
         record_mailbox
         (<a href="#parameter-boolean">boolean</a>)
         &mdash; whether to add a X-getmail-retrieved-from-mailbox: header field
@@ -2575,13 +2582,6 @@ localpart_translate = ('mailhostaccount-', '')
         typically <span class="file">~/.netrc</span>, unless
         <span class="file">NETRC</span> or <span class="file">CURLOPT_NETRC_FILE</span>
         is defined.
-    </li>
-    <li>
-        <a name="imap_cache_uid">imap_cache_uid</a>
-        (<a href="#parameter-boolean">string</a>)
-        &mdash; by setting the file for the cache one enables
-        caching the highest imap UID seen to be used as the starting position
-        when fetching the uid list the next time.
     </li>
     <li>
         delete

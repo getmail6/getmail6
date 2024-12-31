@@ -7,10 +7,8 @@ HOST_CONFIG="/tmp/mailserver/config"
 
 : '
 
-#----------------------------------------------------------
-
 # requires pytest, docker, docker-compose < V2 (V2 does not work)
-
+#----------------------------------------------------------
 cd getmail6
 
 # run all tests
@@ -25,6 +23,7 @@ rm /tmp/mailserver/python?
 cd test
 . ./prepare_test.sh
 clone_mailserver
+copy_tests # repeat on change
 
 # check mailserver after clone_mailserver
 /tmp/mailserver
@@ -33,15 +32,12 @@ docker-compose down
 docker-compose up -d
 
 # interactive as root
-docker exec -u 0 -it mail.domain.tld bash
-
+d_prompt 0
 # manual_install_in_mailserver
-apt-get update
-apt-get -y install git make procmail iputils-ping nmap python3-pip vim
-
 #install getmail6 copied via prepare_test.sh copy_tests
-cd /tmp/docker-mailserver/getmail6
-cat setup.py | sed "s/^\s*download_url.*//p" | python3 - install
+cd /tmp/docker-mailserver/getmail6/test
+. ./prepare_test.sh
+install_getmail
 
 # self_sign
 /tmp/docker-mailserver/self_sign.sh
@@ -56,8 +52,9 @@ echo $TESTEMAIL $PSS
 addmailuser $TESTEMAIL $PSS
 listmailuser
 
-# delete
-delmailuser $TESTEMAIL
+# dont delete the mail account as used for the next steps
+# delmailuser $TESTEMAIL
+#
 exit
 
 # run commands as user on docker
@@ -67,38 +64,24 @@ exit
 cd /home/roland/mine/getmail6/test
 source prepare_test.sh
 echo $GETMAIL6REPO
-yes | cp test_getmail_with_docker_mailserver.bats /tmp/mailserver/test/test_getmail_with_docker_mailserver.bats
-yes | cp prepare_test.sh /tmp/mailserver/config/getmail6/test/prepare_test.sh
-cd /tmp/mailserver
-  d_simple_dest_maildir POP3
-  d_imap_search "ALL true"
-  d_retrieve
-  d_override_test
-  d_config_test "BrokenUIDLPOP3Retriever 110 800 False False"
-  d_docker "cat /home/getmail/getmail"
-  d_docker "rm /home/getmail/getmail"
-
-docker-compose down
 copy_tests
-docker_up
-
 cd /tmp/mailserver
-docker exec -u getmail -it mail.domain.tld bash
-  cat /home/getmail/getmail
-  ls /home/getmail
-cd /tmp/docker-mailserver/getmail6/test/
-source prepare_test.sh
-echo ${PORTNR[IMAPSSL]}
-
-simple_dest_maildir IMAPSSL
-grep_mail "$TESTGREP" && echo "success expected"
-grep_mail utf_8 || echo "fail expected"
-imap_search ALL false
-imap_search UNSEEN true
-imap_search ALL true
-config_test BrokenUIDLPOP3Retriever 110 800 False False
-
+docker-compose up -d
+d_prompt 0
+cd /tmp/docker-mailserver/getmail6/test
+. ./prepare_test.sh
+install_getmail
 exit
+d_prompt getmail
+getmail --version
+cd /tmp/docker-mailserver/getmail6/test
+. ./prepare_test.sh
+simple_dest_maildir POP3 true true
+simple_dest_maildir IMAP true true "record_mailbox=true"
+simple_dest_maildir IMAP true true "uid_cache=uid.txt"
+exit
+d_simple_dest_maildir "POP3 true true"
+
 '
 
 #getmail6/test
@@ -152,21 +135,29 @@ function copy_tests() {
 
 function docker_up() {
     cd  /tmp/mailserver
-
     # start container if not running
     if ! docker exec -t ${NAME} bash -c ":" &>/dev/null ; then
         docker-compose up --build -d
         docker-compose ps
-        
         # update ClamAV after startup
         docker exec -u 0 -t ${NAME} bash -c "freshclam &> /dev/null"
     fi
-
     # always reinstall getmail6 to get newest changes
     docker exec -u 0 -t ${NAME} bash -c "yes | pip3 uninstall getmail6"
-    docker exec -u 0 -t ${NAME} bash -c "rm /tmp/docker-mailserver/getmail6/pyproject.toml && pip3 install /tmp/docker-mailserver/getmail6"
+    docker exec -u 0 -t ${NAME} bash -c "rm /tmp/docker-mailserver/getmail6/pyproject.toml && pip3 install -e /tmp/docker-mailserver/getmail6"
 }
 
+d_prompt(){
+docker exec -u $1 -it mail.domain.tld bash
+}
+
+install_getmail() {
+apt-get update
+apt-get -y install git make procmail iputils-ping nmap python3-pip vim
+cd /tmp/docker-mailserver/getmail6
+rm pyproject.toml 
+pip3 install -e .
+}
 
 #---- for test_getmail_with_docker_mailserver.bats ----#
 
@@ -181,6 +172,12 @@ PORTNR["POP3SSL"]=995
 PORTNR["SMTP"]=25
 PORTNR["SMTPSSL"]=587
 export PORTNR
+
+d_info(){
+   cat > $HOME/d_info.sh << EOF
+RANDOMTXT="$RANDOMTXT"
+EOF
+}
 
 d_docker(){
 cd /tmp/mailserver
@@ -200,19 +197,25 @@ d_ports_test(){
 d_docker ports_test
 }
 
-export TESTGREP="Troms"
+randomtext(){
+tr -dc A-Za-z0-9 </dev/urandom | head -c 13; echo
+}
+
 testmail(){
+  RANDOMTXT="$(randomtext)"
+  export RANDOMTXT
   nc 0.0.0.0 25 << EOF
 HELO mail.localhost
 MAIL FROM: ${TESTEMAIL}
 RCPT TO: ${TESTEMAIL}
 DATA
 Subject: test
-This is the test text:
-я αβ один süße créme in Tromsœ.
+The random text is:
+${RANDOMTXT}
 .
 QUIT
 EOF
+d_info
 sleep 1
 }
 d_testmail(){
@@ -221,48 +224,10 @@ d_docker testmail
 
 retrieve(){
 getmail --rcfile=getmail --getmaildir=/home/getmail
+sleep 1
 }
 d_retrieve(){
-  d_docker retrieve
-}
-
-mail_clean(){
-  rm -rf $MAILDIR
-  mkdir -p $MAILDIRIN/{cur,tmp,new}
-}
-
-maildir_clean_retrieve() {
-  RETRIEVER=$1
-  PORT=${PORTNR[$1]}
-  mail_clean
-  cat > /home/getmail/getmail <<EOF
-[retriever]
-type = Simple${RETRIEVER}Retriever
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $PSS
-record_mailbox = True
-[destination]
-type = Maildir
-path = $MAILDIRIN/
-[options]
-read_all = true
-delete = true
-EOF
-  retrieve
-}
-d_maildir_clean_retrieve() {
-d_docker "maildir_clean_retrieve $@"
-}
-
-simple_dest_maildir() {
-  testmail
-  maildir_clean_retrieve $1
-  grep_mail "$TESTGREP"
-}
-d_simple_dest_maildir() {
-d_docker "simple_dest_maildir $@"
+d_docker retrieve
 }
 
 grep_mail(){
@@ -272,16 +237,66 @@ d_grep_mail(){
 d_docker "grep_mail $@"
 }
 
+checkmail(){
+source $HOME/d_info.sh
+grep_mail "${RANDOMTXT}"
+}
+d_checkmail(){
+d_docker checkmail
+}
+
+mail_clean(){
+  rm -rf $MAILDIR
+  mkdir -p $MAILDIRIN/{cur,tmp,new}
+}
+
+dest_maildir() {
+  TYP=$1
+  PORT=${PORTNR[$1]}
+  READALL=$2
+  DEL=$3
+  EXTRALINE=$4
+  mail_clean
+  cat > /home/getmail/getmail <<EOF
+[retriever]
+type = Simple${TYP}Retriever
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $PSS
+$EXTRALINE
+[destination]
+type = Maildir
+path = $MAILDIRIN/
+[options]
+read_all = $READALL
+delete = $DEL
+
+EOF
+}
+d_dest_maildir() {
+d_docker "dest_maildir $@"
+}
+
+simple_dest_maildir() {
+  testmail
+  dest_maildir "$@"
+  retrieve
+  checkmail
+}
+d_simple_dest_maildir() {
+d_docker "simple_dest_maildir $@"
+}
 
 simple_dest_procmail_filter() {
-  RETRIEVER=$1
-  PORT=${PORTNR[$RETRIEVER]}
+  TYP=$1
+  PORT=${PORTNR[$TYP]}
   testmail
   mail_clean
   mkdir -p $MAILDIR/tests/{cur,tmp,new}
   cat > /home/getmail/getmail <<EOF
 [retriever]
-type = Simple${RETRIEVER}Retriever
+type = Simple${TYP}Retriever
 server = localhost
 username = $TESTEMAIL
 port = $PORT
@@ -342,7 +357,6 @@ path = $MAILDIR/mbx
 read_all = $READALL
 delete = $DEL
 max_message_size = $MAX
-imap_cache_uid = uid.txt
 delete_after = 1
 to_oldmail_on_each_mail = true
 delete_bigger_than = 800
@@ -641,7 +655,6 @@ server = localhost
 username = $TESTEMAIL
 port = $PORT
 password = $PSS
-record_mailbox = True
 imap_search = $IMAPSEARCH
 imap_on_delete = $IMAPDELETE
 [destination]
@@ -658,28 +671,28 @@ d_docker "imap_search $@"
 
 override_test(){
 getmail --rcfile=getmail --getmaildir=/home/getmail -s,
-grep_mail "$TESTGREP"
+grep_mail "$RANDOMTXT"
 mail_clean
 #(Unseen \Seen) so this time 0
 getmail --rcfile=getmail --getmaildir=/home/getmail -s,
-[[ "$(grep "$TESTGREP" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
+[[ "$(grep "$RANDOMTXT" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
 mail_clean
 getmail --rcfile=getmail --getmaildir=/home/getmail --searchset UNSEEN --searchset ,SEEN
-[[ "$(grep "$TESTGREP" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
+[[ "$(grep "$RANDOMTXT" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
 mail_clean
 getmail --rcfile=getmail --getmaildir=/home/getmail -s "FROM \"domain\" ,SEEN"
-grep_mail "$TESTGREP"
+grep_mail "$RANDOMTXT"
 mail_clean
 getmail --rcfile=getmail --getmaildir=/home/getmail -s "TEXT \"Troms\" ,SEEN"
-grep_mail "$TESTGREP"
+grep_mail "$RANDOMTXT"
 mail_clean
 getmail --rcfile=getmail --getmaildir=/home/getmail -s "TEXT \"NotThere\""
-[[ "$(grep "$TESTGREP" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
+[[ "$(grep "$RANDOMTXT" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
 getmail --rcfile=getmail --getmaildir=/home/getmail -s "ALL ,SEEN"
-grep_mail "$TESTGREP"
+grep_mail "$RANDOMTXT"
 mail_clean
 getmail --rcfile=getmail --getmaildir=/home/getmail -s "ALL"
-grep_mail "$TESTGREP"
+grep_mail "$RANDOMTXT"
 }
 
 d_override_test() {
@@ -702,11 +715,11 @@ d_docker "simple_dest_maildir POP3 \
 }
 
 fetch_maildir() {
-  PORT=${PORTNR["POP3"]}
-  testmail
-  mail_clean
-  getmail_fetch -p $PORT localhost $TESTEMAIL $PSS $MAILDIRIN/
-  grep_mail "$TESTGREP"
+PORT=${PORTNR["POP3"]}
+testmail
+mail_clean
+getmail_fetch -p $PORT localhost $TESTEMAIL $PSS $MAILDIRIN/
+checkmail
 }
 d_fetch_maildir(){
 d_docker fetch_maildir

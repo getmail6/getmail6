@@ -1,6 +1,11 @@
 Tests
 =====
 
+Requirements:
+- pip install pytest
+
+bats is part of docker-mailserver.
+
 A
 `docker-mailserver <https://github.com/docker-mailserver/docker-mailserver>`__
 image is created at ``/tmp/mailserver``.
