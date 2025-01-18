@@ -1,7 +1,9 @@
 Version 6.19.06
 18.January.2025
     - #223 publish to pypi workflow
-    - #219 #220 increase imap efficiency through uid_cache
+    - #219 #220 increase IMAP efficiency through uid_cache  (needs to be configured) storing last fetched UID
+    - updated tests
+    - update copyright to 2025
 
 Version 6.19.05
 02.October.2024

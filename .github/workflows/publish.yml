@@ -30,7 +30,7 @@ jobs:
           python-version: "3.13"
 
       - name: Make sure tag matches version
-        run: "[[ $(git describe --tags --exact-match) = $(python -c 'import getmailcore ; print(getmailcore.__version__)') ]]"
+        run: "[[ $(git describe --tags --exact-match) = v$(python -c 'import getmailcore ; print(getmailcore.__version__)') ]]"
 
       - name: Build project
         run: |
