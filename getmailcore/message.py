@@ -37,11 +37,11 @@ __all__ = [
 
 
 message_attributes = (
-    'sender',
     'received_by',
     'received_from',
     'received_with',
     'recipient'
+    'sender',
 )
 
 _NL = os.linesep.encode()
@@ -85,12 +85,11 @@ class Message(object):
     __slots__ = (
         '__msg',
         '__raw',
-        #'log',
-        'sender',
         'received_by',
         'received_from',
         'received_with',
         'recipient',
+        'sender',
     )
     def __init__(self, fromlines=None, fromstring=None, fromfile=None):
         #self.log = Logger()

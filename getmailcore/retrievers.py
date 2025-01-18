@@ -34,17 +34,17 @@ from getmailcore.baseclasses import *
 from getmailcore._retrieverbases import *
 
 __all__ = [
-    'SimplePOP3Retriever',
-    'SimplePOP3SSLRetriever',
     'BrokenUIDLPOP3Retriever',
     'BrokenUIDLPOP3SSLRetriever',
+    'MultidropIMAPRetriever',
+    'MultidropIMAPSSLRetriever',
     'MultidropPOP3Retriever',
     'MultidropPOP3SSLRetriever',
     'MultidropSDPSRetriever',
     'SimpleIMAPRetriever',
     'SimpleIMAPSSLRetriever',
-    'MultidropIMAPRetriever',
-    'MultidropIMAPSSLRetriever',
+    'SimplePOP3Retriever',
+    'SimplePOP3SSLRetriever',
 ]
 
 

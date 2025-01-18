@@ -6,17 +6,17 @@
 '''
 
 __all__ = [
-    'getmailError',
     'getmailConfigurationError',
+    'getmailCredentialError',
+    'getmailDeliveryError',
     'getmailDnsLookupError',
     'getmailDnsServerFailure',
-    'getmailOperationError',
+    'getmailError',
     'getmailFilterError',
-    'getmailRetrievalError',
-    'getmailDeliveryError',
-    'getmailCredentialError',
     'getmailLoginRefusedError',
     'getmailMailboxSelectError',
+    'getmailOperationError',
+    'getmailRetrievalError',
 ]
 
 # Base class for all getmail exceptions

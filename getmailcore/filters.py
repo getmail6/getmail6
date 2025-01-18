@@ -18,10 +18,10 @@ from getmailcore.utilities import *
 from getmailcore.baseclasses import *
 
 __all__ = [
-    'FilterSkeleton',
-    'Filter_external',
     'Filter_classifier',
+    'Filter_external',
     'Filter_TMDA',
+    'FilterSkeleton',
 ]
 
 

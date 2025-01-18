@@ -5,7 +5,7 @@
    This is the documentation for getmail version 6, a port of getmail version
    5 to python 3.
 
-   getmail6 is Copyright © 1998-2024 by Charles Cazabon and others:
+   getmail6 is Copyright © 1998-2025 by Charles Cazabon and others:
    <charlesc-getmail @ pyropus.ca>
    <roland.puntaier @ gmail.com>
 
@@ -423,7 +423,7 @@ Creating a getmail rc file
        specified mail folder must exist; getmail will not create it. Note
        that if you configure getmail not to delete retrieved messages (the
        default behaviour), they will not be moved at all.
-     * uid_cache (string) — by setting the file for the cache one enables
+     * cache_uid (string) — by setting the file for the cache one enables
        caching the highest imap UID seen to be used as the starting position
        when fetching the uid list the next time.
      * record_mailbox (boolean) — whether to add a

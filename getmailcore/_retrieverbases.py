@@ -93,8 +93,8 @@ __all__ = [
     'IMAPinitMixIn',
     'IMAPRetrieverBase',
     'IMAPSSLinitMixIn',
-    'MultidropPOP3RetrieverBase',
     'MultidropIMAPRetrieverBase',
+    'MultidropPOP3RetrieverBase',
     'POP3_SSL_PORT',
     'POP3initMixIn',
     'POP3RetrieverBase',
@@ -1551,6 +1551,20 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             for line in uidcache.values():
                 print(line, file=C, end="")
 
+    def _uidoldest(self):
+        oldest = None
+        response = self._parse_imapcmdresponse('FETCH','1','(UID)')
+        for line in response:
+            if not line:
+                continue
+            r = self._parse_imapattrresponse(line)
+            if 'uid' not in r:
+                continue
+            uid = r['uid'].replace('/', '-')
+            msgid = '%s/%s' % (self.uidvalidity, uid)
+            oldest = msgid
+        return oldest
+
     def select_mailbox(self, mailbox):
         self.log.trace()
         assert mailbox in self.mailboxes, (
@@ -1621,6 +1635,28 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self._uidsavemax()
 
         return count
+
+    def _remove_from_oldmail(self, oldest):
+        # Remove messages from the oldmail state file that are no longer in mailbox,
+        # but only if the timestamp for them are old (30 days for now).
+        # This is because IMAP users can have one oldmail state file but multiple
+        # IMAP folders in different configuration rc files.
+        if oldest:
+            (ov,ou) = oldest.split('/')
+        for msgid in list(self.oldmail):
+            timestamp = self.oldmail[msgid]
+            age = self.timestamp - timestamp
+            if msgid not in self.msgsizes and age > VANISHED_AGE:
+                # Don't delete oldmails that might still be around
+                # if we are only doing partial reads of the mailbox
+                if oldest:
+                    (mv,mu) = msgid.split('/')
+                    if (ov == mv and ou < mu):
+                        continue
+                self.log.debug('removing vanished old message id %s' % msgid
+                                + os.linesep)
+                del self.oldmail[msgid]
+
 
     def _getmsglist(self, msgcount, start=1):
         self.log.trace()
@@ -1696,39 +1732,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     self.msgsizes[msgid] = (0 if
                         self.app_options['skip_imap_fetch_size']
                                         else int(r['rfc822.size']))
-
-                # Figure out what the oldest UID is
                 if start > 1:
-                    response = self._parse_imapcmdresponse('FETCH','1','(UID)')
-                    for line in response:
-                        if not line:
-                            continue
-                        r = self._parse_imapattrresponse(line)
-                        if 'uid' not in r:
-                            continue
-                        uid = r['uid'].replace('/', '-')
-                        msgid = '%s/%s' % (self.uidvalidity, uid)
-                        oldest = msgid
-
-            # Remove messages from state file that are no longer in mailbox,
-            # but only if the timestamp for them are old (30 days for now).
-            # This is because IMAP users can have one state file but multiple
-            # IMAP folders in different configuration rc files.
-            if oldest:
-                (ov,ou) = oldest.split('/')
-            for msgid in list(self.oldmail):
-                timestamp = self.oldmail[msgid]
-                age = self.timestamp - timestamp
-                if msgid not in self.msgsizes and age > VANISHED_AGE:
-                    # Don't delete oldmails that might still be around if we are only doing partial reads of the mailbox
-                    if oldest:
-                        (mv,mu) = msgid.split('/')
-                        if (ov == mv and ou < mu):
-                            continue
-                    self.log.debug('removing vanished old message id %s' % msgid
-                                   + os.linesep)
-                    del self.oldmail[msgid]
-
+                    oldest = self._uidoldest()
+            self._remove_from_oldmail(oldest)
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
         self.gotmsglist = True
@@ -1922,24 +1928,6 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     raise getmailCredentialError(o)
 
             self.log.trace('logged in' + os.linesep)
-            """
-            self.log.trace('logged in, getting message list' + os.linesep)
-            self._getmsglist()
-            self.log.debug('msgids: %s'
-                           % list(sorted(self.msgnum_by_msgid.keys())) + os.linesep)
-            self.log.debug('msgsizes: %s' % self.msgsizes + os.linesep)
-            # Remove messages from state file that are no longer in mailbox,
-            # but only if the timestamp for them are old (30 days for now).
-            # This is because IMAP users can have one state file but multiple
-            # IMAP folders in different configuration rc files.
-            for msgid in self.oldmail:
-                timestamp = self.oldmail[msgid]
-                age = self.timestamp - timestamp
-                if msgid not in self.msgsizes and age > VANISHED_AGE:
-                    self.log.debug('removing vanished old message id %s' % msgid
-                                   + os.linesep)
-                    del self.oldmail[msgid]
-            """
             # Some IMAP servers change the available capabilities after
             # authentication, i.e. they present a limited set before login.
             # The Python stlib IMAP4 class doesn't take this into account
