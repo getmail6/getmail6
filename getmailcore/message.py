@@ -40,7 +40,7 @@ message_attributes = (
     'received_by',
     'received_from',
     'received_with',
-    'recipient'
+    'recipient',
     'sender',
 )
 
