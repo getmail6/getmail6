@@ -19,6 +19,9 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - name: Install links
+        run: sudo apt-get install -y links
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
