@@ -10,11 +10,14 @@ HOST_CONFIG="/tmp/mailserver/config"
 # requires pytest, docker, docker-compose < V2 (V2 does not work)
 #----------------------------------------------------------
 cd getmail6
+GETMAIL6REPO=`pwd`
+echo $GETMAIL6REPO
 
 # run all tests
 make test3
 
 # force renew of /tmp/mailserver when running `make test`:
+ls /tmp/mailserver/python?
 rm /tmp/mailserver/python?
 
 # manual commands as root on docker
@@ -61,11 +64,11 @@ exit
 #----------------------------------------------------------
 
 ## prepare_test.sh used in test_getmail_with_docker_mailserver.bats
-cd /home/roland/mine/getmail6/test
+cd $GETMAIL6REPO/test
 source prepare_test.sh
-echo $GETMAIL6REPO
 copy_tests
 cd /tmp/mailserver
+docker-compose down
 docker-compose up -d
 d_prompt 0
 cd /tmp/docker-mailserver/getmail6/test
@@ -78,7 +81,8 @@ cd /tmp/docker-mailserver/getmail6/test
 . ./prepare_test.sh
 simple_dest_maildir POP3 true true
 simple_dest_maildir IMAP true true "record_mailbox=true"
-simple_dest_maildir IMAP true true "uid_cache=uid.txt"
+simple_dest_maildir IMAP false false "uid_cache=uid.txt"
+simple_dest_maildir IMAP false false "uid_cache=true"
 exit
 d_simple_dest_maildir "POP3 true true"
 
@@ -198,11 +202,12 @@ d_docker ports_test
 }
 
 randomtext(){
-tr -dc A-Za-z0-9 </dev/urandom | head -c 13; echo
+tr -dc A-Za-z0-9 </dev/urandom | head -c $1; echo
 }
 
 testmail(){
-  RANDOMTXT="$(randomtext)"
+  RANDOMTXT="$(randomtext ${RANDOMLAST:-13})"
+  export RANDOMLAST=$((RANDOMLAST+1))
   export RANDOMTXT
   nc 0.0.0.0 25 << EOF
 HELO mail.localhost
@@ -216,7 +221,7 @@ ${RANDOMTXT}
 QUIT
 EOF
 d_info
-sleep 1
+sleep 2
 }
 d_testmail(){
 d_docker testmail

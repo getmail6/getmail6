@@ -423,9 +423,22 @@ Creating a getmail rc file
        specified mail folder must exist; getmail will not create it. Note
        that if you configure getmail not to delete retrieved messages (the
        default behaviour), they will not be moved at all.
-     * cache_uid (string) — by setting the file for the cache one enables
-       caching the highest imap UID seen to be used as the starting position
-       when fetching the uid list the next time.
+     * cache_uid (string) — With this option the highest imap UID is used as
+       the starting position when fetching the uid list. An UID is not
+       removed any more in the oldmail-file, if it has disappeared on the
+       server. If imap_search is non-default, this option is not applied.
+          * If the string is
+
+ true
+
+            the highest UID is taken from the oldmail-file.
+          * Else the string is interpreted as file name for the given
+            retriever. In the file the highest UID for each mailbox is stored
+            before the email is delivered to its destination. If something
+            goes wrong with the delivery of an email, you would have to
+            remove the uid_cache file manually to have that email fetched
+            from the server again. oldmail-files are updated only after the
+            delivery.
      * record_mailbox (boolean) — whether to add a
        X-getmail-retrieved-from-mailbox: header field to retrieved messages,
        containing the name of the selected mailbox that the message was

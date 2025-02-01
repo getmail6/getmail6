@@ -72,12 +72,15 @@ function teardown_file() {
 @test "SimpleIMAPSSLRetriever, destination Maildir" {
   run d_simple_dest_maildir "IMAPSSL true true"
 }
-@test "SimpleIMAPRetriever, destination Maildir, uid.txt" {
-  run d_simple_dest_maildir "IMAP true true uid_cache=uid.txt"
+@test "SimpleIMAPRetriever, destination Maildir, uid_cache=uid.txt" {
+  run d_simple_dest_maildir "IMAP false false uid_cache=uid.txt"
   n1=$(d_docker "cat /home/getmail/uid.txt" | cut -d" " -f 3)
-  run d_simple_dest_maildir "IMAP true true uid_cache=uid.txt"
+  run d_simple_dest_maildir "IMAP false false uid_cache=uid.txt"
   n2=$(d_docker "cat /home/getmail/uid.txt" | cut -d" " -f 3)
   [[ $(( n2 - n1 )) != 0 ]]
+}
+@test "SimpleIMAPRetriever, destination Maildir, uid_cache=true" {
+  run d_simple_dest_maildir "IMAP false false uid_cache=true"
 }
 
 

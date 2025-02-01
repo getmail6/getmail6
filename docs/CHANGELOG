@@ -1,3 +1,7 @@
+Version 6.19.08
+TODO
+    - #220 allow uid_cache=true (latest UID from oldmail-file) in addition to uid_cache=<uidfile>
+
 Version 6.19.07
 26.January.2025
     - #225 Missing comma in getmailcore/message.py

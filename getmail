@@ -206,16 +206,16 @@ def go(configs, idle, only_account=[]):
                     continue
                 nummsgs = len(retriever)
                 fmtlen = len(str(nummsgs))
-                for (msgnum, msgid) in enumerate(retriever):
+                for (idx, msgid) in enumerate(retriever):
                     log.debug('  message %s ...\n' % msgid)
-                    msgnum += 1
+                    idx += 1
                     retrieve = False
                     reason = 'seen'
                     delete = False
                     timestamp = retriever.oldmail.get(msgid, None)
                     size = retriever.getmsgsize(msgid)
                     info = ('msg %*d/%*d (%d bytes)'
-                            % (fmtlen, msgnum, fmtlen, nummsgs, size))
+                            % (fmtlen, idx, fmtlen, nummsgs, size))
                     if mailbox:
                         info = '[%s] '%mailbox + info
                     logline = '%s msgid %s' % (info, msgid)

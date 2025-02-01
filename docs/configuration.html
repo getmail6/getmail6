@@ -666,9 +666,25 @@ mailboxes = ALL
     <li>
         <a name="uid_cache">cache_uid</a>
         (<a href="#parameter-boolean">string</a>)
-        &mdash; by setting the file for the cache one enables
-        caching the highest imap UID seen to be used as the starting position
-        when fetching the uid list the next time.
+        &mdash;
+        With this option the highest imap UID is used as the starting position when fetching the uid list.
+        An UID is not removed any more in the oldmail-file, if it has disappeared on the server.
+        If imap_search is non-default, this option is not applied.
+        <ul>
+            <li>
+            If the string is <pre class="example">true</pre>
+            the highest UID is taken from the oldmail-file.
+            </li>
+            <li>
+            Else the string is interpreted as file name for the given retriever.
+            In the file the highest UID for each mailbox is stored
+            before the email is delivered to its destination.
+            If something goes wrong with the delivery of an email,
+            you would have to remove the uid_cache file manually
+            to have that email fetched from the server again.
+            oldmail-files are updated only after the delivery.
+            </li>
+        </ul>
     </li>
     <li>
         record_mailbox
