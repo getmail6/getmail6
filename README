@@ -18,6 +18,9 @@ getmail is Copyright (C) 1998-2025 Charles Cazabon and others.
 getmail is licensed for use under the GNU General Public License version 2 (only).
 See ``docs/COPYING`` for specific terms and distribution information.
 
+getmail-gmail-xoauth-tokens is Copyright 2012 Google Inc.
+getmail-gmail-xoauth-tokens is licensed for under the Apache License, Version 2.0
+
 Bugs
 ====
 
