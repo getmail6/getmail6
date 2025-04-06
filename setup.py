@@ -36,7 +36,7 @@ for (pos, arg) in enumerate(args):
         # hack hack hack hack hack hack hack
         datadir = args[pos + 1]
 
-DOCDIR = os.path.join('share','doc','getmail-%s' % __version__)
+DOCDIR = os.path.join('share','doc','getmail')
 GETMAILDOCDIR = os.path.join(datadir or prefix, DOCDIR)
 
 MANDIR = os.path.join('share','man','man1')
