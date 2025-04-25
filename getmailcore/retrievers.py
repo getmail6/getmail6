@@ -22,6 +22,8 @@ Currently implemented:
   MultidropIMAPSSLRetriever
 '''
 
+from __future__ import print_function # for py2, NOOP in py3
+
 import os
 import poplib
 import imaplib

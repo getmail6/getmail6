@@ -4,6 +4,8 @@
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
+from __future__ import print_function # for py2, NOOP in py3
+
 import sys
 
 import os

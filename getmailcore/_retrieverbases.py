@@ -23,6 +23,8 @@ Base classes:
   MultidropIMAPRetrieverBase
 '''
 
+from __future__ import print_function # for py2, NOOP in py3
+
 import sys
 import os
 import socket
@@ -31,7 +33,8 @@ from ssl import CertificateError
 import time
 import email
 import codecs
-try:
+
+try: # py2
     from email.Header import decode_header
     import email.Parser as Parser
 except ImportError:
