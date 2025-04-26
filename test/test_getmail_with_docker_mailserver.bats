@@ -60,55 +60,66 @@ function teardown_file() {
   assert_success
 }
 
-bats_check_mail(){
-  run d_retrieve
-  assert_success # expect mail retrieval without error
-  run d_grep_mail "$TESTGREP"
-  assert_success # expect a mail which contains "$TESTGREP"
-  run d_grep_mail utf-8
-  assert_failure # expect no utf-8 encoding of INBOX
-}
-
-bats_simple_dest_maildir (){
-  run d_simple_dest_maildir "$@"
-  #bats_check_mail # moved into simple_dest_maildir, because it failed
-}
-
 @test "SimplePOP3Retriever, destination Maildir" {
-  bats_simple_dest_maildir POP3
+  run d_simple_dest_maildir "POP3 true true"
 }
 @test "SimplePOP3SSLRetriever, destination Maildir" {
-  bats_simple_dest_maildir POP3SSL
+  run d_simple_dest_maildir "POP3SSL true true"
 }
 @test "SimpleIMAPRetriever, destination Maildir" {
-  bats_simple_dest_maildir IMAP
+  run d_simple_dest_maildir "IMAP true true record_mailbox=true"
 }
 @test "SimpleIMAPSSLRetriever, destination Maildir" {
-  bats_simple_dest_maildir IMAPSSL
+  run d_simple_dest_maildir "IMAPSSL true true"
+}
+@test "SimpleIMAPRetriever, destination Maildir, uid.txt" {
+  run d_simple_dest_maildir "IMAP true true uid_cache=uid.txt"
+  n1=$(d_docker "cat /home/getmail/uid.txt" | cut -d" " -f 3)
+  run d_simple_dest_maildir "IMAP true true uid_cache=uid.txt"
+  n2=$(d_docker "cat /home/getmail/uid.txt" | cut -d" " -f 3)
+  [[ $(( n2 - n1 )) != 0 ]]
 }
 
-bats_simple_dest_procmail_filter() {
-  run d_simple_dest_procmail_filter "$@"
-  assert_success
+
+dest_maildir_with_uid_check() {
+testmail
+testmail
+testmail
+dest_maildir IMAPSSL true false "uid_cache=uid.txt"
+retrieve
+checkmail
+testmail
+testmail
+testmail
+dest_maildir IMAPSSL true false "uid_cache=uid.txt"
+retrieve
+checkmail
 }
+
+
+
 
 @test "SimplePOP3Retriever, destination MDA_external (procmail), filter spamassassin clamav" {
-  bats_simple_dest_procmail_filter POP3
+  run d_simple_dest_procmail_filter POP3
+  assert_success
 }
 @test "SimplePOP3SSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
-  bats_simple_dest_procmail_filter POP3SSL
+  run d_simple_dest_procmail_filter POP3SSL
+  assert_success
 }
 @test "SimpleIMAPRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
-  bats_simple_dest_procmail_filter IMAP
+  run d_simple_dest_procmail_filter IMAP
+  assert_success
 }
 @test "SimpleIMAPSSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
-  bats_simple_dest_procmail_filter IMAPSSL
+  run d_simple_dest_procmail_filter IMAPSSL
+  assert_success
 }
 
 bats_config_test(){
   run d_config_test "$@"
   run d_retrieve
-  assert_success # expect mail retrieval without error
+  assert_success
 }
 
 #896 is message size
@@ -172,105 +183,89 @@ bats_multisorter_test "MultidropIMAPRetriever 143"
 bats_multisorter_test "MultidropIMAPSSLRetriever 993"
 }
 
-bats_lmtp_test_py() {
-  run d_lmtp_test_py "$@"
-  run d_retrieve
-  assert_success
-}
-
-bats_check_lmtp_delivery() {
-  run d_grep_mail "$TESTGREP"
-  assert_failure # expect no mail because the mail was delivered to $TESTEMAIL's vmail mailbox
+check_lmtp_delivery() {
+  run d_checkmail
+  assert_failure
   run d_maildir_clean_retrieve IMAP
-  assert_success # retrieves the mail we delivered using LMTP into our maildir
-  run d_grep_mail "$TESTGREP"
   assert_success
-}
-
-bats_lmtp_test_unix_socket() {
-  run d_lmtp_test_unix_socket "$@"
-  run d_retrieve
-  assert_success
-  bats_check_lmtp_delivery
-  run d_grep_mail "Subject: lmtp_test_unix_socket_x"
-  assert_success
-}
-
-bats_lmtp_test_override() {
-  run d_lmtp_test_override "$@"
-  run d_retrieve
-  assert_success
-  bats_check_lmtp_delivery
-  run d_grep_mail "Subject: lmtp_test_override_x"
-  assert_success
-}
-
-bats_lmtp_test_override_fallback() {
-  run d_lmtp_test_override_fallback "$@"
-  run d_retrieve
-  assert_success
-  bats_check_lmtp_delivery
-  run d_grep_mail "Subject: lmtp_test_override_fallback_x"
+  run d_checkmail
   assert_success
 }
 
 @test "MDA_lmtp" {
 if head `which getmail` | grep 'python3' ; then
-bats_lmtp_test_py "SimpleIMAPRetriever 143"
-bats_lmtp_test_unix_socket "SimpleIMAPRetriever 143"
-bats_lmtp_test_override "SimpleIMAPRetriever 143"
-bats_lmtp_test_override_fallback "SimpleIMAPRetriever 143"
+run d_lmtp_test_py "SimpleIMAPRetriever 143"
+run d_retrieve
+assert_success
+run d_lmtp_test_unix_socket "SimpleIMAPRetriever 143"
+run d_retrieve
+assert_success
+check_lmtp_delivery
+run d_grep_mail "Subject: lmtp_test_unix_socket_x"
+assert_success
+run d_lmtp_test_override "SimpleIMAPRetriever 143"
+run d_retrieve
+assert_success
+check_lmtp_delivery
+run d_grep_mail "Subject: lmtp_test_override_x"
+assert_success
+run d_lmtp_test_override_fallback "SimpleIMAPRetriever 143"
+run d_retrieve
+assert_success
+check_lmtp_delivery
+run d_grep_mail "Subject: lmtp_test_override_fallback_x"
+assert_success
 fi
 }
 
-bats_imap_search() {
-  run d_imap_search "$@"
-  bats_check_mail
-}
-
 @test "SimpleIMAPSSLRetriever, ALL, no delete" {
-  bats_imap_search "ALL false"
+  run d_imap_search "ALL false"
+  run d_retrieve
+  assert_success
+  run d_checkmail
+  assert_success
+  run d_grep_mail utf-8
+  assert_failure
 }
 @test "SimpleIMAPRetriever, UNSEEN, set seen" {
-  bats_imap_search "UNSEEN true"
+  run d_imap_search "UNSEEN true"
+  run d_retrieve
+  assert_success
+  run d_checkmail
+  assert_success
+  run d_grep_mail utf-8
+  assert_failure
 }
 @test "SimpleIMAPRetriever, UNSEEN, no unseen" {
   run d_imap_search "UNSEEN true"
   run d_retrieve
-  assert_success # expect mail retrieval without error
-  run d_grep_mail "$TESTGREP"
-  assert_failure # expect no mail mail which contains "test"
+  assert_success
+  run d_checkmail
+  assert_failure
 }
 @test "SimpleIMAPSSLRetriever, ALL, delete" {
-  bats_imap_search "ALL true"
+  run d_imap_search "ALL true"
+  run d_retrieve
+  assert_success
+  run d_checkmail
+  assert_success
+  run d_grep_mail utf-8
+  assert_failure
 }
 
-bats_override() {
+@test "IMAP override via command line -s" {
   run d_override_test
 }
-@test "IMAP override via command line -s" {
-  bats_override
-}
 
-
-bats_local_mbox(){
+@test "getmail_mbox test" {
   run d_local_mbox
 }
-@test "getmail_mbox test" {
-  bats_local_mbox
-}
 
-bats_local_maildir(){
+@test "getmail_maildir test" {
   run d_local_maildir
 }
-@test "getmail_maildir test" {
-  bats_local_maildir
-}
 
-bats_fetch_maildir(){
-  run d_fetch_maildir
-}
 @test "getmail_fetch test" {
-  bats_fetch_maildir
+  run d_fetch_maildir
 }
 

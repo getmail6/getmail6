@@ -8,7 +8,7 @@
 Reads a message from stdin and delivers it to an mbox file specified as
 a commandline argument.  Expects the envelope sender address to be in the
 environment variable SENDER.
-Copyright (C) 2001-2024 Charles Cazabon and others.
+Copyright (C) 2001-2025 Charles Cazabon and others.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of version 2 (only) of the GNU General Public License as published by

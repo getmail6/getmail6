@@ -34,17 +34,17 @@ from getmailcore.baseclasses import *
 from getmailcore._retrieverbases import *
 
 __all__ = [
-    'SimplePOP3Retriever',
-    'SimplePOP3SSLRetriever',
     'BrokenUIDLPOP3Retriever',
     'BrokenUIDLPOP3SSLRetriever',
+    'MultidropIMAPRetriever',
+    'MultidropIMAPSSLRetriever',
     'MultidropPOP3Retriever',
     'MultidropPOP3SSLRetriever',
     'MultidropSDPSRetriever',
     'SimpleIMAPRetriever',
     'SimpleIMAPSSLRetriever',
-    'MultidropIMAPRetriever',
-    'MultidropIMAPSSLRetriever',
+    'SimplePOP3Retriever',
+    'SimplePOP3SSLRetriever',
 ]
 
 
@@ -393,6 +393,7 @@ class SimpleIMAPRetriever(IMAPRetrieverBase, IMAPinitMixIn):
                            default="('INBOX', )", allow_specials=('ALL',)),
         ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
+        ConfString(name='uid_cache', required=False, default=None),
         ConfBool(name='record_mailbox', required=False, default=True),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
         # .authenticate(), so we can't do this yet (?).
@@ -438,6 +439,7 @@ class SimpleIMAPSSLRetriever(IMAPRetrieverBase, IMAPSSLinitMixIn):
                            default="('INBOX', )", allow_specials=('ALL',)),
         ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
+        ConfString(name='uid_cache', required=False, default=None),
         ConfBool(name='record_mailbox', required=False, default=True),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),
@@ -490,6 +492,7 @@ class MultidropIMAPRetriever(MultidropIMAPRetrieverBase, IMAPinitMixIn):
                            default="('INBOX', )", allow_specials=('ALL',)),
         ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
+        ConfString(name='uid_cache', required=False, default=None),
         ConfBool(name='record_mailbox', required=False, default=True),
         # imaplib.IMAP4.login_cram_md5() requires the (unimplemented)
         # .authenticate(), so we can't do this yet (?).
@@ -536,6 +539,7 @@ class MultidropIMAPSSLRetriever(MultidropIMAPRetrieverBase, IMAPSSLinitMixIn):
                            default="('INBOX', )", allow_specials=('ALL',)),
         ConfBool(name='use_peek', required=False, default=True),
         ConfString(name='move_on_delete', required=False, default=None),
+        ConfString(name='uid_cache', required=False, default=None),
         ConfBool(name='record_mailbox', required=False, default=True),
         ConfFile(name='keyfile', required=False, default=None),
         ConfFile(name='certfile', required=False, default=None),

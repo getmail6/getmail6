@@ -21,8 +21,12 @@ test3:
 	cd test && ./prepare_test.sh
 	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 
+.PHONY: fortest
+fortest:
+	pip install pytest
+
 .PHONY: testpython
-testpython:
+testpython: fortest
 	pytest test/test.py
 
 .PHONY: test

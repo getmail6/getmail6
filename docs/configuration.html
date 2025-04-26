@@ -23,7 +23,7 @@ Please refer to the git history regarding who changed what and when in this file
     a port of getmail version 5 to python 3.
 </p>
 <p class="about">
-    getmail6 is Copyright &copy; 1998-2024 by Charles Cazabon and others:<br>
+    getmail6 is Copyright &copy; 1998-2025 by Charles Cazabon and others:<br>
     &lt;charlesc-getmail @ pyropus.ca&gt;<br>
     &lt;roland.puntaier @ gmail.com&gt;
 </p>
@@ -662,6 +662,13 @@ mailboxes = ALL
         must exist; getmail will not create it.  Note that if you configure
         getmail not to delete retrieved messages (the default behaviour), they
         will not be moved at all.
+    </li>
+    <li>
+        <a name="uid_cache">cache_uid</a>
+        (<a href="#parameter-boolean">string</a>)
+        &mdash; by setting the file for the cache one enables
+        caching the highest imap UID seen to be used as the starting position
+        when fetching the uid list the next time.
     </li>
     <li>
         record_mailbox

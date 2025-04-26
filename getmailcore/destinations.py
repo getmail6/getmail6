@@ -36,13 +36,13 @@ __all__ = [
     'DeliverySkeleton',
     'Maildir',
     'Mboxrd',
-    'MDA_qmaillocal',
     'MDA_external',
     'MDA_lmtp',
-    'MultiDestinationBase',
+    'MDA_qmaillocal',
     'MultiDestination',
-    'MultiSorterBase',
+    'MultiDestinationBase',
     'MultiSorter',
+    'MultiSorterBase',
 ]
 
 def exit_with(stderr,errmsg):

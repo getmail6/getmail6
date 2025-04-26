@@ -75,6 +75,8 @@ lint.ignore = [
   "PLR0402",
   "PLW2901",
   "RUF005",
+  "RUF021",
+  "RUF022",
 ]
 line-length = 142
 target-version = "py37"

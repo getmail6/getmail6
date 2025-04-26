@@ -26,21 +26,21 @@ import getmailcore.logging
 from getmailcore.utilities import *
 
 __all__ = [
-    'run_command',
-    'ConfigurableBase',
-    'ForkingBase',
-    'ConfInstance',
-    'ConfString',
     'ConfBool',
-    'ConfInt',
-    'ConfTupleOfStrings',
-    'ConfTupleOfUnicode',
-    'ConfTupleOfTupleOfStrings',
-    'ConfPassword',
     'ConfDirectory',
     'ConfFile',
+    'ConfigurableBase',
+    'ConfInstance',
+    'ConfInt',
     'ConfMaildirPath',
     'ConfMboxPath',
+    'ConfPassword',
+    'ConfString',
+    'ConfTupleOfStrings',
+    'ConfTupleOfTupleOfStrings',
+    'ConfTupleOfUnicode',
+    'ForkingBase',
+    'run_command',
 ]
 
 if sys.version_info.major > 2:
