@@ -25,12 +25,12 @@ test3:
 fortest:
 	pip install pytest
 
-.PHONY: testpython
-testpython: fortest
+.PHONY: unittests
+unittests: fortest
 	pytest test/test.py
 
 .PHONY: test
-test: testpython testclean test3
+test: unittests testclean test3
 	cd /tmp/mailserver && docker-compose down
 
 .PHONY: lint
