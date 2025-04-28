@@ -40,6 +40,7 @@ try: # py2
 except ImportError:
     from email.header import decode_header
     import email.parser as Parser
+from email.charset import add_alias
 import poplib
 import imaplib
 import re
@@ -1030,6 +1031,9 @@ class RetrieverSkeleton(ConfigurableBase):
     def getmsg(self, msgid):
         if not self.__initialized:
             raise getmailOperationError('not initialized')
+        add_alias('cp-1252', 'cp1252')
+        add_alias('windows-31j', 'cp932')
+        add_alias('windows-874', 'cp874')
         return self._getmsgbyid(msgid)
 
     def getmsgsize(self, msgid):
