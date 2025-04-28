@@ -1030,6 +1030,7 @@ class RetrieverSkeleton(ConfigurableBase):
             raise getmailOperationError('not initialized')
         add_alias('cp-1252', 'cp1252')
         add_alias('windows-31j', 'cp932')
+        add_alias('windows-874', 'cp874')
         return self._getmsgbyid(msgid)
 
     def getmsgsize(self, msgid):
