@@ -27,7 +27,7 @@ fortest:
 
 .PHONY: unittests
 unittests: fortest
-	pytest test/test.py
+	pytest test/test.py test/test_mock_servers.py
 
 .PHONY: test
 test: unittests testclean test3

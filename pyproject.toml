@@ -94,3 +94,6 @@ max-statements = 56
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402"]
 "test/*" = ["S101"]
+
+[tool.coverage.run]
+concurrency = ["multiprocessing"]
