@@ -23,27 +23,17 @@
 # Works for Microsoft Office 365 in addition to Gmail.
 
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import os
 import sys
 import json
 import argparse
 import time
-try:
-    import urllib.request as urllibrequest
-    import urllib.parse as urllibparse
-    import urllib.error as urlliberror
-    from http.server import HTTPServer, BaseHTTPRequestHandler
-    urlparse = urllibparse
-    def codebytes(b): return b.encode("utf8")
-except: #py2
-    import urlparse
-    import urllib as urllibparse
-    import urllib2 as urlliberror
-    from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-    urllibrequest = urllibparse
-    def codebytes(b): return b
+import urllib.request as urllibrequest
+import urllib.parse as urllibparse
+import urllib.error as urlliberror
+from http.server import HTTPServer, BaseHTTPRequestHandler
+urlparse = urllibparse
+def codebytes(b): return b.encode("utf8")
 
 force_local_redirect = True
 

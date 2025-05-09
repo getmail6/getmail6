@@ -15,18 +15,12 @@ Currently implemented:
     recipient address patterns)
 '''
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import sys
 import os
 import re
 import smtplib
 import types
-
-try:
-    import email.Utils as Utils
-except ImportError:
-    import email.utils as Utils
+import email.utils as Utils
 
 import pwd
 
@@ -280,10 +274,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
             # Open mbox file, refusing to create it if it doesn't exist
             fd = os.open(self.conf['path'], os.O_RDWR)
             status_old = os.fstat(fd)
-            try:
-                f = os.fdopen(fd, 'br+')
-            except ValueError: # py2
-                f = os.fdopen(fd, 'r+')
+            f = os.fdopen(fd, 'br+')
             lock_file(f, self.conf['locktype'])
             # Check if it _is_ an mbox file.  mbox files must start with "From "
             # in their first line, or are 0-length files.

@@ -6,8 +6,6 @@
 '''
 
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import os
 import os.path
 import socket

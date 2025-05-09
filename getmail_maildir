@@ -23,8 +23,6 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, see <https://www.gnu.org/licenses/>.
 '''
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import sys
 
 import os
@@ -61,10 +59,7 @@ def main():
     if not is_maildir(path):
         raise SystemExit('Error: %s is not a maildir' % path)
 
-    try:
-        msg = Message(fromfile=sys.stdin.buffer)
-    except AttributeError: #py2
-        msg = Message(fromfile=sys.stdin)
+    msg = Message(fromfile=sys.stdin.buffer)
     if 'SENDER' in os.environ:
         msg.sender = os.environ['SENDER']
     if 'RECIPIENT' in os.environ:

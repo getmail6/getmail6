@@ -10,8 +10,6 @@ a certain level to one fd, and other messages of higher levels to a different fd
 (i.e. info to stdout, warnings to stderr).
 '''
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import sys
 import os.path
 import traceback

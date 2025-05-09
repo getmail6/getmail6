@@ -4,8 +4,6 @@
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import sys
 
 import os
@@ -137,10 +135,7 @@ def main():
 
         def get(self, key, value=None):
             return getattr(self, key, value)
-        try:
-            options.get = types.MethodType(get, options, options.__class__)
-        except TypeError: # py3
-            options.get = types.MethodType(get, options)
+        get = types.MethodType(get, options)
 
         msg = None
         if options.message is not None:

@@ -23,8 +23,6 @@ Base classes:
   MultidropIMAPRetrieverBase
 '''
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import sys
 import os
 import socket
@@ -34,12 +32,8 @@ import time
 import email
 import codecs
 
-try: # py2
-    from email.Header import decode_header
-    import email.Parser as Parser
-except ImportError:
-    from email.header import decode_header
-    import email.parser as Parser
+from email.header import decode_header
+import email.parser as Parser
 from email.charset import add_alias
 import poplib
 import imaplib
@@ -1200,12 +1194,8 @@ class POP3RetrieverBase(RetrieverSkeleton):
         self.log.trace()
         msgnum = self._getmsgnumbyid(msgid)
         response, headerlist, octets = self.conn.top(msgnum, 0)
-        try:
-            parser = Parser.BytesHeaderParser()
-            return parser.parsebytes(os.linesep.encode().join(headerlist))
-        except: #py2
-            parser = Parser.HeaderParser()
-            return parser.parsestr(os.linesep.join(headerlist))
+        parser = Parser.BytesHeaderParser()
+        return parser.parsebytes(os.linesep.encode().join(headerlist))
 
     def initialize(self, options):
         self.log.trace()

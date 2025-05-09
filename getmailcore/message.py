@@ -6,26 +6,16 @@
 
 '''
 
-from __future__ import print_function # for py2, NOOP in py3
-from __future__ import unicode_literals
-
 import sys
 import os
 import time
 import re
 import email
-try: #py2
-    import email.Errors as Errors
-    import email.Utils as Utils
-    import email.Parser as Parser
-    from email.Generator import Generator
-    from email.Header import Header
-except ImportError:
-    import email.errors as Errors
-    import email.utils as Utils
-    import email.parser as Parser
-    from email.generator import Generator
-    from email.header import Header
+import email.errors as Errors
+import email.utils as Utils
+import email.parser as Parser
+from email.generator import Generator
+from email.header import Header
 
 
 from getmailcore.exceptions import *
@@ -100,13 +90,8 @@ class Message(object):
         self.received_from = None
         self.received_with = None
         self.__raw = None
-        try:
-            parser = Parser.BytesParser()
-            parsestr = parser.parsebytes
-        except: #py2
-            parser = Parser.Parser()
-            parsestr = parser.parsestr
-
+        parser = Parser.BytesParser()
+        parsestr = parser.parsebytes
 
         # Message is instantiated with fromlines for POP3, fromstring for
         # IMAP (both of which can be badly-corrupted or invalid, i.e. spam,
@@ -196,12 +181,7 @@ class Message(object):
             rcvline = ''
         # From_ handled above, always tell the generator not to include it
         try:
-            try: #py3
-                bmsg = self.__msg.as_bytes(
-                    policy=self.__msg.policy.clone(linesep=os.linesep))
-            except AttributeError: #py2
-                bmsg = self.__msg.as_string()
-                bmsg = _NL.join(bmsg.splitlines() + [b''])
+            bmsg = self.__msg.as_bytes(policy=self.__msg.policy.clone(linesep=os.linesep))
             if mangle_from:
                 # do mboxrd-style "From " line quoting (add one '>')
                 RE_FROMLINE = re.compile(b'^(>*From )', re.MULTILINE)

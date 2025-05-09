@@ -19,8 +19,8 @@ import sys
 __version__ = '6.19.08'
 __license__ = 'GPL-2.0'
 
-__py_required__ = '2.7.16'
-__py_required_hex__ = 0x20710f0
+__py_required__ = '3.7'
+__py_required_hex__ = 0x03070000
 
 if sys.hexversion < __py_required_hex__:
     raise ImportError('getmail version %s requires Python version %s '

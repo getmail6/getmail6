@@ -54,8 +54,6 @@ From the RFC:
 # cast is absent in previous versions: thus, the lambda returns the
 # memoryview instance while ignoring the format
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import codecs
 
 memory_cast = getattr(memoryview, "cast", lambda *x: x[0])

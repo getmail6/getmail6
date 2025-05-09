@@ -8,8 +8,6 @@ Currently implemented:
 
 '''
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import os
 import tempfile
 import types

@@ -6,8 +6,6 @@
 
 '''
 
-from __future__ import print_function # for py2, NOOP in py3
-
 import sys
 import os
 import time
@@ -18,7 +16,6 @@ from collections import namedtuple
 import tempfile
 import errno
 from threading import Condition
-import socket
 
 from argparse import Namespace
 import subprocess
@@ -304,10 +301,7 @@ class ConfMboxPath(ConfString):
             )
         fd = os.open(val, os.O_RDWR)
         status_old = os.fstat(fd)
-        try:
-            f = os.fdopen(fd, 'br+')
-        except ValueError: # py2
-            f = os.fdopen(fd, 'r+')
+        f = os.fdopen(fd, 'br+')
         # Check if it _is_ an mbox file.  mbox files must start with "From "
         # in their first line, or are 0-length files.
         f.seek(0, 0)
@@ -434,7 +428,7 @@ class ForkingBase(object):
 
     def _wait_for_child(self, childpid):
         self.__child_exited.acquire()
-        if self.__child_exited.wait(socket.getdefaulttimeout() or 60) == False: # py2, <py3.2: always None
+        if self.__child_exited.wait(60) == False:
             raise getmailOperationError('waiting child pid %d timed out'
                                         % childpid)
         self.__child_exited.release()
