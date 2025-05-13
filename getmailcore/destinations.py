@@ -745,7 +745,7 @@ class MDA_lmtp(DeliverySkeleton):
 
     def _deliver_message(self, msg, delivered_to, received):
         self.log.trace()
-        recipient = self.conf.get('override', msg.recipient)
+        recipient = self.conf.get('override', msg.recipient) or None
         rcpt = self.__send(msg.content(), msg.sender, recipient)
 
         if recipient in rcpt:
