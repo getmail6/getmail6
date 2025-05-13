@@ -399,7 +399,7 @@ class ForkingBase(object):
         log - an object of type getmailcore.logging.Logger()
 
     '''
-    def _child_handler(self, sig, stackframe):
+    def _SIGCHLD_handler(self, sig, stackframe):
         def notify():
             self.__child_exited.acquire()
             self.__child_exited.notify_all()
@@ -407,8 +407,8 @@ class ForkingBase(object):
         self.log.trace('handler called for signal %s' % sig)
         try:
             pid, r = os.waitpid(self.child.childpid,0)
-        except OSError as o:
-            self.log.trace('handler called, but no children (%s)' % o)
+        except Exception as o:
+            self.log.trace('handler called with exception (%s)' % o)
             notify()
             return
         if self.__orig_handler:
@@ -424,7 +424,7 @@ class ForkingBase(object):
         self.__child_pid = 0
         self.__child_status = None
         self.__orig_handler = None
-        self.__orig_handler = signal.signal(signal.SIGCHLD, self._child_handler)
+        self.__orig_handler = signal.signal(signal.SIGCHLD, self._SIGCHLD_handler)
 
     def _wait_for_child(self, childpid):
         self.__child_exited.acquire()
