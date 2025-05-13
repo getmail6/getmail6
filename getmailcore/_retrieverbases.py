@@ -2010,6 +2010,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.conn.untagged_responses = {}
             self.conn.send(b'DONE\r\n')
             self.conn._command_complete('IDLE', tag)
+        except ssl.SSLEOFError as o:
+            return False
         except imaplib.IMAP4.error as o:
             return False
         except BrokenPipeError as o:
