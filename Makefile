@@ -53,7 +53,9 @@ dist: doc
 	echo "note:"
 	echo "use ./pypi.sh to upload to PYPI"
 
-# use ./pypi.sh to upload to PYPI
+# ./pypi.sh to upload to PYPI no more needed due to
+# .github/workflows/publish.yml
+# .github/workflows/publish6.yml
 .PHONY: up6
 up6: dist
 	twine upload dist/`ls dist -rt *.whl | tail -1` dist/`ls dist -rt *.tar.gz | tail -1` -u__token__ -p`pass show pypi.org/getmail6_api_token`
