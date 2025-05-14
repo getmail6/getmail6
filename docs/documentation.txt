@@ -95,10 +95,10 @@ Features
 
 Requirements
 
-   getmail version 6 requires Python version 3 or later. Python 2.7.18 should
-   also work. If you have only an earlier version of Python available, you
-   can install the latest version without disturbing your current version, or
-   use getmail version 5.* from the original getmail author.
+   getmail version 6 requires Python version 3.7 or later. If you have only
+   an earlier version of Python available, you can install the latest version
+   without disturbing your current version, or use getmail version 5.* from
+   the original getmail author.
 
    getmail 6 requires that servers uniquely identify the messages they
    provide (via the UIDL command) to getmail for full functionality. Certain

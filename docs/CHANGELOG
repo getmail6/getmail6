@@ -1,5 +1,14 @@
 Version 6.19.08
-TODO
+14.May.2025
+    - fix #105 by converting empty string to None, which has smtplib handling
+    - fix #226 by handling all Exception instead of just OSError on SIGCHLD to parent
+    - fix #239 by catching ssl.SSLError
+    - Merge pull request #237 from meeuw/integration-tests
+    - remove python 2 code: only supporting python 3
+    - Merge pull request #238 from yshingai/v6.19.07-add-alias
+    - support windows-874 cp874
+    - Merge pull request #234 from meeuw/fix-incorrect-fsf-address
+    - Merge pull request #233 from meeuw/fix-license
     - #220 allow uid_cache=true (latest UID from oldmail-file) in addition to uid_cache=<uidfile>
 
 Version 6.19.07
