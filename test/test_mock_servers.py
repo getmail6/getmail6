@@ -113,7 +113,7 @@ def get_getmail():
     spec = spec_from_loader("getmail", SourceFileLoader("getmail", "getmail"))
     getmail = module_from_spec(spec)
     spec.loader.exec_module(getmail)
-    return getmail
+    getmail.main()
 
 
 def mbox_init(tmpdir):
@@ -167,7 +167,7 @@ def test_pop3(destination_type, destination_init):
                     """
                 )
             )
-        p = multiprocessing.Process(target=get_getmail().main, args=())
+        p = multiprocessing.Process(target=get_getmail, args=())
         p.start()
         mock_tcp.accept()
         mock_tcp.send("+OK:\n")
@@ -219,7 +219,7 @@ def test_pop3_broken_uidl(destination_type, destination_init):
                     """
                 )
             )
-        p = multiprocessing.Process(target=get_getmail().main, args=())
+        p = multiprocessing.Process(target=get_getmail, args=())
         p.start()
         mock_tcp.accept()
         mock_tcp.send("+OK:\n")
@@ -293,7 +293,7 @@ def test_pop3_multidrop(destination_type, destination_init):
                     """
                 )
             )
-        p = multiprocessing.Process(target=get_getmail().main, args=())
+        p = multiprocessing.Process(target=get_getmail, args=())
         p.start()
         mock_tcp.accept()
         mock_tcp.send("+OK:\n")
@@ -345,7 +345,7 @@ def test_imap(destination_type, destination_init):
                     """
                 )
             )
-        p = multiprocessing.Process(target=get_getmail().main, args=())
+        p = multiprocessing.Process(target=get_getmail, args=())
         p.start()
         mock_tcp.accept()
         mock_tcp.send("* OK\r\n")
@@ -402,7 +402,7 @@ def test_imap_full():
                     """
                 )
             )
-        p = multiprocessing.Process(target=get_getmail().main, args=())
+        p = multiprocessing.Process(target=get_getmail, args=())
         p.start()
         mock_tcp.accept()
         mock_tcp.send("* OK\r\n")
