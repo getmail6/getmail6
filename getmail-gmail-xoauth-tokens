@@ -37,12 +37,17 @@ def codebytes(b): return b.encode("utf8")
 
 force_local_redirect = True
 
+def get_code(url):
+    urlparsed = urlparse.urlparse(url)
+    query_parsed = urlparse.parse_qs(urlparsed.query)
+    try:
+        code = query_parsed["code"][0]
+    except KeyError:
+        code = query_parsed["approvalCode"][0]
 # Local webserver nonsense required to receive code from redirect
 class OAuthRedirectHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        response = urlparse.urlparse(self.path)
-        query_string = urlparse.parse_qs(response.query)
-        code = query_string["code"][0]
+        code = get_code(self.path)
         self.server.oauth_code = code
         self.send_response(200)
         self.send_header("Content-type", "text/html")
@@ -169,10 +174,8 @@ if __name__ == '__main__':
                 oauthd.server_close()
         if (auth.copy('redirect_uri') and not force_local_redirect) or interrupted:
             print("Please paste the response from the address bar of the browser you used for the url above:")
-            codeinput = input()
-            response = urlparse.urlparse(codeinput)
-            query_string = urlparse.parse_qs(response.query)
-            code = query_string["code"][0]
+            urlinput = input()
+            code = get_code(urlinput)
             auth.init_tokens(code,args.port)
         print("\naccess token\n")
 
