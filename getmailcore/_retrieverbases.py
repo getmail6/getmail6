@@ -1393,14 +1393,22 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def _parse_imapcmdresponse(self, cmd, *args):
         self.log.trace()
-        try:
-            result, resplist = getattr(self.conn, cmd)(*args)
-        except imaplib.IMAP4.error as o:
-            if cmd == 'login':
-                # Percolate up
-                raise
-            else:
-                raise getmailOperationError('IMAP error (%s)' % o)
+        for tries in range(2):
+            try:
+                result, resplist = getattr(self.conn, cmd)(*args)
+            except imaplib.IMAP4.error as o:
+                if cmd == 'login':
+                    if tries > 0:
+                        # Percolate up
+                        raise
+                    else:
+                        try:
+                            eresult, eresplist = getattr(self.conn, 'enable')("UTF8=ACCEPT")
+                        except imaplib.IMAP4.error as eo:
+                            raise o
+                        continue
+                else:
+                    raise getmailOperationError('IMAP error (%s)' % o)
         if result != 'OK':
             raise getmailOperationError(
                 'IMAP error (command %s returned %s %s)'
