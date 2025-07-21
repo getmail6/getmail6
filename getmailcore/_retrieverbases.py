@@ -1396,7 +1396,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         for tries in range(2):
             try:
                 result, resplist = getattr(self.conn, cmd)(*args)
-            except imaplib.IMAP4.error as o:
+                break
+            except (imaplib.IMAP4.error, UnicodeEncodeError) as o:
                 if cmd == 'login':
                     if tries > 0:
                         # Percolate up
@@ -1404,7 +1405,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     else:
                         try:
                             eresult, eresplist = getattr(self.conn, 'enable')("UTF8=ACCEPT")
-                        except imaplib.IMAP4.error as eo:
+                        except:
                             raise o
                         continue
                 else:
