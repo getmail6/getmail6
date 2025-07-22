@@ -453,7 +453,7 @@ def go(configs, idle, only_account=[]):
             )
         log.debug('retriever %s finished\n' % retriever)
         try:
-            if idle and not retriever.supports_idle:
+            if idle and not errorexit and not retriever.supports_idle:
                 log.info('--idle given, but server does not support IDLE\n')
                 idle = False
 
