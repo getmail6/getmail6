@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export PSS="test"
+export PSS="ТЕСТПАСС"
 export TESTEMAIL="address@domain.tld"
 export NAME="mail.domain.tld"
 

@@ -1,5 +1,8 @@
 FROM ghcr.io/docker-mailserver/docker-mailserver:9.0.1
 
+RUN sed -i -e s/deb\.debian/archive.debian/g /etc/apt/sources.list
+RUN sed -i -e s/security\.debian/archive.debian/g /etc/apt/sources.list
+
 RUN apt-get update && apt-get -y install \
         git \
         iputils-ping \
