@@ -1398,8 +1398,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         except (imaplib.IMAP4.error, UnicodeEncodeError) as o:
             if cmd == 'login':
                 try:
+                    cmd = "authenticate"
                     user, password = self.conf['username'], self.conf['password']
-                    self.conn.authenticate('PLAIN', lambda x: f'\0{user}\0{password}'.encode('utf-8'))
+                    result, resplist = self.conn.authenticate('PLAIN', lambda x: f'\0{user}\0{password}'.encode('utf-8'))
                 except (imaplib.IMAP4.error, UnicodeEncodeError) as oa:
                     raise getmailOperationError(
                         'IMAP login failed with: %s.\n\
@@ -1415,6 +1416,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             )
         if cmd.lower().startswith('login'):
             self.log.debug('login command response %s' % resplist + os.linesep)
+        if cmd.lower().startswith('authenticate'):
+            self.log.debug('authenticate command response %s' % resplist + os.linesep)
         else:
             self.log.debug(
                 'command %s response %s'
