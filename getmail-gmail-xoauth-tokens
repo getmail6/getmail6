@@ -44,6 +44,8 @@ def get_code(url):
         code = query_parsed["code"][0]
     except KeyError:
         code = query_parsed["approvalCode"][0]
+    return code
+
 # Local webserver nonsense required to receive code from redirect
 class OAuthRedirectHandler(BaseHTTPRequestHandler):
     def do_GET(self):
