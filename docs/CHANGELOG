@@ -1,5 +1,10 @@
 Version 6.19.09
-TODO
+14.August.2025
+    - Fix get_code in getmail-gmail-xoauth-tokens (#248, garylin/patch-1)
+    - Unhandled Exception for SimpleIMAPSSLRetriever when password contains non-ascii chars (#244)
+    - fix #247: Faulty error messages "server does not support IDLE"
+    - fix #243: KeyError: "code" -> Google approval URL format has changed
+    - Python 3.14 related fixes (#242, meeuw/python3.14)
 
 Version 6.19.08
 14.May.2025

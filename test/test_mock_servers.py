@@ -8,12 +8,13 @@ import glob
 import socket
 import os
 import re
-import collections
+from typing import NamedTuple
 import pytest
 import email.message
 
-FetchSize = collections.namedtuple("FetchSize", "uid, size")
-
+class FetchSize(NamedTuple):
+    uid: int
+    size: int
 
 def pop3_uidl(uidls):
     return "\n".join(
@@ -143,9 +144,12 @@ def generate_email():
 
 
 def mda_external_init(tmpdir):
-    return f"path = /bin/true"
+    return "path = /bin/true"
 
-@pytest.mark.parametrize("destination_type,destination_init", [("Mboxrd", mbox_init), ("Maildir", maildir_init), ("MDA_external", mda_external_init)])
+@pytest.mark.parametrize("destination_type,destination_init".split(','),
+                         [("Mboxrd", mbox_init),
+                          ("Maildir", maildir_init),
+                          ("MDA_external", mda_external_init)])
 def test_pop3(destination_type, destination_init):
     mock_tcp = MockTCP()
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -197,7 +201,10 @@ def test_pop3(destination_type, destination_init):
         p.join()
 
 
-@pytest.mark.parametrize("destination_type,destination_init", [("Mboxrd", mbox_init), ("Maildir", maildir_init), ("MDA_external", mda_external_init)])
+@pytest.mark.parametrize("destination_type,destination_init".split(','),
+                         [("Mboxrd", mbox_init),
+                          ("Maildir", maildir_init),
+                          ("MDA_external", mda_external_init)])
 def test_pop3_broken_uidl(destination_type, destination_init):
     mock_tcp = MockTCP()
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -248,7 +255,8 @@ def multidest_init(tmpdir):
         for d in ("cur", "new", "tmp"):
             os.makedirs(f"{destination_path}{d}")
 
-    return f"destinations = ('{'\', \''.join(destination_paths)}')"
+    tpl = '\', \''.join(destination_paths)
+    return f"destinations = ('{tpl}')"
 
 def multisort_init(tmpdir):
     destination_paths = (f"{tmpdir}/Maildir1/", f"{tmpdir}/Maildir2/")
@@ -258,7 +266,7 @@ def multisort_init(tmpdir):
             os.makedirs(f"{destination_path}{d}")
 
     return textwrap.dedent(
-        f"""\
+        """\
         default = [maildir1]
         [maildir1]
         type = MDA_external
@@ -270,7 +278,10 @@ def multisort_init(tmpdir):
         """
     )
 
-@pytest.mark.parametrize("destination_type,destination_init", [("MDA_qmaillocal", qmail_init), ("MultiDestination", multidest_init), ("MultiSorter", multisort_init)])
+@pytest.mark.parametrize("destination_type,destination_init".split(','),
+                         [("MDA_qmaillocal", qmail_init),
+                          ("MultiDestination", multidest_init),
+                          ("MultiSorter", multisort_init)])
 def test_pop3_multidrop(destination_type, destination_init):
     mock_tcp = MockTCP()
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -323,7 +334,10 @@ def test_pop3_multidrop(destination_type, destination_init):
         p.join()
 
 
-@pytest.mark.parametrize("destination_type,destination_init", [("Mboxrd", mbox_init), ("Maildir", maildir_init), ("MDA_external", mda_external_init)])
+@pytest.mark.parametrize("destination_type,destination_init".split(','),
+                         [("Mboxrd", mbox_init),
+                          ("Maildir", maildir_init),
+                          ("MDA_external", mda_external_init)])
 def test_imap(destination_type, destination_init):
     mock_tcp = MockTCP()
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -351,7 +365,7 @@ def test_imap(destination_type, destination_init):
         mock_tcp.send("* OK\r\n")
         tag = mock_tcp.expect("([^ ]*) CAPABILITY").group(1)
         mock_tcp.send(imap_reply_capability(tag))
-        tag = mock_tcp.expect(f'([^ ]*) LOGIN account_name "my_mail_password"').group(1)
+        tag = mock_tcp.expect('([^ ]*) LOGIN account_name "my_mail_password"').group(1)
         mock_tcp.send(imap_reply_login(tag))
         tag = mock_tcp.expect("([^ ]*) CAPABILITY").group(1)
         mock_tcp.send(imap_reply_capability(tag))
@@ -408,11 +422,11 @@ def test_imap_full():
         mock_tcp.send("* OK\r\n")
         tag = mock_tcp.expect("([^ ]*) CAPABILITY").group(1)
         mock_tcp.send(imap_reply_capability(tag))
-        tag = mock_tcp.expect(f'([^ ]*) LOGIN account_name "my_mail_password"').group(1)
+        tag = mock_tcp.expect('([^ ]*) LOGIN account_name "my_mail_password"').group(1)
         mock_tcp.send(imap_reply_login(tag))
         tag = mock_tcp.expect("([^ ]*) CAPABILITY").group(1)
         mock_tcp.send(imap_reply_capability(tag))
-        tag = mock_tcp.expect("([^ ]*) LIST "" *").group(1)
+        tag = mock_tcp.expect("([^ ]*) LIST  *").group(1)
         mock_tcp.send(f'* LIST (\\HasNoChildren) "/" INBOX\r\n{tag} OK List completed\r\n')
         tag = mock_tcp.expect("([^ ]*) SELECT INBOX").group(1)
         mock_tcp.send(textwrap.dedent(
