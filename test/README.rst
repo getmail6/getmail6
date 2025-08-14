@@ -24,13 +24,6 @@ created by ``self_sign.sh``.
 
 The tests are in ``.bats`` files.
 
-``make test3`` runs tests for Python 3.
+``make test`` runs all tests.
 You might need to enter a python virtual environment first.
-``/tmp/mailserver`` is not renewed on repeated runs.
-
-To force a renew in the next make run.
-
-.. code:: sh
-
-    rm -rf /tmp/mailserver/python?
 

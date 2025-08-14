@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-export PSS="ТЕСТПАСС"
+export TESTPSSWD="ТЕСТПАСС"
+#export TESTPSSWD="testpass"
 export TESTEMAIL="address@domain.tld"
-export NAME="mail.domain.tld"
+export CONTAINERNAME="mail.domain.tld"
 
 : ' manual_self_sign:
 /tmp/mailserver
@@ -45,9 +46,9 @@ function create_demo_CA() {
 01
 EOF
     SUBJCA="${SUBJ}for.test.ca"
-    CONFIG="-subj $SUBJCA -passin pass:$PSS -passout pass:$PSS"
+    CONFIG="-subj $SUBJCA -passin pass:$TESTPSSWD -passout pass:$TESTPSSWD"
     openssl req $CONFIG -new -keyout $CATOP/private/cakey.pem -out $CATOP/careq.pem 2> /dev/null
-    openssl ca -subj $SUBJCA -passin pass:$PSS -create_serial \
+    openssl ca -subj $SUBJCA -passin pass:$TESTPSSWD -create_serial \
             -out $CATOP/cacert.pem $CADAYS -batch \
             -keyfile $CATOP/private/cakey.pem \
             -selfsign -extensions v3_ca -infiles $CATOP/careq.pem 2> /dev/null
@@ -85,7 +86,7 @@ function generate_self_signed() {
 
     # Sign the public key certificate with CA certificate
     openssl ca -out "${SSL_CFG_PATH}"/"${FQDN}"-cert.pem -batch \
-        -passin pass:$PSS -infiles "${SSL_CFG_PATH}"/"${FQDN}"-req.pem 2> /dev/null
+        -passin pass:$TESTPSSWD -infiles "${SSL_CFG_PATH}"/"${FQDN}"-req.pem 2> /dev/null
 
     [[ -f "${SSL_CFG_PATH}"/"${FQDN}"-cert.pem ]] && echo "${FQDN}-cert.pem is there"
 

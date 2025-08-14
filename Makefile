@@ -11,13 +11,13 @@ doc:
 	links -dump docs/faq.html > docs/faq.txt
 	links -dump docs/troubleshooting.html > docs/troubleshooting.txt
 
-.PHONY: testclean
-testclean:
+.PHONY: cleanmailserver
+cleanmailserver:
 	[ -d /tmp/mailserver/ ] && (cd /tmp/mailserver && docker-compose down) || true
 	[ -d /tmp/mailserver/ ] && sudo rm -rf /tmp/mailserver || true
 
-.PHONY: test3
-test3:
+.PHONY: dockertest
+dockertest:
 	cd test && ./prepare_test.sh
 	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 
@@ -30,7 +30,7 @@ unittests: fortest
 	pytest test/test.py test/test_mock_servers.py
 
 .PHONY: test
-test: unittests testclean test3
+test: unittests cleanmailserver dockertest
 	cd /tmp/mailserver && docker-compose down
 
 .PHONY: lint
@@ -77,3 +77,8 @@ cleandocker:
 	docker network prune
 	docker rm -vf $$(docker ps -aq)
 	docker rmi -f $$(docker images -aq)
+
+.PHONY: log
+log:
+	cd /tmp/mailserver && docker compose logs
+

@@ -13,8 +13,8 @@ RUN apt-get update && apt-get -y install \
     && rm -rf /var/lib/apt/lists/*
 
 # add our user to postfix group so we can access dovecot's LMTP unix socket
-RUN useradd -m -s /bin/bash getmail \
-    && usermod -a -G postfix getmail
+RUN useradd -m -s /bin/bash getmailtestuser \
+    && usermod -a -G postfix getmailtestuser
 
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh

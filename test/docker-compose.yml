@@ -3,9 +3,9 @@ services:
     build:
       context: /tmp/mailserver/docker-mailserver-getmail6test
     image: docker-mailserver-getmail6test
-    hostname: ${HOSTNAME}
-    domainname: ${DOMAINNAME}
-    container_name: ${CONTAINER_NAME}
+    hostname: mail
+    domainname: domain.tld
+    container_name: mail.domain.tld
     env_file: mailserver.env
     ports:
       - "25:25"
@@ -18,14 +18,6 @@ services:
       - maillogs:/var/log/mail
       - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
     restart: always
-    environment:
-      - SSL_TYPE=self-signed
-      - ENABLE_POP3=1
-      - ENABLE_CLAMAV=1
-      - ENABLE_SPAMASSASSIN=1
-      - DOVECOT_TLS="yes"
-      - PSS="ТЕСТПАСС"
-      - TESTEMAIL=address@domain.tld
     cap_add:
       - SYS_PTRACE
 
@@ -33,4 +25,3 @@ volumes:
   maildata:
   mailstate:
   maillogs:
-

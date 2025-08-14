@@ -16,7 +16,7 @@ You should have received a copy of the license in the file COPYING.
 
 import sys
 
-__version__ = '6.19.08'
+__version__ = '6.19.09'
 __license__ = 'GPL-2.0'
 
 __py_required__ = '3.7'

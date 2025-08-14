@@ -1,3 +1,6 @@
+Version 6.19.09
+TODO
+
 Version 6.19.08
 14.May.2025
     - fix #105 by converting empty string to None, which has smtplib handling

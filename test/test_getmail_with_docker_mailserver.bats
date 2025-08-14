@@ -8,7 +8,7 @@ test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
 '
 
 #source config/self_sign.sh
-#export PSS TESTEMAIL NAME
+#export TESTPSSWD TESTEMAIL CONTAINERNAME
 cd config/getmail6/test || exit
 source prepare_test.sh
 cd ../../..
@@ -20,7 +20,7 @@ run_only_test() {
 }
 
 function setup() {
-    # run_only_test 3
+    # run_only_test 8
     setup_file
 }
 
@@ -29,14 +29,12 @@ function teardown() {
 }
 
 function setup_file() {
-    source '.env'
-    export HOSTNAME DOMAINNAME CONTAINER_NAME SELINUX_LABEL
-    wait_for_finished_setup_in_container ${NAME}
+    wait_for_finished_setup_in_container ${CONTAINERNAME}
     local STATUS=0
-    repeat_until_success_or_timeout --fatal-test "container_is_running ${NAME}" "${TEST_TIMEOUT_IN_SECONDS}" sh -c "docker logs ${NAME} | grep 'is up and running'" || STATUS=1
+    repeat_until_success_or_timeout --fatal-test "container_is_running ${CONTAINERNAME}" "${TEST_TIMEOUT_IN_SECONDS}" sh -c "docker logs ${NAME} | grep 'is up and running'" || STATUS=1
     if [[ ${STATUS} -eq 1 ]]; then
-        echo "Last ${NUMBER_OF_LOG_LINES} lines of container \`${NAME}\`'s log"
-        docker logs "${NAME}" | tail -n "${NUMBER_OF_LOG_LINES}"
+        echo "Last ${NUMBER_OF_LOG_LINES} lines of container \`${CONTAINERNAME}\`'s log"
+        docker logs "${CONTAINERNAME}" | tail -n "${NUMBER_OF_LOG_LINES}"
     fi
     return ${STATUS}
 }
@@ -50,7 +48,7 @@ function teardown_file() {
 }
 
 @test "checking ssl" {
-  run docker exec $NAME /bin/bash -c "\
+  run docker exec $CONTAINERNAME /bin/bash -c "\
     openssl s_client -connect 0.0.0.0:25 -starttls smtp -CApath /etc/ssl/certs/"
   assert_success
 }
@@ -74,9 +72,9 @@ function teardown_file() {
 }
 @test "SimpleIMAPRetriever, destination Maildir, uid_cache=uid.txt" {
   run d_simple_dest_maildir "IMAP false false uid_cache=uid.txt"
-  n1=$(d_docker "cat /home/getmail/uid.txt" | cut -d" " -f 3)
+  n1=$(d_docker "cat /home/getmailtestuser/uid.txt" | cut -d" " -f 3)
   run d_simple_dest_maildir "IMAP false false uid_cache=uid.txt"
-  n2=$(d_docker "cat /home/getmail/uid.txt" | cut -d" " -f 3)
+  n2=$(d_docker "cat /home/getmailtestuser/uid.txt" | cut -d" " -f 3)
   [[ $(( n2 - n1 )) != 0 ]]
 }
 @test "SimpleIMAPRetriever, destination Maildir, uid_cache=true" {
