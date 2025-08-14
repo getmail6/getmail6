@@ -50,8 +50,6 @@ check: lint
 dist: doc
 	echo "need sudo to create wheel"
 	sudo python setup.py bdist_wheel sdist
-	echo "note:"
-	echo "use ./pypi.sh to upload to PYPI"
 
 # ./pypi.sh to upload to PYPI no more needed due to
 # .github/workflows/publish.yml
