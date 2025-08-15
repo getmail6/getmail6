@@ -117,6 +117,9 @@ class DeliverySkeleton(ConfigurableBase):
                 'or GID 0 by default'
             )
 
+def delivermessagemaildir(self,uid,gid,msg,delivered_to,received,o,e):
+    return self.deliver_message_maildir(uid, gid, msg, delivered_to, received, o, e)
+
 #######################################
 class Maildir(DeliverySkeleton, ForkingBase):
     '''Maildir destination.
@@ -150,7 +153,7 @@ class Maildir(DeliverySkeleton, ForkingBase):
     def showconf(self):
         self.log.info('Maildir(%s)\n' % self._confstring())
 
-    def __deliver_message_maildir(self, uid, gid, msg, delivered_to, received,
+    def deliver_message_maildir(self, uid, gid, msg, delivered_to, received,
                                   stdout, stderr):
         '''Delivery method run in separate child process.
         '''
@@ -198,8 +201,8 @@ class Maildir(DeliverySkeleton, ForkingBase):
 
         try:
             child = self.forkchild(
-                lambda o,e: self.__deliver_message_maildir(
-                    uid, gid, msg, delivered_to, received, o, e)
+                delivermessagemaildir,
+                (uid, gid, msg, delivered_to, received)
                 )
         except getmailOperationError as oe:
             raise getmailDeliveryError( 'delivery %s child operation error: %s' % (self, oe) )
@@ -212,6 +215,9 @@ class Maildir(DeliverySkeleton, ForkingBase):
         self.dcount += 1
         self.log.debug('maildir file %s' % child.out)
         return self
+
+def delivermessagebox(self,uid,gid,msg,delivered_to,received,o,e):
+    return self.deliver_message_mbox(uid, gid, msg, delivered_to, received, o, e)
 
 #######################################
 class Mboxrd(DeliverySkeleton, ForkingBase):
@@ -247,7 +253,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
     def showconf(self):
         self.log.info('Mboxrd(%s)\n' % self._confstring())
 
-    def __deliver_message_mbox(self, uid, gid, msg, delivered_to, received,
+    def deliver_message_mbox(self, uid, gid, msg, delivered_to, received,
                                stdout, stderr):
         '''Delivery method run in separate child process.
         '''
@@ -353,8 +359,8 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
 
         try:
             child = self.forkchild(
-                lambda o,e: self.__deliver_message_mbox(
-                    uid, gid, msg, delivered_to, received, o, e)
+                delivermessagebox,
+                (uid, gid, msg, delivered_to, received),
                 )
         except getmailOperationError as oe:
             raise getmailDeliveryError( 'delivery %s child operation error: %s' % (self, oe) )
@@ -370,6 +376,8 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
 
         return self
 
+def delivermessageqmail(self,msg,msginfo,delivered_to,received,o,e):
+    return self.deliver_qmaillocal(msg, msginfo, delivered_to, received, o, e)
 
 #######################################
 class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
@@ -461,7 +469,7 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
     def showconf(self):
         self.log.info('MDA_qmaillocal(%s)\n' % self._confstring())
 
-    def __deliver_qmaillocal(self, msg, msginfo, delivered_to, received, stdout,
+    def deliver_qmaillocal(self, msg, msginfo, delivered_to, received, stdout,
             stderr):
         try:
             args = (
@@ -523,8 +531,8 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
 
         try:
             child = self.forkchild(
-                lambda o,e: self.__deliver_qmaillocal(
-                    msg, msginfo, delivered_to, received, o, e)
+                delivermessageqmail,
+                (msg, msginfo, delivered_to, received)
                 )
         except getmailOperationError as oe:
             raise getmailDeliveryError( 'delivery %s child operation error: %s' % (self, oe) )
@@ -545,6 +553,11 @@ class MDA_qmaillocal(DeliverySkeleton, ForkingBase):
             info = child.out or child.err
 
         return 'MDA_qmaillocal (%s)' % info
+
+
+
+def delivermessagecommand(self,msg,msginfo,delivered_to,received,o,e):
+    return self.deliver_command(msg, msginfo, delivered_to, received, o, e)
 
 #######################################
 class MDA_external(DeliverySkeleton, ForkingBase):
@@ -630,7 +643,7 @@ class MDA_external(DeliverySkeleton, ForkingBase):
     def showconf(self):
         self.log.info('MDA_external(%s)\n' % self._confstring())
 
-    def __deliver_command(self, msg, msginfo, delivered_to, received,
+    def deliver_command(self, msg, msginfo, delivered_to, received,
                          stdout, stderr):
         try:
             args = [self.conf['path'], self.conf['path']]
@@ -656,8 +669,8 @@ class MDA_external(DeliverySkeleton, ForkingBase):
 
         try:
             child = self.forkchild(
-                lambda o,e: self.__deliver_command(
-                    msg, msginfo, delivered_to, received, o, e)
+                delivermessagecommand,
+                (msg, msginfo, delivered_to, received)
                 )
         except getmailOperationError as oe:
             raise getmailDeliveryError( 'delivery %s child operation error: %s' % (self, oe) )

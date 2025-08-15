@@ -117,6 +117,9 @@ class FilterSkeleton(ConfigurableBase):
                 'refuse to invoke external commands as root by default'
             )
 
+def filtercommand(self, msg, msginfo, o, e):
+    return self.filter_command(msg, msginfo, o, e)
+
 #######################################
 class Filter_external(FilterSkeleton, ForkingBase):
     '''Arbitrary external filter destination.
@@ -226,7 +229,7 @@ class Filter_external(FilterSkeleton, ForkingBase):
         self.log.trace()
         self.log.info('Filter_external(%s)\n' % self._confstring())
 
-    def __filter_command(self, msg, msginfo, stdout, stderr):
+    def filter_command(self, msg, msginfo, stdout, stderr):
         try:
             args = [self.conf['path'], self.conf['path']]
             for arg in self.conf['arguments']:
@@ -256,8 +259,9 @@ class Filter_external(FilterSkeleton, ForkingBase):
 
         try:
             res = self.forkchild(
-                lambda o, e: self.__filter_command(msg, msginfo, o, e)
-                , with_out=False)
+                filtercommand,
+                (msg,msginfo),
+                with_out = False)
         except getmailOperationError as oe:
             raise getmailFilterError( 'filter %s child operation error: %s\n'%(self, oe) )
 
@@ -352,7 +356,7 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
         self.log.trace()
         self.log.info('Filter_TMDA(%s)\n' % self._confstring())
 
-    def __filter_command(self, msg, stdout, stderr):
+    def filter_command(self, msg, msginfo, stdout, stderr):
         try:
             args = [self.conf['path'], self.conf['path']]
             # Set environment for TMDA
@@ -387,8 +391,9 @@ class Filter_TMDA(FilterSkeleton, ForkingBase):
 
         try:
             child = self.forkchild(
-                lambda o,e: self.__filter_command(msg, o, e)
-                , with_out=False)
+                filtercommand,
+                (msg,None),
+                with_out=False)
         except getmailOperationError as oe:
             raise getmailFilterError( 'filter %s child operation error: %s\n'%(self, oe) )
 
