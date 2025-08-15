@@ -399,10 +399,7 @@ poplib._MAXLINE = 1 << 20   # 1MB; decrease this if you're running on a VIC-20
 #######################################
 class CertMixIn(object):
     def ssl_cipher_hash(self):
-        if sys.version_info.major == 2:
-            sslobj = self.conn.sslobj
-        else:
-            sslobj = self.conn.sock
+        sslobj = self.conn.sock
         self.setup_received(sslobj)
         peercert = sslobj.getpeercert(True)
         ssl_cipher = sslobj.cipher()
@@ -879,7 +876,7 @@ class RetrieverSkeleton(ConfigurableBase):
 
     def _oldmail_filename(self, mailbox):
         assert (mailbox is None
-                or (isinstance(mailbox, (unicode, bytes)))), (
+                or (isinstance(mailbox, (str, bytes)))), (
             'bad mailbox %s (%s)' % (mailbox, type(mailbox))
         )
         filename = self.oldmail_filename
@@ -1102,7 +1099,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                            % (response, octets) + os.linesep)
             for (i, line) in enumerate(msglist):
                 try:
-                    (msgnum, msgid) = tostr(line).split(None, 1)
+                    (msgnum, msgid) = line.decode().split(None, 1)
                     # Don't allow / in UIDs we store, as we look for that to
                     # detect old-style oldmail files.  Shouldn't occur in POP3
                     # anyway.
@@ -1139,7 +1136,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
             (response, msglist, octets) = self.conn.list()
             for line in msglist:
-                tostrline = tostr(line)
+                tostrline = line.decode()
                 msgnum = int(tostrline.split()[0])
                 msgsize = int(tostrline.split()[1])
                 msgid = self.msgid_by_msgnum.get(msgnum, None)
@@ -1467,7 +1464,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     # Leftover part -- not name, value pair.
                     raise ValueError
                 name = parts.pop(0).lower()
-                r[tostr(name)] = tostr(parts.pop(0))
+                r[name.decode()] = parts.pop(0).decode()
         except (ValueError, IndexError, AttributeError) as o:
             raise getmailOperationError(
                 'IMAP error (failed to parse attr response line "%s": %s)'
@@ -1622,7 +1619,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             self.mailbox_selected = mailbox
             # use *last* EXISTS returned
             msgcount = int(msgcount[-1])
-            uidvalidity = tostr(self.conn.response('UIDVALIDITY')[1][0] or b"") or None
+            uidvalidity = self.conn.response('UIDVALIDITY')[1][0]
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
         except (IndexError, ValueError) as o:
@@ -1633,15 +1630,14 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.log.debug('select(%s) returned message count of %d'
                        % (mailbox, msgcount) + os.linesep)
         self.mailbox = mailbox
-        self.uidvalidity = uidvalidity
+        self.uidvalidity = uidvalidity and uidvalidity.decode() or None
         imap_search = self.conf['imap_search']
         if imap_search:
             result, data = self.conn.search(None, imap_search)
             data = [d for d in data if d is not None]
             if result == 'OK' and data:
                 msgs = b','.join(data[0].split())
-                if sys.version_info.major > 2:
-                    msgs = msgs.decode()
+                msgs = msgs.decode()
                 self._getmsglist(msgs)
         else:
             self._uidmaxread()
@@ -1939,7 +1935,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 # No response, don't update the stored capabilities
                 self.log.warning('no post-login CAPABILITY response from server\n')
             else:
-                self.conn.capabilities = tuple(tostr(dat[-1]).upper().split())
+                self.conn.capabilities = tuple(dat[-1].decode().upper().split())
 
             if 'IDLE' in self.conn.capabilities:
                 self.supports_idle = True

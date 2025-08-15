@@ -42,12 +42,6 @@ __all__ = [
     'run_command',
 ]
 
-if sys.version_info.major > 2:
-    TemporaryFile23 = lambda: tempfile.TemporaryFile('bw+')
-else:
-    TemporaryFile23 = lambda: tempfile.TemporaryFile('w+')
-
-
 #######################################
 def run_command(command, args):
     # Simple subprocess wrapper for running a command and fetching its exit
@@ -58,14 +52,14 @@ def run_command(command, args):
         args = list(args)
 
     # Programmer sanity checks
-    assert isinstance(command, (bytes, unicode)), (
+    assert isinstance(command, (bytes, str)), (
         'command is %s (%s)' % (command, type(command))
     )
     assert isinstance(args, list), (
         'args is %s (%s)' % (args, type(args))
     )
     for arg in args:
-        assert isinstance(arg, (bytes, unicode)), 'arg is %s (%s)' % (arg, type(arg))
+        assert isinstance(arg, (bytes, str)), 'arg is %s (%s)' % (arg, type(arg))
 
     with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
 
@@ -83,10 +77,7 @@ def run_command(command, args):
         rc = p.wait()
         stdout.seek(0)
         stderr.seek(0)
-        if sys.version_info.major == 2:
-            return (rc, stdout.read().strip(), stderr.read().strip())
-        else:
-            return (rc, stdout.read().decode().strip(), stderr.read().decode().strip())
+        return (rc, stdout.read().decode().strip(), stderr.read().decode().strip())
 
 #
 # Base classes
@@ -426,7 +417,7 @@ class ForkingBase(object):
 
     def _pipemail(self, msg, delivered_to, received, unixfrom, stdout, stderr):
         # Write out message
-        msgfile = TemporaryFile23()
+        msgfile = tempfile.TemporaryFile('bw+')
         msgfile.write(msg.flatten(delivered_to, received, include_from=unixfrom))
         msgfile.flush()
         os.fsync(msgfile.fileno())
@@ -446,8 +437,8 @@ class ForkingBase(object):
 
     def forkchild(self, childfun, with_out=True):
         self.child = child = Namespace()
-        child.stdout = TemporaryFile23()
-        child.stderr = TemporaryFile23()
+        child.stdout = tempfile.TemporaryFile('bw+')
+        child.stderr = tempfile.TemporaryFile('bw+')
         child.process = Process(target=childfun, args=(child.stdout, child.stderr))
         child.process.start()
         child.childpid = child.process.pid

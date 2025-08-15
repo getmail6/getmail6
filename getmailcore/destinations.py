@@ -635,8 +635,6 @@ class MDA_external(DeliverySkeleton, ForkingBase):
         try:
             args = [self.conf['path'], self.conf['path']]
             msginfo['mailbox'] = self.retriever.mailbox_selected or ''
-            if sys.version_info.major == 2:
-                msginfo['mailbox'] = msginfo['mailbox'].encode('utf-8')
             for arg in self.conf['arguments']:
                 arg = expand_user_vars(arg)
                 for (key, value) in msginfo.items():
@@ -697,10 +695,6 @@ class MDA_lmtp(DeliverySkeleton):
     )
 
     def initialize(self):
-        if sys.version_info.major < 3:
-            raise getmailConfigurationError(
-                'MDA_lmtp in config: that was implemented only for python 3'
-            )
         self.log.trace()
         self.__connect()
 

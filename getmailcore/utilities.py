@@ -50,20 +50,11 @@ __all__ = [
     'logfile',
     'mbox_from_escape',
     'safe_open',
-    'tostr',
     'uid_of_user',
-    'unicode',
     'unlock_file',
     'updatefile',
 ]
 
-if sys.version_info.major > 2:
-    unicode = str
-    tostr = lambda lts: lts.decode()
-else:
-    tostr = lambda lts: lts
-    # due to above unicode entry in __all__
-    unicode = unicode  #noqa: PLW0127
 try:
     import ssl
 except ImportError:
@@ -334,10 +325,7 @@ def deliver_maildir(maildirpath, data, hostname, dcount=None, filemode=0o600):
 
     # Open file to write
     try:
-        if sys.version_info.major > 2:
-            f = safe_open(fname_tmp, 'bw', filemode)
-        else:
-            f = safe_open(fname_tmp, 'w', filemode)
+        f = safe_open(fname_tmp, 'bw', filemode)
         f.write(data)
         f.flush()
         os.fsync(f.fileno())
@@ -596,10 +584,6 @@ def check_ssl_fingerprints(conf):
 def check_ssl_ciphers(conf):
     ssl_ciphers = conf['ssl_ciphers']
     if ssl_ciphers:
-        if sys.version_info < (2, 7, 0):
-            raise getmailConfigurationError(
-                'specifying ssl_ciphers not supported by this Python'
-            )
         if re.search(r'[^a-zA-z0-9, :!\-+@=]', ssl_ciphers):
             raise getmailConfigurationError(
                 'invalid character in ssl_ciphers'
