@@ -4,6 +4,7 @@ Version 6.19.09
     - Unhandled Exception for SimpleIMAPSSLRetriever when password contains non-ascii chars (#244)
     - fix #247: Faulty error messages "server does not support IDLE"
     - fix #243: KeyError: "code" -> Google approval URL format has changed
+    - Use multiprocessing instead of mixing signals and threading condvars for process synchronization (#246, jymigeon)
     - Python 3.14 related fixes (#242, meeuw/python3.14)
 
 Version 6.19.08
