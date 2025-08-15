@@ -31,7 +31,7 @@ function teardown() {
 function setup_file() {
     wait_for_finished_setup_in_container ${CONTAINERNAME}
     local STATUS=0
-    repeat_until_success_or_timeout --fatal-test "container_is_running ${CONTAINERNAME}" "${TEST_TIMEOUT_IN_SECONDS}" sh -c "docker logs ${NAME} | grep 'is up and running'" || STATUS=1
+    repeat_until_success_or_timeout --fatal-test "container_is_running ${CONTAINERNAME}" "${TEST_TIMEOUT_IN_SECONDS}" sh -c "docker logs ${CONTAINERNAME} | grep 'is up and running'" || STATUS=1
     if [[ ${STATUS} -eq 1 ]]; then
         echo "Last ${NUMBER_OF_LOG_LINES} lines of container \`${CONTAINERNAME}\`'s log"
         docker logs "${CONTAINERNAME}" | tail -n "${NUMBER_OF_LOG_LINES}"
