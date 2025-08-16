@@ -435,12 +435,11 @@ class ForkingBase(object):
         nolog or self.log.debug('about to execl() with args %s\n' % str(args))
         os.execl(*args)
 
-    def forkchild(self, childfun, childargs, with_out=True):
+    def forkchild(self, childfun, with_out=True):
         self.child = child = Namespace()
         child.stdout = tempfile.TemporaryFile('bw+')
         child.stderr = tempfile.TemporaryFile('bw+')
-        child.process = Process(target=childfun,
-                            args=(self,)+childargs+(child.stdout, child.stderr))
+        child.process = Process(target=childfun, args=(child.stdout, child.stderr))
         child.process.start()
         child.childpid = child.process.pid
         self.log.trace('spawned child %d\n' % child.childpid)
