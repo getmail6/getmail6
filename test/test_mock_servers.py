@@ -12,10 +12,6 @@ from typing import NamedTuple
 import pytest
 import email.message
 
-@pytest.fixture(scope="session", autouse=True)
-def always_spawn():
-    multiprocessing.set_start_method("fork")
-
 class FetchSize(NamedTuple):
     uid: int
     size: int
