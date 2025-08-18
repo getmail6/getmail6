@@ -439,8 +439,10 @@ class ForkingBase(object):
         self.child = child = Namespace()
         child.stdout = tempfile.TemporaryFile('bw+')
         child.stderr = tempfile.TemporaryFile('bw+')
-        # XXX MacOS uses spawn instead of fork, which has difficulties to
+        # MacOS uses spawn instead of fork, which has difficulties to
         # pickle/unpickle objects when multiprocessing. Set 'fork' mode by default
+        # See
+        # https://github.com/getmail6/getmail6/issues/251
         ctx = mp.get_context('fork')
         child.process = ctx.Process(target=childfun, args=(child.stdout, child.stderr))
         child.process.start()
