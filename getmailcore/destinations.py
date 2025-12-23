@@ -721,7 +721,7 @@ class MDA_lmtp(DeliverySkeleton):
     def __send(self, msg, sender, recipient, __retrying=False):
         try:
             rcpt = self.server.send_message(msg, sender, recipient)
-        except smtplib.SMTPServerDisconnected as err:
+        except (smtplib.SMTPServerDisconnected, smtplib.SMTPSenderRefused) as err:
             if __retrying:
                 raise
             else:
