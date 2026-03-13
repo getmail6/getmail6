@@ -510,7 +510,10 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
             self.sock = ssl.wrap_socket(self.sock, self.keyfile,
                                         self.certfile, **extra_args)
 
-        self.file = self.sock.makefile('rb')
+        try:
+            self.file = self.sock.makefile('rb')
+        except AttributeError: # since python 3.14
+            self._file = self.sock.makefile('rb')
         self._debugging = 0
         self.welcome = self._getresp()
 
@@ -655,7 +658,10 @@ class IMAP4_SSL_EXTENDED(imaplib.IMAP4_SSL):
            self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile,
                                      **extra_args)
 
-       self.file = self.sock.makefile('rb')
+       try:
+           self.file = self.sock.makefile('rb')
+       except AttributeError: # since python 3.14
+           self._file = self.sock.makefile('rb')
 
 
 #######################################
