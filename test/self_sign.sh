@@ -49,7 +49,7 @@ EOF
     CONFIG="-subj $SUBJCA -passin pass:$TESTPSSWD -passout pass:$TESTPSSWD"
     openssl req $CONFIG -new -keyout $CATOP/private/cakey.pem -out $CATOP/careq.pem 2> /dev/null
     openssl ca -subj $SUBJCA -passin pass:$TESTPSSWD -create_serial \
-            -out $CATOP/cacert.pem $CADAYS -batch \
+            -out $CATOP/cacert.pem -days 365 -batch \
             -keyfile $CATOP/private/cakey.pem \
             -selfsign -extensions v3_ca -infiles $CATOP/careq.pem 2> /dev/null
 }

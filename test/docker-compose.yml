@@ -16,7 +16,7 @@ services:
       - maildata:/var/mail
       - mailstate:/var/mail-state
       - maillogs:/var/log/mail
-      - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
+      - ./config/:/tmp/docker-mailserver/
     restart: always
     cap_add:
       - SYS_PTRACE

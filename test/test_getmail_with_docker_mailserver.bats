@@ -58,6 +58,10 @@ function teardown_file() {
   assert_success
 }
 
+@test "SSL Parameters IMAP, destination Maildir" {
+  run d_ssl_parameters_imap_maildir
+}
+
 @test "SimplePOP3Retriever, destination Maildir" {
   run d_simple_dest_maildir "POP3 true true"
 }

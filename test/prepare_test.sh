@@ -266,6 +266,34 @@ mail_clean(){
   mkdir -p $MAILDIRIN/{cur,tmp,new}
 }
 
+ssl_parameters_imap_maildir() {
+  testmail
+  mail_clean
+  cat > /home/getmailtestuser/getmail <<EOF
+[retriever]
+type = SimpleSSLRetriever
+server = localhost
+port = 993
+username = $TESTEMAIL
+password = $TESTPSSWD
+ca_certs = /tmp/docker-mailserver/ssl/demoCA/cacert.pem
+certfile = /tmp/docker-mailserver/ssl/demoCA/cacert.pem
+keyfile = /tmp/docker-mailserver/ssl/demoCA/private/cakey.pem
+[destination]
+type = Maildir
+path = $MAILDIRIN/
+[options]
+read_all = false
+delete = false
+
+EOF
+  retrieve
+  checkmail
+}
+d_ssl_parameters_imap_maildir() {
+  d_docker "ssl_parameters_imap_maildir"
+}
+
 dest_maildir() {
   TYP=$1
   PORT=${PORTNR[$1]}

@@ -1,3 +1,6 @@
+import sys
+import textwrap
+import subprocess
 
 from getmailcore.message import Message
 from getmailcore.exceptions import *
@@ -6,6 +9,10 @@ import os, smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.message import EmailMessage
+
+from importlib.util import spec_from_loader, module_from_spec
+from importlib.machinery import SourceFileLoader
+
 
 greetru = "привет"
 greetde = "Grüße"
@@ -93,3 +100,38 @@ def test_spam_2():
         gmfl = gmm.flatten(None,None)
     except getmailDeliveryError as o:
         assert 'could not recover' in str(o) # noqa: PT017
+
+def test_imap_ssl_parameters(capfd):
+    for d in ("cur", "new", "tmp"):
+        os.makedirs(f"/tmp/ssl/Maildir/{d}",exist_ok=True)
+    sys.argv = ["getmail", "--getmaildir", "/tmp/ssl"]
+    with open("/tmp/ssl/getmailrc", "w") as f:
+        f.write(
+            textwrap.dedent(
+                f"""
+                [retriever]
+                type = SimpleIMAPSSLRetriever
+                server = imap.gmail.com
+                port = 993
+                mailboxes = ALL
+                username = doesntmatter@gmail.com
+                password = doesntmatter
+                ca_certs = /etc/ssl/certs/ca-certificates.crt
+                [destination]
+                type = Maildir
+                path = /tmp/ssl/Maildir/
+                [options]
+                read_all = false
+                delete = false
+                """
+            )
+        )
+    spec = spec_from_loader("getmail", SourceFileLoader("getmail", "getmail"))
+    getmail = module_from_spec(spec)
+    spec.loader.exec_module(getmail)
+    try:
+        getmail.main()
+    except SystemExit:
+        c = capfd.readouterr()
+        assert c.err.index("AUTHENTICATIONFAILED") > 0
+

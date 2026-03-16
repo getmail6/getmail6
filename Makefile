@@ -23,6 +23,7 @@ dockertest:
 
 .PHONY: fortest
 fortest:
+	pip install -e .
 	pip install pytest
 
 .PHONY: unittests
