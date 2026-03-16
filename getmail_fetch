@@ -135,7 +135,7 @@ def main():
 
         def get(self, key, value=None):
             return getattr(self, key, value)
-        get = types.MethodType(get, options)
+        options.get = types.MethodType(get, options)
 
         msg = None
         if options.message is not None:
