@@ -1223,10 +1223,20 @@ class POP3RetrieverBase(RetrieverSkeleton):
                                self.conf['password'])
             elif self.conf['use_xoauth2']:
                 # octal 1 / ctrl-A used as separator
-                auth = 'user=%s\1auth=Bearer %s\1\1' % (self.conf['username'],
-                                                        self.conf['password'])
-                auth = base64.b64encode(auth.encode()).decode()
-                self.conn._shortcmd('AUTH XOAUTH2 %s' % auth)
+                auth_string = 'user=%s\1auth=Bearer %s\1\1' % (self.conf['username'],
+                                                               self.conf['password'])
+                auth_string_encoded = base64.b64encode(auth_string.encode('utf-8')).decode('ascii')
+                # Office 365 requires the AUTH in 2 steps
+                # This should work for gmail, too, even if it support the
+                # 1 step SASL-IR extension
+                try:
+                    resp1 = self.conn._shortcmd('AUTH XOAUTH2')
+                except Exception:
+                    # SASL-IR extension might be required for some provider
+                    response = self.conn._shortcmd('AUTH XOAUTH2 ' + auth_string_encoded)
+                else:
+                    # second step
+                    response = self.conn._shortcmd(auth_string_encoded)
             else:
                 self.conn.user(self.conf['username'])
                 self.conn.pass_(self.conf['password'])
