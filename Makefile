@@ -65,6 +65,7 @@ up: dist
 
 .PHONY: tag
 tag: dist
+	git push
 	$(eval TAGMSG="v$(shell ./getmail --version | cut -d ' ' -f 2)")
 	echo $(TAGMSG)
 	git tag -s $(TAGMSG) -m"$(TAGMSG)"
