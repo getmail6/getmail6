@@ -1,6 +1,6 @@
 Version 6.19.12
 20.February.2026
-    - "make tag" did not push local commit in preparion for v6.19.11. v6.19.12 to avoid overriding tag.
+    - "make tag" did not push local commit in preparation for v6.19.11. v6.19.12 to avoid overriding tag.
 
 Version 6.19.11
 20.February.2026
