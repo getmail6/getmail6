@@ -108,7 +108,7 @@ def test_imap_ssl_parameters(capfd):
     with open("/tmp/ssl/getmailrc", "w") as f:
         f.write(
             textwrap.dedent(
-                f"""
+                """
                 [retriever]
                 type = SimpleIMAPSSLRetriever
                 server = imap.gmail.com

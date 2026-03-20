@@ -146,7 +146,7 @@ class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
         duplicated IDs are always treated as new messages.'''
         self.log.trace()
 
-    def write_oldmailfile(self, unused, **kwargs):
+    def write_oldmailfile(self, _, **kwargs):
         '''Short-circuit writing the oldmail file.'''
         self.log.trace()
 
@@ -154,7 +154,7 @@ class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
         '''Don't rely on UIDL; instead, use just the message number.'''
         self.log.trace()
         try:
-            (response, msglist, octets) = self.conn.list()
+            (_, msglist, _) = self.conn.list()
             for line in msglist:
                 msgnum = int(line.split()[0])
                 msgsize = int(line.split()[1])
@@ -364,7 +364,7 @@ class MultidropSDPSRetriever(SimplePOP3Retriever, POP3initMixIn):
         # The magic of SDPS is the "*ENV" command.  Implement it:
         try:
             msgnum = self._getmsgnumbyid(msgid)
-            resp, lines, octets = self.conn._longcmd('*ENV %i' % msgnum)
+            _, lines, _ = self.conn._longcmd('*ENV %i' % msgnum)
         except poplib.error_proto as o:
             raise getmailConfigurationError(
                 'server does not support *ENV (%s)' % o

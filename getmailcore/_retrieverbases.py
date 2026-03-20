@@ -481,7 +481,7 @@ class POP3_SSL_EXTENDED(poplib.POP3_SSL):
         self.sock = None
         for res in socket.getaddrinfo(self.host, self.port, 0,
                                       socket.SOCK_STREAM):
-            (af, socktype, proto, canonname, sa) = res
+            (af, socktype, proto, _, sa) = res
             try:
                 self.sock = socket.socket(af, socktype, proto)
                 self.sock.connect(sa)
@@ -1140,7 +1140,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
             self.log.debug('Message IDs: %s'
                            % list(sorted(self.msgnum_by_msgid.keys())) + os.linesep)
             self.sorted_msgnum_msgid = sorted(self.msgid_by_msgnum.items())
-            (response, msglist, octets) = self.conn.list()
+            (_, msglist, _) = self.conn.list()
             for line in msglist:
                 tostrline = line.decode()
                 msgnum = int(tostrline.split()[0])
@@ -1196,7 +1196,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
     def _getheaderbyid(self, msgid):
         self.log.trace()
         msgnum = self._getmsgnumbyid(msgid)
-        response, headerlist, octets = self.conn.top(msgnum, 0)
+        _, headerlist, _ = self.conn.top(msgnum, 0)
         parser = Parser.BytesHeaderParser()
         return parser.parsebytes(os.linesep.encode().join(headerlist))
 
@@ -1946,7 +1946,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             # The Python stlib IMAP4 class doesn't take this into account
             # and just checks the capabilities immediately after connecting.
             # Force a re-check now that we've authenticated.
-            (typ, dat) = self.conn.capability()
+            (_, dat) = self.conn.capability()
             if dat == [None]:
                 # No response, don't update the stored capabilities
                 self.log.warning('no post-login CAPABILITY response from server\n')
@@ -2016,7 +2016,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         try:
             aborted = None
-            (readable, unused, _) = select.select([self.conn.sock], [], [], timeout)
+            (readable, _, _) = select.select([self.conn.sock], [], [], timeout)
         except KeyboardInterrupt as o:
             # Delay raising this until we've stopped IDLE mode
             aborted = o

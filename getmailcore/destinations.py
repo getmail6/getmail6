@@ -743,7 +743,7 @@ class MDA_lmtp(DeliverySkeleton):
         rcpt = self.__send(msg.content(), msg.sender, recipient)
 
         if recipient in rcpt:
-            status, error = rcpt[recipient]
+            status, _ = rcpt[recipient]
             fb_recipient = self.conf['fallback']
             if 500 <= status <= 599 and fb_recipient:
                 fb_rcpt = self.__send(msg.content(), msg.sender, fb_recipient)

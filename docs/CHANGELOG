@@ -1,3 +1,10 @@
+Version 6.19.11
+20.February.2026
+    - use two step POP3 XOAUTH2, needed for Microsoft O365 (#256)
+    - Fix getmail_fetch with python 3 (#261)
+    - python 3.14 imaplib.py change makes file to private _file and exposes a read-only file property (#260)
+    - Retry LMTP connection on SMTPSenderRefused exception (#257)
+
 Version 6.19.10
 17.August.2025
     - fix MacOS issue #250 forcing fork method in multiprocessing (by @jymigeon)
