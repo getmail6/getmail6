@@ -1,11 +1,15 @@
 import sys
 import textwrap
 import subprocess
+import unittest.mock as mock
 
 from getmailcore.message import Message
 from getmailcore.exceptions import *
+from getmailcore.destinations import MDA_lmtp
+import getmailcore.logging as getmail_logging
 
 import os, smtplib, ssl
+import pytest
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.message import EmailMessage
@@ -134,4 +138,80 @@ def test_imap_ssl_parameters(capfd):
     except SystemExit:
         c = capfd.readouterr()
         assert c.err.index("AUTHENTICATIONFAILED") > 0
+
+
+@pytest.fixture(autouse=False)
+def clean_logger():
+    """Clear stale Logger handlers that may have been set up by other tests."""
+    getmail_logging.Logger.clearhandlers()
+    yield
+    getmail_logging.Logger.clearhandlers()
+
+
+def _make_lmtp_msg(sender='sender@example.com', recipient='recipient@example.com'):
+    msg = mock.MagicMock()
+    msg.sender = sender
+    msg.recipient = recipient
+    return msg
+
+
+def test_lmtp_successful_delivery():
+    with mock.patch('smtplib.LMTP') as mock_lmtp_cls:
+        mock_server = mock.MagicMock()
+        mock_lmtp_cls.return_value = mock_server
+        mock_server.send_message.return_value = {}
+
+        dest = MDA_lmtp(host='localhost', port=24)
+        dest._deliver_message(_make_lmtp_msg(), True, True)
+
+        mock_lmtp_cls.assert_called_once_with('localhost', 24)
+        mock_server.send_message.assert_called_once()
+
+
+def test_lmtp_retry_on_disconnected(clean_logger):
+    with mock.patch('smtplib.LMTP') as mock_lmtp_cls:
+        mock_server = mock.MagicMock()
+        mock_lmtp_cls.return_value = mock_server
+        mock_server.send_message.side_effect = [
+            smtplib.SMTPServerDisconnected('connection lost'),
+            {},
+        ]
+
+        dest = MDA_lmtp(host='localhost', port=24)
+        dest._deliver_message(_make_lmtp_msg(), True, True)
+
+        # Initial connect in initialize() + one reconnect on retry
+        assert mock_lmtp_cls.call_count == 2
+        assert mock_server.send_message.call_count == 2
+
+
+def test_lmtp_retry_on_sender_refused(clean_logger):
+    with mock.patch('smtplib.LMTP') as mock_lmtp_cls:
+        mock_server = mock.MagicMock()
+        mock_lmtp_cls.return_value = mock_server
+        mock_server.send_message.side_effect = [
+            smtplib.SMTPSenderRefused(550, b'Sender refused', b'sender@example.com'),
+            {},
+        ]
+
+        dest = MDA_lmtp(host='localhost', port=24)
+        dest._deliver_message(_make_lmtp_msg(), True, True)
+
+        assert mock_lmtp_cls.call_count == 2
+        assert mock_server.send_message.call_count == 2
+
+
+def test_lmtp_no_infinite_retry(clean_logger):
+    with mock.patch('smtplib.LMTP') as mock_lmtp_cls:
+        mock_server = mock.MagicMock()
+        mock_lmtp_cls.return_value = mock_server
+        mock_server.send_message.side_effect = smtplib.SMTPServerDisconnected('connection lost')
+
+        dest = MDA_lmtp(host='localhost', port=24)
+
+        with pytest.raises(smtplib.SMTPServerDisconnected):
+            dest._deliver_message(_make_lmtp_msg(), True, True)
+
+        # Exactly two send attempts: initial + one retry (no further retries)
+        assert mock_server.send_message.call_count == 2
 

@@ -718,16 +718,16 @@ class MDA_lmtp(DeliverySkeleton):
     def showconf(self):
         self.log.info('%s(%s)' % (type(self).__name__, self._confstring()))
 
-    def __send(self, msg, sender, recipient, __retrying=False):
+    def __send(self, msg, sender, recipient, _retrying=False):
         try:
             rcpt = self.server.send_message(msg, sender, recipient)
         except (smtplib.SMTPServerDisconnected, smtplib.SMTPSenderRefused) as err:
-            if __retrying:
+            if _retrying:
                 raise
             else:
                 self.log.info('Lost connection to LMTP server, reconnecting')
                 self.__connect()
-                return self.__send(msg, sender, recipient, __retrying=True)
+                return self.__send(msg, sender, recipient, _retrying=True)
         except smtplib.SMTPRecipientsRefused as err:
             rcpt = err.recipients
         except smtplib.SMTPException as err:
