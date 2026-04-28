@@ -254,8 +254,7 @@ d_docker "grep_mail $@"
 }
 
 checkmail(){
-source $HOME/d_info.sh
-grep_mail "${RANDOMTXT}"
+BASH_ENV=$HOME/d_info.sh grep_mail "${RANDOMTXT}"
 }
 d_checkmail(){
 d_docker checkmail
@@ -711,6 +710,31 @@ EOF
 }
 d_imap_search() {
 d_docker "imap_search $@"
+}
+
+
+mark_read() {
+  RETRIEVER=IMAPSSL
+  PORT=${PORTNR[$RETRIEVER]}
+  [[ "$1" == "mark_read" ]] && testmail
+  mail_clean
+  cat > /home/getmailtestuser/getmail <<EOF
+[retriever]
+type = Simple${RETRIEVER}Retriever
+server = localhost
+username = $TESTEMAIL
+port = $PORT
+password = $TESTPSSWD
+[destination]
+type = Maildir
+path = $MAILDIRIN/
+[options]
+delete = true
+mark_read = true
+EOF
+}
+d_mark_read() {
+d_docker "mark_read $@"
 }
 
 override_test(){

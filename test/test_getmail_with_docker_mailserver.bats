@@ -258,6 +258,27 @@ fi
   assert_failure
 }
 
+@test "SimpleIMAPSSLRetrieverMarkRead, new email, fetch mark_read+delete" {
+  run d_mark_read "mark_read"
+  run d_retrieve
+  assert_success
+  run d_checkmail
+  assert_success
+  run d_grep_mail utf-8
+  assert_failure
+}
+
+@test "SimpleIMAPSSLRetrieverMarkRead, test mark_read+delete does not delete" {
+  run d_imap_search "SEEN true"
+  run d_retrieve
+  assert_success
+  run d_checkmail
+  assert_success
+  run d_grep_mail utf-8
+  assert_failure
+}
+
+
 @test "IMAP override via command line -s" {
   run d_override_test
 }
