@@ -1510,11 +1510,10 @@ Creating a getmail rc file
  delete_bigger_than
 
        .
-     * mark_read (boolean) — if set, getmail will mark messages as read after
-       retrieving. It sets, the IMAP (\Seen) flag on the server. The command
-       parameter -m/--mark-read can be used to override the option.
-       -m/--mark-read is related to --searchset/-s, a synonym to -ds, =
-       -ds,Seen. Default: False.
+     * mark_read (boolean) — if mark_read=true together with delete=true,
+       getmail will mark messages as read after retrieving. It sets the IMAP
+       (\Seen) flag on the server. The command parameter -m/--mark-read can
+       be used to override the option. Default: False.
      * delete_bigger_than (integer) — if set, getmail will delete messages
        larger than this number of bytes after retrieving them, even if the
        delete and delete_after options are disabled. The purpose of this
@@ -1833,7 +1832,8 @@ Commandline options
 
      * --verbose or -v — operate more verbosely. Can be given multiple times.
      * --quiet or -q — print only warnings or errors while running
-     * --delete or -d — delete messages after retrieving
+     * --delete or -d — delete messages after retrieving or send
+       imap_on_delete if defined
      * --dont-delete or -l — do not delete messages after retrieving
      * --all or -a — retrieve all messages
      * --new or -n — retrieve only new (unseen) messages

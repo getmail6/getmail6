@@ -2647,11 +2647,10 @@ localpart_translate = ('mailhostaccount-', '')
     <li>
         mark_read
         (<a href="#parameter-boolean">boolean</a>)
-        &mdash; if set, getmail will mark messages as read after retrieving.
-        It sets, the IMAP <span class="file">(\Seen)</span> flag on the server.
+        &mdash; if <span class="file">mark_read=true</span> together with <span class="file">delete=true</span>,
+        getmail will mark messages as read after retrieving.
+        It sets the IMAP <span class="file">(\Seen)</span> flag on the server.
         The command parameter <span class="file">-m/--mark-read</span> can be used to override the option.
-        <span class="file">-m/--mark-read</span> is related to <span class="file">--searchset/-s</span>,
-        a synonym to <span class="file">-ds,</span> = <span class="file">-ds,Seen</span>.
         Default: False.
     </li>
     <li>
@@ -3326,7 +3325,7 @@ type = Filter_TMDA
         times.
     </li>
     <li>--quiet or -q &mdash; print only warnings or errors while running</li>
-    <li>--delete or -d &mdash; delete messages after retrieving</li>
+    <li>--delete or -d &mdash; delete messages after retrieving or send <span class="file">imap_on_delete</span> if defined </li>
     <li>--dont-delete or -l &mdash; do not delete messages after retrieving</li>
     <li>--all or -a &mdash; retrieve all messages</li>
     <li>--new or -n &mdash; retrieve only new (unseen) messages</li>
