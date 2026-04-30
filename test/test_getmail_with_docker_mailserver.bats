@@ -258,7 +258,7 @@ fi
   assert_failure
 }
 
-@test "SimpleIMAPSSLRetrieverMarkRead, new email, fetch mark_read+delete" {
+@test "SimpleIMAPSSLRetrieverMarkRead, new email, fetch and mark_read" {
   run d_mark_read "mark_read"
   run d_retrieve
   assert_success
@@ -268,7 +268,7 @@ fi
   assert_failure
 }
 
-@test "SimpleIMAPSSLRetrieverMarkRead, test mark_read+delete does not delete" {
+@test "SimpleIMAPSSLRetrieverMarkRead, mark_read check SEEN" {
   run d_imap_search "SEEN true"
   run d_retrieve
   assert_success

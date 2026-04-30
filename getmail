@@ -599,16 +599,10 @@ def main():
             dest='imap_search_n_set',
             action='append',
             help=r'''search and set.
-`-s` can be repeated to add more search strings to select mails to retrieve.
-After retrieval flags are set if `delete=True'. `-d` makes sure it is True.
-`-ds,<flag>` to set flags other than "\Deleted"`.
-`,` gets converted to the IMAP flag char `\`.
-If no flag is given "\Seen" is assumed.
-
-`-ds,` is like mark-read.
-
-`-s` overrides `imap_search` and `imap_on_delete` existing in the rcfile, or the defaults.
-`imap_search` defaults to "Unseen" and `imap_on_delete` defaults to "\Deleted \Seen".
+This option can be repeated.
+Followed by a rfc3501 searchstring, this overrides `imap_search`.
+Followed by a string starting with a comma (`,`), this overrides `imap_on_delete`.
+The comma (`,`) gets converted to the IMAP flag char `\`.  A lone `,` is "\Seen".
 '''
         )
         overrides = OptionGroup(
@@ -635,12 +629,12 @@ If no flag is given "\Seen" is assumed.
         overrides.add_option(
             '-d', '--delete',
             dest='override_delete', action='store_true',
-            help='after retrieving flag Deleted or as given by `-s,`'
+            help='after retrieving flag as Deleted or as given by `-s,` or `-m`'
         )
         overrides.add_option(
             '-l', '--dont-delete',
             dest='override_delete', action='store_false',
-            help='after retrieving do not flag messages Deleted or as given by `-s,`'
+            help='after retrieving do not flag messages Deleted (no effect if `-s,` or `-m` is there)'
         )
         overrides.add_option(
             '-a', '--all',
@@ -665,7 +659,7 @@ If no flag is given "\Seen" is assumed.
         overrides.add_option(
             '-m', '--mark-read',
             dest='override_mark_read', action='store_true',
-            help='mark read after retrieve (synonym to `-ds,`)'
+            help='mark read after retrieve (synonym to `-s,`)'
         )
         parser.add_option_group(overrides)
 
@@ -886,7 +880,7 @@ If no flag is given "\Seen" is assumed.
                         search += ['UNSEEN']
                 if flags:
                     imap_override['imap_on_delete'] = '('+' '.join(flags)+')'
-                    options.override_delete = True # intention given by -s,
+                    defaultopt['delete'] = True
                 if search:
                     imap_override['imap_search'] = '('+' '.join(search)+')'
 

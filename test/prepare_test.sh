@@ -729,7 +729,6 @@ password = $TESTPSSWD
 type = Maildir
 path = $MAILDIRIN/
 [options]
-delete = true
 mark_read = true
 EOF
 }
