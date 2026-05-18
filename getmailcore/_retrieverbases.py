@@ -1593,6 +1593,22 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         except ValueError:
             self._uidmax = 1
 
+    def select_quoted(self, mailbox, read_only = False):
+        if (len(mailbox) < 2 or (
+            mailbox[0],mailbox[-1]) != ('"','"')
+            ) and IMAP_ATOM_SPECIAL.search(mailbox):
+            return self.conn.select(
+                codecs.encode(
+                    self.conn._quote(mailbox),
+                    'imap4-utf-7'),
+                read_only)
+        else:
+            return self.conn.select(
+                codecs.encode(
+                    mailbox,
+                    'imap4-utf-7'),
+                read_only)
+
     def select_mailbox(self, mailbox):
         self.log.trace()
         assert mailbox in self.mailboxes, (
@@ -1614,20 +1630,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                 read_only = False
             else:
                 read_only = True
-            if (len(mailbox) < 2 or (
-                mailbox[0],mailbox[-1]) != ('"','"')
-                ) and IMAP_ATOM_SPECIAL.search(mailbox):
-                (status, msgcount) = self.conn.select(
-                    codecs.encode(
-                        self.conn._quote(mailbox),
-                        'imap4-utf-7'),
-                    read_only)
-            else:
-                (status, msgcount) = self.conn.select(
-                    codecs.encode(
-                        mailbox,
-                        'imap4-utf-7'),
-                    read_only)
+            (status, msgcount) = self.select_quoted(mailbox, read_only)
             if status == 'NO':
                 # Specified mailbox doesn't exist, no permissions, etc.
                 raise getmailMailboxSelectError(mailbox)
@@ -1981,7 +1984,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             pass
         self.conn = None
 
-    def go_idle(self, folder, timeout=300):
+    def go_idle(self, mailbox, timeout=300):
         """Initiates IMAP's IDLE mode if the server supports it
 
         Waits until state of current mailbox changes, and then returns. Returns
@@ -2001,7 +2004,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         # Based on current imaplib IDLE patch: http://bugs.python.org/issue11245
         self.conn.untagged_responses = {}
-        self.conn.select(folder)
+        self.select_quoted(mailbox)
         tag = self.conn._command('IDLE')
         data = self.conn._get_response() # read continuation response
 
