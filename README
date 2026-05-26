@@ -136,4 +136,7 @@ See the HTML documentation for details on setting up and using ``getmail``.
 It is included in the ``docs`` subdirectory,
 and will be installed in ``<PREFIX>/doc/getmail-<version>/`` (by default).
 
+## Contributing
+PRs welcome!
+
 
