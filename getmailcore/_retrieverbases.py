@@ -1984,7 +1984,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             pass
         self.conn = None
 
-    def go_idle(self, mailbox, timeout=300):
+    def go_idle(self, idle_mailbox, timeout=300):
         """Initiates IMAP's IDLE mode if the server supports it
 
         Waits until state of current mailbox changes, and then returns. Returns
@@ -2004,7 +2004,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         # Based on current imaplib IDLE patch: http://bugs.python.org/issue11245
         self.conn.untagged_responses = {}
-        self.select_quoted(mailbox)
+        self.select_quoted(idle_mailbox)
         tag = self.conn._command('IDLE')
         data = self.conn._get_response() # read continuation response
 

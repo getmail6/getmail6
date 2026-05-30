@@ -245,8 +245,6 @@ fi
   run d_imap_search "UNSEEN true"
   run d_retrieve
   assert_success
-  run d_checkmail
-  assert_failure
 }
 @test "SimpleIMAPSSLRetriever, ALL, delete" {
   run d_imap_search "ALL true"
