@@ -62,19 +62,6 @@ Configuration
 Before using ``getmail`` you must configure it.
 See ``docs/configuration.txt`` and ``docs/getmailrc-examples``.
 
-**SSL/TLS Note**: getmail supports two ways to connect securely:
-
-1. **SSL Retriever types** (recommended): Use ``SimpleIMAPSSLRetriever``,
-   ``SimplePOP3SSLRetriever``, etc. These establish SSL/TLS encryption
-   from connection start, typically on port 993 (IMAP) or port 995 (POP3).
-
-2. **Plain + ssl option**: Use the plain retriever type with ``ssl = true``.
-   getmail will connect first then upgrade to SSL/TLS via STARTTLS,
-   typically on ports 143 (IMAP) or 110 (POP3).
-
-If your server supports it, the SSL retriever types are simpler and
-more reliable.
-
 An example::
 
   [retriever]

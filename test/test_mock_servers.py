@@ -385,8 +385,6 @@ def test_imap(destination_type, destination_init):
         p.join()
 
 
-@pytest.mark.skipif(os.geteuid() == 0, reason="test_imap_full fails when run as root due to security check")
-
 def test_imap_full():
     mock_tcp = MockTCP()
     with tempfile.TemporaryDirectory() as tmpdir:
