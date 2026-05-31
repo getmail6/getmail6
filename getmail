@@ -137,7 +137,7 @@ def go(configs, idle_mailbox, only_account=[]):
     errorexit = False
     idling = False
 
-    if len(configs) > 1 and idle_mailbox:
+    if len(configs) > 1 and idle_mailbox is not None:
         log.info('more than one config file given with --idle, ignoring\n')
         idle_mailbox = None
 
@@ -155,7 +155,7 @@ def go(configs, idle_mailbox, only_account=[]):
                     % retriever)
             continue
         if options['read_all'] and not options['delete']:
-            if idle_mailbox:
+            if idle_mailbox is not None:
                 # This is a nonsense combination of options; every time the
                 # server returns from IDLE, all messages will be re-retrieved.
                 log.error('%s: IDLE, read_all, and not delete - bad '
@@ -187,7 +187,7 @@ def go(configs, idle_mailbox, only_account=[]):
                 retriever.initialize(options)
                 destination.retriever_info(retriever)
                 # session ready for idling
-                idling = idle_mailbox
+                idling = idle_mailbox is not None
 
             for mailbox in retriever.mailboxes:
                 if mailbox:
@@ -440,7 +440,7 @@ def go(configs, idle_mailbox, only_account=[]):
             (retriever, msgs_retrieved, bytes_retrieved, msgs_skipped)
         )
 
-        if idle_mailbox:
+        if idle_mailbox is not None:
             log.info('  %d messages (%d bytes) retrieved, %d skipped from %s\n'
                      % (msgs_retrieved, bytes_retrieved, msgs_skipped, retriever))
         else:
@@ -453,9 +453,17 @@ def go(configs, idle_mailbox, only_account=[]):
             )
         log.debug('retriever %s finished\n' % retriever)
         try:
-            if idle_mailbox and not errorexit and not retriever.supports_idle:
+            if idle_mailbox is not None and not errorexit and not retriever.supports_idle:
                 log.info('--idle given, but server does not support IDLE\n')
-                idle_mailbox = False
+                idle_mailbox = None
+
+            if idle_mailbox == '': # --idle=
+                mailboxes = retriever.conf.get('mailboxes', ('INBOX', ))
+                if len(mailboxes) == 0 or  mailboxes == ('ALL', ):
+                    idle_mailbox = 'INBOX'
+                else:
+                    idle_mailbox = mailboxes[0]
+
 
             if idle_mailbox and not errorexit:
                 # TODO
@@ -576,7 +584,7 @@ def main():
         )
         parser.add_option(
             '-i', '--idle',
-            dest='idle_mailbox', action='store', default='',
+            dest='idle_mailbox', action='store', default='getmail6_with_no_idle_cli_option',
             help='maintain connection and listen for new messages in FOLDER. '
                  'Only applies if a single rc file is given with a connection '
                  'to an IMAP server that supports the IDLE command',
@@ -1082,7 +1090,9 @@ The comma (`,`) gets converted to the IMAP flag char `\`.  A lone `,` is "\Seen"
             sys.exit()
 
         # Go!
-        success = go(configs, options.idle_mailbox, options.only_account)
+        success = go(configs,
+            options.idle_mailbox=='getmail6_with_no_idle_cli_option' and None or options.idle_mailbox,
+            options.only_account)
         if not success:
             raise SystemExit(127)
 

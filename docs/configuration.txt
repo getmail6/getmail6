@@ -1821,7 +1821,8 @@ Commandline options
    understands the IDLE extension from RFC 2177, you can use the
    --idle=MAILBOX option to specify that getmail should wait on the server to
    notify getmail of new mail in the specified mailbox after getmail is
-   finished retrieving mail.
+   finished retrieving mail. If MAILBOX is empty, mailboxes[0] from the rc
+   file or INBOX is used.
 
    In addition, the following commandline options can be used to override any
    values specified in the [options] section of the getmail rc files:

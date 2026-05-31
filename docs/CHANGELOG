@@ -1,6 +1,7 @@
 Version TODO
 TODO
     - fix #263: delete=true should not be necessary if mark_read=true
+    - #265: Use `--idle=` to mean mailboxes[0]
 
 Version 6.19.12
 20.February.2026
