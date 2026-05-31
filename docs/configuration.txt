@@ -1830,7 +1830,7 @@ Commandline options
      * --quiet or -q — print only warnings or errors while running
      * --delete or -d — delete messages after retrieving or send
        imap_on_delete if defined
-     * --dont-delete or -l — do not delete messages after retrieving
+     * --don't-delete or -l — do not delete messages after retrieving
      * --all or -a — retrieve all messages
      * --new or -n — retrieve only new (unseen) messages
 
