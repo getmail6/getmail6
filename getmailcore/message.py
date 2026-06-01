@@ -91,7 +91,17 @@ class Message(object):
         self.received_with = None
         self.__raw = None
         parser = Parser.BytesParser()
-        parsestr = parser.parsebytes
+        def parsestr(raw_mail):
+            BOM = b'\xef\xbb\xbf'
+            # bad_pattern_lf = b'\n\n' + BOM
+            # bad_pattern_crlf = b'\r\n\r\n' + BOM
+            # if bad_pattern_lf in raw_mail:
+            #     raw_mail = raw_mail.replace(bad_pattern_lf, b'\n', 1)
+            # if bad_pattern_crlf in raw_mail:
+            #     raw_mail = raw_mail.replace(bad_pattern_crlf, b'\r\n', 1)
+            if raw_mail.startswith(BOM):
+                raw_mail = raw_mail[3:]
+            return parser.parsebytes(s)
 
         # Message is instantiated with fromlines for POP3, fromstring for
         # IMAP (both of which can be badly-corrupted or invalid, i.e. spam,
