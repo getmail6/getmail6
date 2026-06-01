@@ -158,9 +158,9 @@ def go(configs, idle_mailbox, only_account=[]):
             if idle_mailbox is not None:
                 # This is a nonsense combination of options; every time the
                 # server returns from IDLE, all messages will be re-retrieved.
-                log.error('%s: IDLE, read_all, and not delete - bad '
+                log.error('%s: IDLE %s, read_all, and not delete - bad '
                           'combination, skipping\n'
-                          % retriever)
+                          % (retriever,idle_mailbox))
                 continue
             else:
                 # Slightly less nonsensical, but still weird.
@@ -1090,9 +1090,11 @@ The comma (`,`) gets converted to the IMAP flag char `\`.  A lone `,` is "\Seen"
             sys.exit()
 
         # Go!
-        success = go(configs,
-            options.idle_mailbox=='getmail6_with_no_idle_cli_option' and None or options.idle_mailbox,
-            options.only_account)
+        if options.idle_mailbox=='getmail6_with_no_idle_cli_option':
+            idle_mailbox = None
+        else:
+            idle_mailbox = options.idle_mailbox
+        success = go(configs, idle_mailbox, options.only_account)
         if not success:
             raise SystemExit(127)
 
