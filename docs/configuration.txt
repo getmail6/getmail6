@@ -1469,9 +1469,10 @@ Creating a getmail rc file
        effect unless use_netrc is True. Default: unset, which means use_netrc
        will read the default netrc file for your system, typically ~/.netrc,
        unless NETRC or CURLOPT_NETRC_FILE is defined.
-     * delete (boolean) — if set, getmail will delete messages after
-       retrieving and successfully delivering them. If unset, getmail will
-       leave messages on the server after retrieving them. Default: False.
+     * delete (boolean) — if set, getmail will delete the message or do
+       imap_on_delete on the messages after retrieving and successfully
+       delivering them. If unset, getmail will leave messages on the server
+       after retrieving them. Default: False.
      * delete_after (integer) — if set, getmail will delete messages this
        number of days after first seeing them, if they have been retrieved
        and delivered. This, in effect, leaves messages on the server for a

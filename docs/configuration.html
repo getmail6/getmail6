@@ -2590,8 +2590,9 @@ localpart_translate = ('mailhostaccount-', '')
     <li>
         delete
         (<a href="#parameter-boolean">boolean</a>)
-        &mdash; if set, getmail will delete messages after retrieving and
-        successfully delivering them.  If unset, getmail will leave messages on
+        &mdash; if set, getmail will delete the message or do imap_on_delete on the messages
+        after retrieving and successfully delivering them.
+        If unset, getmail will leave messages on
         the server after retrieving them.  Default: False.
     </li>
     <li>
