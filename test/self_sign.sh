@@ -2,22 +2,16 @@
 
 export TESTPSSWD="ТЕСТПАСС"
 #export TESTPSSWD="testpass"
-export TESTEMAIL="address@domain.tld"
-export CONTAINERNAME="mail.domain.tld"
+export TESTEMAIL="user1@example.test"
+export CONTAINERNAME="mail.example.test"
 
-: ' manual_self_sign:
-/tmp/mailserver
-docker-compose ps
-docker exec -u 0 -it mail.domain.tld bash
-cd /tmp/docker-mailserver/ssl
-rm -rf *
-cd /tmp/docker-mailserver/
-ls
-./self_sign.sh
-exit
-'
+# export SSL_CFG_PATH="/tmp/docker-mailserver/ssl"
+# export CATOP="/tmp/docker-mailserver/ssl/demoCA"
 
-export CATOP="/tmp/docker-mailserver/ssl/demoCA"
+CWD="$(pwd)"
+export SSL_CFG_PATH="$CWD/ssl"
+export CATOP="$CWD/ssl/demoCA"
+
 export SUBJ="/C=US/ST=domain/L=tld/O=Dis/CN="
 
 # does not persist, but no need to run, because done in
@@ -56,7 +50,6 @@ EOF
 
 # persists
 function generate_self_signed() {
-    SSL_CFG_PATH="/tmp/docker-mailserver/ssl"
     if [[ -f ${CATOP}/private/cakey.pem ]]; then
         return 0
     fi

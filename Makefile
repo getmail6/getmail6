@@ -13,13 +13,11 @@ doc:
 
 .PHONY: cleanmailserver
 cleanmailserver:
-	[ -d /tmp/mailserver/ ] && (cd /tmp/mailserver && docker-compose down) || true
-	[ -d /tmp/mailserver/ ] && sudo rm -rf /tmp/mailserver || true
+	(cd test && docker compose down) || true
 
 .PHONY: dockertest
 dockertest:
-	cd test && ./prepare_test.sh
-	cd /tmp/mailserver && test/bats/bin/bats test/test_getmail_with_docker_mailserver.bats
+	cd test && source ./prepare_test.sh && restart_dms && d_docker "bats getmail.bats"
 
 .PHONY: fortest
 fortest:
@@ -32,7 +30,7 @@ unittests: fortest
 
 .PHONY: test
 test: unittests cleanmailserver dockertest
-	cd /tmp/mailserver && docker-compose down
+	(cd test && docker compose down) || true
 
 .PHONY: lint
 lint:
@@ -88,5 +86,5 @@ cleandocker:
 
 .PHONY: log
 log:
-	cd /tmp/mailserver && docker compose logs
+	cd test && docker compose logs
 
