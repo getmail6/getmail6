@@ -1,7 +1,6 @@
 # dump of manual shell
 # manual_ to call line-by-line
 
-
 # cwd = getmail/test
 CWD="$(pwd)"
 # echo $CWD
@@ -9,13 +8,13 @@ GETMAIL6REPO=${CWD%/*}
 
 manual_check_DMS(){
 cd $CWD
-source ./prepare_test.sh
+source prepare.sh
 echo $TESTEMAIL $TESTPSSWD $CONTAINERNAME
 restart_dms
 # interactive as root
-d_prompt 0
+d_root
 cd /tmp/docker-mailserver/getmail6/test
-source prepare_test.sh
+source prepare.sh
 echo $TESTEMAIL $TESTPSSWD $CONTAINERNAME
 ls /usr/local/bin/*mail*
 addmailuser $TESTEMAIL $TESTPSSWD
@@ -27,10 +26,8 @@ exit
 }
 
 manual_as_user_DMS() {
-d_prompt user1
-getmail --version
-cd /tmp/docker-mailserver/getmail6/test
-source ./prepare_test.sh
+d_user
+source prepare.sh
 simple_dest_maildir IMAP false false "uid_cache=uid.txt"
 exit
 }
@@ -48,7 +45,7 @@ simple_dest_maildir IMAP false false uid_cache=true
 
 manual_cycle_one_test(){
 cd $GETMAIL6REPO/test
-source ./prepare_test.sh
+source prepare.sh
 simple_dest_maildir IMAP false false uid_cache=uid.txt
 }
 

@@ -11,13 +11,14 @@ doc:
 	links -dump docs/faq.html > docs/faq.txt
 	links -dump docs/troubleshooting.html > docs/troubleshooting.txt
 
-.PHONY: cleanmailserver
-cleanmailserver:
-	(cd test && docker compose down) || true
+.PHONY: selfsign
+selfsign:
+	(cd test && ./self_sign.sh)
+
 
 .PHONY: dockertest
-dockertest:
-	cd test && source ./prepare_test.sh && restart_dms && d_docker "bats getmail.bats"
+dockertest: selfsign
+	(cd test && source ./prepare.sh && restart_dms && d_docker "bats getmaildms.bats")
 
 .PHONY: fortest
 fortest:
@@ -29,7 +30,7 @@ unittests: fortest
 	pytest test/test.py test/test_mock_servers.py
 
 .PHONY: test
-test: unittests cleanmailserver dockertest
+test: unittests dockertest
 	(cd test && docker compose down) || true
 
 .PHONY: lint
