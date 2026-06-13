@@ -50,8 +50,6 @@ services:
       - PERMIT_DOCKER=container
       - ENABLE_POP3=1
       - DOVECOT_TLS="yes"
-      - TESTPSSWD=${TESTPSSWD}
-      - TESTEMAIL=${TESTEMAIL}
       - ENABLE_SASLAUTHD=1
       - SASLAUTHD_MECHANISMS=rimap
       - SASLAUTHD_MECH_OPTIONS=mail.example.test
@@ -111,11 +109,11 @@ services:
 configs:
   dms-accounts:
     content: |
-      jane.doe@example.test|{SHA512-CRYPT}$$6$$sbgFRCmQ.KWS5ryb$$EsWrlYosiadgdUOxCBHY0DQ3qFbeudDhNMqHs6jZt.8gmxUwiLVy738knqkHD4zj4amkb296HFqQ3yDq4UXt8.
-      john.doe@example.test|{SHA512-CRYPT}$$6$$sbgFRCmQ.KWS5ryb$$EsWrlYosiadgdUOxCBHY0DQ3qFbeudDhNMqHs6jZt.8gmxUwiLVy738knqkHD4zj4amkb296HFqQ3yDq4UXt8.
+      user1@example.test|{SHA512-CRYPT}$$6$$dYbNDylPQ6NYODnh$$5glpgs6CPVODN7b/DB90DnsBcZ83qhwp.8rlw9DGprCP6WkiRPb.mwPgttNabOasafDiVsC3i4xnw20YHgiFJ0
+      user2@example.test|{SHA512-CRYPT}$$6$$uGamQc.IJBwltENN$$Iwzkr18xbl3lXYwntWXNdzcVofOqjEr0Y4BS/OawulE9zgY2uyc4Qjqk.446zkV87Mez2hqt5pBQUwI4mD5VG0
   sieve:
     content: |
-      if envelope :detail :regex "to" "^(idle1|idle2)$" {
+      if envelope :detail :regex "to" "(idle1|idle2)" {
         set :lower :upperfirst "tag" "$${1}";
         fileinto :create "$${tag}";
       }

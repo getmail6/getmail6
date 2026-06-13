@@ -4,10 +4,6 @@
 ./self_sign.sh
 '
 
-export TESTPSSWD="ТЕСТПАСС"
-export TESTEMAIL="user1@example.test"
-export CONTAINERNAME="mail.example.test"
-
 CWD="$(pwd)"
 export SSL_CFG_PATH="$CWD/ssl"
 export CATOP="$CWD/ssl/demoCA"
@@ -31,8 +27,8 @@ function create_demo_CA() {
 EOF
     SUBJCA="${SUBJ}for.test.ca"
     cd "${SSL_CFG_PATH}" || { echo "cd ${SSL_CFG_PATH} error" ; exit ; }
-    openssl req  -subj $SUBJCA -passin pass:$TESTPSSWD -passout pass:$TESTPSSWD -new -keyout $CATOP/private/cakey.pem -out $CATOP/careq.pem
-    openssl ca -subj $SUBJCA -passin pass:$TESTPSSWD -create_serial -out $CATOP/cacert.pem -days 365 -batch -keyfile $CATOP/private/cakey.pem -selfsign -extensions v3_ca -infiles $CATOP/careq.pem
+    openssl req  -subj $SUBJCA -passin pass:TESTPSSWD -passout pass:TESTPSSWD -new -keyout $CATOP/private/cakey.pem -out $CATOP/careq.pem
+    openssl ca -subj $SUBJCA -passin pass:TESTPSSWD -create_serial -out $CATOP/cacert.pem -days 365 -batch -keyfile $CATOP/private/cakey.pem -selfsign -extensions v3_ca -infiles $CATOP/careq.pem
 }
 
 function generate_self_signed() {
@@ -56,7 +52,7 @@ function generate_self_signed() {
     [[ -f "${SSL_CFG_PATH}"/"${FQDN}"-req.pem ]] && echo "${FQDN}-req.pem is there"
 
     # Sign the public key certificate with CA certificate
-    openssl ca -out "${SSL_CFG_PATH}"/"${FQDN}"-cert.pem -batch -passin pass:$TESTPSSWD -infiles "${SSL_CFG_PATH}"/"${FQDN}"-req.pem
+    openssl ca -out "${SSL_CFG_PATH}"/"${FQDN}"-cert.pem -batch -passin pass:TESTPSSWD -infiles "${SSL_CFG_PATH}"/"${FQDN}"-req.pem
 
     [[ -f "${SSL_CFG_PATH}"/"${FQDN}"-cert.pem ]] && echo "${FQDN}-cert.pem is there"
 
