@@ -6,25 +6,6 @@ CWD="$(pwd)"
 # echo $CWD
 GETMAIL6REPO=${CWD%/*}
 
-manual_check_DMS(){
-cd $CWD
-source prepare.sh
-echo $TESTEMAIL $TESTPSSWD $CONTAINERNAME
-restart_dms
-# interactive as root
-d_root
-cd /tmp/docker-mailserver/getmail6/test
-source prepare.sh
-echo $TESTEMAIL $TESTPSSWD $CONTAINERNAME
-ls /usr/local/bin/*mail*
-addmailuser $TESTEMAIL $TESTPSSWD
-listmailuser
-yes | delmailuser $TESTEMAIL
-addmailuser $TESTEMAIL $TESTPSSWD
-listmailuser
-exit
-}
-
 manual_as_user_DMS() {
 d_user
 source prepare.sh

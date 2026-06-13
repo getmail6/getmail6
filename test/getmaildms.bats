@@ -5,96 +5,48 @@ make dockertest
 
 '
 
-save_random_env(){
-   cat > $HOME/random.env << EOF
-RANDOMTXT="$RANDOMTXT"
-EOF
-}
-
-randomtext(){
-tr -dc A-Za-z0-9 </dev/urandom | head -c $1; echo
-}
-
-_send(){
-  RANDOMTXT="$(randomtext ${RANDOMLAST:-13})"
-  export RANDOMLAST=$((RANDOMLAST+1))
-  export RANDOMTXT
-  nc 0.0.0.0 25 << EOF
-HELO mail.localhost
-MAIL FROM: ${TESTEMAIL}
-RCPT TO: ${TESTEMAIL}
-DATA
-Subject: test
-The random text is:
-${RANDOMTXT}
-.
-QUIT
-EOF
-save_random_env
-sleep 2
-}
-
-_gm(){
-getmail --rcfile=getmailrc --getmaildir=/home/user1
-}
-
-_grep(){
-grep "$1" $MAILDIRIN/new/*
-}
-
-_verify(){
-BASH_ENV=$HOME/random.env _grep "${RANDOMTXT}"
-}
-
-_clean(){
-  rm -rf $MAILDIR
-  mkdir -p $MAILDIRIN/{cur,tmp,new}
-}
-
-gm_ssl_params() {
-  source prepare.sh
-  _send
-  _clean
+ssl_rc() {
+  mkdir -p /home/user1/Mail/{cur,tmp,new}
+  rm -rf /home/user1/Mail/new/*
   cat > /home/user1/getmailrc <<EOF
 [retriever]
 type = SimpleIMAPSSLRetriever
 port = 993
 server = localhost
-username = $TESTEMAIL
-password = $TESTPSSWD
+username = user1@example.test
+password = ТЕСТПАСС
 ca_certs = /tmp/docker-mailserver/ssl/demoCA/cacert.pem
 certfile = /tmp/docker-mailserver/ssl/demoCA/cacert.pem
 keyfile = /tmp/docker-mailserver/ssl/demoCA/private/cakey.pem
 [destination]
 type = Maildir
-path = $MAILDIRIN/
+path = /home/user1/Mail/
 [options]
 read_all = false
 delete = false
 
 EOF
-  _gm 2>&1 | grep "Permission denied"
 }
 
 maildir_rc() {
-  source prepare.sh
+  mkdir -p /home/user1/Mail/{cur,tmp,new}
+  rm -rf /home/user1/Mail/new/*
   local TYP=$1
-  local PORT=${PORTNR[$1]}
-  local READALL=$2
-  local DEL=$3
-  local EXTRALINE=$4
-  _clean
+  local PORT=$2
+  local READALL=$3
+  local DEL=$4
+  local EXTRALINE=$5
   cat > /home/user1/getmailrc <<EOF
 [retriever]
 type = Simple${TYP}Retriever
 server = localhost
-username = $TESTEMAIL
+username = user1@example.test
 port = $PORT
-password = $TESTPSSWD
+password = ТЕСТПАСС
 $EXTRALINE
 [destination]
 type = Maildir
-path = $MAILDIRIN/
+path = /home/user1/Mail/
 [options]
 read_all = $READALL
 delete = $DEL
@@ -102,27 +54,20 @@ delete = $DEL
 EOF
 }
 
-gm_maildir() {
-  _send
-  maildir_rc "$@"
-  _gm
-  _verify
-}
-
-gm_procmail_filter() {
-  source prepare.sh
+filter_rc() {
   local TYP=$1
-  local PORT=${PORTNR[$TYP]}
-  _send
-  _clean
-  mkdir -p $MAILDIR/tests/{cur,tmp,new}
+  local PORT=$2
+  mkdir -p /home/user1/Mail/{cur,tmp,new}
+  rm -rf /home/user1/Mail/new/*
+  mkdir -p /home/user1/Mail/tests/{cur,tmp,new}
+  rm -rf /home/user1/Mail/tests/new/*
   cat > /home/user1/getmailrc <<EOF
 [retriever]
 type = Simple${TYP}Retriever
 server = localhost
-username = $TESTEMAIL
+username = user1@example.test
 port = $PORT
-password = $TESTPSSWD
+password = ТЕСТПАСС
 [destination]
 type = MDA_external
 path = /usr/bin/procmail
@@ -143,37 +88,35 @@ read_all = true
 delete = true
 EOF
   cat > /home/user1/procmail <<EOF
-MAILDIR=$MAILDIR
-DEFAULT=\$MAILDIR/INBOX
+MAILDIR=/home/user1/Mail/
+DEFAULT=\$MAILDIR
 :0
 * ^Subject:.*test.*
 tests/
 :0
 \$DEFAULT/
 EOF
-_gm
 }
 
-just_rc() {
-  source prepare.sh
+mbox_rc() {
+  mkdir -p /home/user1/Mail
+  rm -rf /home/user1/Mail/mbx
   local RETRIEVER=$1
   local PORT=$2
   local MAX=$3
   local READALL=$4
   local DEL=$5
-  _send
-  _clean
-  touch $MAILDIR/mbx
+  touch /home/user1/Mail/mbx
   cat > /home/user1/getmailrc <<EOF
 [retriever]
 type = $RETRIEVER
 server = localhost
-username = $TESTEMAIL
+username = user1@example.test
 port = $PORT
 password_command = ('/home/user1/passwordstub',)
 [destination]
 type = Mboxrd
-path = $MAILDIR/mbx
+path = /home/user1/Mail/mbx
 [options]
 read_all = $READALL
 delete = $DEL
@@ -194,26 +137,223 @@ message_log = /home/user1/getmail_message.log
 EOF
   cat > /home/user1/passwordstub <<EOF
 #!/bin/bash
-echo $TESTPSSWD
+echo ТЕСТПАСС
 EOF
   chmod +x /home/user1/passwordstub
 }
-gm_via_config(){
-just_rc $@
-_gm
-local howmany=$(find $MAILDIR -iname '*' -type f | wc -l)
-[ $((howmany>=1)) -gt 0 ]
+
+
+multidrop_rc() {
+  mkdir -p /home/user1/Mail/{cur,tmp,new}
+  rm -rf /home/user1/Mail/new/*
+  local RETRIEVER=$1
+  local PORT=$2
+  cat > /home/user1/getmailrc <<EOF
+[retriever]
+type = $RETRIEVER
+server = localhost
+username = user1@example.test
+port = $PORT
+password = ТЕСТПАСС
+envelope_recipient = X-Envelope-To
+[destination]
+type = Maildir
+path = /home/user1/Mail/
+[options]
+read_all = True
+delete = True
+EOF
 }
 
+multisorter_rc() {
+  mkdir -p /home/user1/Mail/{cur,tmp,new}
+  rm -rf /home/user1/Mail/mbx
+  rm -rf /home/user1/Mail/new/*
+  local RETRIEVER=$1
+  local PORT=$2
+  touch /home/user1/Mail/mbx
+  cat > /home/user1/getmailrc <<EOF
+[retriever]
+type = $RETRIEVER
+server = localhost
+username = user1@example.test
+port = $PORT
+password = ТЕСТПАСС
+envelope_recipient = X-Envelope-To
+[destination]
+type = MultiSorter
+default = [localuser1]
+locals = (
+     ('user1@', '[localuser1]'),
+     ('user2@', '[localuser2]'),
+     )
+[localuser1]
+type = Maildir
+path = /home/user1/Mail/
+user = user1
+[localuser2]
+type = Mboxrd
+path = /home/user1/Mail/mbx
+[options]
+read_all = True
+delete = True
+EOF
+}
 
-multidropmail(){
+lmtp_rc() {
+  cat > /home/user1/getmailrc <<EOF
+[retriever]
+type = SimpleIMAPRetriever
+server = localhost
+username = user1@example.test
+password = ТЕСТПАСС
+port = 143
+[destination]
+type = MDA_lmtp
+# use docker-mailserver/dovecot's lmtp listener
+host = /var/run/dovecot/lmtp
+[options]
+read_all = True
+delete = True
+EOF
+
+}
+
+lmtp_override_rc() {
+  cat > /home/user1/getmailrc <<EOF
+[retriever]
+type = SimpleIMAPRetriever
+server = localhost
+username = user2@example.test
+port = 143
+password = ТЕСТПАСС
+[destination]
+type = MDA_lmtp
+host = /var/run/dovecot/lmtp
+override = user1@example.test
+[options]
+read_all = True
+delete = True
+EOF
+}
+
+lmtp_override_fallback_rc() {
+  cat > /home/user1/getmailrc <<EOF
+[retriever]
+type = SimpleIMAPRetriever
+server = localhost
+username = user2@example.test
+port = 143
+password = ТЕСТПАСС
+[destination]
+type = MDA_lmtp
+host = /var/run/dovecot/lmtp
+override = another-nonexistent-user
+fallback = user1@example.test
+[options]
+read_all = True
+delete = True
+EOF
+}
+
+imap_rc() {
+  local RETRIEVER=IMAPSSL
+  local PORT=993
+  local DELETE=$1
+  local IMAPSEARCH=$2
+  local IMAPDELETE=$3
+  cat > /home/user1/getmailrc <<EOF
+[retriever]
+type = Simple${RETRIEVER}Retriever
+server = localhost
+username = user1@example.test
+port = $PORT
+password = ТЕСТПАСС
+imap_search = $IMAPSEARCH
+imap_on_delete = $IMAPDELETE
+[destination]
+type = Maildir
+path = /home/user1/Mail/
+[options]
+read_all = true
+delete = $DELETE
+EOF
+}
+
+mark_read_rc() {
+  local RETRIEVER=IMAPSSL
+  local PORT=993
+  cat > /home/user1/getmailrc <<EOF
+[retriever]
+type = Simple${RETRIEVER}Retriever
+server = localhost
+username = user1@example.test
+port = $PORT
+password = ТЕСТПАСС
+[destination]
+type = Maildir
+path = /home/user1/Mail/
+[options]
+mark_read = true
+EOF
+}
+
+randomtext(){
+tr -dc A-Za-z0-9 </dev/urandom | head -c $1; echo
+}
+
+_send(){
+  RANDOMTXT="$(randomtext ${RANDOMLAST:-13})"
+  export RANDOMLAST=$((RANDOMLAST+1))
+  export RANDOMTXT
   nc 0.0.0.0 25 << EOF
 HELO mail.localhost
-MAIL FROM: ${TESTEMAIL}
-RCPT TO: ${TESTEMAIL}
+MAIL FROM: user1@example.test
+RCPT TO: user1@example.test
 DATA
 Subject: test
-X-Envelope-To: ${TESTEMAIL}
+The Troms text is:
+${RANDOMTXT}
+.
+QUIT
+EOF
+   cat > $HOME/random.env << EOF
+RANDOMTXT="$RANDOMTXT"
+EOF
+  sleep 1.8
+}
+
+_send2() {
+  RANDOMTXT="$(randomtext ${RANDOMLAST:-13})"
+  export RANDOMLAST=$((RANDOMLAST+1))
+  export RANDOMTXT
+  nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: user1@example.test
+RCPT TO: ${1}
+DATA
+From: user1@example.test
+To: ${2}
+Subject: ${3}
+This is the test text:
+я αβ один süße créme in Tromsœ.
+.
+QUIT
+EOF
+   cat > $HOME/random.env << EOF
+RANDOMTXT="$RANDOMTXT"
+EOF
+  sleep 1.8
+}
+
+_sendmulti(){
+  nc 0.0.0.0 25 << EOF
+HELO mail.localhost
+MAIL FROM: user1@example.test
+RCPT TO: user1@example.test
+DATA
+Subject: test
+X-Envelope-To: user1@example.test
 Content-Type: multipart/mixed; boundary=\"----=_NextPart_000_0012_A796884C.DCABE8FF\"
 
 This is a multi-part message in MIME format.
@@ -237,458 +377,397 @@ This is the test text.
 .
 QUIT
 EOF
-sleep 2
+sleep 1.8
 }
-
-multidrop_rc() {
-  source prepare.sh
-  local RETRIEVER=$1
-  local PORT=$2
-  multidropmail
-  _clean
-  cat > /home/user1/getmailrc <<EOF
-[retriever]
-type = $RETRIEVER
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $TESTPSSWD
-envelope_recipient = X-Envelope-To
-[destination]
-type = Maildir
-path = $MAILDIRIN/
-[options]
-read_all = True
-delete = True
-EOF
-}
-
-gm_multidrop() {
-multidrop_rc "$@"
-_gm
-_verify
-}
-
-multisorter_rc() {
-  source prepare.sh
-  local RETRIEVER=$1
-  local PORT=$2
-  multidropmail
-  _clean
-  touch $MAILDIR/mbx
-  cat > /home/user1/getmailrc <<EOF
-[retriever]
-type = $RETRIEVER
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $TESTPSSWD
-envelope_recipient = X-Envelope-To
-[destination]
-type = MultiSorter
-default = [localuser1]
-locals = (
-     ('user1@', '[localuser1]'),
-     ('user2@', '[localuser2]'),
-     )
-[localuser1]
-type = Maildir
-path = $MAILDIRIN/
-user = user1
-[localuser2]
-type = Mboxrd
-path = $MAILDIR/mbx
-[options]
-read_all = True
-delete = True
-EOF
-}
-gm_multisorter() {
-multisorter_rc "$@"
-_gm
-_verify
-}
-
-lmtp_rc() {
-  source prepare.sh
-  nc 0.0.0.0 25 << EOF
-HELO mail.localhost
-MAIL FROM: user1@example.test
-RCPT TO: ${TESTEMAIL}
-DATA
-From: user1@example.test
-To: ${TESTEMAIL}
-Subject: lmtp_rc
-This is the test text:
-я αβ один süße créme in Tromsœ.
-.
-QUIT
-EOF
-  sleep 2
-  _clean
-  cat > /home/user1/getmailrc <<EOF
-[retriever]
-type = SimpleIMAPRetriever
-server = localhost
-username = $TESTEMAIL
-password = $TESTPSSWD
-port = 143
-[destination]
-type = MDA_lmtp
-# use docker-mailserver/dovecot's lmtp listener
-host = /var/run/dovecot/lmtp
-[options]
-read_all = True
-delete = True
-EOF
-
-}
-
-lmtp_override_rc() {
-  source prepare.sh
-  nc 0.0.0.0 25 << EOF
-HELO mail.localhost
-MAIL FROM: user1@example.test
-RCPT TO: user2@example.test
-DATA
-From: user1@example.test
-To: nonexistent-user@example.test
-Subject: lmtp_override_x
-This is the test text:
-я αβ один süße créme in Tromsœ.
-.
-QUIT
-EOF
-  sleep 2
-  _clean
-  cat > /home/user1/getmailrc <<EOF
-[retriever]
-type = SimpleIMAPRetriever
-server = localhost
-username = user2@example.test
-port = 143
-password = $TESTPSSWD
-[destination]
-type = MDA_lmtp
-host = /var/run/dovecot/lmtp
-override = $TESTEMAIL
-[options]
-read_all = True
-delete = True
-EOF
-}
-
-lmtp_override_fallback_rc() {
-  source prepare.sh
-  nc 0.0.0.0 25 << EOF
-HELO mail.localhost
-MAIL FROM: user1@example.test
-RCPT TO: user2@example.test
-DATA
-From: user1@example.test
-To: nonexistent-user@example.test
-Subject: lmtp_override_fallback_x
-This is the test text:
-я αβ один süße créme in Tromsœ.
-.
-QUIT
-EOF
-  sleep 2
-  _clean
-  cat > /home/user1/getmailrc <<EOF
-[retriever]
-type = SimpleIMAPRetriever
-server = localhost
-username = user2@example.test
-port = 143
-password = $TESTPSSWD
-[destination]
-type = MDA_lmtp
-host = /var/run/dovecot/lmtp
-override = another-nonexistent-user
-fallback = $TESTEMAIL
-[options]
-read_all = True
-delete = True
-EOF
-}
-
-imap_search_rc() {
-  source prepare.sh
-  local DELETE=$2
-  local RETRIEVER=IMAPSSL
-  local PORT=${PORTNR[$RETRIEVER]}
-  local IMAPSEARCH=$1
-  local IMAPDELETE="(\Seen)"
-  [[ "$1" == "ALL" ]] && _send
-  [[ "$1" == "ALL" ]] && IMAPDELETE=""
-  [[ "$1" == "ALL" ]] && IMAPSEARCH=""
-  _clean
-  cat > /home/user1/getmailrc <<EOF
-[retriever]
-type = Simple${RETRIEVER}Retriever
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $TESTPSSWD
-imap_search = $IMAPSEARCH
-imap_on_delete = $IMAPDELETE
-[destination]
-type = Maildir
-path = $MAILDIRIN/
-[options]
-read_all = true
-delete = $DELETE
-EOF
-}
-
-mark_read_rc() {
-  source prepare.sh
-  local RETRIEVER=IMAPSSL
-  local PORT=${PORTNR[$RETRIEVER]}
-  _clean
-  cat > /home/user1/getmailrc <<EOF
-[retriever]
-type = Simple${RETRIEVER}Retriever
-server = localhost
-username = $TESTEMAIL
-port = $PORT
-password = $TESTPSSWD
-[destination]
-type = Maildir
-path = $MAILDIRIN/
-[options]
-mark_read = true
-EOF
-}
-
-
-
-gm_uid_cache(){
-gm_maildir IMAP false false uid_cache=uid.txt
-sleep 1
-n1=$(cat /home/user1/uid.txt | cut -d" " -f 3)
-gm_maildir IMAP false false uid_cache=uid.txt
-sleep 1
-n2=$(cat /home/user1/uid.txt | cut -d" " -f 3)
-[[ $(( n2 - n1 )) != 0 ]]
-}
-
 
 _port(){
-  nmap -n -Pn localhost -p$1 -oG - | grep '/open/'  || return 1
+nmap -n -Pn localhost -p$1 -oG - | grep '/open/'  || return 1
 }
-
 @test "checking ports" {
 _port 25
 _port 143
 _port 587
 _port 993
 }
-
 @test "SSL Parameters IMAP, destination Maildir" {
-gm_ssl_params
+ssl_rc
+getmail --rcfile=getmailrc --getmaildir=/home/user1 2>&1 | grep "Permission denied"
 }
-
 @test "SimplePOP3Retriever, destination Maildir" {
-gm_maildir POP3 true true
+_send
+maildir_rc POP3 110 true true
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimplePOP3SSLRetriever, destination Maildir" {
-gm_maildir POP3SSL true true
+_send
+maildir_rc POP3SSL 995 true true
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPRetriever, destination Maildir" {
-gm_maildir IMAP true true record_mailbox=true
+_send
+maildir_rc IMAP 143 true true record_mailbox=true
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPSSLRetriever, destination Maildir" {
-gm_maildir IMAPSSL true true
+_send
+maildir_rc IMAPSSL 993 true true
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPRetriever, destination Maildir, uid_cache=uid.txt" {
-gm_uid_cache
+rm /home/user1/uid.txt
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+_send
+maildir_rc IMAP 143 false false uid_cache=uid.txt
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+sleep 1
+n1=$(cat /home/user1/uid.txt | cut -d" " -f 3)
+_send
+maildir_rc IMAP 143 false false uid_cache=uid.txt
+sleep 1
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+sleep 1
+n2=$(cat /home/user1/uid.txt | cut -d" " -f 3)
+[[ $(( n2 - n1 )) != 0 ]]
 }
 @test "SimpleIMAPRetriever, destination Maildir, uid_cache=true" {
-gm_maildir IMAP false false uid_cache=true
+_send
+maildir_rc IMAP 143 false false uid_cache=true
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 
 @test "SimplePOP3Retriever, destination MDA_external (procmail), filter spamassassin clamav" {
-gm_procmail_filter POP3
+_send
+filter_rc POP3 110
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 }
 @test "SimplePOP3SSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
-gm_procmail_filter POP3SSL
+_send
+filter_rc POP3SSL 995
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 }
 @test "SimpleIMAPRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
-gm_procmail_filter IMAP
+_send
+filter_rc IMAP 143
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 }
 @test "SimpleIMAPSSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
-gm_procmail_filter IMAPSSL
+_send
+filter_rc IMAPSSL 993
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 }
 
 @test "BrokenUIDLPOP3Retriever 110 800 False False" {
-gm_via_config BrokenUIDLPOP3Retriever 110 800 False False
+_send
+mbox_rc  BrokenUIDLPOP3Retriever 110 800 False False
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -e /home/user1/Mail/mbx ]
 }
 @test "BrokenUIDLPOP3Retriever 110 900 True  False" {
-gm_via_config BrokenUIDLPOP3Retriever 110 900 True  False
+_send
+mbox_rc  BrokenUIDLPOP3Retriever 110 900 True  False
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -e /home/user1/Mail/mbx ]
 }
 @test "BrokenUIDLPOP3SSLRetriever 995 800 0 0" {
-gm_via_config BrokenUIDLPOP3SSLRetriever 995 800 0 0
+_send
+mbox_rc  BrokenUIDLPOP3SSLRetriever 995 800 0 0
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -e /home/user1/Mail/mbx ]
 }
 @test "BrokenUIDLPOP3SSLRetriever 995 900 1 1" {
-gm_via_config BrokenUIDLPOP3SSLRetriever 995 900 1 1
+_send
+mbox_rc  BrokenUIDLPOP3SSLRetriever 995 900 1 1
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -e /home/user1/Mail/mbx ]
 }
 @test "SimpleIMAPRetriever 143 800 false true" {
-gm_via_config SimpleIMAPRetriever 143 800 false true
+_send
+mbox_rc  SimpleIMAPRetriever 143 800 false true
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -e /home/user1/Mail/mbx ]
 }
 @test "SimpleIMAPRetriever 143 900 false true" {
-gm_via_config SimpleIMAPRetriever 143 900 false true
+_send
+mbox_rc  SimpleIMAPRetriever 143 900 false true
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -e /home/user1/Mail/mbx ]
 }
 @test "SimpleIMAPSSLRetriever 993 800 False False" {
-gm_via_config SimpleIMAPSSLRetriever 993 800 False False
+_send
+mbox_rc  SimpleIMAPSSLRetriever 993 800 False False
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -e /home/user1/Mail/mbx ]
 }
 @test "SimpleIMAPSSLRetriever 993 900 True  True" {
-gm_via_config SimpleIMAPSSLRetriever 993 900 True  True
+_send
+mbox_rc  SimpleIMAPSSLRetriever 993 900 True  True
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -e /home/user1/Mail/mbx ]
 }
 
 
 @test "SimplePOP3Retriever 110" {
-gm_multidrop SimplePOP3Retriever 110
+_sendmulti
+multidrop_rc SimplePOP3Retriever 110
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropPOP3Retriever 110" {
-gm_multidrop MultidropPOP3Retriever 110
+_sendmulti
+multidrop_rc MultidropPOP3Retriever 110
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimplePOP3SSLRetriever 995" {
-gm_multidrop SimplePOP3SSLRetriever 995
+_sendmulti
+multidrop_rc SimplePOP3SSLRetriever 995
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropPOP3SSLRetriever 995" {
-gm_multidrop MultidropPOP3SSLRetriever 995
+_sendmulti
+multidrop_rc MultidropPOP3SSLRetriever 995
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPRetriever 143" {
-gm_multidrop SimpleIMAPRetriever 143
+_sendmulti
+multidrop_rc SimpleIMAPRetriever 143
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropIMAPRetriever 143" {
-gm_multidrop MultidropIMAPRetriever 143
+_sendmulti
+multidrop_rc MultidropIMAPRetriever 143
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPSSLRetriever 993" {
-gm_multidrop SimpleIMAPSSLRetriever 993
+_sendmulti
+multidrop_rc SimpleIMAPSSLRetriever 993
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropIMAPSSLRetriever 993" {
-gm_multidrop MultidropIMAPSSLRetriever 993
+_sendmulti
+multidrop_rc MultidropIMAPSSLRetriever 993
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
-
-
 @test "MultidropPOP3Retriever, Multisorter" {
-gm_multisorter MultidropPOP3Retriever 110
+_sendmulti
+multisorter_rc MultidropPOP3Retriever 110
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropPOP3SSLRetriever, Multisorter" {
-gm_multisorter MultidropPOP3SSLRetriever 995
+_sendmulti
+multisorter_rc MultidropPOP3SSLRetriever 995
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropIMAPRetriever, Multisorter" {
-gm_multisorter MultidropIMAPRetriever 143
+_sendmulti
+multisorter_rc MultidropIMAPRetriever 143
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropIMAPSSLRetriever, Multisorter" {
-gm_multisorter MultidropIMAPSSLRetriever 993
+_sendmulti
+multisorter_rc MultidropIMAPSSLRetriever 993
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 
 @test "MDA lmtp_rc" {
+_send2 user1@example.test user1@example.test lmtp_rc
 lmtp_rc
 #doveadm purge -A
-_gm
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
 #grep "Subject: lmtp_rc" /var/mail/example.test/user1/cur/*
 }
 @test "MDA lmtp_override_x" {
+_send2 user2@example.test nonexistent-user@example.test lmtp_override_rc
 lmtp_override_rc
 #doveadm purge -A
-_gm
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
 #grep "Subject: lmtp_override_x" /var/mail/example.test/user2/cur/*
 }
 @test "MDA lmtp_override_fallback_x" {
+_send2 user2@example.test nonexistent-user@example.test lmtp_override_fallback_x
 lmtp_override_fallback_rc
 #doveadm purge -A
-_gm
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
 #grep "Subject: lmtp_override_fallback_x" /var/mail/example.test/user1/cur/*
 }
 
-#TODO check
-## @test "SimpleIMAPSSLRetriever, imap_search" {
-## _send
-## imap_search_rc ALL false
-## _gm
-## _verify
-## _grep utf-8
-## imap_search_rc UNSEEN true
-## _gm
-## _verify
-## _grep utf-8
-## imap_search_rc UNSEEN true
-## _gm
-## # TODO check no unseen
-## imap_search_rc ALL true
-## _gm
-## _verify
-## _grep utf-8
-## imap_search_rc SEEN true
-## _gm
-## _verify
-## _grep utf-8
-## _send
-## mark_read_rc
-## _gm
-## _verify
-## _grep utf-8
-## }
-## 
-## @test "IMAP override via command line -s" {
-## _send
-## imap_search_rc ALL true
-## getmail --rcfile=getmailrc --getmaildir=/home/user1 -s,
-## _grep "$RANDOMTXT"
-## _clean
-## #(Unseen \Seen) so this time 0
-## getmail --rcfile=getmailrc --getmaildir=/home/user1 -s,
-## [[ "$(grep "$RANDOMTXT" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
-## _clean
-## getmail --rcfile=getmailrc --getmaildir=/home/user1 --searchset UNSEEN --searchset ,SEEN
-## [[ "$(grep "$RANDOMTXT" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
-## _clean
-## getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "FROM \"domain\" ,SEEN"
-## _grep "$RANDOMTXT"
-## _clean
-## getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "TEXT \"Troms\" ,SEEN"
-## _grep "$RANDOMTXT"
-## _clean
-## getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "TEXT \"NotThere\""
-## [[ "$(grep "$RANDOMTXT" $MAILDIRIN/new/* -l | wc -l)" == "0" ]]
-## getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "ALL ,SEEN"
-## _grep "$RANDOMTXT"
-## _clean
-## getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "ALL"
-## _grep "$RANDOMTXT"
-## }
-## 
-## @test "getmail_mbox test" {
-## _clean
-## touch $MAILDIR/mbx
-## echo 'βσSß' | getmail_mbox $MAILDIR/mbx
-## grep 'βσSß' $MAILDIR/mbx
-## 
-## }
-## 
-## @test "getmail_maildir test" {
-## gm_maildir "POP3 true true"
-## echo 'βσSß' | getmail_maildir $MAILDIRIN/
-## _grep 'βσSß'
-## }
-## 
-## @test "getmail_fetch test" {
-## source prepare.sh
-## PORT=${PORTNR["POP3"]}
-## _send
-## _clean
-## getmail_fetch -p $PORT localhost $TESTEMAIL $TESTPSSWD $MAILDIRIN/
-## _verify
-## }
-## 
-## @test "idle1" {
-## idle_mailboxes
-## getmail_idle '("idle1",)'
-## n_idle 99
-## }
-## 
+@test "SimpleIMAPSSLRetriever imap_search imap_on_delete" {
+_send
+# get all but do not delete
+imap_rc false "" ""
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+rm -rf /home/user1/Mail/new/*
+# set Seen
+imap_rc true UNSEEN "(\Seen)"
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+# get UNSEEN expect none
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+imap_rc true UNSEEN "(\Seen)"
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -z "$(ls /home/user1/Mail/new)" ]
+# get SEEN expect 1
+imap_rc true SEEN "(\Seen)"
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+# get all expect 1
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+imap_rc true "" ""
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+# mark_read (set SEEN)
+_send
+mark_read_rc
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+# get UNSEEN expect none
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+imap_rc true UNSEEN "(\Seen)"
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+[ -z "$(ls /home/user1/Mail/new)" ]
+# get SEEN expect 1
+imap_rc true SEEN "(\Seen)"
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+# get all expect 1
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+imap_rc true "" ""
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+}
+
+@test "IMAP override via command line -s" {
+_send
+imap_rc true "" ""
+# "-s," is equivalent to "-s,Seen" so overrides delete=true of config
+getmail --rcfile=getmailrc --getmaildir=/home/user1 -s,
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+#(Unseen \Seen) expect none
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+getmail --rcfile=getmailrc --getmaildir=/home/user1 --searchset UNSEEN --searchset ,SEEN
+sleep 1.9
+[[ "$(grep "$RANDOMTXT" /home/user1/Mail/new/* -l | wc -l)" == "0" ]]
+[ -z "$(ls /home/user1/Mail/new)" ]
+# search example.test expect 1
+getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "FROM \"example.test\" ,SEEN"
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+# search Troms expect 1
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "TEXT \"Troms\" ,SEEN"
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+# search NotThere expect none
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "TEXT \"NotThere\""
+sleep 1.9
+[ -z "$(ls /home/user1/Mail/new)" ]
+# get all expect 1
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "ALL ,SEEN"
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+# get all expect 1
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "ALL"
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+# get all expect none
+rm -rf /home/user1/Mail/new/*
+[ -z "$(ls /home/user1/Mail/new)" ]
+getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "ALL"
+sleep 1.9
+[ -z "$(ls /home/user1/Mail/new)" ]
+}
+
+@test "getmail_maildir test" {
+_send
+maildir_rc POP3 110 true true
+getmail --rcfile=getmailrc --getmaildir=/home/user1
+sleep 1.9
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+echo 'βσSß' | getmail_maildir /home/user1/Mail/
+grep 'βσSß' /home/user1/Mail/new/*
+}
+
+@test "getmail_fetch test" {
+_send
+getmail_fetch -p 110 localhost user1@example.test ТЕСТПАСС /home/user1/Mail/
+BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
+}
+

@@ -1,18 +1,3 @@
-export TESTEMAIL="user1@example.test"
-export TESTPSSWD="ТЕСТПАСС"
-export CONTAINERNAME="mail.example.test"
-#echo $TESTEMAIL $TESTPSSWD $CONTAINERNAME
-export MAILDIR="/home/user1/Mail/$TESTEMAIL"
-export MAILDIRIN=$MAILDIR/INBOX
-declare -A PORTNR
-PORTNR["POP3"]=110
-PORTNR["IMAP"]=143
-PORTNR["IMAPSSL"]=993
-PORTNR["POP3SSL"]=995
-PORTNR["SMTP"]=25
-PORTNR["SMTPSSL"]=587
-export PORTNR
-
 dms_install_getmail() {
 apt-get -qq remove getmail6
 apt-get -qq update
@@ -23,10 +8,10 @@ source prepare.sh
 cd /tmp/docker-mailserver/getmail6
 pip3 install -e . --break-system-packages
 getmail --version
-yes | setup email del $TESTEMAIL &> /dev/null
-yes | setup email del user2 &> /dev/null
-setup email add $TESTEMAIL $TESTPSSWD &> /dev/null
-setup email add user2@example.test $TESTPSSWD &> /dev/null
+yes | setup email del user1@example.test &> /dev/null
+yes | setup email del user2@example.test &> /dev/null
+setup email add user1@example.test ТЕСТПАСС &> /dev/null
+setup email add user2@example.test ТЕСТПАСС &> /dev/null
 useradd -m -s /bin/bash user1 &> /dev/null
 usermod -a -G postfix user1
 useradd -m -s /bin/bash user2 &> /dev/null
@@ -37,7 +22,7 @@ function restart_dms() {
 docker compose down
 docker compose up --detach --force-recreate
 local STARTTIME=${SECONDS}
-until bash -c "docker logs ${CONTAINERNAME} | grep 'is up and running'"; do
+until bash -c "docker logs mail.example.test | grep 'is up and running'"; do
   sleep 1
   echo "Waiting a second" >&2
   if [[ $(( SECONDS - STARTTIME )) -gt 66 ]]; then
@@ -45,20 +30,20 @@ until bash -c "docker logs ${CONTAINERNAME} | grep 'is up and running'"; do
     return 1
   fi
 done
-docker exec -u 0 -t ${CONTAINERNAME} bash -c "freshclam &> /dev/null"
-docker exec -u 0 -w /tmp/docker-mailserver/getmail6/test -t ${CONTAINERNAME} bash -c "source prepare.sh && dms_install_getmail"
+docker exec -u 0 -t mail.example.test bash -c "freshclam &> /dev/null"
+docker exec -u 0 -w /tmp/docker-mailserver/getmail6/test -t mail.example.test bash -c "source prepare.sh && dms_install_getmail"
 }
 
 d_root(){
-docker exec -u 0 -it $CONTAINERNAME bash
+docker exec -u 0 -it mail.example.test bash
 }
 
 d_user(){
-docker exec -u user1 -w /tmp/docker-mailserver/getmail6/test -it $CONTAINERNAME bash
+docker exec -u user1 -w /tmp/docker-mailserver/getmail6/test -it mail.example.test bash
 }
 
 d_docker(){
-docker exec -u user1 -w /tmp/docker-mailserver/getmail6/test $CONTAINERNAME bash -c "source prepare.sh
+docker exec -u user1 -w /tmp/docker-mailserver/getmail6/test mail.example.test bash -c "source prepare.sh
 $@
 "
 }
@@ -76,8 +61,8 @@ cat > /home/user1/getmailrc <<EOF
 [retriever]
 type = SimpleIMAPRetriever
 server = localhost
-username=${TESTEMAIL}
-password=${TESTPSSWD}
+username=user1@example.test
+password=ТЕСТПАСС
 [destination]
 type = Maildir
 path = /home/user1/Mail/
@@ -94,7 +79,7 @@ d_getmail_idle(){
 }
 
 d_idle_mailboxes(){
-docker exec -u 0 $CONTAINERNAME bash -c "
+docker exec -u 0 mail.example.test bash -c "
 cat > /usr/lib/dovecot/sieve-global/before/plus_at_sieve.sieve <<EOF
 echo 'require [\"envelope\", \"fileinto\", \"mailbox\", \"subaddress\", \"variables\"];
 if envelope :detail :matches \"to\" \"idle1\" {
@@ -121,19 +106,19 @@ log_debug = category=sieve
 EOF
 dovecot reload
 "
-docker exec -u 0 $CONTAINERNAME -w /tmp/docker-mailserver/getmail6/test bash -c "
+docker exec -u 0 mail.example.test -w /tmp/docker-mailserver/getmail6/test bash -c "
 source prepare.sh
-doveadm mailbox create -u '$TESTEMAIL' 'idle1' 2>/dev/null
-doveadm mailbox create -u '$TESTEMAIL' 'idle2' 2>/dev/null
+doveadm mailbox create -u 'user1@example.test' 'idle1' 2>/dev/null
+doveadm mailbox create -u 'user1@example.test' 'idle2' 2>/dev/null
 _send
 sleep 1
-doveadm move -u '$TESTEMAIL' 'idle1' mailbox 'INBOX' all
+doveadm move -u 'user1@example.test' 'idle1' mailbox 'INBOX' all
 sleep 1
 _send
 sleep 2
 _send
 sleep 1
-doveadm move -u '$TESTEMAIL' 'idle2' mailbox 'INBOX' all
+doveadm move -u 'user1@example.test' 'idle2' mailbox 'INBOX' all
 echo idle1
 ls -1A /var/mail/example.test/user1/.idle1/new
 echo idle2
