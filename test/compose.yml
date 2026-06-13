@@ -112,9 +112,20 @@ configs:
       user2@example.test|{SHA512-CRYPT}$$6$$uGamQc.IJBwltENN$$Iwzkr18xbl3lXYwntWXNdzcVofOqjEr0Y4BS/OawulE9zgY2uyc4Qjqk.446zkV87Mez2hqt5pBQUwI4mD5VG0
   sieve:
     content: |
-      if envelope :detail :regex "to" "(idle1|idle2)" {
-        set :lower :upperfirst "tag" "$${1}";
-        fileinto :create "$${tag}";
+      require ["envelope", "fileinto", "mailbox", "subaddress", "variables"];
+      if envelope :detail "to" "idle1" {
+        if mailboxexists "idle1" {
+          fileinto "idle1";
+        } else {
+          fileinto :create "idle1";
+        }
+      }
+      if envelope :detail "to" "idle2" {
+        if mailboxexists "idle2" {
+          fileinto "idle2";
+        } else {
+          fileinto :create "idle2";
+        }
       }
 
 volumes:

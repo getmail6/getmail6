@@ -2004,9 +2004,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
         # Based on current imaplib IDLE patch: http://bugs.python.org/issue11245
         self.conn.untagged_responses = {}
-        self.log.info('!!!!!!!!!!!!!!selecting IDLE mailbox %s\n'%idle_mailbox)
         self.select_quoted(idle_mailbox)
-        self.log.info('!!!!!!!!!!!!!! IDLING\n')
         tag = self.conn._command('IDLE')
         data = self.conn._get_response() # read continuation response
 
