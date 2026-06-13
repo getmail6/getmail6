@@ -3297,10 +3297,10 @@ type = Filter_TMDA
     If you are using a single getmailrc file with an IMAP server that understands
     the IDLE extension from <a href="http://www.rfc-editor.org/rfc/rfc2177.txt">RFC 2177</a>,
     you can use the --idle=<span class="meta">MAILBOX</span> option to specify
-    that getmail should wait on the server to notify getmail of new mail in the
-    specified mailbox after getmail is finished retrieving mail.
-    If <span class="meta">MAILBOX</span> is empty,
-    <span class="file">mailboxes[0]</span> from the rc file or <span class="file">INBOX</span> is used.
+    that getmail should wait on the server to notify getmail of new mail.
+    This historic add-on feature effectively ignores the specific <span class="meta">MAILBOX</span> value.
+    Rather <span class="file">mailboxes</span> in the getmailrc file is used, and must be there to get notified.
+    Since getmail 6.20.0, <span class="file">--idle=</span> is like a boolean IDLE ON.
 </p>
 <p>
     In addition, the following commandline options can be used to override any

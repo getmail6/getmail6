@@ -1,7 +1,7 @@
-Version TODO
+Version 6.20.00
 TODO
     - fix #263: delete=true should not be necessary if mark_read=true
-    - #265: Use `--idle=` to mean mailboxes[0]
+    - #265: Use `--idle=` to mean IDLE ON (uses mailboxes in getmailrc).
 
 Version 6.19.12
 20.February.2026

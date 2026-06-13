@@ -168,17 +168,6 @@ docker stop dms-example
 docker ps
 }
 
-user_pw(){
-local MAIL_ACCOUNT=${1}
-local PASSWD=${2}
-PASSWD_HASH=$(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
-echo "$MAIL_ACCOUNT@example.test|$PASSWD_HASH" | sed "s/\$/\$\$/"
-}
-: '
-user_pw user1 ТЕСТПАСС
-user_pw user2 ТЕСТПАСС
-'
-
 # https://github.com/getmail6/getmail6/issues/265
 mail_server_via_docker_compose(){
 echo '
