@@ -13,12 +13,12 @@ usermod -a -G postfix user1
 useradd -m -s /bin/bash user2 -p ТЕСТПАСС &> /dev/null
 usermod -a -G postfix user2
 cp /tmp/docker-mailserver/user1@example.test.dovecot.sieve /var/mail/example.test/user1/home/.dovecot.sieve
-# doveadm mailbox create -u 'user1@example.test' 'idle1'
-# doveadm mailbox create -u 'user1@example.test' 'idle2'
+doveadm mailbox create -u 'user1@example.test' 'idle1'
+doveadm mailbox create -u 'user1@example.test' 'idle2'
 }
 
 function restart_dms() {
-docker compose down -f -v
+docker compose down -v
 docker compose up --detach --force-recreate
 local STARTTIME=${SECONDS}
 until bash -c "docker logs mail.example.test | grep 'is up and running'"; do

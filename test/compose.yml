@@ -77,7 +77,6 @@ services:
       - dms-mail-logs:/var/log/mail
       - dms-config:/tmp/docker-mailserver
       - ..:/tmp/docker-mailserver/getmail6
-      - ./ssl:/tmp/docker-mailserver/ssl
     networks:
       default:
         aliases:

@@ -11,13 +11,8 @@ doc:
 	links -dump docs/faq.html > docs/faq.txt
 	links -dump docs/troubleshooting.html > docs/troubleshooting.txt
 
-.PHONY: selfsign
-selfsign:
-	(cd test && ./self_sign.sh)
-
-
 .PHONY: dockertest
-dockertest: selfsign
+dockertest:
 	(cd test && source ./prepare.sh && restart_dms && d_docker "bats getmaildms.bats")
 
 .PHONY: fortest

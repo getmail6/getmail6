@@ -15,9 +15,9 @@ port = 993
 server = localhost
 username = user1@example.test
 password = ТЕСТПАСС
-ca_certs = /tmp/docker-mailserver/ssl/demoCA/cacert.pem
-certfile = /tmp/docker-mailserver/ssl/demoCA/cacert.pem
-keyfile = /tmp/docker-mailserver/ssl/demoCA/private/cakey.pem
+ca_certs = /certs/demoCA/cacert.pem
+certfile = /certs/mail.example.test-cert.pem
+keyfile = /certs/mail.example.test-key.pem
 [destination]
 type = Maildir
 path = /home/user1/Mail/
