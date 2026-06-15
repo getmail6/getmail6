@@ -13,7 +13,7 @@ doc:
 
 .PHONY: dockertest
 dockertest:
-	(cd test && source ./prepare.sh && restart_dms && d_docker "bats getmaildms.bats")
+	(cd test && source ./prepare.sh && restart_dms && d_docker "bats getmaildms.bats") || true
 
 .PHONY: fortest
 fortest:

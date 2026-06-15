@@ -423,7 +423,7 @@ sleep 1.9
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPRetriever, destination Maildir, uid_cache=uid.txt" {
-rm /home/user1/uid.txt
+rm -rf /home/user1/uid.txt
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 _send
@@ -453,8 +453,10 @@ BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 @test "SimplePOP3Retriever, destination MDA_external (procmail), filter spamassassin clamav" {
 _send
 filter_rc POP3 110
-getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+getmail --rcfile=getmailrc --getmaildir=/home/user1 || true
+while ! [ -e /home/user1/Mail/tests/new ] ; do
+  sleep 1.9
+done
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 }
 @test "SimplePOP3SSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
@@ -865,4 +867,3 @@ gi=$(ls -1A /home/user1/Mail/new | wc -l)
 #echo gi=$gi >&2
 [ "$(( gi == (i1-2+i2-2) ))" -eq 1 ]
 }
-

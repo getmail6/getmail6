@@ -1,3 +1,9 @@
+: '
+source prepare.sh
+d_user
+bats getmaildms.bats
+'
+
 dms_install_getmail() {
 apt-get -qq remove getmail6
 apt-get -qq update
