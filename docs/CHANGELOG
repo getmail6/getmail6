@@ -1,7 +1,10 @@
 Version 6.20.00
-TODO
+15.June.2026
+    - Merge pull request #262 from jperryhouts/fixup-retry-lmtp (Fix mangled function arg)
     - fix #263: delete=true should not be necessary if mark_read=true
     - #265: Use `--idle=` to mean IDLE ON (uses mailboxes in getmailrc).
+    - fix #271: automate update of gh-pages for getmail6
+    - "make dockertest" to use docker-mailserver 15.1
 
 Version 6.19.12
 20.February.2026
