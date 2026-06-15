@@ -51,7 +51,7 @@ docrepo: # update https://github.com/getmail6/getmail6.github.io
 	yes | cp docs/*.html ../getmail6.github.io
 	yes | cp docs/getmailrc-examples ../getmail6.github.io
 	(cd ../getmail6.github.io && git add . && git commit -m "doc")
-	(cd ../getmail6.github.io && V=$(../getmail6/getmail --version | cut -d ' ' -f 2) && git commit --amend -m "v$V")
+	(cd ../getmail6.github.io && V=$(../getmail6/getmail --version | cut -d ' ' -f 2) git commit --amend -m "v$V")
 	(cd ../getmail6.github.io && git push)
 
 # ./pypi.sh to upload to PYPI no more needed due to
@@ -65,6 +65,8 @@ up6: dist
 up: dist
 	twine upload dist/`ls dist -rt *.whl | tail -1` dist/`ls dist -rt *.tar.gz | tail -1` -u__token__ -p`pass show pypi.org/getmail_api_token`
 
+# "make doc" and commit all changes then run "make tag". Then, to make the release go to
+# https://github.com/getmail6/getmail6
 .PHONY: tag
 tag: dist docrepo
 	git push
