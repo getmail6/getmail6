@@ -69,9 +69,10 @@ up: dist
 # https://github.com/getmail6/getmail6
 .PHONY: tag
 tag: dist docrepo
-	git push
 	$(eval TAGMSG="v$(shell ./getmail --version | cut -d ' ' -f 2)")
 	echo $(TAGMSG)
+	git commit -am "$(TAGMSG)"
+	git push
 	git tag -s $(TAGMSG) -m"$(TAGMSG)"
 	git verify-tag $(TAGMSG)
 	git push origin $(TAGMSG) --follow-tags
