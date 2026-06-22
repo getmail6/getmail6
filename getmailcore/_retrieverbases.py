@@ -1655,9 +1655,17 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             result, data = self.conn.search(None, imap_search)
             data = [d for d in data if d is not None]
             if result == 'OK' and data:
-                msgs = b','.join(data[0].split())
-                msgs = msgs.decode()
-                self._getmsglist(msgs)
+                datasplit = data[0].split()
+                SPLITTO=1
+                datasplitlen = len(datasplit)
+                datafetchstart = 0
+                while datafetchstart < datasplitlen:
+                    datafetchend = datafetchstart + SPLITTO
+                    msgs = b','.join(datasplit[datafetchstart:datafetchend])
+                    datafetchstart = datafetchend
+                    msgs = msgs.decode()
+                    self._getmsglist(msgs)
+                self.gotmsglist = True
         else:
             self._uidmaxread()
             self._getmsglist(msgcount, start=self._uidmax)
@@ -1753,7 +1761,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
                     self._remove_from_oldmail()
         except imaplib.IMAP4.error as o:
             raise getmailOperationError('IMAP error (%s)' % o)
-        self.gotmsglist = True
+        if not isinstance(msgs,str):
+            self.gotmsglist = True
 
     def __getitem__(self, i):
         return self._mboxuidorder[i]

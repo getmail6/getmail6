@@ -298,6 +298,26 @@ mark_read = true
 EOF
 }
 
+idle_rc() {
+  mkdir -p /home/user1/Mail/{cur,tmp,new}
+  rm -rf /home/user1/Mail/new/*
+  cat > /home/user1/getmailrc <<EOF
+[retriever]
+type = SimpleIMAPRetriever
+server = localhost
+username=user1@example.test
+password=ТЕСТПАСС
+$1
+[destination]
+type = Maildir
+path = /home/user1/Mail/
+[options]
+read_all = true
+delete = true
+EOF
+}
+
+
 randomtext(){
 tr -dc A-Za-z0-9 </dev/urandom | head -c $1; echo
 }
@@ -380,10 +400,10 @@ EOF
 sleep 2.8
 }
 
-
 _port(){
 nmap -n -Pn localhost -p$1 -oG - | grep '/open/'  || return 1
 }
+
 @test "checking ports" {
 _port 25
 _port 143
@@ -652,6 +672,7 @@ sleep 1.9
 @test "SimpleIMAPSSLRetriever imap_search imap_on_delete" {
 _send
 # get all but do not delete
+mkdir -p /home/user1/Mail/{cur,tmp,new}
 imap_rc false "" ""
 getmail --rcfile=getmailrc --getmaildir=/home/user1
 sleep 1.9
@@ -772,25 +793,6 @@ grep 'βσSß' /home/user1/Mail/new/*
 _send
 getmail_fetch -p 110 localhost user1@example.test ТЕСТПАСС /home/user1/Mail/
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
-}
-
-idle_rc(){
-  mkdir -p /home/user1/Mail/{cur,tmp,new}
-  rm -rf /home/user1/Mail/new/*
-  cat > /home/user1/getmailrc <<EOF
-[retriever]
-type = SimpleIMAPRetriever
-server = localhost
-username=user1@example.test
-password=ТЕСТПАСС
-$1
-[destination]
-type = Maildir
-path = /home/user1/Mail/
-[options]
-read_all = true
-delete = true
-EOF
 }
 
 @test "idle1" {
