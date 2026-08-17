@@ -24,6 +24,14 @@ fortest:
 unittests: fortest
 	pytest test/test.py test/test_mock_servers.py
 
+.PHONY: venvtest
+venvtest:
+	uv venv --python 3.14.7 --clear; \
+	. ./.venv/bin/activate; \
+	uv pip install pytest --python ./.venv/bin/python; \
+	uv pip install -e . --python ./.venv/bin/python; \
+	python -m pytest test/test.py test/test_mock_servers.py
+
 .PHONY: test
 test: unittests dockertest
 	(cd test && docker compose down) || true
