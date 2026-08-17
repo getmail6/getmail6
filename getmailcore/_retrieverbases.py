@@ -100,6 +100,12 @@ __all__ = [
     'RetrieverSkeleton',
 ]
 
+
+def _quote(self, arg):
+    arg = arg.replace('\\', '\\\\')
+    arg = arg.replace('"', '\\"')
+    return '"' + arg + '"'
+
 tocode = lambda x: isinstance(x,bytes) and x or x.encode()
 
 # If we have an ssl module:
@@ -1597,10 +1603,9 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         if (len(mailbox) < 2 or (
             mailbox[0],mailbox[-1]) != ('"','"')
             ) and IMAP_ATOM_SPECIAL.search(mailbox):
+            mailbox_quoted =  _quote(mailbox)
             return self.conn.select(
-                codecs.encode(
-                    self.conn._quote(mailbox),
-                    'imap4-utf-7'),
+                codecs.encode(mailbox_quoted,'imap4-utf-7'),
                 read_only)
         else:
             return self.conn.select(
