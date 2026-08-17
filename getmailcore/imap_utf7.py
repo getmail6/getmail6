@@ -2,142 +2,78 @@
 # docs/COPYING 2a + DRY: https://github.com/getmail6/getmail6
 # Please refer to the git history regarding who changed what and when in this file.
 
-"""
-Modified utf-7 encoding as used in IMAP v4r1 for encoding mailbox names.
-
-From the RFC:
-
-5.1.3.  Mailbox International Naming Convention
-
-   By convention, international mailbox names are specified using a
-   modified version of the UTF-7 encoding described in [UTF-7].  The
-   purpose of these modifications is to correct the following problems
-   with UTF-7:
-
-      1) UTF-7 uses the "+" character for shifting; this conflicts with
-         the common use of "+" in mailbox names, in particular USENET
-         newsgroup names.
-
-      2) UTF-7's encoding is BASE64 which uses the "/" character; this
-         conflicts with the use of "/" as a popular hierarchy delimiter.
-
-      3) UTF-7 prohibits the unencoded usage of "\"; this conflicts with
-         the use of "\" as a popular hierarchy delimiter.
-
-      4) UTF-7 prohibits the unencoded usage of "~"; this conflicts with
-         the use of "~" in some servers as a home directory indicator.
-
-      5) UTF-7 permits multiple alternate forms to represent the same
-         string; in particular, printable US-ASCII characters can be
-         represented in encoded form.
-
-   In modified UTF-7, printable US-ASCII characters except for "&"
-   represent themselves; that is, characters with octet values 0x20-0x25
-   and 0x27-0x7e.  The character "&" (0x26) is represented by the two-
-   octet sequence "&-".
-
-   All other characters (octet values 0x00-0x1f, 0x7f-0xff, and all
-   Unicode 16-bit octets) are represented in modified BASE64, with a
-   further modification from [UTF-7] that "," is used instead of "/".
-   Modified BASE64 MUST NOT be used to represent any printing US-ASCII
-   character which can represent itself.
-
-   "&" is used to shift to modified BASE64 and "-" to shift back to US-
-   ASCII.  All names start in US-ASCII, and MUST end in US-ASCII (that
-   is, a name that ends with a Unicode 16-bit octet MUST end with a "-
-   ").
-"""
-
-# From https://github.com/twisted/twisted/blob/trunk/src/twisted/mail/imap4.py.
-
-# we need to cast Python >=3.3 memoryview to chars (from unsigned bytes), but
-# cast is absent in previous versions: thus, the lambda returns the
-# memoryview instance while ignoring the format
+# Copied under
+# Apache License 2.0
+# https://github.com/ikvk/imap_tools/blob/master/LICENSE
+# from
+# https://github.com/ikvk/imap_tools/blob/master/imap_tools/imap_utf7.py
+# just changing the return value of utf7_encode() and utf7_decode()
 
 import codecs
 
-memory_cast = getattr(memoryview, "cast", lambda *x: x[0])
+import binascii
+from typing import MutableSequence
 
-def modified_base64(s):
-    s_utf7 = s.encode('utf-7')
-    return s_utf7[1:-1].replace(b'/', b',')
+AMPERSAND_ORD = ord('&')
+HYPHEN_ORD = ord('-')
 
-def modified_unbase64(s):
-    s_utf7 = b'+' + s.replace(b',', b'/') + b'-'
-    return s_utf7.decode('utf-7')
-
-def encoder(s, errors=None):
-    """
-    Encode the given C{unicode} string using the IMAP4 specific variation of
-    UTF-7.
-    @type s: C{unicode}
-    @param s: The text to encode.
-    @param errors: Policy for handling encoding errors.  Currently ignored.
-    @return: L{tuple} of a L{str} giving the encoded bytes and an L{int}
-        giving the number of code units consumed from the input.
-    """
-    r = bytearray()
-    _in = []
-    valid_chars = set(map(chr, range(0x20,0x7f))) - {u"&"}
-    for c in s:
-        if c in valid_chars:
-            if _in:
-                r += b'&' + modified_base64(''.join(_in)) + b'-'
-                del _in[:]
-            r.append(ord(c))
-        elif c == u'&':
-            if _in:
-                r += b'&' + modified_base64(''.join(_in)) + b'-'
-                del _in[:]
-            r += b'&-'
-        else:
-            _in.append(c)
+def _modified_base64(value: str) -> bytes:
+    return binascii.b2a_base64(value.encode('utf-16be')).rstrip(b'\n=').replace(b'/', b',')
+def _do_b64(_in: MutableSequence[str], r: MutableSequence[bytes]):
     if _in:
-        r.extend(b'&' + modified_base64(''.join(_in)) + b'-')
-    return (bytes(r), len(s))
-
-def decoder(s, errors=None):
-    """
-    Decode the given L{str} using the IMAP4 specific variation of UTF-7.
-    @type s: L{str}
-    @param s: The bytes to decode.
-    @param errors: Policy for handling decoding errors.  Currently ignored.
-    @return: a L{tuple} of a C{unicode} string giving the text which was
-        decoded and an L{int} giving the number of bytes consumed from the
-        input.
-    """
-    r = []
-    decode = []
-    s = memory_cast(memoryview(s), 'c')
-    for c in s:
-        if c == b'&' and not decode:
-            decode.append(b'&')
-        elif c == b'-' and decode:
-            if len(decode) == 1:
-                r.append(u'&')
-            else:
-                r.append(modified_unbase64(b''.join(decode[1:])))
-            decode = []
-        elif decode:
-            decode.append(c)
+        r.append(b'&' + _modified_base64(''.join(_in)) + b'-')
+    _in.clear()
+def utf7_encode(value: str) -> bytes:
+    res = []
+    _in = []
+    for char in value:
+        ord_c = ord(char)
+        if 0x20 <= ord_c <= 0x25 or 0x27 <= ord_c <= 0x7e:
+            _do_b64(_in, res)
+            res.append(char.encode())
+        elif char == '&':
+            _do_b64(_in, res)
+            res.append(b'&-')
         else:
-            r.append(c.decode())
-    if decode:
-        r.append(modified_unbase64(b''.join(decode[1:])))
-    return (u''.join(r), len(s))
+            _in.append(char)
+    _do_b64(_in, res)
+    return b''.join(res), len(value)
+
+
+def _modified_unbase64(value: bytearray) -> str:
+    return binascii.a2b_base64(value.replace(b',', b'/') + b'===').decode('utf-16be')
+def utf7_decode(value: bytes) -> str:
+    res = []
+    encoded_chars = bytearray()
+    for char in value:
+        if char == AMPERSAND_ORD and not encoded_chars:
+            encoded_chars.append(AMPERSAND_ORD)
+        elif char == HYPHEN_ORD and encoded_chars:
+            if len(encoded_chars) == 1:
+                res.append('&')
+            else:
+                res.append(_modified_unbase64(encoded_chars[1:]))
+            encoded_chars = bytearray()
+        elif encoded_chars:
+            encoded_chars.append(char)
+        else:
+            res.append(chr(char))
+    if encoded_chars:
+        res.append(_modified_unbase64(encoded_chars[1:]))
+    return ''.join(res), len(value)
 
 class StreamReader(codecs.StreamReader):
     def decode(self, s, errors='strict'):
-        return decoder(s)
+        return utf7_decode(s)
 
 class StreamWriter(codecs.StreamWriter):
     def encode(self, s, errors='strict'):
-        return encoder(s)
+        return utf7_encode(s)
 
-_codecInfo = codecs.CodecInfo(encoder, decoder, StreamReader, StreamWriter)
+_codecInfo = codecs.CodecInfo(utf7_encode, utf7_decode, StreamReader, StreamWriter)
 
-def imap4_utf_7(name):
-    if name in {'imap4-utf-7', 'imap4_utf_7'}:
+def utf_7_imap(name):
+    if name in {'imap4-utf-7','imap4_utf_7'}:
         return _codecInfo
 
-codecs.register(imap4_utf_7)
+codecs.register(utf_7_imap)
