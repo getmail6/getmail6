@@ -101,7 +101,7 @@ __all__ = [
 ]
 
 
-def _quote(self, arg):
+def _quote(arg):
     arg = arg.replace('\\', '\\\\')
     arg = arg.replace('"', '\\"')
     return '"' + arg + '"'
