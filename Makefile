@@ -56,11 +56,11 @@ dist: doc
 
 .PHONY: docrepo
 docrepo: # update https://github.com/getmail6/getmail6.github.io
-	yes | cp docs/*.html ../getmail6.github.io
-	yes | cp docs/getmailrc-examples ../getmail6.github.io
-	(cd ../getmail6.github.io && git add . && git commit -m "doc")
-	(cd ../getmail6.github.io && V=$(../getmail6/getmail --version | cut -d ' ' -f 2) git commit --amend -m "v$V")
-	(cd ../getmail6.github.io && git push)
+	yes | cp docs/*.html ../getmail6.github.io || true
+	yes | cp docs/getmailrc-examples ../getmail6.github.io || true
+	(cd ../getmail6.github.io && git add . && git commit -m "doc") || true
+	(cd ../getmail6.github.io && V=$(../getmail6/getmail --version | cut -d ' ' -f 2) git commit --amend -m "v$V") || true
+	(cd ../getmail6.github.io && git push) || true
 
 # ./pypi.sh to upload to PYPI no more needed due to
 # .github/workflows/publish.yml
