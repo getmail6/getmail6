@@ -1,3 +1,7 @@
+Version 6.20.01
+18.Aug.2026
+    - fix 276 Getmail fails to run on Python 3.14.7
+    - fix #275 by individual FETCH of each entry in imap_search result
 Version 6.20.00
 15.June.2026
     - Merge pull request #262 from jperryhouts/fixup-retry-lmtp (Fix mangled function arg)

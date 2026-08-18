@@ -340,7 +340,7 @@ EOF
    cat > $HOME/random.env << EOF
 RANDOMTXT="$RANDOMTXT"
 EOF
-  sleep 2.8
+  sleep 6.28
 }
 
 _send2() {
@@ -363,7 +363,7 @@ EOF
    cat > $HOME/random.env << EOF
 RANDOMTXT="$RANDOMTXT"
 EOF
-  sleep 2.8
+  sleep 6.28
 }
 
 _sendmulti(){
@@ -397,7 +397,7 @@ This is the test text.
 .
 QUIT
 EOF
-sleep 2.8
+sleep 6.28
 }
 
 _port(){
@@ -418,28 +418,28 @@ getmail --rcfile=getmailrc --getmaildir=/home/user1 2>&1 | grep "Permission deni
 _send
 maildir_rc POP3 110 true true
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimplePOP3SSLRetriever, destination Maildir" {
 _send
 maildir_rc POP3SSL 995 true true
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPRetriever, destination Maildir" {
 _send
 maildir_rc IMAP 143 true true record_mailbox=true
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPSSLRetriever, destination Maildir" {
 _send
 maildir_rc IMAPSSL 993 true true
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPRetriever, destination Maildir, uid_cache=uid.txt" {
@@ -449,7 +449,7 @@ rm -rf /home/user1/Mail/new/*
 _send
 maildir_rc IMAP 143 false false uid_cache=uid.txt
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 sleep 1
 n1=$(cat /home/user1/uid.txt | cut -d" " -f 3)
@@ -466,7 +466,7 @@ n2=$(cat /home/user1/uid.txt | cut -d" " -f 3)
 _send
 maildir_rc IMAP 143 false false uid_cache=true
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 
@@ -475,7 +475,7 @@ _send
 filter_rc POP3 110
 getmail --rcfile=getmailrc --getmaildir=/home/user1 || true
 while ! [ -e /home/user1/Mail/tests/new ] ; do
-  sleep 1.9
+  sleep 3.14
 done
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 }
@@ -483,21 +483,21 @@ BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 _send
 filter_rc POP3SSL 995
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 }
 @test "SimpleIMAPRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
 _send
 filter_rc IMAP 143
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 }
 @test "SimpleIMAPSSLRetriever, destination MDA_external (procmail), filter spamassassin clamav" {
 _send
 filter_rc IMAPSSL 993
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 }
 
@@ -505,56 +505,56 @@ BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/tests/new/*
 _send
 mbox_rc  BrokenUIDLPOP3Retriever 110 800 False False
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -e /home/user1/Mail/mbx ]
 }
 @test "BrokenUIDLPOP3Retriever 110 900 True  False" {
 _send
 mbox_rc  BrokenUIDLPOP3Retriever 110 900 True  False
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -e /home/user1/Mail/mbx ]
 }
 @test "BrokenUIDLPOP3SSLRetriever 995 800 0 0" {
 _send
 mbox_rc  BrokenUIDLPOP3SSLRetriever 995 800 0 0
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -e /home/user1/Mail/mbx ]
 }
 @test "BrokenUIDLPOP3SSLRetriever 995 900 1 1" {
 _send
 mbox_rc  BrokenUIDLPOP3SSLRetriever 995 900 1 1
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -e /home/user1/Mail/mbx ]
 }
 @test "SimpleIMAPRetriever 143 800 false true" {
 _send
 mbox_rc  SimpleIMAPRetriever 143 800 false true
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -e /home/user1/Mail/mbx ]
 }
 @test "SimpleIMAPRetriever 143 900 false true" {
 _send
 mbox_rc  SimpleIMAPRetriever 143 900 false true
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -e /home/user1/Mail/mbx ]
 }
 @test "SimpleIMAPSSLRetriever 993 800 False False" {
 _send
 mbox_rc  SimpleIMAPSSLRetriever 993 800 False False
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -e /home/user1/Mail/mbx ]
 }
 @test "SimpleIMAPSSLRetriever 993 900 True  True" {
 _send
 mbox_rc  SimpleIMAPSSLRetriever 993 900 True  True
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -e /home/user1/Mail/mbx ]
 }
 
@@ -563,84 +563,84 @@ sleep 1.9
 _sendmulti
 multidrop_rc SimplePOP3Retriever 110
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropPOP3Retriever 110" {
 _sendmulti
 multidrop_rc MultidropPOP3Retriever 110
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimplePOP3SSLRetriever 995" {
 _sendmulti
 multidrop_rc SimplePOP3SSLRetriever 995
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropPOP3SSLRetriever 995" {
 _sendmulti
 multidrop_rc MultidropPOP3SSLRetriever 995
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPRetriever 143" {
 _sendmulti
 multidrop_rc SimpleIMAPRetriever 143
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropIMAPRetriever 143" {
 _sendmulti
 multidrop_rc MultidropIMAPRetriever 143
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "SimpleIMAPSSLRetriever 993" {
 _sendmulti
 multidrop_rc SimpleIMAPSSLRetriever 993
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropIMAPSSLRetriever 993" {
 _sendmulti
 multidrop_rc MultidropIMAPSSLRetriever 993
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropPOP3Retriever, Multisorter" {
 _sendmulti
 multisorter_rc MultidropPOP3Retriever 110
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropPOP3SSLRetriever, Multisorter" {
 _sendmulti
 multisorter_rc MultidropPOP3SSLRetriever 995
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropIMAPRetriever, Multisorter" {
 _sendmulti
 multisorter_rc MultidropIMAPRetriever 143
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 @test "MultidropIMAPSSLRetriever, Multisorter" {
 _sendmulti
 multisorter_rc MultidropIMAPSSLRetriever 993
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 
@@ -649,7 +649,7 @@ _send2 user1@example.test user1@example.test lmtp_rc
 lmtp_rc
 #doveadm purge -A
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 #grep "Subject: lmtp_rc" /var/mail/example.test/user1/cur/*
 }
 @test "MDA lmtp_override_x" {
@@ -657,7 +657,7 @@ _send2 user2@example.test nonexistent-user@example.test lmtp_override_rc
 lmtp_override_rc
 #doveadm purge -A
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 #grep "Subject: lmtp_override_x" /var/mail/example.test/user2/cur/*
 }
 @test "MDA lmtp_override_fallback_x" {
@@ -665,7 +665,7 @@ _send2 user2@example.test nonexistent-user@example.test lmtp_override_fallback_x
 lmtp_override_fallback_rc
 #doveadm purge -A
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 #grep "Subject: lmtp_override_fallback_x" /var/mail/example.test/user1/cur/*
 }
 
@@ -675,57 +675,57 @@ _send
 mkdir -p /home/user1/Mail/{cur,tmp,new}
 imap_rc false "" ""
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 rm -rf /home/user1/Mail/new/*
 # set Seen
 imap_rc true UNSEEN "(\Seen)"
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 # get UNSEEN expect none
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 imap_rc true UNSEEN "(\Seen)"
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -z "$(ls /home/user1/Mail/new)" ]
 # get SEEN expect 1
 imap_rc true SEEN "(\Seen)"
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 # get all expect 1
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 imap_rc true "" ""
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 # mark_read (set SEEN)
 _send
 mark_read_rc
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 # get UNSEEN expect none
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 imap_rc true UNSEEN "(\Seen)"
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 [ -z "$(ls /home/user1/Mail/new)" ]
 # get SEEN expect 1
 imap_rc true SEEN "(\Seen)"
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 # get all expect 1
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 imap_rc true "" ""
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 
@@ -734,48 +734,48 @@ _send
 imap_rc true "" ""
 # "-s," is equivalent to "-s,Seen" so overrides delete=true of config
 getmail --rcfile=getmailrc --getmaildir=/home/user1 -s,
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 #(Unseen \Seen) expect none
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 getmail --rcfile=getmailrc --getmaildir=/home/user1 --searchset UNSEEN --searchset ,SEEN
-sleep 1.9
+sleep 3.14
 [[ "$(grep "$RANDOMTXT" /home/user1/Mail/new/* -l | wc -l)" == "0" ]]
 [ -z "$(ls /home/user1/Mail/new)" ]
 # search example.test expect 1
 getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "FROM \"example.test\" ,SEEN"
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 # search Troms expect 1
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "TEXT \"Troms\" ,SEEN"
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 # search NotThere expect none
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "TEXT \"NotThere\""
-sleep 1.9
+sleep 3.14
 [ -z "$(ls /home/user1/Mail/new)" ]
 # get all expect 1
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "ALL ,SEEN"
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 # get all expect 1
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "ALL"
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 # get all expect none
 rm -rf /home/user1/Mail/new/*
 [ -z "$(ls /home/user1/Mail/new)" ]
 getmail --rcfile=getmailrc --getmaildir=/home/user1 -s "ALL"
-sleep 1.9
+sleep 3.14
 [ -z "$(ls /home/user1/Mail/new)" ]
 }
 
@@ -783,7 +783,7 @@ sleep 1.9
 _send
 maildir_rc POP3 110 true true
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
+sleep 3.14
 BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 echo 'βσSß' | getmail_maildir /home/user1/Mail/
 grep 'βσSß' /home/user1/Mail/new/*
@@ -799,11 +799,11 @@ BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 idle_rc ''
 getmail --rcfile=getmailrc --getmaildir=/home/user1
 swaks --silent --server mail.example.test --from 'user2@example.test' --to 'user1+idle1@example.test' --header 'idle1' --body "idle1_sieve"
-sleep 2.8
+sleep 6.28
 swaks --silent --server mail.example.test --from 'user2@example.test' --to 'user1+idle2@example.test' --header 'idle21' --body "idle2_sieve1"
-sleep 2.8
+sleep 6.28
 swaks --silent --server mail.example.test --from 'user2@example.test' --to 'user1+idle2@example.test' --header 'idle22' --body "idle2_sieve2"
-sleep 2.8
+sleep 6.28
 ls -1a /var/mail/example.test/user1/.idle1/new
 ls -1a /var/mail/example.test/user1/.idle2/new
 i1=$(ls -1a /var/mail/example.test/user1/.idle1/new | wc -l)
@@ -825,11 +825,11 @@ gi=$(ls -1A /home/user1/Mail/new | wc -l)
 idle_rc ''
 getmail --rcfile=getmailrc --getmaildir=/home/user1
 swaks --silent --server mail.example.test --from 'user2@example.test' --to 'user1+idle1@example.test' --header 'idle1' --body "idle1_sieve"
-sleep 2.8
+sleep 6.28
 swaks --silent --server mail.example.test --from 'user2@example.test' --to 'user1+idle2@example.test' --header 'idle21' --body "idle2_sieve1"
-sleep 2.8
+sleep 6.28
 swaks --silent --server mail.example.test --from 'user2@example.test' --to 'user1+idle2@example.test' --header 'idle22' --body "idle2_sieve2"
-sleep 2.8
+sleep 6.28
 i1=$(ls -1a /var/mail/example.test/user1/.idle1/new | wc -l)
 #echo i1=$i1 >&2
 i2=$(ls -1a /var/mail/example.test/user1/.idle2/new | wc -l)
@@ -848,13 +848,13 @@ gi=$(ls -1A /home/user1/Mail/new | wc -l)
 @test "idleidle" {
 idle_rc ''
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 2.8
+sleep 6.28
 swaks --silent --server mail.example.test --from 'user2@example.test' --to 'user1+idle1@example.test' --header 'idle1' --body "idle1_sieve"
-sleep 2.8
+sleep 6.28
 swaks --silent --server mail.example.test --from 'user2@example.test' --to 'user1+idle2@example.test' --header 'idle21' --body "idle2_sieve1"
-sleep 2.8
+sleep 6.28
 swaks --silent --server mail.example.test --from 'user2@example.test' --to 'user1+idle2@example.test' --header 'idle22' --body "idle2_sieve2"
-sleep 2.8
+sleep 6.28
 i1=$(ls -1a /var/mail/example.test/user1/.idle1/new | wc -l)
 # echo i1=$i1 >&2
 i2=$(ls -1a /var/mail/example.test/user1/.idle2/new | wc -l)
