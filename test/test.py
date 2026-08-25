@@ -215,3 +215,61 @@ def test_lmtp_no_infinite_retry(clean_logger):
         # Exactly two send attempts: initial + one retry (no further retries)
         assert mock_server.send_message.call_count == 2
 
+
+
+from getmailcore._retrieverbases import IMAPRetrieverBase
+
+
+def _make_imap_retriever():
+    r = IMAPRetrieverBase.__new__(IMAPRetrieverBase)
+    r.log = mock.MagicMock()
+    r.conf = {'record_mailbox': False}
+    r.conn = mock.MagicMock()
+    r.conn.capabilities = []
+    r._getmboxuidbymsgid = lambda msgid: b'1'
+    return r
+
+
+def test_getmsgpartbyid_skips_unsolicited_response():
+    """Regression test for issue #278.
+
+    When delete=true, the IMAP server may send an unsolicited FLAGS
+    response (plain bytes) ahead of the real (metadata, body) FETCH
+    tuple. Naively taking response[0][1] indexes into those bytes and
+    returns an int instead of the message body, crashing downstream
+    with AttributeError. The retriever should skip such entries and
+    find the actual (metadata, body) tuple wherever it appears.
+    """
+    r = _make_imap_retriever()
+    r._parse_imapuidcmdresponse = lambda cmd, *args: [
+        b'1 (FLAGS (\\Seen \\Deleted))',
+        (b'1 (UID 1 RFC822 {35}', b'Return-Path: <a@b.com>\r\n\r\nbody'),
+    ]
+
+    msg = r._getmsgpartbyid('1', '(RFC822)')
+
+    assert msg.content()['Return-Path'] == '<a@b.com>'
+
+
+def test_getmsgpartbyid_normal_response_unaffected():
+    """Control: a well-formed response (no unsolicited entries) still works."""
+    r = _make_imap_retriever()
+    r._parse_imapuidcmdresponse = lambda cmd, *args: [
+        (b'1 (UID 1 RFC822 {35}', b'Return-Path: <c@d.com>\r\n\r\nbody'),
+        b')',
+    ]
+
+    msg = r._getmsgpartbyid('1', '(RFC822)')
+
+    assert msg.content()['Return-Path'] == '<c@d.com>'
+
+
+def test_getmsgpartbyid_no_body_raises_retrieval_error():
+    """Control: if no entry has a usable body, a getmailRetrievalError is raised."""
+    r = _make_imap_retriever()
+    r._parse_imapuidcmdresponse = lambda cmd, *args: [
+        b'1 (FLAGS (\\Seen \\Deleted))',
+    ]
+
+    with pytest.raises(getmailRetrievalError):
+        r._getmsgpartbyid('1', '(RFC822)')

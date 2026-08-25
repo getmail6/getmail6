@@ -1830,7 +1830,21 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             # message when requested.
             try:
                 try:
-                    sbody = response[0][1]
+                    # response is a list of IMAP FETCH response items. Most
+                    # entries are (metadata, message-body) tuples, but the
+                    # server may also interleave unsolicited responses (e.g.
+                    # a FLAGS update sent right after a STORE for delete=true)
+                    # as plain bytes instead of a tuple.  Blindly taking
+                    # response[0][1] can therefore pick up an unsolicited
+                    # response and index into raw bytes, yielding an int
+                    # instead of the message body.  Find the first entry
+                    # that actually looks like a (metadata, body) tuple.
+                    sbody = next(
+                        (item[1] for item in response
+                         if isinstance(item, tuple) and len(item) > 1
+                         and isinstance(item[1], bytes)),
+                        None
+                    )
                 except Exception as o:
                     sbody = None
                 if not sbody:
