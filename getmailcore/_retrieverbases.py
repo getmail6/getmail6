@@ -1829,31 +1829,32 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             # (virus, spam, trojan), it can completely fail to return the
             # message when requested.
             try:
-                try:
-                    # response is a list of IMAP FETCH response items. Most
-                    # entries are (metadata, message-body) tuples, but the
-                    # server may also interleave unsolicited responses (e.g.
-                    # a FLAGS update sent right after a STORE for delete=true)
-                    # as plain bytes instead of a tuple.  Blindly taking
-                    # response[0][1] can therefore pick up an unsolicited
-                    # response and index into raw bytes, yielding an int
-                    # instead of the message body.  Find the first entry
-                    # that actually looks like a (metadata, body) tuple.
-                    sbody = next(
-                        (item[1] for item in response
-                         if isinstance(item, tuple) and len(item) > 1
-                         and isinstance(item[1], bytes)),
-                        None
-                    )
-                except Exception as o:
-                    sbody = None
-                if not sbody:
-                    raise getmailRetrievalError('bad message from server!')
+                # response is a list of IMAP FETCH response items. Most
+                # entries are (metadata, message-body) tuples, but the
+                # server may also interleave unsolicited responses (e.g.
+                # a FLAGS update sent right after a STORE for delete=true)
+                # as plain bytes instead of a tuple.  Blindly taking
+                # response[0][1] can therefore pick up an unsolicited
+                # response and index into raw bytes, yielding an int
+                # instead of the message body.  Find the first entry
+                # that actually looks like a (metadata, body) tuple.
+                sbody = next(
+                    (item[1] for item in response
+                        if isinstance(item, tuple) and len(item) > 1), None)
+                if sbody is None:
+                    if response[0] is None:
+                        raise getmailRetrievalError('failed to retrieve msgid %s'
+                                                % msgid)
+                    if isinstance(response[0],bytes) and b'FLAGS' in response[0]:
+                        raise getmailRetrievalError(
+                            'FLAGS response for %s FETCH request can happen!'%msgid)
+                    raise getmailRetrievalError(
+                        'bad message from server for msgid %s'%msgid)
                 msg = Message(fromstring=sbody)
-            except TypeError as o:
-                # response[0] is None instead of a message tuple
-                raise getmailRetrievalError('failed to retrieve msgid %s'
-                                            % msgid)
+            except Exception as o:
+                # catch all as we must either return msg or raise getmailRetrievalError
+                raise getmailRetrievalError(
+                    'bad message from server for msgid %s: %s'%(msgid, o))
 
             # record mailbox retrieved from in a header
             if self.conf['record_mailbox']:

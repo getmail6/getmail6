@@ -273,3 +273,16 @@ def test_getmsgpartbyid_no_body_raises_retrieval_error():
 
     with pytest.raises(getmailRetrievalError):
         r._getmsgpartbyid('1', '(RFC822)')
+
+
+def test_getmsgpartbyid_response_bad():
+    """Control: if somthing was retrieved let Message raise."""
+    r = _make_imap_retriever()
+    r._parse_imapuidcmdresponse = lambda cmd, *args: [
+        ('1 ()', '?'),
+        ')',
+    ]
+    with pytest.raises(getmailRetrievalError):
+        r._getmsgpartbyid('1', '(RFC822)')
+
+
