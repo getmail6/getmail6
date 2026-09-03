@@ -1508,6 +1508,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             for x in resplist)
 
     def close_mailbox(self):
+        self.log.debug('closing mailbox "%s"' % self.mailbox_selected + os.linesep)
         # Close current mailbox so deleted mail is expunged.  One getmail
         # user had a buggy IMAP server that didn't do the automatic expunge,
         # so we do it explicitly here if we've deleted any messages.
