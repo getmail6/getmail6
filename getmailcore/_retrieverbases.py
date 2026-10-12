@@ -1116,6 +1116,7 @@ class POP3RetrieverBase(RetrieverSkeleton):
                     # detect old-style oldmail files.  Shouldn't occur in POP3
                     # anyway.
                     msgid = msgid.replace('/', '-')
+                    msgnum = int(msgnum)
                 except ValueError:
                     # Line didn't contain two tokens.  Server is broken.
                     raise getmailOperationError(
@@ -1124,7 +1125,6 @@ class POP3RetrieverBase(RetrieverSkeleton):
                         'BrokenUIDLPOP3Retriever instead'
                         % (self, i)
                     )
-                msgnum = int(msgnum)
                 if msgid in self.msgnum_by_msgid:
                     # UIDL "unique" identifiers weren't unique.
                     # Server is broken.
@@ -1149,8 +1149,15 @@ class POP3RetrieverBase(RetrieverSkeleton):
             (_, msglist, _) = self.conn.list()
             for line in msglist:
                 tostrline = line.decode()
-                msgnum = int(tostrline.split()[0])
-                msgsize = int(tostrline.split()[1])
+                try:
+                    msgnum = int(tostrline.split()[0])
+                    msgsize = int(tostrline.split()[1])
+                except (ValueError, IndexError):
+                    # Line didn't contain two numbers.  Server is broken.
+                    raise getmailOperationError(
+                        '%s failed to identify message number and size '
+                        'in LIST output (%s)' % (self, tostrline)
+                    )
                 msgid = self.msgid_by_msgnum.get(msgnum, None)
                 # If no msgid found, it's a message that wasn't in the UIDL
                 # response above.  Ignore it and we'll get it next time.

@@ -156,8 +156,15 @@ class BrokenUIDLPOP3RetrieverBase(POP3RetrieverBase):
         try:
             (_, msglist, _) = self.conn.list()
             for line in msglist:
-                msgnum = int(line.split()[0])
-                msgsize = int(line.split()[1])
+                try:
+                    msgnum = int(line.split()[0])
+                    msgsize = int(line.split()[1])
+                except (ValueError, IndexError):
+                    # Line didn't contain two numbers.  Server is broken.
+                    raise getmailOperationError(
+                        '%s failed to identify message number and size '
+                        'in LIST output (%s)' % (self, line.decode())
+                    )
                 self.msgnum_by_msgid[msgnum] = msgnum
                 self.msgid_by_msgnum[msgnum] = msgnum
                 self.msgsizes[msgnum] = msgsize
