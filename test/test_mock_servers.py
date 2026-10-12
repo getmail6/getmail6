@@ -201,6 +201,94 @@ def test_pop3(destination_type, destination_init):
         p.join()
 
 
+def pop3_rcfile(tmpdir, name, retriever_type, mock_tcp):
+    maildir = f"{tmpdir}/{name}/"
+    for d in ("cur", "new", "tmp"):
+        os.makedirs(f"{maildir}{d}")
+    with open(f"{tmpdir}/{name}rc", "w") as f:
+        f.write(
+            textwrap.dedent(
+                f"""
+                [retriever]
+                type = {retriever_type}
+                server = 127.0.0.1
+                port = {mock_tcp.server.getsockname()[1]}
+                username = account_name
+                password = my_mail_password
+
+                [destination]
+                type = Maildir
+                path = {maildir}
+                """
+            )
+        )
+    return maildir
+
+
+def pop3_login(mock_tcp):
+    mock_tcp.accept()
+    mock_tcp.send("+OK:\n")
+    mock_tcp.expect("USER account_name")
+    mock_tcp.send("+OK:\n")
+    mock_tcp.expect("PASS my_mail_password")
+    mock_tcp.send("+OK:\n")
+
+
+@pytest.mark.parametrize("retriever_type,replies".split(','), [
+    # UIDL line with a message number that is not a number
+    ("SimplePOP3Retriever", (("UIDL", "+OK\nabc def\n.\n"),)),
+    # LIST line with a size that is not a number
+    ("SimplePOP3Retriever", (("UIDL", pop3_uidl(("uid-1",))),
+                             ("LIST", "+OK\n1 abc\n.\n"))),
+    # LIST line without a size
+    ("SimplePOP3Retriever", (("UIDL", pop3_uidl(("uid-1",))),
+                             ("LIST", "+OK\n1\n.\n"))),
+    ("BrokenUIDLPOP3Retriever", (("LIST", "+OK\n1 abc\n.\n"),)),
+    ("BrokenUIDLPOP3Retriever", (("LIST", "+OK\n1\n.\n"),)),
+])
+def test_pop3_malformed_msglist(retriever_type, replies):
+    """A malformed UIDL/LIST response must not stop the other accounts."""
+    bad_tcp = MockTCP()
+    good_tcp = MockTCP()
+    for mock_tcp in (bad_tcp, good_tcp):
+        mock_tcp.server.settimeout(10)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        pop3_rcfile(tmpdir, "bad", retriever_type, bad_tcp)
+        good_maildir = pop3_rcfile(tmpdir, "good", "SimplePOP3Retriever", good_tcp)
+        sys.argv = ["getmail", "--getmaildir", tmpdir,
+                    "--rcfile", "badrc", "--rcfile", "goodrc"]
+        p = multiprocessing.Process(target=get_getmail, args=())
+        p.start()
+
+        pop3_login(bad_tcp)
+        for command, reply in replies:
+            bad_tcp.expect(command)
+            bad_tcp.send(reply)
+        bad_tcp.expect("RSET")
+        bad_tcp.send("+OK:\n")
+        bad_tcp.expect("QUIT")
+        bad_tcp.send("+OK:")
+        bad_tcp.close()
+
+        pop3_login(good_tcp)
+        uidls = ("293c295a-1295-4783-9340-13f5b2b02fb6",)
+        for _ in range(2):
+            good_tcp.expect("UIDL")
+            good_tcp.send(pop3_uidl(uidls))
+            good_tcp.expect("LIST")
+            good_tcp.send(pop3_list((1,)))
+        good_tcp.expect("RETR 1")
+        good_tcp.send(pop3_retr(generate_email()))
+        good_tcp.expect("QUIT")
+        good_tcp.send("+OK:")
+        good_tcp.close()
+        p.join()
+
+        assert len(os.listdir(f"{good_maildir}new")) == 1
+        # the failed account is reported, but not as an unhandled exception
+        assert p.exitcode == 127
+
+
 @pytest.mark.parametrize("destination_type,destination_init".split(','),
                          [("Mboxrd", mbox_init),
                           ("Maildir", maildir_init),
