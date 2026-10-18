@@ -1,3 +1,12 @@
+"""
+pytest -s -k test_pop3
+pytest -s -k test_malformed_msglist_pop3
+pytest -s -k test_broken_uidl_pop3
+pytest -s -k test_multidrop_pop3
+pytest -s -k test_imap
+pytest -s -k test_full_imap
+"""
+
 import multiprocessing
 from importlib.util import spec_from_loader, module_from_spec
 from importlib.machinery import SourceFileLoader
@@ -11,6 +20,13 @@ import re
 from typing import NamedTuple
 import pytest
 import email.message
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.INFO)
+logger.setLevel(logging.ERROR)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+info = logger.info
 
 class FetchSize(NamedTuple):
     uid: int
@@ -100,6 +116,7 @@ class MockTCP:
 
     def expect(self, expr):
         buf = self.socket.recv(1024).decode("utf8")
+        info(buf)
         m = re.match(expr, buf)
         assert m, f"{expr} != {buf}"
         return m
@@ -246,7 +263,7 @@ def pop3_login(mock_tcp):
     ("BrokenUIDLPOP3Retriever", (("LIST", "+OK\n1 abc\n.\n"),)),
     ("BrokenUIDLPOP3Retriever", (("LIST", "+OK\n1\n.\n"),)),
 ])
-def test_pop3_malformed_msglist(retriever_type, replies):
+def test_malformed_msglist_pop3(retriever_type, replies):
     """A malformed UIDL/LIST response must not stop the other accounts."""
     bad_tcp = MockTCP()
     good_tcp = MockTCP()
@@ -293,7 +310,7 @@ def test_pop3_malformed_msglist(retriever_type, replies):
                          [("Mboxrd", mbox_init),
                           ("Maildir", maildir_init),
                           ("MDA_external", mda_external_init)])
-def test_pop3_broken_uidl(destination_type, destination_init):
+def test_broken_uidl_pop3(destination_type, destination_init):
     mock_tcp = MockTCP()
     with tempfile.TemporaryDirectory() as tmpdir:
         sys.argv = ["getmail", "--getmaildir", tmpdir]
@@ -370,7 +387,7 @@ def multisort_init(tmpdir):
                          [("MDA_qmaillocal", qmail_init),
                           ("MultiDestination", multidest_init),
                           ("MultiSorter", multisort_init)])
-def test_pop3_multidrop(destination_type, destination_init):
+def test_multidrop_pop3(destination_type, destination_init):
     mock_tcp = MockTCP()
     with tempfile.TemporaryDirectory() as tmpdir:
         sys.argv = ["getmail", "--getmaildir", tmpdir]
@@ -457,6 +474,8 @@ def test_imap(destination_type, destination_init):
         mock_tcp.send(imap_reply_login(tag))
         tag = mock_tcp.expect("([^ ]*) CAPABILITY").group(1)
         mock_tcp.send(imap_reply_capability(tag))
+        tag = mock_tcp.expect("([^ ]*) CAPABILITY").group(1)
+        mock_tcp.send(imap_reply_capability(tag))
         tag = mock_tcp.expect("([^ ]*) EXAMINE INBOX").group(1)
         mock_tcp.send(imap_reply_examine_inbox(tag, exists=2, uidvalidity=1))
         tag = mock_tcp.expect(r"([^ ]*) FETCH 1:2 \(UID RFC822.SIZE\)").group(1)
@@ -473,7 +492,7 @@ def test_imap(destination_type, destination_init):
         p.join()
 
 
-def test_imap_full():
+def test_full_imap():
     mock_tcp = MockTCP()
     with tempfile.TemporaryDirectory() as tmpdir:
         sys.argv = ["getmail", "--getmaildir", tmpdir]
@@ -512,6 +531,8 @@ def test_imap_full():
         mock_tcp.send(imap_reply_capability(tag))
         tag = mock_tcp.expect('([^ ]*) LOGIN account_name "my_mail_password"').group(1)
         mock_tcp.send(imap_reply_login(tag))
+        tag = mock_tcp.expect("([^ ]*) CAPABILITY").group(1)
+        mock_tcp.send(imap_reply_capability(tag))
         tag = mock_tcp.expect("([^ ]*) CAPABILITY").group(1)
         mock_tcp.send(imap_reply_capability(tag))
         tag = mock_tcp.expect("([^ ]*) LIST  *").group(1)
