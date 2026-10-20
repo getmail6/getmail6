@@ -2044,6 +2044,10 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         self.select_quoted(idle_mailbox)
         tag = self.conn._command('IDLE')
         data = self.conn._get_response() # read continuation response
+        # Consume server-push untagged responses (e.g. * FLAGS) that may
+        # arrive between the IDLE command and the '+ idling' continuation.
+        while data is not None and data[:1] == b'*':
+            data = self.conn._get_response()
 
         if data is not None:
             raise getmailOperationError(
