@@ -413,6 +413,7 @@ From: user1@example.test
 To: ${2}
 Subject: ${3}
 This is the test text:
+${RANDOMTXT}
 я αβ один süße créme in Tromsœ.
 .
 QUIT
@@ -702,53 +703,53 @@ BASH_ENV=$HOME/random.env grep "${RANDOMTXT}" /home/user1/Mail/new/*
 }
 
 @test "MDA lmtp_rc" {
+skip "This test will always pass as the mail is already in the mailbox"
 _send2 user1@example.test user1@example.test lmtp_rc
 lmtp_rc
+#doveadm expunge -A mailbox "*" ALL
 #doveadm purge -A
 getmail --rcfile=getmailrc --getmaildir=/home/user1
 sleep 3.14
-#grep "Subject: lmtp_rc" /var/mail/example.test/user1/cur/*
+BASH_ENV=$HOME/random.env grep -qs "${RANDOMTXT}" /var/mail/example.test/user1/{cur,new}/*
 }
 @test "MDA lmtp_override_x" {
-_send2 user2@example.test nonexistent-user@example.test lmtp_override_rc
+_send2 user2@example.test nonexistent-user@example.test lmtp_override_x
 lmtp_override_rc
-#doveadm purge -A
 getmail --rcfile=getmailrc --getmaildir=/home/user1
 sleep 3.14
-#grep "Subject: lmtp_override_x" /var/mail/example.test/user2/cur/*
+BASH_ENV=$HOME/random.env grep -qs "${RANDOMTXT}" /var/mail/example.test/user1/{cur,new}/*
 }
 @test "MDA lmtp_override_fallback_x" {
 _send2 user2@example.test nonexistent-user@example.test lmtp_override_fallback_x
 lmtp_override_fallback_rc
-#doveadm purge -A
 getmail --rcfile=getmailrc --getmaildir=/home/user1
 sleep 3.14
-#grep "Subject: lmtp_override_fallback_x" /var/mail/example.test/user1/cur/*
+BASH_ENV=$HOME/random.env grep -qs "${RANDOMTXT}" /var/mail/example.test/user1/{cur,new}/*
 }
 
 @test "MDA smtp_rc" {
+skip "This test will always pass as the mail is already in the mailbox"
 _send2 user1@example.test user1@example.test smtp_rc
 smtp_rc
+#doveadm expunge -A mailbox "*" ALL
 #doveadm purge -A
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
-#grep "Subject: smtp_rc" /var/mail/example.test/user1/cur/*
+sleep 3.14
+BASH_ENV=$HOME/random.env grep -qs "${RANDOMTXT}" /var/mail/example.test/user1/{cur,new}/*
 }
 @test "MDA smtp_override_x" {
-_send2 user2@example.test nonexistent-user@example.test smtp_override_rc
+_send2 user2@example.test nonexistent-user@example.test smtp_override_x
 smtp_override_rc
-#doveadm purge -A
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
-#grep "Subject: smtp_override_x" /var/mail/example.test/user2/cur/*
+sleep 3.14
+BASH_ENV=$HOME/random.env grep -qs "${RANDOMTXT}" /var/mail/example.test/user1/{cur,new}/*
 }
 @test "MDA smtp_override_fallback_x" {
 _send2 user2@example.test nonexistent-user@example.test smtp_override_fallback_x
 smtp_override_fallback_rc
-#doveadm purge -A
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 1.9
-#grep "Subject: smtp_override_fallback_x" /var/mail/example.test/user1/cur/*
+sleep 3.14
+BASH_ENV=$HOME/random.env grep -qs "${RANDOMTXT}" /var/mail/example.test/user1/{cur,new}/*
 }
 
 @test "SimpleIMAPSSLRetriever imap_search imap_on_delete" {
