@@ -1,7 +1,15 @@
+Version 6.20.02
+21.October.2026
+    - merge #286 Add MDA_smtp destination for SMTP delivery
+    - fix #285, --idle exits 127 on untagged response before IDLE, as suggested, by looping untagged responses
+    - merge #284 from syahra712/fix/pop3-malformed-msglist to fix #277: make malformed POP3 UIDL/LIST abort only the affected account
+    - merge #279 fixing #278 crash when unsolicited IMAP FLAGS response precedes FETCH body (delete=true)
+
 Version 6.20.01
 18.Aug.2026
     - fix 276 Getmail fails to run on Python 3.14.7
     - fix #275 by individual FETCH of each entry in imap_search result
+
 Version 6.20.00
 15.June.2026
     - Merge pull request #262 from jperryhouts/fixup-retry-lmtp (Fix mangled function arg)
