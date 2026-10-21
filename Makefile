@@ -77,12 +77,12 @@ up: dist
 # https://github.com/getmail6/getmail6
 .PHONY: tag
 tag: dist docrepo
-	echo v$(./getmail --version | cut -d ' ' -f 2)
-	git commit -am v$(./getmail --version | cut -d ' ' -f 2) || true
+	echo v$$(./getmail --version | cut -d ' ' -f 2)
+	git commit -am v$$(./getmail --version | cut -d ' ' -f 2) || true
 	git push || true
-	git tag -s v$(./getmail --version | cut -d ' ' -f 2) -m v$(./getmail --version | cut -d ' ' -f 2)
-	git verify-tag v$(./getmail --version | cut -d ' ' -f 2)
-	git push origin v$(./getmail --version | cut -d ' ' -f 2) --follow-tags
+	git tag -s v$$(./getmail --version | cut -d ' ' -f 2) -m v$$(./getmail --version | cut -d ' ' -f 2)
+	git verify-tag v$$(./getmail --version | cut -d ' ' -f 2)
+	git push origin v$$(./getmail --version | cut -d ' ' -f 2) --follow-tags
 
 .PHONY: cleandocker
 cleandocker:
