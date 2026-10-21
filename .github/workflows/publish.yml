@@ -28,12 +28,15 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python 3.13
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.13"
 
       - name: Make sure tag matches version
         run: "[[ $(git describe --tags --exact-match) = v$(python -c 'import getmailcore ; print(getmailcore.__version__)') ]]"
+
+      - name: Prepare Build
+        run: pip install -r requirements-dev.txt
 
       - name: Build project
         run: |

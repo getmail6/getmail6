@@ -17,8 +17,8 @@ dockertest:
 
 .PHONY: fortest
 fortest:
+	pip install -r requirements-dev.txt
 	pip install -e .
-	pip install pytest
 
 .PHONY: unittests
 unittests: fortest
@@ -28,8 +28,7 @@ unittests: fortest
 venvtest:
 	uv venv --python 3.14.7 --clear; \
 	. ./.venv/bin/activate; \
-	uv pip install pytest --python ./.venv/bin/python; \
-	uv pip install -e . --python ./.venv/bin/python; \
+	uv pip install -r requirements-dev.txt --python ./.venv/bin/python; \
 	python -m pytest test/test.py test/test_mock_servers.py
 
 .PHONY: test
@@ -51,7 +50,7 @@ check: lint
 
 .PHONY: dist
 dist: doc
-	python setup.py bdist_wheel sdist # python -m build # -m build not not working with publish.yml
+	python -m build
 
 .PHONY: docrepo
 docrepo: # update https://github.com/getmail6/getmail6.github.io

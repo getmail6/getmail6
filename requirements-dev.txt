@@ -1,0 +1,4 @@
+pytest
+build
+codespell
+ruff
