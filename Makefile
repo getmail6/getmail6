@@ -51,8 +51,7 @@ check: lint
 
 .PHONY: dist
 dist: doc
-	echo "need sudo to create wheel"
-	python -m build --wheel
+	python setup.py bdist_wheel sdist # python -m build # -m build not not working with publish.yml
 
 .PHONY: docrepo
 docrepo: # update https://github.com/getmail6/getmail6.github.io
@@ -67,11 +66,11 @@ docrepo: # update https://github.com/getmail6/getmail6.github.io
 # .github/workflows/publish6.yml
 .PHONY: up6
 up6: dist
-	twine upload dist/`ls dist -rt *.whl | tail -1` dist/`ls dist -rt *.tar.gz | tail -1` -u__token__ -p`pass show pypi.org/getmail6_api_token`
+	twine upload --verbose `ls dist/*whl -rt | tail -1` `ls dist/*.tar.gz -rt | tail -1` -u__token__ -p`pass show pypi.org/getmail6_api_token`
 
 .PHONY: up
 up: dist
-	twine upload dist/`ls dist -rt *.whl | tail -1` dist/`ls dist -rt *.tar.gz | tail -1` -u__token__ -p`pass show pypi.org/getmail_api_token`
+	twine upload --verbose `ls dist/*.whl -rt | tail -1` `ls dist/*.tar.gz -rt | tail -1` -u__token__ -p`pass show pypi.org/getmail_api_token`
 
 # "make doc" and commit all changes then run "make tag". Then, to make the release go to
 # https://github.com/getmail6/getmail6
