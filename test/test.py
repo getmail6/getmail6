@@ -5,7 +5,7 @@ import unittest.mock as mock
 
 from getmailcore.message import Message
 from getmailcore.exceptions import *
-from getmailcore.destinations import MDA_lmtp
+from getmailcore.destinations import MDA_lmtp, MDA_smtp
 import getmailcore.logging as getmail_logging
 
 import os, smtplib, ssl
@@ -216,6 +216,74 @@ def test_lmtp_no_infinite_retry(clean_logger):
         assert mock_server.send_message.call_count == 2
 
 
+def _make_smtp_msg(sender='sender@example.com', recipient='recipient@example.com'):
+    msg = mock.MagicMock()
+    msg.sender = sender
+    msg.recipient = recipient
+    return msg
+
+
+def test_smtp_successful_delivery():
+    with mock.patch('smtplib.SMTP') as mock_smtp_cls:
+        mock_server = mock.MagicMock()
+        mock_smtp_cls.return_value = mock_server
+        mock_server.send_message.return_value = {}
+
+        dest = MDA_smtp(host='localhost', port=25)
+        dest._deliver_message(_make_smtp_msg(), True, True)
+
+        mock_smtp_cls.assert_called_once_with('localhost', 25)
+        mock_server.send_message.assert_called_once()
+
+
+def test_smtp_retry_on_disconnected(clean_logger):
+    with mock.patch('smtplib.SMTP') as mock_smtp_cls:
+        mock_server = mock.MagicMock()
+        mock_smtp_cls.return_value = mock_server
+        mock_server.send_message.side_effect = [
+            smtplib.SMTPServerDisconnected('connection lost'),
+            {},
+        ]
+
+        dest = MDA_smtp(host='localhost', port=25)
+        dest._deliver_message(_make_smtp_msg(), True, True)
+
+        # Initial connect in initialize() + one reconnect on retry
+        assert mock_smtp_cls.call_count == 2
+        assert mock_server.send_message.call_count == 2
+
+
+def test_smtp_retry_on_sender_refused(clean_logger):
+    with mock.patch('smtplib.SMTP') as mock_smtp_cls:
+        mock_server = mock.MagicMock()
+        mock_smtp_cls.return_value = mock_server
+        mock_server.send_message.side_effect = [
+            smtplib.SMTPSenderRefused(550, b'Sender refused', b'sender@example.com'),
+            {},
+        ]
+
+        dest = MDA_smtp(host='localhost', port=25)
+        dest._deliver_message(_make_smtp_msg(), True, True)
+
+        assert mock_smtp_cls.call_count == 2
+        assert mock_server.send_message.call_count == 2
+
+
+def test_smtp_no_infinite_retry(clean_logger):
+    with mock.patch('smtplib.SMTP') as mock_smtp_cls:
+        mock_server = mock.MagicMock()
+        mock_smtp_cls.return_value = mock_server
+        mock_server.send_message.side_effect = smtplib.SMTPServerDisconnected('connection lost')
+
+        dest = MDA_smtp(host='localhost', port=25)
+
+        with pytest.raises(smtplib.SMTPServerDisconnected):
+            dest._deliver_message(_make_smtp_msg(), True, True)
+
+        # Exactly two send attempts: initial + one retry (no further retries)
+        assert mock_server.send_message.call_count == 2
+
+
 
 from getmailcore._retrieverbases import IMAPRetrieverBase
 
@@ -284,5 +352,4 @@ def test_getmsgpartbyid_response_bad():
     ]
     with pytest.raises(getmailRetrievalError):
         r._getmsgpartbyid('1', '(RFC822)')
-
 

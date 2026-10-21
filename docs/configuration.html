@@ -96,6 +96,7 @@ Please refer to the git history regarding who changed what and when in this file
                     <li><a href="configuration.html#destination-mboxrd">Mboxrd</a></li>
                     <li><a href="configuration.html#destination-mdaexternal">MDA_external</a></li>
                     <li><a href="configuration.html#destination-mdalmtp">MDA_lmtp</a></li>
+                    <li><a href="configuration.html#destination-mtasmtp">MDA_smtp</a></li>
                     <li><a href="configuration.html#destination-multidestination">MultiDestination</a></li>
                     <li><a href="configuration.html#destination-multisorter">MultiSorter</a></li>
                     <li><a href="configuration.html#destination-multiguesser">MultiGuesser</a></li>
@@ -1513,6 +1514,10 @@ envelope_recipient = delivered-to:1
         &mdash; deliver messages to an external MDA via the LMTP protocol.
     </li>
     <li>
+        <a href="#destination-mtasmtp">MDA_smtp</a>
+        &mdash; deliver messages to an external MTA via the SMTP protocol.
+    </li>
+    <li>
         <a href="#destination-multidestination">MultiDestination</a>
         &mdash; unconditionally deliver messages to multiple destinations
         (maildirs, mbox files, external MDAs, or other destinations).
@@ -1906,6 +1911,77 @@ port = 3333
 <pre class="example">
 [destination]
 type = MDA_lmtp
+host = mail.example.com
+override = alice
+fallback = bob
+</pre>
+
+<h4 id="destination-mtasmtp">MDA_smtp</h4>
+<p>
+    MDA_smtp delivers messages via SMTP by connecting to a Unix domain or TCP
+    socket. It currently does not support any authentication.
+</p>
+<p>
+    The MDA_smtp destination takes one required parameter:
+</p>
+<ul>
+    <li>
+        host
+        (<a href="#parameter-string">string</a>)
+        &mdash; the host to connect to. Either a DNS-resolvable hostname, an IP
+        address or absolute path to a Unix domain socket.
+    </li>
+</ul>
+<p>
+    The MDA_smtp destination also takes several optional parameters:
+</p>
+<ul>
+    <li>
+        port
+        (<a href="#parameter-integer">integer</a>)
+        &mdash; the remote port to connect to. Ignored if
+        <span class="sample">host</span>
+        is a Unix domain socket.
+    </li>
+    <li>
+        fallback
+        (<a href="#parameter-string">string</a>)
+        &mdash; an alternative recipient address to deliver to in case delivery
+        to the intended recipient fails permanently (i.e. with a 5xx status
+        code).
+    </li>
+    <li>
+        override
+        (<a href="#parameter-string">string</a>)
+        &mdash; deliver mail to an alternative recipient address instead of the
+        one given by the envelope or mail headers. Behaviour of the fallback
+        parameter still applies in case delivery fails.
+    </li>
+</ul>
+<p>
+    A configuration connecting to a remote SMTP Server  might look like this:
+</p>
+<pre class="example">
+[destination]
+type = MDA_smtp
+host = mail.example.com
+</pre>
+<p>
+    Another example delivering to a remote host on a non-standard port:
+</p>
+<pre class="example">
+[destination]
+type = MDA_smtp
+host = mail.example.com
+port = 3333
+</pre>
+<p>
+    An example where each mail is delivered to user <em>alice</em>, but if this
+    fails (i.e. their user quota has been reached) it is delivered to <em>bob</em>:
+</p>
+<pre class="example">
+[destination]
+type = MDA_smtp
 host = mail.example.com
 override = alice
 fallback = bob
