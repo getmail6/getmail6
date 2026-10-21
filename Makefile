@@ -52,7 +52,7 @@ check: lint
 .PHONY: dist
 dist: doc
 	echo "need sudo to create wheel"
-	sudo python setup.py bdist_wheel sdist
+	python -m build --wheel
 
 .PHONY: docrepo
 docrepo: # update https://github.com/getmail6/getmail6.github.io
