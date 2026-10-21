@@ -79,9 +79,9 @@ up: dist
 tag: dist docrepo
 	$(eval TAGMSG="v$(shell ./getmail --version | cut -d ' ' -f 2)")
 	echo $(TAGMSG)
-	git commit -am "$(TAGMSG)"
+	git commit -am $(TAGMSG)
 	git push
-	git tag -s $(TAGMSG) -m"$(TAGMSG)"
+	git tag -s $(TAGMSG) -m $(TAGMSG)
 	git verify-tag $(TAGMSG)
 	git push origin $(TAGMSG) --follow-tags
 
