@@ -1380,6 +1380,8 @@ class IMAPRetrieverBase(RetrieverSkeleton):
 
     def checkconf(self):
         RetrieverSkeleton.checkconf(self)
+        if self.conf['idle_timeout'] <= 0:
+            raise getmailConfigurationError('idle_timeout must be greater than zero')
         if self.conf['use_kerberos'] and not HAVE_KERBEROS_GSS:
             raise getmailConfigurationError(
                 'cannot use kerberos authentication; Python kerberos support '
@@ -2021,7 +2023,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             pass
         self.conn = None
 
-    def go_idle(self, idle_mailbox, timeout=300):
+    def go_idle(self, idle_mailbox, timeout=None):
         """Initiates IMAP's IDLE mode if the server supports it
 
         Waits until state of current mailbox changes, and then returns. Returns
@@ -2030,8 +2032,12 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         May throw getmailOperationError if the server refuses the IDLE setup
         (e.g. if the server does not support IDLE)
 
-        Default timeout is 5 minutes.
+        When timeout is omitted, use the retriever's idle_timeout setting
+        (5 minutes by default). This is independent of the socket timeout.
         """
+
+        if timeout is None:
+            timeout = self.conf['idle_timeout']
 
         if not self.supports_idle:
             self.log.warning('IDLE not supported, so not idling\n')

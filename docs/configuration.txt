@@ -652,6 +652,13 @@ Creating a getmail rc file
 
      * timeout (integer) — see SimplePOP3Retriever for definition.
 
+     * idle_timeout (integer) — maximum time in seconds to wait in IMAP IDLE
+       before ending IDLE and checking for new messages. Must be greater than
+       zero. Default: 300. New-mail notifications can end IDLE earlier. This
+       setting only applies with --idle and does not change the socket timeout.
+       Also supported by the SSL and multidrop IMAP retrievers. For example,
+       idle_timeout = 60 in [retriever] renews IDLE at least once per minute.
+
     SimplePOP3SSLRetriever
 
    The SimplePOP3SSLRetriever class takes the common retriever parameters
