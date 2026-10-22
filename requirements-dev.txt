@@ -1,3 +1,4 @@
+pip
 pytest
 build
 codespell

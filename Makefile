@@ -22,14 +22,15 @@ fortest:
 
 .PHONY: unittests
 unittests: fortest
-	pytest test/test.py test/test_mock_servers.py
+	pytest
 
 .PHONY: venvtest
 venvtest:
 	uv venv --python 3.14.7 --clear; \
-	. ./.venv/bin/activate; \
-	uv pip install -r requirements-dev.txt --python ./.venv/bin/python; \
-	python -m pytest test/test.py test/test_mock_servers.py
+	source ./.venv/bin/activate; \
+	uv pip install -r requirements-dev.txt; \
+	./.venv/bin/python -m pip install -e .; \
+	./.venv/bin/python -m pytest
 
 .PHONY: test
 test: unittests dockertest
