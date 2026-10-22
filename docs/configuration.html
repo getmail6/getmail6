@@ -977,6 +977,18 @@ openssl s_client -showcerts -connect HOST:PORT &lt; /dev/null 2&gt;/dev/null \
     </li>
 </ul>
 
+<p>
+    <span class="file">idle_timeout</span>
+    (<a href="#parameter-integer">integer</a>) specifies the maximum time in
+    seconds to wait in IMAP IDLE before ending IDLE and checking for new
+    messages. It must be greater than zero; the default is 300. New-mail
+    notifications can end IDLE earlier. This setting only applies with
+    <span class="file">--idle</span> and does not change the socket timeout.
+    It is also supported by the SSL and multidrop IMAP retrievers. For example,
+    set <span class="file">idle_timeout = 60</span> in
+    <span class="file">[retriever]</span> to renew IDLE at least once per minute.
+</p>
+
 <h4 id="retriever-simplepop3ssl">SimplePOP3SSLRetriever</h4>
 <p>
     The SimplePOP3SSLRetriever class takes the
