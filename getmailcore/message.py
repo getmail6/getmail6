@@ -168,7 +168,7 @@ class Message(object):
         else:
             fromline = ''
         # Write the Return-Path: header
-        rpline = format_header('Return-Path', '<%s>' % self.sender)
+        rpline = format_header('Return-Path', '<%s>' % self.sender.replace('unknown',''))
         # Remove previous Return-Path: header fields.
         del self.__msg['Return-Path']
         if delivered_to:
