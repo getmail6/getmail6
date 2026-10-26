@@ -200,7 +200,7 @@ def main():
                 'configparser' : instance,
             }
         else:
-            error_exit(4, 'Unknown destination type "%s"' % destination)
+            error_exit(4, 'destination type unknown "%s"' % destination)
 
         try:
             destination = destination_func(**destination_args)

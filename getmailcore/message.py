@@ -46,7 +46,7 @@ def corrupt_message(why, fromlines=None, fromstring=None):
     if fromlines == fromstring == None:
         raise SystemExit('corrupt_message() called with wrong arguments')
     msg = email.message_from_string('')
-    msg['From'] = '"unknown sender" <>'
+    msg['From'] = '<>'
     msg['Subject'] = 'Corrupt message received'
     msg['Date'] = Utils.formatdate(localtime=True)
     body = [
@@ -139,7 +139,7 @@ class Message(object):
 
         self.sender = address_no_brackets(self.__msg['Return-Path']
                                           or self.__msg['Sender']
-                                          or 'unknown')
+                                          or '<>')
 
     def content(self):
         return self.__msg
@@ -168,11 +168,11 @@ class Message(object):
         else:
             fromline = ''
         # Write the Return-Path: header
-        rpline = format_header('Return-Path', '<%s>' % self.sender.replace('unknown',''))
+        rpline = format_header('Return-Path', '<%s>' % self.sender)
         # Remove previous Return-Path: header fields.
         del self.__msg['Return-Path']
         if delivered_to:
-            dtline = format_header('Delivered-To', self.recipient or 'unknown')
+            dtline = format_header('Delivered-To', self.recipient or '<>')
         else:
             dtline = ''
         if received:

@@ -679,7 +679,7 @@ The comma (`,`) gets converted to the IMAP flag char `\`.  A lone `,` is "\Seen"
 
         (options, args) = parser.parse_args(sys.argv[1:])
         if args:
-            raise getmailOperationError('unknown argument(s) %s ; try --help'
+            raise getmailOperationError('argument(s) unknown %s ; try --help'
                                         % args)
 
         if options.trace:

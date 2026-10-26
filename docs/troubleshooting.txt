@@ -313,8 +313,12 @@ Unexpected Behaviour
    field, and the envelope sender in the Return-Path: header field. If this
    information is not available (because you're not using a multidrop
    retriever class, or the MTA on the POP/IMAP server is broken, for
-   example), getmail uses the string "unknown". You can disable the creation
-   of the Delivered-To: header field if you wish.
+   example), getmail before v6.21 used to add the string "<unknown>" and
+   since v6.21 adds "<>". You can disable the creation of the Delivered-To:
+   header field via
+
+ [Options]
+ delivered_to = false
 
   getmail isn't replacing my command argument "%(recipient)" with the message
   recipient address

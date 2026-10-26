@@ -804,7 +804,7 @@ class RetrieverSkeleton(ConfigurableBase):
                                  message is returned as a Message() class
                                  object. The message will have additional data
                                  attributes "sender" and "recipient".  sender
-                                 should be present or "unknown".  recipient
+                                 should be present or "<>".  recipient
                                  should be non-None if (and only if) the
                                  protocol/method of message retrieval preserves
                                  the original message envelope.

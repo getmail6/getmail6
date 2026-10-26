@@ -238,7 +238,7 @@ class Mboxrd(DeliverySkeleton, ForkingBase):
     def initialize(self):
         self.log.trace()
         if self.conf['locktype'] not in ('lockf', 'flock'):
-            raise getmailConfigurationError('unknown mbox lock type: %s'
+            raise getmailConfigurationError('mbox: unknown lock type: %s'
                                             % self.conf['locktype'])
 
     def __str__(self):

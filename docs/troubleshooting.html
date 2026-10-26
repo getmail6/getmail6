@@ -455,10 +455,15 @@ Please refer to the git history regarding who changed what and when in this file
     <span class="file">Return-Path:</span>
     header field.  If this information is not available (because you're not
     using a multidrop retriever class, or the MTA on the POP/IMAP server is
-    broken, for example), getmail uses the string &quot;unknown&quot;.  You can
-    disable the creation of the
+    broken, for example), getmail before v6.21 used to add the string &quot;&lt;unknown&gt;&quot;
+    and since v6.21 adds &quot;&lt;&gt;&quot;.
+    You can disable the creation of the
     <span class="file">Delivered-To:</span>
-    header field if you wish.
+    header field via
+<pre class="example">
+[Options]
+delivered_to = false
+</pre>
 </p>
 
 <h3 id="unexpected-recipient">getmail isn't replacing my command argument &quot;%(recipient)&quot; with the message recipient address</h3>

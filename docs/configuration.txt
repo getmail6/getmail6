@@ -651,13 +651,13 @@ Creating a getmail rc file
    plus the following optional parameters:
 
      * timeout (integer) — see SimplePOP3Retriever for definition.
-
-     * idle_timeout (integer) — maximum time in seconds to wait in IMAP IDLE
-       before ending IDLE and checking for new messages. Must be greater than
-       zero. Default: 300. New-mail notifications can end IDLE earlier. This
-       setting only applies with --idle and does not change the socket timeout.
-       Also supported by the SSL and multidrop IMAP retrievers. For example,
-       idle_timeout = 60 in [retriever] renews IDLE at least once per minute.
+     * idle_timeout (integer) specifies the maximum time in seconds to wait
+       in IMAP IDLE before ending IDLE and checking for new messages. It must
+       be greater than zero; the default is 300. New-mail notifications can
+       end IDLE earlier. This setting only applies with --idle and does not
+       change the socket timeout. It is also supported by the SSL and
+       multidrop IMAP retrievers. For example, set idle_timeout = 60 in
+       [retriever] to renew IDLE at least once per minute.
 
     SimplePOP3SSLRetriever
 
@@ -1590,7 +1590,7 @@ Creating a getmail rc file
        field to the message. If unset, it will not do so. Default: True. Note
        that this field will contain the envelope recipient of the message if
        the retriever in use is a multidrop retriever; otherwise it will
-       contain the string "unknown".
+       contain "<>".
      * received (boolean) — if set, getmail adds a Received: header field to
        the message. If unset, it will not do so. Default: True.
      * message_log (string) — if set, getmail will record a log of its

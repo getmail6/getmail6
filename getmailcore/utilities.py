@@ -97,7 +97,7 @@ osx_keychain_binary = '/usr/bin/security'
 #######################################
 def lock_file(file, locktype):
     '''Do file locking.'''
-    assert locktype in ('lockf', 'flock'), 'unknown lock type %s' % locktype
+    assert locktype in ('lockf', 'flock'), 'lock type unknown %s' % locktype
     if locktype == 'lockf':
         fcntl.lockf(file, fcntl.LOCK_EX)
     elif locktype == 'flock':
@@ -106,7 +106,7 @@ def lock_file(file, locktype):
 #######################################
 def unlock_file(file, locktype):
     '''Do file unlocking.'''
-    assert locktype in ('lockf', 'flock'), 'unknown lock type %s' % locktype
+    assert locktype in ('lockf', 'flock'), 'lock type unknown %s' % locktype
     if locktype == 'lockf':
         fcntl.lockf(file, fcntl.LOCK_UN)
     elif locktype == 'flock':
@@ -544,7 +544,7 @@ def check_ssl_version(conf):
             if v is not None:
                 return v
         raise getmailConfigurationError(
-            'unknown or unsupported ssl_version "%s"' % version
+            'ssl_version unknown or unsupported "%s"' % version
         )
 
     ssl_version = ssl_version.lower()
