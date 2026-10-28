@@ -1,10 +1,10 @@
 Version 6.21.00
-TODO
+28.October.2026
     - Motivated by #289: get rid of legacy "<unknown>" in favor of standard "<>" for the case of unknown sender.
       This introduces a behavior change and might break some #289 workaround.
     - #289: MDA_lmtp / MDA_smtp send MAIL FROM:<unknown> when the message has no Return-Path or Sender
     - #287,#288: Make IMAP IDLE wait configurable per retriever (from thomaswoeckinger:feature/configurable-idle-timeout)
-    - merge #286 Add MDA_smtp destination for SMTP delivery (already 6.20.02 but new feature would have motivated 6.21)
+    - merge #286 Add MDA_smtp destination for SMTP delivery (already 6.20.02 but as new feature it would have motivated 6.21)
 
 Version 6.20.02
 21.October.2026
