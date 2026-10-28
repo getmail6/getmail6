@@ -1,0 +1,97 @@
+Main Request for Comments (RFC) standards for email protocols and formats
+
+Message Format & Structure
+==========================
+
+RFC 5322 – Internet Message Format (structure of email messages, headers like From/To/Subject, and body syntax; obsoletes RFC 2822 and RFC 822)
+https://www.rfc-editor.org/rfc/rfc5322.html
+
+RFC 2045–2047, RFC 2231 – MIME (Multipurpose Internet Mail Extensions: defines media types, non-ASCII attachments, and header parameter extensions)
+https://www.rfc-editor.org/rfc/rfc2045.html
+https://www.rfc-editor.org/rfc/rfc2046.html
+https://www.rfc-editor.org/rfc/rfc2047.html
+https://www.rfc-editor.org/rfc/rfc2231.html
+
+RFC 6530 / RFC 6531 / RFC 6532 – Internationalized Email (framework, SMTP extension, and headers for non-ASCII/Unicode email addresses)
+https://www.rfc-editor.org/rfc/rfc6530.html
+https://www.rfc-editor.org/rfc/rfc6531.html
+https://www.rfc-editor.org/rfc/rfc6532.html
+
+SMTP (Simple Mail Transfer Protocol)
+====================================
+
+RFC 5321 – Simple Mail Transfer Protocol (the core MTA-to-MTA mail transport standard; obsoletes RFC 2821 and RFC 821)
+https://www.rfc-editor.org/rfc/rfc5321.html
+
+RFC 6409 – Message Submission for Mail (rules for mail clients submitting messages to a mail server, usually via port 587)
+https://www.rfc-editor.org/rfc/rfc6409.html
+
+RFC 1870 – SMTP Service Extension for Message Size Declaration (allows servers/clients to declare maximum message sizes)
+https://www.rfc-editor.org/rfc/rfc1870.html
+
+RFC 1652 – SMTP Service Extension for 8bit-MIMEtransport (8BITMIME)
+https://www.rfc-editor.org/rfc/rfc1652.html
+
+LMTP (Local Mail Transfer Protocol)
+===================================
+
+RFC 2033 – Local Mail Transfer Protocol (a variant of SMTP used by mail delivery agents [MDAs] like Dovecot or Cyrus to deliver mail to a local mailbox without single-recipient bounce complexities)
+https://www.rfc-editor.org/rfc/rfc2033.html
+
+POP3 (Post Office Protocol version 3)
+=====================================
+
+RFC 1939 – Post Office Protocol - Version 3 (allows a client to download messages from a server and optionally delete them from the server)
+https://www.rfc-editor.org/rfc/rfc1939.html
+
+RFC 2449 – POP3 Extension Mechanism (defines capability negotiation for POP3)
+https://www.rfc-editor.org/rfc/rfc2449.html
+
+RFC 2595 – Using TLS with IMAP, POP3 and ACAP
+https://www.rfc-editor.org/rfc/rfc2595.html
+
+IMAP (Internet Message Access Protocol)
+=======================================
+
+RFC 9051 – Internet Message Access Protocol (IMAP) (IMAP4rev2, primary standard for managing messages and folders directly on the server; obsoletes RFC 3501/IMAP4rev1)
+https://www.rfc-editor.org/rfc/rfc9051.html
+
+RFC 3501 – INTERNET MESSAGE ACCESS PROTOCOL (predecessor to IMAP4rev2)
+https://www.rfc-editor.org/rfc/rfc3501.html
+
+RFC 6851 – IMAP MOVE Extension (adds an atomic MOVE command)
+https://www.rfc-editor.org/rfc/rfc6851.html
+
+RFC 6855 – IMAP Support for UTF-8
+https://www.rfc-editor.org/rfc/rfc6855.html
+
+RFC 7162 – IMAP Extensions: Quick Flag Changes Resynchronization (CONDSTORE) and QRESYNC
+https://www.rfc-editor.org/rfc/rfc7162.html
+
+RFC 7889 – The IMAP APPENDLIMIT Extension (advertises maximum upload size)
+https://www.rfc-editor.org/rfc/rfc7889.html
+
+JMAP (JSON-based Alternative to IMAP)
+=====================================
+
+RFC 8620 – The JSON Meta Application Protocol (JMAP) for Mail (modern HTTP/JSON API for mail retrieval and management)
+https://www.rfc-editor.org/rfc/rfc8620.html
+
+RFC 8621 – The JSON Meta Application Protocol (JMAP) Data Types for Mail
+https://www.rfc-editor.org/rfc/rfc8621.html
+
+Email Security, Authentication & Filtering
+==========================================
+
+RFC 6376 & RFC 7208 – DKIM and SPF (cryptographic signature verification and sender policy framework via DNS)
+https://www.rfc-editor.org/rfc/rfc6376.html
+
+RFC 7489 & RFC 8617 – DMARC and ARC (policy enforcement combining SPF/DKIM, and chain of custody for forwarded emails)
+https://www.rfc-editor.org/rfc/rfc7489.html
+
+RFC 3207 & RFC 8314 – Transport Layer Security (STARTTLS extensions and obsolete cleartext guidelines)
+https://www.rfc-editor.org/rfc/rfc3207.html
+
+RFC 5228 – Sieve (an email filtering language)
+https://www.rfc-editor.org/rfc/rfc5228.html
+
