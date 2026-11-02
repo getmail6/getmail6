@@ -1521,22 +1521,26 @@ class IMAPRetrieverBase(RetrieverSkeleton):
         # Close current mailbox so deleted mail is expunged.  One getmail
         # user had a buggy IMAP server that didn't do the automatic expunge,
         # so we do it explicitly here if we've deleted any messages.
-        if any(self.deleted):
-            self.conn.expunge()
-        self.write_oldmailfile(self.mailbox_selected)
-        # And clear some state
-        self.mailbox_selected = False
-        self.mailbox = None
-        self.uidvalidity = None
-        self.msgnum_by_msgid = {}
-        self.msgid_by_msgnum = {}
-        self.sorted_msgnum_msgid = ()
-        self._mboxuids = {}
-        self._mboxuidorder = []
-        self.msgsizes = {}
-        self.oldmail = {}
-        self.__delivered = {}
-        self._uidmax = 1
+        try:
+            if any(self.deleted):
+                self.conn.expunge()
+        finally:
+            # Clear the state even if EXPUNGE failed (e.g. the connection
+            # dropped), so a later select_mailbox() on a new connection does
+            # not try to close this mailbox again (#281).
+            self.write_oldmailfile(self.mailbox_selected)
+            self.mailbox_selected = False
+            self.mailbox = None
+            self.uidvalidity = None
+            self.msgnum_by_msgid = {}
+            self.msgid_by_msgnum = {}
+            self.sorted_msgnum_msgid = ()
+            self._mboxuids = {}
+            self._mboxuidorder = []
+            self.msgsizes = {}
+            self.oldmail = {}
+            self.__delivered = {}
+            self._uidmax = 1
         self.conn.close()
 
     def _uidoldfile(self):

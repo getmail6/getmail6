@@ -5,6 +5,7 @@ pytest -s -k test_broken_uidl_pop3
 pytest -s -k test_multidrop_pop3
 pytest -s -k test_imap
 pytest -s -k test_full_imap
+pytest -s -k test_idle_expunge_abort_imap
 """
 
 import multiprocessing
@@ -563,3 +564,74 @@ def test_full_imap():
         mock_tcp.send(imap_reply_logout(tag))
         mock_tcp.close()
         p.join()
+
+
+def imap_idle_login_select(mock_tcp):
+    """Accept a connection, answer CAPABILITY and LOGIN (how many CAPABILITY
+    commands are sent depends on the Python version) and return the tag
+    of the SELECT INBOX command that follows."""
+    mock_tcp.accept()
+    mock_tcp.send("* OK\r\n")
+    while True:
+        m = mock_tcp.expect(r"([^ ]*) (CAPABILITY|LOGIN|SELECT INBOX)")
+        tag, command = m.group(1), m.group(2)
+        if command == "CAPABILITY":
+            mock_tcp.send(f"* CAPABILITY IMAP4 IDLE\r\n{tag} OK hello\r\n")
+        elif command == "LOGIN":
+            mock_tcp.send(imap_reply_login(tag))
+        else:
+            return tag
+
+
+def test_idle_expunge_abort_imap():
+    # #281: the connection drops during EXPUNGE in --idle mode.  getmail
+    # reconnects, and must then select the mailbox again instead of
+    # trying to expunge the mailbox of the dropped session.
+    mock_tcp = MockTCP()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        sys.argv = ["getmail", "--getmaildir", tmpdir, "--idle", "INBOX"]
+        with open(f"{tmpdir}/getmailrc", "w") as f:
+            f.write(
+                textwrap.dedent(
+                    f"""
+                    [options]
+                    delete = true
+
+                    [retriever]
+                    type = SimpleIMAPRetriever
+                    server = 127.0.0.1
+                    port = {mock_tcp.server.getsockname()[1]}
+                    username = account_name
+                    password = my_mail_password
+
+                    [destination]
+                    type = MDA_external
+                    path = /usr/bin/true
+                    """
+                )
+            )
+        p = multiprocessing.Process(target=get_getmail, args=())
+        p.start()
+        try:
+            tag = imap_idle_login_select(mock_tcp)
+            mock_tcp.send(textwrap.dedent(
+                f"""\
+                * 1 EXISTS\r
+                * OK [UIDVALIDITY 1] UIDs valid\r
+                {tag} OK [READ-WRITE] Select completed\r
+                """
+            ))
+            tag = mock_tcp.expect(r"([^ ]*) FETCH 1(:1)? \(UID RFC822.SIZE\)").group(1)
+            mock_tcp.send(imap_reply_fetch_s(tag, 1, (FetchSize(1, 3),)))
+            tag = mock_tcp.expect(r"([^ ]*) UID FETCH 1 \(BODY.PEEK\[]\)").group(1)
+            mock_tcp.send(imap_reply_fetch_body(tag, 1, 1))
+            tag = mock_tcp.expect(r"([^ ]*) UID STORE 1 FLAGS \(\\Deleted \\Seen\)").group(1)
+            mock_tcp.send(f"{tag} OK completed\r\n")
+            mock_tcp.expect(r"([^ ]*) EXPUNGE")
+            # drop the connection instead of answering EXPUNGE
+            mock_tcp.close()
+            imap_idle_login_select(mock_tcp)
+            mock_tcp.close()
+        finally:
+            p.terminate()
+            p.join()
