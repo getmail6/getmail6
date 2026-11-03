@@ -1,3 +1,7 @@
+Version 6.21.01
+03.November.2026
+   - fix #281: clear IMAP mailbox state when EXPUNGE fails in close_mailbox (pull #290 from syahra712/fix-idle-expunge-abort)
+
 Version 6.21.00
 28.October.2026
     - Motivated by #289: get rid of legacy "<unknown>" in favor of standard "<>" for the case of unknown sender.
