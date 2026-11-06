@@ -131,8 +131,10 @@ class updatefile(object):
 
     A new, temporary file is created when this class is instantiated. When the
     object's close() method is called, the file is synced to disk and atomically
-    renamed to replace the original file.  close() is automatically called when
-    the object is deleted.
+    renamed to replace the original file.  If the object is deleted without
+    close() having been called, the writer did not finish (an exception or a
+    signal interrupted it), so the update is abandoned and the original file is
+    left as it was.
     '''
     def __init__(self, filename):
         self.closed = False
@@ -154,15 +156,22 @@ class updatefile(object):
         self.flush = f.flush
 
     def __del__(self):
-        self.close()
+        self.abort()
 
     def abort(self):
+        if self.closed:
+            return
+        self.closed = True
+        if not hasattr(self, 'file'):
+            return
         try:
-            if hasattr(self, 'file'):
-                self.file.close()
+            self.file.close()
         except IOError:
             pass
-        self.closed = True
+        try:
+            os.unlink(self.tmpname)
+        except OSError:
+            pass
 
     def close(self):
         if self.closed or not hasattr(self, 'file'):

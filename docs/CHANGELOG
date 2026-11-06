@@ -1,3 +1,7 @@
+Version 6.21.02
+TODO
+   - fix #291 Interrupted save truncates the oldmail file (applying the provided patch)
+
 Version 6.21.01
 03.November.2026
    - fix #281: clear IMAP mailbox state when EXPUNGE fails in close_mailbox (pull #290 from syahra712/fix-idle-expunge-abort)
