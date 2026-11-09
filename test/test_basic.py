@@ -285,7 +285,7 @@ def test_smtp_no_infinite_retry(clean_logger):
 
 
 
-from getmailcore._retrieverbases import IMAPRetrieverBase
+from getmailcore._retrieverbases import IMAPRetrieverBase, MultidropIMAPRetrieverBase
 
 
 def _make_imap_retriever():
@@ -353,3 +353,23 @@ def test_getmsgpartbyid_response_bad():
     with pytest.raises(getmailRetrievalError):
         r._getmsgpartbyid('1', '(RFC822)')
 
+
+
+@pytest.mark.parametrize(("conf", "expected"), [
+    ("delivered-to:1", "bob@example.com"),
+    ("delivered-to:2", "alice@example.com"),
+])
+def test_multidrop_imap_encoded_envelope_header(conf, expected):
+    # An RFC 2047 encoded word must not split one header into several
+    # occurrences, and the recipient must be text, not bytes.
+    msg = Message(fromstring=(
+        "Delivered-To: =?utf-8?q?Bob?= <bob@example.com>\n"
+        "Delivered-To: alice@example.com\n"
+        "Subject: hi\n\nbody\n").encode())
+    retriever = MultidropIMAPRetrieverBase.__new__(MultidropIMAPRetrieverBase)
+    retriever.log = mock.MagicMock()
+    retriever.conf = {"envelope_recipient": conf}
+    retriever.envrecipname = "delivered-to"
+    retriever.envrecipnum = int(conf.split(":")[1]) - 1
+    with mock.patch.object(IMAPRetrieverBase, "_getmsgbyid", return_value=msg):
+        assert retriever._getmsgbyid("1").recipient == expected

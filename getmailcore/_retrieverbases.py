@@ -2163,12 +2163,21 @@ class MultidropIMAPRetrieverBase(IMAPRetrieverBase):
         data = {}
         for (name, encoded_value) in msg.headers():
             name = name.lower()
-            for (val, encoding) in decode_header(encoded_value):
-                val = val.strip()
-                if name in data:
-                    data[name].append(val)
-                else:
-                    data[name] = [val]
+            # Join the decoded parts so that one header field stays one
+            # occurrence, as text.
+            parts = []
+            for (part, encoding) in decode_header(encoded_value):
+                if isinstance(part, bytes):
+                    try:
+                        part = part.decode(encoding or 'ascii', 'replace')
+                    except LookupError:
+                        part = part.decode('ascii', 'replace')
+                parts.append(part)
+            val = ''.join(parts).strip()
+            if name in data:
+                data[name].append(val)
+            else:
+                data[name] = [val]
 
         try:
             line = data[self.envrecipname][self.envrecipnum]
