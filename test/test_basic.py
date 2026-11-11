@@ -6,6 +6,7 @@ import unittest.mock as mock
 from getmailcore.message import Message
 from getmailcore.exceptions import *
 from getmailcore.destinations import MDA_lmtp, MDA_smtp
+from getmailcore.baseclasses import ConfTupleOfTupleOfStrings
 import getmailcore.logging as getmail_logging
 
 import os, smtplib, ssl
@@ -373,3 +374,17 @@ def test_multidrop_imap_encoded_envelope_header(conf, expected):
     retriever.envrecipnum = int(conf.split(":")[1]) - 1
     with mock.patch.object(IMAPRetrieverBase, "_getmsgbyid", return_value=msg):
         assert retriever._getmsgbyid("1").recipient == expected
+
+
+@pytest.mark.parametrize("value", [
+    "('a', 'b')",                # not a tuple of tuples
+    "(('a', 'b', 'c'),)",        # three parts
+    "(('a',),)",                 # one part
+    "(('a', 1),)",               # non-string part
+])
+def test_tuple_of_tuple_of_strings_invalid(value):
+    # A malformed value must be a configuration error, which getmail reports
+    # as such, rather than an unhandled ValueError or TypeError.
+    item = ConfTupleOfTupleOfStrings(name='locals', required=False, default="()")
+    with pytest.raises(getmailConfigurationError, match=r"^locals: "):
+        item.validate({'locals': value})
