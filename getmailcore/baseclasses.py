@@ -156,7 +156,7 @@ class ConfTupleOfStrings(ConfString):
             if not isinstance(tup, tuple):
                 raise ValueError('not a tuple')
             val = tup
-        except (ValueError, SyntaxError) as o:
+        except (ValueError, SyntaxError, NameError, TypeError) as o:
             raise getmailConfigurationError(
                 '%s: incorrect format (%s)' % (self.name, o)
             )
@@ -191,7 +191,7 @@ class ConfTupleOfUnicode(ConfString):
                         except UnicodeError as o:
                             raise ValueError('not ascii or utf-8: %s' % item)
                 val = vals
-        except (ValueError, SyntaxError) as o:
+        except (ValueError, SyntaxError, NameError, TypeError) as o:
             raise getmailConfigurationError(
                 '%s: incorrect format (%s)' % (self.name, o)
             )
@@ -210,7 +210,7 @@ class ConfTupleOfTupleOfStrings(ConfString):
             if not isinstance(tup, tuple):
                 raise ValueError('not a tuple')
             val = tup
-        except (ValueError, SyntaxError) as o:
+        except (ValueError, SyntaxError, NameError, TypeError) as o:
             raise getmailConfigurationError(
                 '%s: incorrect format (%s)' % (self.name, o)
             )

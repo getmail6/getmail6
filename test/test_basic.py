@@ -6,7 +6,8 @@ import unittest.mock as mock
 from getmailcore.message import Message
 from getmailcore.exceptions import *
 from getmailcore.destinations import MDA_lmtp, MDA_smtp
-from getmailcore.baseclasses import ConfTupleOfTupleOfStrings
+from getmailcore.baseclasses import (
+    ConfTupleOfStrings, ConfTupleOfTupleOfStrings, ConfTupleOfUnicode)
 import getmailcore.logging as getmail_logging
 
 import os, smtplib, ssl
@@ -388,3 +389,14 @@ def test_tuple_of_tuple_of_strings_invalid(value):
     item = ConfTupleOfTupleOfStrings(name='locals', required=False, default="()")
     with pytest.raises(getmailConfigurationError, match=r"^locals: "):
         item.validate({'locals': value})
+
+
+@pytest.mark.parametrize(("item", "value"), [
+    (ConfTupleOfStrings(name='mailboxes'), "(INBOX, Sent)"),    # unquoted names
+    (ConfTupleOfUnicode(name='mailboxes'), "(INBOX, Sent)"),
+    (ConfTupleOfUnicode(name='mailboxes'), "('INBOX', 1)"),     # non-string item
+    (ConfTupleOfTupleOfStrings(name='locals'), "((a, b),)"),
+])
+def test_tuple_settings_unevaluable(item, value):
+    with pytest.raises(getmailConfigurationError, match=r": incorrect format \("):
+        item.validate({item.name: value})
