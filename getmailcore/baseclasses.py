@@ -156,7 +156,7 @@ class ConfTupleOfStrings(ConfString):
             if not isinstance(tup, tuple):
                 raise ValueError('not a tuple')
             val = tup
-        except (ValueError, SyntaxError) as o:
+        except (ValueError, SyntaxError, NameError, TypeError) as o:
             raise getmailConfigurationError(
                 '%s: incorrect format (%s)' % (self.name, o)
             )
@@ -191,7 +191,7 @@ class ConfTupleOfUnicode(ConfString):
                         except UnicodeError as o:
                             raise ValueError('not ascii or utf-8: %s' % item)
                 val = vals
-        except (ValueError, SyntaxError) as o:
+        except (ValueError, SyntaxError, NameError, TypeError) as o:
             raise getmailConfigurationError(
                 '%s: incorrect format (%s)' % (self.name, o)
             )
@@ -210,19 +210,25 @@ class ConfTupleOfTupleOfStrings(ConfString):
             if not isinstance(tup, tuple):
                 raise ValueError('not a tuple')
             val = tup
-        except (ValueError, SyntaxError) as o:
+        except (ValueError, SyntaxError, NameError, TypeError) as o:
             raise getmailConfigurationError(
                 '%s: incorrect format (%s)' % (self.name, o)
             )
         for tup in val:
             if not isinstance(tup, tuple):
-                raise ValueError('contained value "%s" not a tuple' % tup)
+                raise getmailConfigurationError(
+                    '%s: contained value "%s" not a tuple' % (self.name, tup)
+                )
             if len(tup) != 2:
-                raise ValueError('contained value "%s" not length 2' % tup)
+                raise getmailConfigurationError(
+                    '%s: contained value "%s" not length 2' % (self.name, tup)
+                )
             for part in tup:
                 if not isinstance(part,str):
-                    raise ValueError('contained value "%s" has non-string part '
-                                     '"%s"' % (tup, part))
+                    raise getmailConfigurationError(
+                        '%s: contained value "%s" has non-string part "%s"'
+                        % (self.name, tup, part)
+                    )
 
         return val
 
