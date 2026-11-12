@@ -1554,7 +1554,7 @@ class IMAPRetrieverBase(RetrieverSkeleton):
             f = os.path.expanduser(uidcachefile)
             if not os.path.isabs(f) and getmaildir:
                 f = os.path.join(getmaildir, f)
-                return f
+            return f
         return None
     def _uidmaxread(self):
         f = self._uidfile()
