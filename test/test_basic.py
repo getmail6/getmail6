@@ -7,7 +7,8 @@ from getmailcore.message import Message
 from getmailcore.exceptions import *
 from getmailcore.destinations import MDA_lmtp, MDA_smtp
 from getmailcore.baseclasses import (
-    ConfTupleOfStrings, ConfTupleOfTupleOfStrings, ConfTupleOfUnicode)
+    ConfTupleOfStrings, ConfTupleOfTupleOfStrings, ConfTupleOfUnicode,
+    ForkingBase)
 import getmailcore.logging as getmail_logging
 
 import os, smtplib, ssl
@@ -418,3 +419,23 @@ def test_imap_uidfile_path(tmp_path, monkeypatch, uid_cache, expected):
     retriever.conf = {"uid_cache": uid_cache.format(**fmt),
                       "getmaildir": fmt["getmaildir"]}
     assert retriever._uidfile() == (expected and expected.format(**fmt))
+
+
+@pytest.mark.parametrize("stderr, expected", [
+    (b"plain ascii\n", "plain ascii"),
+    ("Grüße".encode("utf-8"), "Grüße"),
+    # e.g. an MDA writing a localized message in ISO-8859-1
+    ("Fehler: Datei für Grüße".encode("latin-1"),
+     "Fehler: Datei f\ufffdr Gr\ufffd\ufffde"),
+])
+def test_forkchild_stderr_not_utf8(stderr, expected):
+    class Forker(ForkingBase):
+        log = getmail_logging.Logger()
+
+    def childfun(stdout, stderr_file):
+        stderr_file.write(stderr)
+        stderr_file.flush()
+
+    child = Forker().forkchild(childfun)
+    assert child.exitcode == 0
+    assert child.err == expected
