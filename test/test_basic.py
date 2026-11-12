@@ -400,3 +400,21 @@ def test_tuple_of_tuple_of_strings_invalid(value):
 def test_tuple_settings_unevaluable(item, value):
     with pytest.raises(getmailConfigurationError, match=r": incorrect format \("):
         item.validate({item.name: value})
+
+
+@pytest.mark.parametrize(("uid_cache", "expected"), [
+    ("uid.txt", "{getmaildir}/uid.txt"),
+    ("{tmp}/uid.txt", "{tmp}/uid.txt"),
+    ("~/uid.txt", "{home}/uid.txt"),
+    ("true", None),
+    ("", None),
+])
+def test_imap_uidfile_path(tmp_path, monkeypatch, uid_cache, expected):
+    # uid_cache is a file name: relative to getmaildir, or absolute
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    fmt = {"getmaildir": str(tmp_path / "gm"), "tmp": str(tmp_path),
+           "home": str(tmp_path / "home")}
+    retriever = IMAPRetrieverBase.__new__(IMAPRetrieverBase)
+    retriever.conf = {"uid_cache": uid_cache.format(**fmt),
+                      "getmaildir": fmt["getmaildir"]}
+    assert retriever._uidfile() == (expected and expected.format(**fmt))
