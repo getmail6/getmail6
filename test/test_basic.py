@@ -418,3 +418,19 @@ def test_imap_uidfile_path(tmp_path, monkeypatch, uid_cache, expected):
     retriever.conf = {"uid_cache": uid_cache.format(**fmt),
                       "getmaildir": fmt["getmaildir"]}
     assert retriever._uidfile() == (expected and expected.format(**fmt))
+
+
+@pytest.mark.parametrize("line, expected", [
+    ('(\\HasNoChildren) "/" "INBOX/Sent"', ['INBOX/Sent']),
+    ('(\\Noselect \\HasChildren) "/" "Archive"', []),
+    # flags are case-insensitive (RFC 3501 section 2.3.2)
+    ('(\\NoSelect \\HasChildren) "/" "Archive"', []),
+    # \NonExistent implies \Noselect (RFC 5258, RFC 9051)
+    ('(\\NonExistent) "/" "Gone"', []),
+    # a flat namespace has a NIL hierarchy delimiter (RFC 3501 section 7.2.2)
+    ('(\\HasNoChildren) NIL "Sent"', ['Sent']),
+    ('(\\HasNoChildren) nil Sent', ['Sent']),
+])
+def test_imap_mailbox_names(line, expected):
+    from getmailcore._retrieverbases import mailbox_names
+    assert mailbox_names([line]) == expected

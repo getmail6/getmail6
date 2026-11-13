@@ -355,7 +355,8 @@ IMAP_LISTPARTS = re.compile(
     r'^\s*'
     r'\((?P<attributes>[^)]*)\)'
     r'\s+'
-    r'"(?P<delimiter>[^"]+)"'
+    # NIL when the server has no hierarchy (RFC 3501 section 7.2.2)
+    r'(?:"(?P<delimiter>[^"]+)"|NIL)'
     r'\s+'
     # I *think* this should actually be a double-quoted string "like/this"
     # but in testing we saw an MSexChange response that violated that
@@ -365,7 +366,8 @@ IMAP_LISTPARTS = re.compile(
     # works for both by treating the leading/trailing double-quote as optional,
     # even when mismatched.
     r'("?)(?P<mailbox>.+?)("?)'
-    r'\s*$'
+    r'\s*$',
+    re.IGNORECASE
 )
 def mailbox_names(resplist):
     mailboxes = []
@@ -376,8 +378,9 @@ def mailbox_names(resplist):
                 'no match for list response "%s"' % item
             )
         g = m.groupdict()
-        attributes = g['attributes'].split()
-        if r'\Noselect' in attributes:
+        # Flags are case-insensitive; \NonExistent implies \Noselect.
+        attributes = g['attributes'].lower().split()
+        if r'\noselect' in attributes or r'\nonexistent' in attributes:
             # Can't select this mailbox, don't include it in output
             continue
         mailboxes.append(g['mailbox'])
