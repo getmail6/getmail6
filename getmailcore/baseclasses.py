@@ -456,7 +456,9 @@ class ForkingBase(object):
         self.log.trace('spawned child %d\n' % child.childpid)
         child.exitcode = self._wait_for_child(child)
         child.stderr.seek(0)
-        child.err = child.stderr.read().strip().decode()
+        # A child may write non-UTF-8 text (e.g. a localized error message);
+        # don't let that abort getmail after the child has already run.
+        child.err = child.stderr.read().strip().decode(errors='replace')
         child.stdout.seek(0)
         if with_out:
             child.out = child.stdout.read().strip()
