@@ -6,6 +6,7 @@ Version 6.21.02
    - merge #293 Report malformed tuple-of-tuples values as configuration errors (by syahra712)
    - merge #292 Multidrop IMAP: keep an encoded envelope header as one text value (by syahra712)
    - fix #291 Interrupted save truncates the oldmail file (applying the provided patch by Remmy)
+
 Version 6.21.01
 03.November.2026
    - fix #281: clear IMAP mailbox state when EXPUNGE fails in close_mailbox (pull #290 from syahra712/fix-idle-expunge-abort)
