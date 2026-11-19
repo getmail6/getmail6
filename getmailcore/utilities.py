@@ -582,7 +582,7 @@ def check_ssl_fingerprints(conf):
     normalized_fprs = []
     for fpr in ssl_fingerprints:
         fpr = fpr.lower().replace(':','')
-        if len(fpr) != 64:
+        if len(fpr) != 64 or any(c not in '0123456789abcdef' for c in fpr):
             raise getmailConfigurationError(
                 'ssl_fingerprints must each be the SHA256 certificate hash in hex (with or without colons)'
             )
