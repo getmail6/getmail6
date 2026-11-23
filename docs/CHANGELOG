@@ -1,3 +1,8 @@
+Version 6.21.03
+23.November.2026
+   - fix #298 Include test/spam.eml in MANIFEST.in 
+   - fix #297 Reject ssl_fingerprints that are not hex (by syahra712)
+
 Version 6.21.02
 17.November.2026
    - merge #296 Crash when a filter or MDA writes non-UTF-8 text to stderr (by syahra712)

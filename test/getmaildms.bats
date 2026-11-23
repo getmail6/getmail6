@@ -748,7 +748,7 @@ BASH_ENV=$HOME/random.env grep -qs "${RANDOMTXT}" /var/mail/example.test/user1/{
 _send2 user2@example.test nonexistent-user@example.test smtp_override_fallback_x
 smtp_override_fallback_rc
 getmail --rcfile=getmailrc --getmaildir=/home/user1
-sleep 3.14
+sleep 5.14
 BASH_ENV=$HOME/random.env grep -qs "${RANDOMTXT}" /var/mail/example.test/user1/{cur,new}/*
 }
 
