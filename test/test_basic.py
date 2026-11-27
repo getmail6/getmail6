@@ -147,7 +147,7 @@ def test_imap_ssl_parameters(capfd):
         getmail.main()
     except SystemExit:
         c = capfd.readouterr()
-        assert c.err.index("AUTHENTICATIONFAILED") > 0
+        assert "AUTHENTICATIONFAILED" in c.err
 
 
 @pytest.fixture(autouse=False)
