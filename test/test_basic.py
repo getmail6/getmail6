@@ -11,7 +11,7 @@ from getmailcore.baseclasses import (
     ForkingBase)
 import getmailcore.logging as getmail_logging
 
-import os, smtplib, ssl
+import os, smtplib, ssl, socket
 import pytest
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -19,6 +19,12 @@ from email.message import EmailMessage
 
 from importlib.util import spec_from_loader, module_from_spec
 from importlib.machinery import SourceFileLoader
+
+no_network = False
+try:
+    socket.gethostbyname('imap.gmail.com')
+except socket.gaierror:
+    no_network = True
 
 
 greetru = "привет"
@@ -108,6 +114,7 @@ def test_spam_2():
     except getmailDeliveryError as o:
         assert 'could not recover' in str(o) # noqa: PT017
 
+@pytest.mark.skipif(no_network, reason='no network connectivity')
 def test_imap_ssl_parameters(capfd):
     for d in ("cur", "new", "tmp"):
         os.makedirs(f"/tmp/ssl/Maildir/{d}",exist_ok=True)
